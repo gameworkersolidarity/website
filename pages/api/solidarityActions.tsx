@@ -2,8 +2,8 @@ import Airtable from 'airtable'
 import env from 'env-var'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import * as z from 'zod'
-import { solidarityActionSchema } from '../../schema';
-import { SolidarityAction } from '../../types';
+import { solidarityActionSchema } from '../../data/schema';
+import { SolidarityAction } from '../../data/types';
 
 const base = new Airtable({
   apiKey: env.get('AIRTABLE_API_KEY').required().asString()
@@ -17,14 +17,11 @@ export type SolidarityActionsData = {
 
 export default async (req: NextApiRequest, res: NextApiResponse<SolidarityActionsData>) => {
   const solidarityActions = await getSolidarityActions()
-    .then(actions => actions.filter(a =>
-      solidarityActionSchema.safeParse(a).success === true
-    ))
 
   res.json({ solidarityActions })
 }
 
-async function getSolidarityActions (): Promise<Array<SolidarityAction>> {
+export async function getSolidarityActions (): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
     const solidarityActions: SolidarityAction[] = []
 
@@ -51,7 +48,11 @@ async function getSolidarityActions (): Promise<Array<SolidarityAction>> {
 
     }, function done(err) {
         if (err) { reject(err); return; }
-        resolve(solidarityActions)
+        resolve(
+          solidarityActions.filter(a =>
+            solidarityActionSchema.safeParse(a).success === true
+          )
+        )
     });
   })
 }

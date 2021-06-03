@@ -1,15 +1,15 @@
 import { format } from 'date-fns';
 import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { SolidarityAction } from '../types';
+import { SolidarityAction } from '../data/types';
 import { stringifyArray } from '../utils/string';
 
 export function SolidarityActionsList () {
-  const events = useSWR<SolidarityActionsData>('/api/solidarityActions')
+  const actions = useSWR<SolidarityActionsData>('/api/solidarityActions')
 
   return (
     <div className='grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-      {events?.data?.solidarityActions?.map(event =>
+      {actions?.data?.solidarityActions?.map(event =>
         <SolidarityActionItem key={event.id} data={event} />
       )}
     </div>
