@@ -10,7 +10,11 @@ module.exports = {
   ],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      maxWidth: {
+        full: "100%"
+      }
+    },
   },
   variants: {
     extend: {},

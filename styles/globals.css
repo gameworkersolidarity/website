@@ -4,5 +4,5 @@
 
 html,
 body {
-  @apply min-h-screen bg-black text-white;
+  @apply min-h-screen bg-black text-white max-w-full overflow-x-hidden;
 }
