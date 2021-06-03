@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p ${PORT:-8080}",
-    "generateschema": "ts-to-zod types.ts schema.ts"
+    "generateschema": "ts-to-zod data/types.ts data/schema.ts"
   },
   "dependencies": {
     "@types/react": "^17.0.9",
