@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
+import { SolidarityAction } from '../types';
 import { stringifyArray } from '../utils/string';
 
 export function SolidarityActionsList () {
@@ -15,7 +16,7 @@ export function SolidarityActionsList () {
   )
 }
 
-export function SolidarityActionItem ({ data }: { data: SolidarityAction.Record }) {
+export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   return (
     <article className='bg-gray-900 p-4 rounded-md flex flex-col space-y-2'>
       <div className='text-xs opacity-60 space-x-5'>

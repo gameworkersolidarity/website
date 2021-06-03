@@ -30,3 +30,15 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+## Typescript interfaces
+
+In development we've been generating schemas from typescript interfaces, to help smooth out API responses.
+
+To add to the schema, add interfaces to `types.ts`
+
+To regenerate the schema (at `schema.ts`):
+
+```bash
+yarn generateschema
+```
