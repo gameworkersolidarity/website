@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { noNull } from '../utils/string';
+import { stringifyArray } from '../utils/string';
 
 export function SolidarityActionsList () {
   const events = useSWR<SolidarityActionsData>('/api/solidarityActions')
@@ -18,11 +18,9 @@ export function SolidarityActionsList () {
 export function SolidarityActionItem ({ data }: { data: SolidarityAction.Record }) {
   return (
     <article className='bg-gray-900 p-4 rounded-md flex flex-col space-y-2'>
-      <div className='text-xs opacity-60'>
-        <span>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>
-        {/* TODO: date-fns */}
-        &nbsp;
-        <span>{noNull(data.fields.Location, data.fields.Country).join(', ')}</span>
+      <div className='text-xs opacity-60 space-x-5'>
+        {data.fields.Date && <span>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>}
+        <span>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
       </div>
       <h3 className='text-lg font-bold'>{data.fields.Name}</h3>
       <div className='text-xs text-pink-400 space-x-4 mt-auto'>
