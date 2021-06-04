@@ -18,14 +18,16 @@ export function SolidarityActionsList () {
 
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   return (
-    <article className='bg-gray-900 p-4 rounded-md flex flex-col space-y-2 justify-between'>
-      <div className='text-xs opacity-60 space-x-4'>
-        {data.fields.Date && <span>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>}
-        <span>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
+    <article className='bg-gray-900 p-4 rounded-md flex flex-col space-y-1 justify-between'>
+      <div className='space-y-1'>
+        <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
+          <span className='text-pink-400 space-x-3'>{data.fields.Category?.map(c => <span key={c}>{c}</span>)}</span>
+        </div>
+        <h3 className='text-lg font-bold leading-snug'>{data.fields.Name}</h3>
       </div>
-      <h3 className='text-lg font-bold'>{data.fields.Name}</h3>
-      <div className='text-xs text-pink-400 space-x-4 mt-auto'>
-        {data.fields.Category?.map(c => <span key={c}>{c}</span>)}
+      <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
+        <span className='text-gray-400'>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
+          <span className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>
       </div>
     </article>
   )

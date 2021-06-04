@@ -19,21 +19,21 @@ export default function Page({ blogPosts }: Props) {
         Latest News
       </h1>
 
-      <section className='grid gap-4'>
+      <section className='space-y-6'>
         {blogPosts.map(b => (
           // <Link href={`/news/${b.fields.Slug}`} key={b.id}>
             <article key={b.id}
-              // className='md:border-2 md:border-gray-900 md:p-7 rounded-md flex flex-col space-y-2 justify-between'
+              className='md:grid grid-cols-3'
             >
-              <div className='max-w-2xl space-y-2'>
-                <header className='text-xs opacity-60 space-x-4'>
-                  {b.fields.Date && <span>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</span>}
-                </header>
-                <h2 className='font-bold text-4xl'>
+              <header className='text-gray-400 space-x-4'>
+                {b.fields.Date && <span>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</span>}
+              </header>
+              <div className='max-w-2xl space-y-2 col-span-2'>
+                <h2 className='font-bold text-4xl leading-snug'>
                   {b.fields.Title}
                 </h2>
-                <h3 className='text-xl font-bold text-gray-400'>{b.fields.Summary}</h3>
-                <div className='prose' dangerouslySetInnerHTML={{ __html: b.fields.Body }} />
+                <p className='text-2xl text-gray-400 font-bold'>{b.fields.Summary}</p>
+                <div className='prose text-gray-400' dangerouslySetInnerHTML={{ __html: b.fields.Body }} />
               </div>
             </article>
           // </Link>

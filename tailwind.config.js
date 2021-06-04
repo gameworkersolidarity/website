@@ -21,6 +21,16 @@ module.exports = {
       6: '60px',
       7: '80px',
     },
+    space: {
+      0: '0px',
+      1: '5px',
+      2: '10px',
+      3: '15px',
+      4: '20px',
+      5: '40px',
+      6: '60px',
+      7: '80px',
+    },
     extend: {
       maxWidth: {
         full: "100%"
