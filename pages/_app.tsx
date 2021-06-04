@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps }) {
 
       <VerticalScrollPage>
         <Link href='/'>
-          <div className='text-4xl font-bold'>
+          <div className='text-4xl font-bold cursor-pointer hover:text-pink-400'>
             <div className='text-gray-400'>A living history of</div>
             <div>game worker solidarity</div>
           </div>
@@ -29,17 +29,20 @@ function MyApp({ Component, pageProps }) {
 
         <nav className='space-x-4'>
           <Link href={'/'}>
-            <span className='underline'>Timeline</span>
+            <span className='underline cursor-pointer hover:text-pink-400'>Timeline</span>
           </Link>
           <Link href={'/submit'}>
-            <span className='underline'>Add to the archive</span>
+            <span className='underline cursor-pointer hover:text-pink-400'>Add to the archive</span>
           </Link>
           <Link href={'/news'}>
-            <span className='underline'>Latest news</span>
+            <span className='underline cursor-pointer hover:text-pink-400'>Latest news</span>
           </Link>
+          <a className='underline cursor-pointer hover:text-pink-400' href='mailto:hello@gameworkersolidarity.com'>
+            Contact us via email
+          </a>
         </nav>
 
-        <hr className='my-5 border-gray-500' />
+        <hr className='my-4 border-transparent' />
 
         <Component {...pageProps} />
       </VerticalScrollPage>

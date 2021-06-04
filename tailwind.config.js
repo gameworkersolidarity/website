@@ -32,6 +32,10 @@ module.exports = {
       7: '80px',
     },
     extend: {
+      colors: {
+        transparent: 'transparent',
+        inherit: 'inherit'
+      },
       maxWidth: {
         full: "100%"
       },

@@ -3,8 +3,7 @@ import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
 import { SolidarityAction } from '../data/types';
 import { stringifyArray } from '../utils/string';
-import Link from 'next/link';
-import Emoji from 'a11y-react-emoji';
+import { ExternalLinkIcon } from '@heroicons/react/outline';
 
 export function SolidarityActionsList () {
   const actions = useSWR<SolidarityActionsData>('/api/solidarityActions')
@@ -18,9 +17,6 @@ export function SolidarityActionsList () {
 
   return (
     <div className='grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-      {/* {actions?.data?.solidarityActions?.map(event =>
-        <SolidarityActionItem key={event.id} data={event} />
-      )} */}
       {Object.values(actionsByMonth).map((actions, i) => {
         return (
           <div className='space-y-4' key={i}>
@@ -44,8 +40,10 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
         </div>
         <h3 className='text-lg font-bold leading-snug'>{data.fields.Name}</h3>
         {data.fields.Link && (
-          <a href={data.fields.Link} className='my-1 text-sm underline'>
-            {new URL(data.fields.Link).hostname}
+          <a href={data.fields.Link} className='my-1 text-sm text-gray-400 hover:text-pink-400'>
+            <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
+            &nbsp;
+            <span className='align-middle underline text-inherit '>{new URL(data.fields.Link).hostname}</span>
           </a>
         )}
       </div>

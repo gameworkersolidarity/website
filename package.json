@@ -9,6 +9,7 @@
     "generateschema": "ts-to-zod data/types.ts data/schema.ts"
   },
   "dependencies": {
+    "@heroicons/react": "^1.0.1",
     "@tailwindcss/typography": "^0.4.1",
     "@types/markdown-it": "^12.0.1",
     "@types/react": "^17.0.9",
