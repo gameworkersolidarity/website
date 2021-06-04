@@ -6,7 +6,7 @@ import qs from 'query-string'
 
 export default function Page() {
   const embedUrl = qs.stringifyUrl({
-    url: `https://airtable.com/embed/${env.get('SUBMIT_SOLIDARITY_ACTION_URL').default('shrghSX8tcj2XwhqO').required().asString()}`,
+    url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').required().asString()}`,
     query: {
       backgroundColor: 'red'
     }
