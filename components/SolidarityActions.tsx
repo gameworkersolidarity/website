@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, getMonth, getYear } from 'date-fns';
 import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
 import { SolidarityAction } from '../data/types';
@@ -7,11 +7,28 @@ import { stringifyArray } from '../utils/string';
 export function SolidarityActionsList () {
   const actions = useSWR<SolidarityActionsData>('/api/solidarityActions')
 
+  const actionsByMonth = actions.data?.solidarityActions?.reduce((bins, action) => {
+    const key = `${getYear(new Date(action.fields.Date))}-${getMonth(new Date(action.fields.Date))}`
+    bins[key] ??= []
+    bins[key].push(action)
+    return bins
+  }, {} as { [key: string]: SolidarityAction[] })
+
   return (
     <div className='grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-      {actions?.data?.solidarityActions?.map(event =>
+      {/* {actions?.data?.solidarityActions?.map(event =>
         <SolidarityActionItem key={event.id} data={event} />
-      )}
+      )} */}
+      {Object.values(actionsByMonth).map((actions, i) => {
+        return (
+          <div className='space-y-4' key={i}>
+            <h2 className='text-2xl font-bold'>{format(new Date(actions[0].fields.Date), 'MMMM yyyy')}</h2>
+            {actions.map(event =>
+              <SolidarityActionItem key={event.id} data={event} />
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
