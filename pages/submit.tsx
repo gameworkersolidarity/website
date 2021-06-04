@@ -30,7 +30,7 @@ export default function Page() {
         src={embedUrl}
         // @ts-ignore
         frameBorder="0" onmousewheel="" width="100%" height="1815"
-        style={{ background: 'transparent', border: '1px solid #ccc' }}
+        style={{ background: 'transparent', border: 'transparent' }}
       />
     </>
   )
