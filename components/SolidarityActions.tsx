@@ -3,6 +3,8 @@ import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
 import { SolidarityAction } from '../data/types';
 import { stringifyArray } from '../utils/string';
+import Link from 'next/link';
+import Emoji from 'a11y-react-emoji';
 
 export function SolidarityActionsList () {
   const actions = useSWR<SolidarityActionsData>('/api/solidarityActions')
@@ -41,10 +43,15 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
           <span className='text-pink-400 space-x-3'>{data.fields.Category?.map(c => <span key={c}>{c}</span>)}</span>
         </div>
         <h3 className='text-lg font-bold leading-snug'>{data.fields.Name}</h3>
+        {data.fields.Link && (
+          <a href={data.fields.Link} className='my-1 text-sm underline'>
+            {new URL(data.fields.Link).hostname}
+          </a>
+        )}
       </div>
       <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
         <span className='text-gray-400'>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
-          <span className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>
+        <span className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>
       </div>
     </article>
   )
