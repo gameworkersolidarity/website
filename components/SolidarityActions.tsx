@@ -18,8 +18,8 @@ export function SolidarityActionsList () {
 
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   return (
-    <article className='bg-gray-900 p-4 rounded-md flex flex-col space-y-2'>
-      <div className='text-xs opacity-60 space-x-5'>
+    <article className='bg-gray-900 p-4 rounded-md flex flex-col space-y-2 justify-between'>
+      <div className='text-xs opacity-60 space-x-4'>
         {data.fields.Date && <span>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>}
         <span>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
       </div>

@@ -51,5 +51,17 @@ export interface SolidarityAction extends BaseRecord {
     Category?:  Category[],
     Document?:  Document[];
     Notes?:     string;
+    Public:     true; // We can't accept records that haven't been marked for publication
+  }
+}
+export interface BlogPost extends BaseRecord {
+  fields: {
+    Slug: string;
+    Title:       string;
+    Summary:   string;
+    Body:   string;
+    Date:       string;
+    "Added by"?: string;
+    Public:     true; // We can't accept records that haven't been marked for publication
   }
 }
