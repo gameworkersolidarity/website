@@ -1,6 +1,5 @@
 import Head from 'next/head'
-import Link from 'next/link';
-import { getBlogPosts } from './api/getBlogPosts';
+import { getBlogPosts } from './api/blogPosts';
 import { BlogPost } from '../data/types';
 import { format } from 'date-fns';
 
