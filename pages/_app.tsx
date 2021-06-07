@@ -40,6 +40,9 @@ function MyApp({ Component, pageProps }) {
           <a className='underline cursor-pointer hover:text-pink-400' href='mailto:hello@gameworkersolidarity.com'>
             Contact us via email
           </a>
+          <Link href='/api'>
+            <span className='underline cursor-pointer hover:text-pink-400'>Use our API</span>
+          </Link>
         </nav>
 
         <hr className='my-4 border-transparent' />
