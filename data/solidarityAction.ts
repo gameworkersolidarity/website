@@ -4,7 +4,7 @@ import env from 'env-var';
 import { solidarityActionSchema } from './schema';
 
 const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
-const fields =['Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public']
+const fields =['Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
 
 export async function getSolidarityActions (): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
