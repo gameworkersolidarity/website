@@ -1,6 +1,7 @@
 import Head from 'next/head'
-import { getSolidarityActions } from './api/solidarityActions'
 import MarkdownIt from 'markdown-it'
+import { CodeBlock } from '../components/CodeBlock';
+import { getSolidarityActions } from '../data/solidarityAction';
 export const markdown = new MarkdownIt();
 
 async function generateDocs() {
@@ -9,11 +10,7 @@ async function generateDocs() {
       title: 'GET /api/solidarityActions',
       href: '/api/solidarityActions',
       text: markdown.render(`
-        This project includes an read-only API.
-
-        - [\`/api/solidarityActions\`](/api/solidarityActions)
-
-        Example output:
+Serves all solidarity actions data, mirroring the data stored in our Airtable.
       `),
       exampleOutputJSON: {
         solidarityActions: (await getSolidarityActions()).slice(0, 1)
@@ -34,21 +31,22 @@ export default function Page({ docs }: { docs: Await<ReturnType<typeof generateD
       </Head>
 
       <h1 className='text-2xl font-bold'>
-        API
+        Public API documentation
       </h1>
 
       <div className='py-4' />
 
       <section>
         {docs.map(doc => 
-          <article key={doc.title}>
-            <h2><a href={doc.href} className='font-mono text-pink-400'>
+          <article key={doc.title} className='space-y-2'>
+            <h2 className='text-2xl'><a href={doc.href} className='font-mono text-pink-400'>
               {doc.title}
             </a></h2>
-            <div dangerouslySetInnerHTML={{ __html: doc.text }} />
-            <pre>
-              {JSON.stringify(doc.exampleOutputJSON, null, 2)}
-            </pre>
+            <div className='prose' dangerouslySetInnerHTML={{ __html: doc.text }} />
+            <CodeBlock
+              language='json'
+              value={JSON.stringify(doc.exampleOutputJSON, null, 2)}
+            />
           </article>
         )}
       </section>

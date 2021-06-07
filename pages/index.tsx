@@ -1,16 +1,18 @@
-import Head from 'next/head'
-import Emoji from 'a11y-react-emoji'
 import { SolidarityActionsList } from '../components/SolidarityActions'
-import { getSolidarityActions } from './api/solidarityActions'
-import VerticalScrollPage from '../components/VerticalScrollPage';
-import env from 'env-var';
-import Link from 'next/link';
+import { getSolidarityActions } from '../data/solidarityAction';
+import { SolidarityAction } from '../data/types';
+import { format } from 'date-fns';
 
-export default function Page() {
+export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
+  const earliestYear = format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy')
+
   return (
     <>
       <h1 className='text-2xl font-bold'>
-        Timeline
+        <div>Timeline of solidarity actions</div>
+        <div className='text-gray-400'>
+          {earliestYear} &rarr; present
+        </div>
       </h1>
 
       <div className='py-4' />
@@ -22,19 +24,11 @@ export default function Page() {
   )
 }
 
-// This function gets called at build time on server-side.
-// It may be called again, on a serverless function, if
-// revalidation is enabled and a new request comes in
 export async function getStaticProps() {
-  const solidarityActions = await getSolidarityActions()
-
   return {
     props: {
-      solidarityActions,
+      solidarityActions: await getSolidarityActions(),
     },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }
 }

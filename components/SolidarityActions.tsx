@@ -20,7 +20,7 @@ export function SolidarityActionsList () {
       {Object.values(actionsByMonth).map((actions, i) => {
         return (
           <div className='space-y-4' key={i}>
-            <h2 className='text-2xl font-bold'>{format(new Date(actions[0].fields.Date), 'MMMM yyyy')}</h2>
+            <h2 className='text-2xl font-bold text-gray-400'>{format(new Date(actions[0].fields.Date), 'MMMM yyyy')}</h2>
             {actions.map(event =>
               <SolidarityActionItem key={event.id} data={event} />
             )}

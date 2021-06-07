@@ -1,7 +1,7 @@
 import Head from 'next/head'
-import { getBlogPosts } from './api/blogPosts';
 import { BlogPost } from '../data/types';
 import { format } from 'date-fns';
+import { getBlogPosts } from '../data/blogPost';
 
 type Props = {
   blogPosts: BlogPost[],
@@ -14,9 +14,11 @@ export default function Page({ blogPosts }: Props) {
         <title>News — Game Worker Solidarity Project</title>
       </Head>
 
-      <h1 className='hidden'>
-        Latest News
+      <h1 className='text-2xl font-bold'>
+        Project news
       </h1>
+
+      <div className='py-2' />
 
       <section className='space-y-6'>
         {blogPosts.map(b => (

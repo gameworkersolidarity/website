@@ -1,6 +1,4 @@
 import Head from 'next/head'
-import { getSolidarityActions } from './api/solidarityActions'
-import VerticalScrollPage from '../components/VerticalScrollPage';
 import env from 'env-var';
 import qs from 'query-string'
 
@@ -20,8 +18,8 @@ export default function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <h1 className='text-2xl font-bold mb-4'>
-        Submit
+      <h1 className='text-2xl font-bold mb-4 hidden'>
+        Submit a solidarity action to the timeline 
       </h1>
 
       <script src="https://static.airtable.com/js/embed/embed_snippet_v1.js"></script>
@@ -34,21 +32,4 @@ export default function Page() {
       />
     </>
   )
-}
-
-// This function gets called at build time on server-side.
-// It may be called again, on a serverless function, if
-// revalidation is enabled and a new request comes in
-export async function getStaticProps() {
-  const solidarityActions = await getSolidarityActions()
-
-  return {
-    props: {
-      solidarityActions,
-    },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
-  }
 }

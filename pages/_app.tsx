@@ -27,22 +27,32 @@ function MyApp({ Component, pageProps }) {
 
         <div className='py-2' />
 
-        <nav className='space-x-4'>
-          <Link href={'/'}>
-            <span className='underline cursor-pointer hover:text-pink-400'>Timeline</span>
-          </Link>
-          <Link href={'/submit'}>
-            <span className='underline cursor-pointer hover:text-pink-400'>Add to the archive</span>
-          </Link>
-          <Link href={'/news'}>
-            <span className='underline cursor-pointer hover:text-pink-400'>Latest news</span>
-          </Link>
-          <a className='underline cursor-pointer hover:text-pink-400' href='mailto:hello@gameworkersolidarity.com'>
-            Contact us via email
-          </a>
-          <Link href='/api'>
-            <span className='underline cursor-pointer hover:text-pink-400'>Use our API</span>
-          </Link>
+        <nav className='md:space-x-4'>
+          <div className='space-x-4 md:inline'>
+            <Link href={'/'}>
+              <span className='link'>Solidarity actions</span>
+            </Link>
+            <Link href={'/submit'}>
+              <span className='link'>Add data</span>
+            </Link>
+            <Link href='/docs'>
+              <span className='link'>API docs</span>
+            </Link>
+            <Link href={'/news'}>
+              <span className='link'>News</span>
+            </Link>
+          </div>
+          <div className='hidden md:inline-block border-gray-600 border-l h-3 align-middle' />
+          <div className='space-x-4 md:inline'>
+            <a href='https://github.com/gameworkersolidarity/website'>
+              <span className='link'>
+                Github
+              </span>
+            </a>
+            <a className='link' href='mailto:hello@gameworkersolidarity.com'>
+              hello@gameworkersolidarity.com
+            </a>
+          </div>
         </nav>
 
         <hr className='my-4 border-transparent' />
