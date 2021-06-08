@@ -36,11 +36,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps(context) {
-  const actionId = context.params.actionId
-  const action = await getSingleSolidarityAction(actionId)
   return {
     props: {
-      action
+      action: await getSingleSolidarityAction(context.params.actionId)
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }

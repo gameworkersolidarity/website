@@ -33,11 +33,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps(context) {
-  const slug = context.params.slug
-  const article = await getSingleStaticPage(slug)
   return {
     props: {
-      article
+      article: await getSingleStaticPage(context.params.slug)
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }
