@@ -11,9 +11,15 @@ async function generateDocs() {
       href: '/api/solidarityActions',
       text: markdown.render(`
 Serves all solidarity actions data, mirroring the data stored in our Airtable.
+
+Example output:
       `),
       exampleOutputJSON: {
-        solidarityActions: (await getSolidarityActions()).slice(0, 1)
+        solidarityActions: (await getSolidarityActions({
+          // We want to highlight content that has categories
+          filterByFormula: 'AND(Public, Name!="", Country!="", Category!="")',
+          maxRecords: 1
+        })).slice(0, 1)
       }
     }
   ]
@@ -58,10 +64,6 @@ export async function getStaticProps() {
   return {
     props: {
       docs: await generateDocs()
-    },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    }
   }
 }

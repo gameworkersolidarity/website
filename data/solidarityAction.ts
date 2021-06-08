@@ -2,11 +2,12 @@ import { SolidarityAction } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { solidarityActionSchema } from './schema';
+import { QueryParams } from 'airtable/lib/query_params';
 
 const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
 const fields: Array<keyof SolidarityAction['fields']> = ['Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
 
-export async function getSolidarityActions (): Promise<Array<SolidarityAction>> {
+export async function getSolidarityActions (selectArgs: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
     const solidarityActions: SolidarityAction[] = []
 
@@ -21,6 +22,7 @@ export async function getSolidarityActions (): Promise<Array<SolidarityAction>> 
       fields: fields,
       maxRecords: 1000,
       view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').required().asString(),
+      ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
         solidarityActions.push(record._rawJson)
