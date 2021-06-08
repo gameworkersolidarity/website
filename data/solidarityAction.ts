@@ -7,13 +7,15 @@ import { QueryParams } from 'airtable/lib/query_params';
 const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
 const fields: Array<keyof SolidarityAction['fields']> = ['Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
 
+export const solidarityActionBase = () => airtableBase<SolidarityAction['fields']>(
+  env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').required().asString()
+)
+
 export async function getSolidarityActions (selectArgs: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
     const solidarityActions: SolidarityAction[] = []
 
-    airtableBase<SolidarityAction['fields']>(
-      env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').required().asString()
-    ).select({
+    solidarityActionBase().select({
       filterByFormula: validFilter,
       sort: [
         { field: "Date", direction: "desc", },
@@ -36,5 +38,16 @@ export async function getSolidarityActions (selectArgs: QueryParams<SolidarityAc
         )
       )
     });
+  })
+}
+
+export async function getSingleSolidarityAction (recordId: string) {
+  return new Promise<SolidarityAction>((resolve, reject) => {
+    solidarityActionBase().find(recordId, (error, record) => {
+      if (error) {
+        return reject(error)
+      }
+      return resolve(record._rawJson)
+    })
   })
 }
