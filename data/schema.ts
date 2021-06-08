@@ -16,11 +16,22 @@ export const categorySchema = z.string();
 
 export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({
+    Slug: z.string().optional(),
     Title: z.string(),
     Summary: z.string(),
     Body: z.string(),
     Date: z.string(),
-    "Added by": z.string().optional(),
+    Public: z.literal(true),
+  }),
+});
+
+export const staticPageSchema = baseRecordSchema.extend({
+  fields: z.object({
+    Slug: z.string().optional(),
+    Title: z.string(),
+    Summary: z.string(),
+    Body: z.string(),
+    Link: z.string().optional(),
     Public: z.literal(true),
   }),
 });
@@ -48,7 +59,6 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Date: z.string(),
     Link: z.string().optional(),
     Country: z.string(),
-    "Added by": z.string().optional(),
     Category: z.array(categorySchema).optional(),
     Document: z.array(documentSchema).optional(),
     Notes: z.string().optional(),

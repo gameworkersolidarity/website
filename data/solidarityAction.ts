@@ -4,13 +4,13 @@ import env from 'env-var';
 import { solidarityActionSchema } from './schema';
 
 const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
-const fields =['Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
 
 export async function getSolidarityActions (): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
     const solidarityActions: SolidarityAction[] = []
 
-    airtableBase(
+    airtableBase<SolidarityAction['fields']>(
       env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').required().asString()
     ).select({
       filterByFormula: validFilter,

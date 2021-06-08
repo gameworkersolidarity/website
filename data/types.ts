@@ -18,7 +18,7 @@ export interface Document {
 export interface Thumbnails {
   small: Full;
   large: Full;
-  full?: Full;
+  full: Full;
 }
 
 export interface Full {
@@ -47,21 +47,31 @@ export interface SolidarityAction extends BaseRecord {
     Date:       string;
     Link?:      string;
     Country:    string;
-    "Added by"?: string;
     Category?:  Category[],
     Document?:  Document[];
     Notes?:     string;
     Public:     true; // We can't accept records that haven't been marked for publication
   }
 }
+
 export interface BlogPost extends BaseRecord {
   fields: {
-    Slug: string;
+    Slug?: string;
     Title:       string;
     Summary:   string;
     Body:   string;
     Date:       string;
-    "Added by"?: string;
+    Public:     true; // We can't accept records that haven't been marked for publication
+  }
+}
+
+export interface StaticPage extends BaseRecord {
+  fields: {
+    Slug?: string;
+    Title:       string;
+    Summary:   string;
+    Body:   string;
+    Link?: string;
     Public:     true; // We can't accept records that haven't been marked for publication
   }
 }
