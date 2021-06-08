@@ -2,14 +2,7 @@ import Head from 'next/head'
 import env from 'env-var';
 import qs from 'query-string'
 
-export default function Page() {
-  const embedUrl = qs.stringifyUrl({
-    url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').required().asString()}`,
-    query: {
-      backgroundColor: 'red'
-    }
-  })
-
+export default function Page({ embedUrl }) {
   return (
     <>
       <Head>
@@ -32,4 +25,17 @@ export default function Page() {
       />
     </>
   )
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      embedUrl: qs.stringifyUrl({
+        url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').required().asString()}`,
+        query: {
+          backgroundColor: 'red'
+        }
+      })
+    }
+  }
 }
