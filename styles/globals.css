@@ -7,6 +7,12 @@ body {
   @apply min-h-screen bg-black text-white max-w-full overflow-x-hidden;
 }
 
+@layer utilities {
+  .capitalize-first:first-letter {
+    text-transform: uppercase;
+  }
+}
+
 @layer components {
   .link {
     @apply underline cursor-pointer hover:text-pink-400

@@ -73,7 +73,9 @@ export function SolidarityActionItem ({ data, withSummary }: { data: SolidarityA
       <div className='space-y-1 p-4 pb-2'>
         {data.fields.Category?.length ?
           <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
-            <span className='text-pink-400 space-x-3'>{data.fields.Category?.map(c => <span key={c}>{c}</span>)}</span>
+            <span className='text-pink-400 space-x-3'>{data.fields.Category?.map(c =>
+              <div className='capitalize-first inline-block' key={c}>{c}</div>
+            )}</span>
           </div>
         : null}
         <h3 className='text-lg font-bold leading-snug'>{data.fields.Name}</h3>
@@ -90,7 +92,7 @@ export function SolidarityActionItem ({ data, withSummary }: { data: SolidarityA
           <div className='max-w-xl' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
         </div>
       )}
-      <div className='text-xs space-x-3 flex justify-between w-full flex-row p-4 pt-2'>
+      <div className='text-xs space-x-3 flex justify-between w-full flex-row p-4 pt-0'>
         <span className='text-gray-400'>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
         <span className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>
       </div>
@@ -101,31 +103,35 @@ export function SolidarityActionItem ({ data, withSummary }: { data: SolidarityA
 export function SolidarityActionCard ({ data }: { data: SolidarityAction, withSummary?: boolean }) {
   return (
     <>
-      <article className='bg-gray-900 rounded-md flex flex-col space-y-1 justify-between'>
-        <div className='space-y-1 p-4 md:p-5 pb-2 md:pb-2'>
+      <article className='bg-gray-900 rounded-md flex flex-col space-y-4 justify-between'>
+        <div className='space-y-1 px-4 md:px-5 pt-4 md:pt-5'>
           <div className='text-xs space-x-3 flex w-full flex-row'>
-            {data.fields.Category?.length ?
-              <span className='text-pink-400 space-x-3'>{data.fields.Category?.map(c => <span key={c}>{c}</span>)}</span>
-            : null }
             <span className='text-gray-400'>{stringifyArray(data.fields.Location, data.fields.Country)}</span>
             <span className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</span>
+            {data.fields.Category?.length ?
+              <span className='text-pink-400 space-x-3'>{data.fields.Category?.map(c =>
+                <div className='capitalize-first inline-block' key={c}>{c}</div>
+              )}</span>
+            : null }
           </div>
           <h3 className='text-2xl font-bold leading-snug'>{data.fields.Name}</h3>
-          {data.fields.Link && (
-            <a href={data.fields.Link} className='my-1 text-sm text-gray-400 hover:text-pink-400'>
+        </div>
+        {data.fields.Summary && (
+          <div className='w-full text-gray-200 px-4 md:px-5'>
+            <div className='max-w-xl -my-1' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
+          </div>
+        )}
+        {data.fields.Link && (
+          <div className='px-4 md:px-5 pb-1'>
+            <a href={data.fields.Link} className='my-1 text-md text-gray-400 hover:text-pink-400'>
               <span className='align-middle'>Read more: </span>
               <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
               &nbsp;
               <span className='align-middle underline text-inherit '>{new URL(data.fields.Link).hostname}</span>
             </a>
-          )}
-        </div>
-        {data.fields.Summary && (
-          <div className='w-full text-gray-200 px-4 md:px-5 pb-4 py-3'>
-            <div className='max-w-xl' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
           </div>
         )}
-        <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 text-gray-400 rounded-md border-t-2 border-dotted border-gray-800 pt-3'>
+        <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 text-gray-500 rounded-md border-t-2 border-dotted border-gray-800 pt-3'>
           Have more info about this action? <a className='link' href='mailto:hello@gameworkersolidarity.com'>Let us know</a>.
         </div>
       </article>
