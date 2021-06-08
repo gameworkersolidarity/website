@@ -64,6 +64,7 @@ export async function getStaticProps() {
   return {
     props: {
       docs: await generateDocs()
-    }
+    },
+    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }
 }

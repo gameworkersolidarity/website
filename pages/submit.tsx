@@ -36,6 +36,7 @@ export async function getStaticProps() {
           backgroundColor: 'red'
         }
       })
-    }
+    },
+    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }
 }
