@@ -1,10 +1,12 @@
+import App from 'next/app'
 import { SWRConfig } from 'swr'
 import '../styles/globals.css'
 import Head from 'next/head';
 import Link from 'next/link';
 import VerticalScrollPage from '../components/VerticalScrollPage';
+import { getStaticPageLinks } from '../data/staticPage';
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps, links }) {
   return (
     <SWRConfig value={{
       initialData: pageProps,
@@ -27,8 +29,7 @@ function MyApp({ Component, pageProps }) {
 
         <div className='py-2' />
 
-        <nav className='md:space-x-4'>
-          <div className='space-x-4 md:inline'>
+        <nav className='space-x-2 md:space-x-4'>
             <Link href={'/'}>
               <span className='link'>Solidarity actions</span>
             </Link>
@@ -38,21 +39,15 @@ function MyApp({ Component, pageProps }) {
             <Link href='/docs'>
               <span className='link'>API docs</span>
             </Link>
+            <span>&middot;</span>
             <Link href={'/news'}>
               <span className='link'>News</span>
             </Link>
-          </div>
-          <div className='hidden md:inline-block border-gray-600 border-l h-3 align-middle' />
-          <div className='space-x-4 md:inline'>
-            <a href='https://github.com/gameworkersolidarity/website'>
-              <span className='link'>
-                Github
-              </span>
-            </a>
-            <a className='link' href='mailto:hello@gameworkersolidarity.com'>
-              hello@gameworkersolidarity.com
-            </a>
-          </div>
+            {links?.map((link, i) => (
+              <a href={link.fields.Slug || link.fields.Link} key={link.fields.Slug || link.fields.Link}>
+                <span className='link'>{link.fields.Title}</span>
+              </a>
+            ))}
         </nav>
 
         <hr className='my-4 border-transparent' />
@@ -61,6 +56,12 @@ function MyApp({ Component, pageProps }) {
       </VerticalScrollPage>
     </SWRConfig>
   )
+}
+
+MyApp.getInitialProps = async (appContext) => {
+  const appProps = await App.getInitialProps(appContext);
+  const links = await getStaticPageLinks()
+  return { ...appProps, links }
 }
 
 export default MyApp
