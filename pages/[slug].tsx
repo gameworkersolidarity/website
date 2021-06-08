@@ -11,10 +11,9 @@ export default function Page({ article }: { article: BlogPost }) {
 
       <section>
         <article className='space-y-2'>
-          <h1 className='text-2xl'>
-            {article.fields.Title}
-          </h1>
-          <div className='prose' dangerouslySetInnerHTML={{ __html: article.fields.Body }} />
+          <h1 className='text-4xl font-bold'>{article.fields.Title}</h1>
+          <p className='text-2xl text-gray-400 font-bold'>{article.fields.Summary}</p>
+          <div className='prose text-gray-400' dangerouslySetInnerHTML={{ __html: article.fields.Body }} />
         </article>
       </section>
     </>
