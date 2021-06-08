@@ -34,7 +34,7 @@ export async function getSingleStaticPage (slug: string) {
       filterByFormula: `AND(Public, Slug="${slug}")`,
       fields: ['Title', 'Summary', 'Slug', 'Link', 'Body'],
       maxRecords: 1,
-      view: env.get('AIRTABLE_TABLE_VIEW_STATIC_PAGES').default('Main Menu Link Order').required().asString(),
+      view: env.get('AIRTABLE_TABLE_VIEW_STATIC_PAGES').default('All Pages').required().asString(),
     }).firstPage((error, records) => {
       if (error) {
         return reject(error)

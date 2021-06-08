@@ -25,7 +25,7 @@ export async function getStaticPaths() {
   return {
     paths: links.map(page => ({
       params: {
-        slug: page.fields.Slug
+        slug: page.fields.Slug.split('/')
       }
     })),
     fallback: true
@@ -35,7 +35,7 @@ export async function getStaticPaths() {
 export async function getStaticProps(context) {
   return {
     props: {
-      article: await getSingleStaticPage(context.params.slug)
+      article: await getSingleStaticPage(context.params.slug.join('/'))
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }
