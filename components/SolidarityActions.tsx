@@ -10,6 +10,7 @@ import { useRouter } from 'next/dist/client/router';
 import { Dialog } from '@headlessui/react'
 import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
+import cx from 'classnames'
 
 export function SolidarityActionsList () {
   const data = useSWR<SolidarityActionsData>('/api/solidarityActions')
@@ -57,7 +58,7 @@ export function SolidarityActionsList () {
                   <div className='transition cursor-pointer hover:opacity-75'>
                     <SolidarityActionItem
                       data={action}
-                      withSummary={action.fields.DisplayStyle === 'Featured'}
+                      isFeatured={action.fields.DisplayStyle === 'Featured'}
                     />
                   </div>
                 </Link>
@@ -70,9 +71,9 @@ export function SolidarityActionsList () {
   )
 }
 
-export function SolidarityActionItem ({ data, withSummary }: { data: SolidarityAction, withSummary?: boolean }) {
+export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAction, isFeatured?: boolean }) {
   return (
-    <article className='bg-gray-900 rounded-md flex flex-col space-y-1 justify-between'>
+    <article className={cx(isFeatured && 'border-t-8 border-gray-800', 'bg-gray-900 rounded-md flex flex-col space-y-1 justify-between')}>
       <div className='space-y-1 p-4 pb-2'>
         {data.fields.Category?.length ?
           <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
@@ -81,7 +82,7 @@ export function SolidarityActionItem ({ data, withSummary }: { data: SolidarityA
             )}</span>
           </div>
         : null}
-        <h3 className='text-lg font-bold leading-snug'>{data.fields.Name}</h3>
+        <h3 className={cx(isFeatured ? 'text-2xl' : 'text-lg', 'font-bold leading-snug')}>{data.fields.Name}</h3>
         {data.fields.Link && (
           <a href={data.fields.Link} className='my-1 text-sm text-gray-400 hover:text-pink-400'>
             <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
@@ -90,9 +91,9 @@ export function SolidarityActionItem ({ data, withSummary }: { data: SolidarityA
           </a>
         )}
       </div>
-      {withSummary && data.fields.Summary && (
-        <div className='w-full text-gray-400 px-4 py-3'>
-          <div className='max-w-xl' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
+      {isFeatured && data.fields.Summary && (
+        <div className={cx(isFeatured ? 'text-gray-200' : 'text-gray-400', 'w-full px-4 pb-2')}>
+          <div className='max-w-xl text-sm' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
         </div>
       )}
       <div className='text-xs space-x-3 flex justify-between w-full flex-row p-4 pt-0'>
