@@ -4,14 +4,15 @@ import { SolidarityAction } from '../data/types';
 import { format } from 'date-fns';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
-  const earliestYear = format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy')
+  const latestYear = parseInt(format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy'))
+  const earliestYear = parseInt(format(new Date(solidarityActions[0].fields.Date), 'yyyy'))
 
   return (
     <>
       <h1 className='text-2xl font-bold'>
         <div>Timeline of solidarity actions</div>
         <div className='text-gray-400'>
-          {earliestYear} &rarr; present
+          {earliestYear} &rarr; {latestYear}
         </div>
       </h1>
 
