@@ -39,7 +39,7 @@ export const staticPageSchema = baseRecordSchema.extend({
 export const thumbnailsSchema = z.object({
   small: fullSchema,
   large: fullSchema,
-  full: fullSchema.optional(),
+  full: fullSchema,
 });
 
 export const documentSchema = z.object({
@@ -61,6 +61,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Country: z.string(),
     Category: z.array(categorySchema).optional(),
     Document: z.array(documentSchema).optional(),
+    DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     Notes: z.string().optional(),
     Public: z.literal(true),
   }),

@@ -55,7 +55,10 @@ export function SolidarityActionsList () {
                   shallow={screenIsWiderThanMd}
                 >
                   <div className='transition cursor-pointer hover:opacity-75'>
-                    <SolidarityActionItem data={action} />
+                    <SolidarityActionItem
+                      data={action}
+                      withSummary={action.fields.DisplayStyle === 'Featured'}
+                    />
                   </div>
                 </Link>
               )}

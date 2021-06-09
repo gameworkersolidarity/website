@@ -49,6 +49,7 @@ export interface SolidarityAction extends BaseRecord {
     Country:    string;
     Category?:  Category[],
     Document?:  Document[];
+    DisplayStyle?: "Featured" | null
     Notes?:     string;
     Public:     true; // We can't accept records that haven't been marked for publication
   }
