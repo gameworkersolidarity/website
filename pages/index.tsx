@@ -26,9 +26,10 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
 }
 
 export async function getStaticProps() {
+  const data = await getSolidarityActions()
   return {
     props: {
-      solidarityActions: await getSolidarityActions(),
+      solidarityActions: data,
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }

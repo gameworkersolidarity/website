@@ -4,32 +4,14 @@ import { CodeBlock } from '../components/CodeBlock';
 import { getSolidarityActions } from '../data/solidarityAction';
 export const markdown = new MarkdownIt();
 
-async function generateDocs() {
-  return [
-    {
-      title: 'GET /api/solidarityActions',
-      href: '/api/solidarityActions',
-      text: markdown.render(`
-Serves all solidarity actions data, mirroring the data stored in our Airtable.
-
-Example output:
-      `),
-      exampleOutputJSON: {
-        solidarityActions: (await getSolidarityActions({
-          // We want to highlight content that has categories
-          filterByFormula: 'AND(Public, Name!="", Country!="", Category!="")',
-          maxRecords: 1
-        })).slice(0, 1)
-      }
-    }
-  ]
+interface Doc {
+  title: string
+  href: string
+  text: string
+  exampleOutputJSON: any
 }
 
-type Await<T> = T extends {
-  then(onfulfilled?: (value: infer U) => unknown): unknown;
-} ? U : T;
-
-export default function Page({ docs }: { docs: Await<ReturnType<typeof generateDocs>> }) {
+export default function Page({ docs }: { docs: Doc[] }) {
   return (
     <>
       <Head>
@@ -61,9 +43,28 @@ export default function Page({ docs }: { docs: Await<ReturnType<typeof generateD
 }
 
 export async function getStaticProps() {
+  const docs = [
+    {
+      title: 'GET /api/solidarityActions',
+      href: '/api/solidarityActions',
+      text: markdown.render(`
+Serves all solidarity actions data, mirroring the data stored in our Airtable.
+
+Example output:
+      `),
+      exampleOutputJSON: {
+        solidarityActions: (await getSolidarityActions({
+          // We want to highlight content that has categories
+          filterByFormula: 'AND(Public, Name!="", Country!="", Category!="")',
+          maxRecords: 1
+        })).slice(0, 1)
+      }
+    }
+  ]
+
   return {
     props: {
-      docs: await generateDocs()
+      docs
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }

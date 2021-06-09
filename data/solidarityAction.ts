@@ -3,6 +3,18 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { solidarityActionSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
+import coords from 'country-coords'
+import { countryToAlpha2 } from "country-to-iso"
+const coordsByCountry = coords.byCountry()
+
+export const formatSolidarityAction = (d: SolidarityAction) => {
+  try {
+    d._coordinates = coordsByCountry.get(countryToAlpha2(d.fields.Country))
+  } catch (e) {
+    console.error(e)
+  }
+  return d
+}
 
 const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
 const fields: Array<keyof SolidarityAction['fields']> = ['DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
@@ -27,7 +39,7 @@ export async function getSolidarityActions (selectArgs: QueryParams<SolidarityAc
       ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
-        solidarityActions.push(record._rawJson)
+        solidarityActions.push(formatSolidarityAction(record._rawJson))
       });
       fetchNextPage();
     }, function done(err) {
@@ -47,7 +59,7 @@ export async function getSingleSolidarityAction (recordId: string) {
       if (error) {
         return reject(error)
       }
-      return resolve(record._rawJson)
+      return resolve(formatSolidarityAction(record._rawJson))
     })
   })
 }

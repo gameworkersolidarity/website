@@ -40,6 +40,7 @@ export type Category = string
 // "worker organising"
 
 export interface SolidarityAction extends BaseRecord {
+  _coordinates?: { latitude: number, longitude: number }
   fields: {
     Name:       string;
     Location?:  string;
