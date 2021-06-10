@@ -52,6 +52,15 @@ export const documentSchema = z.object({
 });
 
 export const solidarityActionSchema = baseRecordSchema.extend({
+  geography: z
+    .object({
+      country: z.object({
+        iso3166: z.string(),
+        latitude: z.number(),
+        longitude: z.number(),
+      }),
+    })
+    .optional(),
   fields: z.object({
     Name: z.string(),
     Location: z.string().optional(),

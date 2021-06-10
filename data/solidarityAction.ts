@@ -8,8 +8,14 @@ import { countryToAlpha2 } from "country-to-iso"
 const coordsByCountry = coords.byCountry()
 
 export const formatSolidarityAction = (d: SolidarityAction) => {
+  const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryToAlpha2(d.fields.Country))
   try {
-    d._coordinates = coordsByCountry.get(countryToAlpha2(d.fields.Country))
+    d.geography = {
+      country: {
+        iso3166,
+        ...countryCoordData
+      }
+    }
   } catch (e) {
     console.error(e)
   }
