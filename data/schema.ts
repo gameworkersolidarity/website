@@ -57,6 +57,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Location: z.string().optional(),
     Summary: z.string().optional(),
     Date: z.string(),
+    LastModified: z.string(),
     Link: z.string().optional(),
     Country: z.string(),
     Category: z.array(categorySchema).optional(),

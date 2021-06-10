@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "next-sitemap",
     "start": "next start -H 0.0.0.0 -p ${PORT:-8080}",
     "generateschema": "ts-to-zod data/types.ts data/schema.ts"
   },
@@ -30,6 +31,7 @@
     "markdown-it": "^12.0.6",
     "next": "^10.2.3",
     "next-seo": "^4.24.0",
+    "next-sitemap": "^1.6.108",
     "next-use-contextual-routing": "^2.0.0",
     "postcss": "^8.3.0",
     "query-string": "^7.0.0",

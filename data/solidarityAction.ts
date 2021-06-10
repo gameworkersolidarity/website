@@ -17,7 +17,7 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
 }
 
 const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
-const fields: Array<keyof SolidarityAction['fields']> = ['DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
 
 export const solidarityActionBase = () => airtableBase<SolidarityAction['fields']>(
   env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').required().asString()

@@ -46,6 +46,7 @@ export interface SolidarityAction extends BaseRecord {
     Location?:  string;
     Summary?:   string;
     Date:       string;
+    LastModified: string;
     Link?:      string;
     Country:    string;
     Category?:  Category[],
