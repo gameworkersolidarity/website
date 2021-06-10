@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "postbuild": "next-sitemap",
+    "build": "next build && next-sitemap",
     "start": "next start -H 0.0.0.0 -p ${PORT:-8080}",
     "generateschema": "ts-to-zod data/types.ts data/schema.ts"
   },
