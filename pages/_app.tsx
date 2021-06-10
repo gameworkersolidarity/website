@@ -5,8 +5,12 @@ import Head from 'next/head';
 import Link from 'next/link';
 import VerticalScrollPage from '../components/VerticalScrollPage';
 import { getStaticPageLinks } from '../data/staticPage';
+import { projectStrings } from '../data/site';
+import { useRouter } from 'next/dist/client/router';
 
 function MyApp({ Component, pageProps, links }) {
+  const router = useRouter()
+  const canonicalURL = (new URL(router.asPath, projectStrings.baseUrl)).toString()
   return (
     <SWRConfig value={{
       initialData: pageProps,
@@ -17,6 +21,7 @@ function MyApp({ Component, pageProps, links }) {
         <title>Game Worker Solidarity Project</title>
         <meta name="description" content="A living history of game worker solidarity" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel='canonical' href={canonicalURL} />
       </Head>
 
       <VerticalScrollPage>
