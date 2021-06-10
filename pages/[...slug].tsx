@@ -1,13 +1,19 @@
 import Head from 'next/head'
 import { getSingleStaticPage, getStaticPageLinks } from '../data/staticPage';
 import { BlogPost } from '../data/types';
+import { NextSeo } from 'next-seo';
 
 export default function Page({ article }: { article: BlogPost }) {
   return article ? (
     <>
-      <Head>
-        <title>{article.fields.Title} — Game Worker Solidarity Project</title>
-      </Head>
+      <NextSeo
+        title={article.fields.Title}
+        description={article.fields.Summary}
+        openGraph={{
+          title: article.fields.Title,
+          description: article.fields.Summary
+        }}
+      />
 
       <section>
         <article className='space-y-2'>

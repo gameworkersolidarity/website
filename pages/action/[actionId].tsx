@@ -7,9 +7,6 @@ import Link from 'next/link';
 export default function Page({ action }: { action: SolidarityAction }) {
   return action ? (
     <>
-      <Head>
-        <title>{action.fields.Name} — Game Worker Solidarity Project</title>
-      </Head>
       <div className='max-w-xl'>
         <SolidarityActionCard data={action} />
       </div>

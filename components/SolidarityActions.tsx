@@ -11,6 +11,7 @@ import { Dialog } from '@headlessui/react'
 import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
 import cx from 'classnames'
+import { NextSeo } from 'next-seo';
 
 export function SolidarityActionsList () {
   const data = useSWR<SolidarityActionsData>('/api/solidarityActions')
@@ -105,8 +106,18 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
 }
 
 export function SolidarityActionCard ({ data }: { data: SolidarityAction, withSummary?: boolean }) {
+  const seoTitle = `${format(new Date(data.fields.Date), 'dd MMM yyyy')}: ${data.fields.Name}`
+
   return (
     <>
+      <NextSeo
+        title={seoTitle}
+        description={data.fields.Summary}
+        openGraph={{
+          title: seoTitle,
+          description: data.fields.Summary
+        }}
+      />
       <article className='bg-gray-900 rounded-md flex flex-col space-y-4 justify-between'>
         <div className='space-y-1 px-4 md:px-5 pt-4 md:pt-5'>
           <div className='text-xs space-x-3 flex w-full flex-row'>

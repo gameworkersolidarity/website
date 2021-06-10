@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { BlogPost } from '../data/types';
 import { format } from 'date-fns';
 import { getBlogPosts } from '../data/blogPost';
+import { NextSeo } from 'next-seo';
 
 type Props = {
   blogPosts: BlogPost[],
@@ -10,9 +11,12 @@ type Props = {
 export default function Page({ blogPosts }: Props) {
   return (
     <>
-      <Head>
-        <title>News — Game Worker Solidarity Project</title>
-      </Head>
+      <NextSeo
+        title={'News'}
+        openGraph={{
+          title: 'News'
+        }}
+      />
 
       <h1 className='text-2xl font-bold'>
         Project news

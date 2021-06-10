@@ -7,6 +7,7 @@ import VerticalScrollPage from '../components/VerticalScrollPage';
 import { getStaticPageLinks } from '../data/staticPage';
 import { projectStrings } from '../data/site';
 import { useRouter } from 'next/dist/client/router';
+import {DefaultSeo} from 'next-seo';
 
 function MyApp({ Component, pageProps, links }) {
   const router = useRouter()
@@ -17,12 +18,29 @@ function MyApp({ Component, pageProps, links }) {
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }}>
-      <Head>
-        <title>Game Worker Solidarity Project</title>
-        <meta name="description" content="A living history of game worker solidarity" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel='canonical' href={canonicalURL} />
-      </Head>
+      <DefaultSeo
+        defaultTitle={projectStrings.name}
+        titleTemplate={`%s | ${projectStrings.name}`}
+        description={projectStrings.description}
+        canonical={canonicalURL}
+        additionalLinkTags={[
+          {
+            rel: 'icon',
+            href: '/favicon.ico'
+          }
+        ]}
+        openGraph={{
+          url: canonicalURL,
+          site_name: projectStrings.name,
+          title: projectStrings.name,
+          description: projectStrings.description
+        }}
+        twitter={{
+          handle: projectStrings.twitterHandle,
+          site: projectStrings.twitterHandle,
+          cardType: 'summary_large_image',
+        }}
+      />
 
       <VerticalScrollPage>
         <Link href='/'>

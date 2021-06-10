@@ -1,15 +1,17 @@
 import Head from 'next/head'
 import env from 'env-var';
 import qs from 'query-string'
+import { NextSeo } from 'next-seo';
 
 export default function Page({ embedUrl }) {
   return (
     <>
-      <Head>
-        <title>Submit an action — Game Worker Solidarity archive</title>
-        <meta name="description" content="Add a solidarity action to the living history of game worker solidarity" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <NextSeo
+        title={'Submit data'}
+        openGraph={{
+          title: 'Submit data'
+        }}
+      />
 
       <h1 className='text-2xl font-bold mb-4 hidden'>
         Submit a solidarity action to the timeline 

@@ -2,6 +2,7 @@ import Head from 'next/head'
 import MarkdownIt from 'markdown-it'
 import { CodeBlock } from '../components/CodeBlock';
 import { getSolidarityActions } from '../data/solidarityAction';
+import { NextSeo } from 'next-seo';
 export const markdown = new MarkdownIt();
 
 interface Doc {
@@ -14,9 +15,12 @@ interface Doc {
 export default function Page({ docs }: { docs: Doc[] }) {
   return (
     <>
-      <Head>
-        <title>API Docs — Game Worker Solidarity Project</title>
-      </Head>
+      <NextSeo
+        title={'API Documentation'}
+        openGraph={{
+          title: 'API Documentation'
+        }}
+      />
 
       <h1 className='text-2xl font-bold'>
         Public API documentation
