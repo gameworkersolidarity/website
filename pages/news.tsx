@@ -27,7 +27,7 @@ export default function Page({ blogPosts }: Props) {
               className='md:grid grid-cols-3'
             >
               <header className='text-gray-400 space-x-4'>
-                {b.fields.Date && <span>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</span>}
+                {b.fields.Date && <time dateTime={format(new Date(b.fields.Date), 'yyyy-MM-dd')}>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</time>}
               </header>
               <div className='max-w-2xl space-y-2 col-span-2'>
                 <h2 className='font-bold text-4xl leading-snug'>
