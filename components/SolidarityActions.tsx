@@ -131,7 +131,7 @@ export function SolidarityActionsList ({
         {actionsByMonth && Object.values(actionsByMonth).map((actions, i) => {
           return (
             <div key={i}>
-              <h2 className='text-xl text-gray-400 pb-1'>
+              <h2 className='text-xl text-gray-400 font-bold pb-1'>
                 {format(new Date(actions[0].fields.Date), 'MMMM yyyy')}
               </h2>
               <div className='space-y-4'>

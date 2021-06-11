@@ -20,8 +20,8 @@ export default function Page({ action }: { action: SolidarityAction }) {
       </div>
       <div className='my-4' />
       <Link href='/'>
-        <div className='link text-gray-400 text-sm'>
-          &larr; Timeline
+        <div className='link text-gray-300 text-sm'>
+          &larr; All actions
         </div>
       </Link>
     </>

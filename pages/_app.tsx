@@ -44,14 +44,12 @@ function MyApp({ Component, pageProps, links }) {
 
       <VerticalScrollPage>
         <Link href='/'>
-          <div className='text-4xl font-bold cursor-pointer hover:text-pink-400'>
+          <div className='text-2xl font-bold cursor-pointer text-gray-300 hover:text-pink-400'>
             <div>Game Worker Solidarity Project</div>
           </div>
         </Link>
 
-        <div className='py-2' />
-
-        <nav className='space-x-2 md:space-x-4'>
+        <nav className='space-x-2 md:space-x-4 text-sm text-gray-300'>
             <Link href={'/'}>
               <span className='link'>All data</span>
             </Link>
@@ -72,7 +70,7 @@ function MyApp({ Component, pageProps, links }) {
             ))}
         </nav>
 
-        <hr className='my-4 border-transparent' />
+        <hr className='my-3 border-transparent' />
 
         <Component {...pageProps} />
       </VerticalScrollPage>

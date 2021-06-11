@@ -13,15 +13,18 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
   return (
     <>
       <h1 className='text-4xl font-bold'>
-        <div>Timeline</div>
-        <div className='text-gray-400'>
+        <div>Documenting years of solidarity</div>
+        <div className='text-gray-500 font-normal'>
           {earliestYear} &rarr; {latestYear}
         </div>
       </h1>
 
-      <div className='py-4' />
+      <p className='my-4 max-w-xl text-gray-200'>The Game Worker Solidarity Project is mapping and documenting collective movements by game workers striving to improve their working conditions.</p>
+      <p className='my-4 max-w-xl text-gray-200'>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
 
-      <section>
+      <div className='w-7 border border-gray-800 my-5' />
+
+      <section className='my-4'>
         <SolidarityActionsFullList />
       </section>
 

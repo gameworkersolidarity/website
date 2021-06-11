@@ -18,27 +18,25 @@ export default function Page({ blogPosts }: Props) {
         }}
       />
 
-      <h1 className='text-2xl font-bold'>
+      <h1 className='text-4xl font-bold'>
         Project news
       </h1>
 
       <div className='py-2' />
 
-      <section className='space-y-6'>
+      <section className='space-y-6 w-full max-w-xl'>
         {blogPosts.map(b => (
           // <Link href={`/news/${b.fields.Slug}`} key={b.id}>
-            <article key={b.id}
-              className='md:grid grid-cols-3'
-            >
-              <header className='text-gray-400 space-x-4'>
+            <article key={b.id} className='border border-gray-800 p-4 rounded-md'>
+              <header className='text-gray-300 space-x-4'>
                 {b.fields.Date && <time dateTime={format(new Date(b.fields.Date), 'yyyy-MM-dd')}>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</time>}
               </header>
               <div className='max-w-2xl space-y-2 col-span-2'>
-                <h2 className='font-bold text-4xl leading-snug'>
+                <h2 className='font-bold text-2xl leading-snug'>
                   {b.fields.Title}
                 </h2>
-                <p className='text-2xl text-gray-400 font-bold'>{b.fields.Summary}</p>
-                <div className='prose text-gray-400' dangerouslySetInnerHTML={{ __html: b.fields.Body }} />
+                <p className='text-gray-300 font-bold'>{b.fields.Summary}</p>
+                <div className='prose text-gray-300' dangerouslySetInnerHTML={{ __html: b.fields.Body }} />
               </div>
             </article>
           // </Link>

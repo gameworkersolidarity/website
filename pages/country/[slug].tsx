@@ -47,6 +47,12 @@ export default function Page({ country }: { country: CountryData }) {
         data={country?.country?.solidarityActions}
         withDialog
       />
+
+      <Link href='/'>
+        <div className='link text-gray-300 text-sm mt-4'>
+          &larr; All actions
+        </div>
+      </Link>
     </>
   )
 }

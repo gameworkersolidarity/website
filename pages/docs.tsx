@@ -22,16 +22,14 @@ export default function Page({ docs }: { docs: Doc[] }) {
         }}
       />
 
-      <h1 className='text-2xl font-bold'>
+      <h1 className='text-4xl font-bold mb-4'>
         Public API documentation
       </h1>
-
-      <div className='py-4' />
 
       <section>
         {docs.map(doc => 
           <article key={doc.title} className='space-y-2'>
-            <h2 className='text-2xl'><a href={doc.href} className='font-mono text-pink-400'>
+            <h2 className='text-xl'><a href={doc.href} className='font-mono text-pink-400'>
               {doc.title}
             </a></h2>
             <div className='prose' dangerouslySetInnerHTML={{ __html: doc.text }} />
