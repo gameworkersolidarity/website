@@ -33,7 +33,7 @@ export async function getStaticProps() {
   return {
     props: {
       embedUrl: qs.stringifyUrl({
-        url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').required().asString()}`,
+        url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').asString()}`,
         query: {
           backgroundColor: 'red'
         }

@@ -25,7 +25,7 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
 
 const fields: Array<keyof SolidarityAction['fields']> = ['Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
-export const solidarityActionBase = () => airtableBase<SolidarityAction['fields']>(
+export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
   env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').default('Solidarity Actions').asString()
 )
 

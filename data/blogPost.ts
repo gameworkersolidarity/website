@@ -13,8 +13,8 @@ export const formatBlogPost = (blog: BlogPost): BlogPost => {
 
 const blogPostFields = ['Title', 'Body', 'Public', 'Summary', 'Date', 'Slug'] as Array<keyof BlogPost['fields']>
 
-export const blogPostBase = () => airtableBase<BlogPost['fields']>(
-  env.get('AIRTABLE_TABLE_NAME_BLOG_POSTS').default('Blog Posts').required().asString()
+export const blogPostBase = () => airtableBase()<BlogPost['fields']>(
+  env.get('AIRTABLE_TABLE_NAME_BLOG_POSTS').default('Blog Posts').asString()
 )
 
 export async function getBlogPosts (): Promise<Array<BlogPost>> {
@@ -28,7 +28,7 @@ export async function getBlogPosts (): Promise<Array<BlogPost>> {
       filterByFormula: 'AND(Public, Title!="", Summary!="", Date!="", Body!="", Slug!="")',
       fields: blogPostFields,
       maxRecords: 1000,
-      view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').required().asString(),
+      view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').asString(),
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
         blogPosts.push(record._rawJson)
@@ -51,7 +51,7 @@ export async function getSingleBlogPost (slug: string): Promise<BlogPost> {
       filterByFormula: `AND(Public, Slug="${slug}")`,
       fields: blogPostFields,
       maxRecords: 1,
-      view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').required().asString(),
+      view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').asString(),
     }).firstPage((error, records) => {
       if (error) {
         return reject(error)

@@ -14,7 +14,7 @@ export const formatCountry = (country: Country) => {
 
 const fields: Array<keyof Country['fields']> = ['Name', 'Country Code', 'Notes', 'Slug']
 
-export const countryBase = () => airtableBase<Country['fields']>(
+export const countryBase = () => airtableBase()<Country['fields']>(
   env.get('AIRTABLE_TABLE_NAME_COUNTRIES').default('Countries').asString()
 )
 
