@@ -2,6 +2,8 @@ import { SolidarityActionsList } from '../../components/SolidarityActions';
 import { NextSeo } from 'next-seo';
 import { getCountries, getCountryDataBySlug, CountryData } from '../../data/country';
 import Emoji from 'a11y-react-emoji';
+import Link from 'next/link';
+import { projectStrings } from '../../data/site';
 
 export default function Page({ country }: { country: CountryData }) {
   if (!country?.country?.fields) {
@@ -11,10 +13,10 @@ export default function Page({ country }: { country: CountryData }) {
   return (
     <>
       <NextSeo
-        title={`${country.country.fields.Name}`}
+        title={country.country.fields.Name}
         description={`Solidarity actions by game workers in ${country.country.fields.Name}`}
         openGraph={{
-          title: `${country.country.fields.Name}`,
+          title: `Game worker solidarity in ${country.country.fields.Name}`,
           description: `Solidarity actions by game workers in ${country.country.fields.Name}`
         }}
       />
