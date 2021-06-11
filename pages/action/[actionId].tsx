@@ -3,12 +3,21 @@ import { getSingleSolidarityAction, getSolidarityActions } from '../../data/soli
 import { SolidarityAction } from '../../data/types';
 import { SolidarityActionItem, SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
+import { getCountryData } from '../api/country';
 
 export default function Page({ action }: { action: SolidarityAction }) {
   return action ? (
     <>
       <div className='max-w-xl'>
-        <SolidarityActionCard data={action} />
+        <SolidarityActionCard
+          data={action}
+          withContext
+          contextProps={{
+            listProps: {
+              withDialog: true
+            }
+          }}
+        />
       </div>
       <div className='my-4' />
       <Link href='/'>
@@ -33,9 +42,12 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps(context) {
+  const action = await getSingleSolidarityAction(context.params.actionId)
+
   return {
     props: {
-      action: await getSingleSolidarityAction(context.params.actionId)
+      action,
+      // country: await getCountryData(action.fields['Country Code'][0])
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }

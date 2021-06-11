@@ -29,16 +29,6 @@ export interface Full {
 
 //////////////
 // Domain data
-
-export type Category = string
-// "collective bargaining" |
-// "demonstration" |
-// "meeting" |
-// "open letter" |
-// "strike" |
-// "union" |
-// "worker organising"
-
 export interface SolidarityAction extends BaseRecord {
   geography?: {
     country: {
@@ -54,8 +44,11 @@ export interface SolidarityAction extends BaseRecord {
     Date:       string;
     LastModified: string;
     Link?:      string;
-    Country:    string;
-    Category?:  Category[],
+    'Country': string[]
+    'Country Name': string[]
+    'Country Code': string[]
+    'Country Slug': string[]
+    Category?:  string[],
     Document?:  Document[];
     DisplayStyle?: "Featured" | null
     Notes?:     string;
@@ -83,4 +76,25 @@ export interface StaticPage extends BaseRecord {
     Link?: string;
     Public:     true; // We can't accept records that haven't been marked for publication
   }
+}
+
+export interface Country extends BaseRecord {
+  fields: {
+    Name: string;
+    'Country Code':       string;
+    Notes?:   string;
+    Slug: string
+    'Official Name':   string;
+    'Solidarity Actions': any[]
+    'DisplayStyle (from Solidarity Actions)': any[]
+    'Public (from Solidarity Actions)': any[]
+    'Category (from Solidarity Actions)': any[]
+    'Document (from Solidarity Actions)': any[]
+    'Link (from Solidarity Actions)': any[]
+    'Date (from Solidarity Actions)': any[]
+    'Summary (from Solidarity Actions)': any[]
+    'Location (from Solidarity Actions)': any[]
+    'Name (from Solidarity Actions)': any[]
+  }
+  solidarityActions?: SolidarityAction[]
 }

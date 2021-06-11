@@ -1,7 +1,9 @@
-import { SolidarityActionsList } from '../components/SolidarityActions'
+import { SolidarityActionsList, SolidarityActionsFullList } from '../components/SolidarityActions';
 import { getSolidarityActions } from '../data/solidarityAction';
 import { SolidarityAction } from '../data/types';
 import { format } from 'date-fns';
+import { CountryData, getCountryData } from './api/country';
+import { SolidarityActionsData } from './api/solidarityActions';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
   const latestYear = parseInt(format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy'))
@@ -19,7 +21,7 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
       <div className='py-4' />
 
       <section>
-        <SolidarityActionsList />
+        <SolidarityActionsFullList />
       </section>
     </>
   )
@@ -29,8 +31,8 @@ export async function getStaticProps() {
   const data = await getSolidarityActions()
   return {
     props: {
-      solidarityActions: data,
-    },
+      solidarityActions: data
+    } as SolidarityActionsData,
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }
 }

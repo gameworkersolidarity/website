@@ -12,8 +12,6 @@ export const fullSchema = z.object({
   height: z.number(),
 });
 
-export const categorySchema = z.string();
-
 export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
@@ -68,11 +66,35 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Date: z.string(),
     LastModified: z.string(),
     Link: z.string().optional(),
-    Country: z.string(),
-    Category: z.array(categorySchema).optional(),
+    Country: z.array(z.string()),
+    "Country Name": z.array(z.string()),
+    "Country Code": z.array(z.string()),
+    "Country Slug": z.array(z.string()),
+    Category: z.array(z.string()).optional(),
     Document: z.array(documentSchema).optional(),
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     Notes: z.string().optional(),
     Public: z.literal(true),
   }),
+});
+
+export const countrySchema = baseRecordSchema.extend({
+  fields: z.object({
+    Name: z.string(),
+    "Country Code": z.string(),
+    Notes: z.string().optional(),
+    Slug: z.string(),
+    "Official Name": z.string(),
+    "Solidarity Actions": z.array(z.any()),
+    "DisplayStyle (from Solidarity Actions)": z.array(z.any()),
+    "Public (from Solidarity Actions)": z.array(z.any()),
+    "Category (from Solidarity Actions)": z.array(z.any()),
+    "Document (from Solidarity Actions)": z.array(z.any()),
+    "Link (from Solidarity Actions)": z.array(z.any()),
+    "Date (from Solidarity Actions)": z.array(z.any()),
+    "Summary (from Solidarity Actions)": z.array(z.any()),
+    "Location (from Solidarity Actions)": z.array(z.any()),
+    "Name (from Solidarity Actions)": z.array(z.any()),
+  }),
+  solidarityActions: z.array(solidarityActionSchema).optional(),
 });

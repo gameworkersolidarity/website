@@ -4,11 +4,12 @@ import env from 'env-var';
 import { solidarityActionSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
 import coords from 'country-coords'
-import { countryToAlpha2 } from "country-to-iso"
+import { airtableFilterAND } from '../utils/airtable';
+// import { countryToAlpha2 } from "country-to-iso"
 const coordsByCountry = coords.byCountry()
 
 export const formatSolidarityAction = (d: SolidarityAction) => {
-  const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryToAlpha2(d.fields.Country))
+  const { country: iso3166, ...countryCoordData } = coordsByCountry.get(d.fields['Country Code'][0])
   try {
     d.geography = {
       country: {
@@ -22,26 +23,32 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
   return d
 }
 
-const validFilter = 'AND(Public, Name!="", Date!="", Country!="")'
-const fields: Array<keyof SolidarityAction['fields']> = ['LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Country', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
 export const solidarityActionBase = () => airtableBase<SolidarityAction['fields']>(
-  env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').required().asString()
+  env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').default('Solidarity Actions').asString()
 )
 
-export async function getSolidarityActions (selectArgs: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
+export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
     const solidarityActions: SolidarityAction[] = []
 
+    filterByFormula = airtableFilterAND(
+      'Public',
+      'Name!=""',
+      'Date!=""',
+      filterByFormula
+    )
+
     solidarityActionBase().select({
-      filterByFormula: validFilter,
+      filterByFormula,
       sort: [
         { field: "Date", direction: "asc", },
-        { field: "Country", direction: "asc", }
+        // { field: "Country", direction: "asc", }
       ],
       fields: fields,
       maxRecords: 1000,
-      view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').required().asString(),
+      view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
       ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
@@ -55,8 +62,13 @@ export async function getSolidarityActions (selectArgs: QueryParams<SolidarityAc
           solidarityActionSchema.safeParse(a).success === true
         )
       )
-    });
+    })
   })
+}
+
+export async function getSolidarityActionsByCountry (iso2: string) {
+  const filterByFormula = `FIND("${iso2}", {Country Code}) > 0`
+  return getSolidarityActions({ filterByFormula })
 }
 
 export async function getSingleSolidarityAction (recordId: string) {
