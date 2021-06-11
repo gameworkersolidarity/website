@@ -13,9 +13,9 @@ import { up } from '../utils/screens';
 import cx from 'classnames'
 import { NextSeo } from 'next-seo';
 import qs from 'query-string';
-import { CountryData } from '../pages/api/country';
-import { CodeBlock } from './CodeBlock';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import pluralize from 'pluralize'
+import Emoji from 'a11y-react-emoji';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -244,10 +244,16 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
       {withContext && (
         <>
           <div className='my-4' />
-          <SolidarityActionCountryRelatedActions
-            countryCode={data.fields['Country Code'][0]}
-            {...contextProps}
-          />
+          <div className='uppercase text-sm text-gray-400 pb-2'>Related</div>
+          <div className='grid sm:grid-cols-2 gap-4'>
+            {data.fields['Country Code'].map(code =>
+              <SolidarityActionCountryRelatedActions
+                key={code}
+                countryCode={code}
+                {...contextProps}
+              />
+            )}
+          </div>
         </>
       )}
     </>
@@ -255,27 +261,26 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
 }
 
 export function SolidarityActionCountryRelatedActions ({ countryCode, listProps }: ContextProps) {
-  const {data} = useSWR<CountryData>(qs.stringifyUrl({
+  const { data } = useSWR<Country>(qs.stringifyUrl({
     url: `/api/country`,
     query: {
       iso2: countryCode
     }
   }), { revalidateOnMount: true })
+
+  const actionCount = data?.fields?.['Solidarity Actions']?.length
   
-  return (
-    data?.country ? <section className='space-y-4'>
-      <h3 className='text-gray-400 font-bold text-2xl'>
-        <span className='text-white'>{data?.country?.fields.Name.trim()}:</span> solidarity timeline
-      </h3>
-      <SolidarityActionsList
-        data={data?.country?.solidarityActions}
-        gridStyle='grid-cols-1'
-        {...listProps}
-      />
-    </section> : (
-      <div className='text-gray-400'>
-        Loading related actions...
+  return data?.fields ? (
+    <Link href={`/country/${data.fields.Slug}`}>
+      <div className='cursor-pointer bg-gray-900 hover:bg-gray-800 rounded-md p-4 md:p-5 space-y-3'>
+        <div className='font-bold text-lg'>
+          {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
+        </div>
+        <div className='text-gray-400 pb-3'>{data.fields['Solidarity Actions'].length - 0} other {pluralize('action', actionCount)}</div>
+        <div className='link text-sm'>
+          View country dashboard &rarr;
+        </div>
       </div>
-    )
-  )
+    </Link>
+  ) : null
 }

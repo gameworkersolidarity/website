@@ -996,6 +996,11 @@ country-coords@^1.0.0:
   resolved "https://registry.yarnpkg.com/country-coords/-/country-coords-1.0.0.tgz#7b139677481c56236b31c8e0733f7e1d5a8f3e9c"
   integrity sha1-exOWd0gcViNrMcjgcz9+HVqPPpw=
 
+country-flag-emoji@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/country-flag-emoji/-/country-flag-emoji-1.0.3.tgz#2417e1c1fa088200c4ecfc53bb1a0f7d05e7917d"
+  integrity sha512-OVMltN9rF8Rd9fjDzcNAT376fslwlkTuu+BeqzY4Z+kr+nF/3u4Kod5SyEKuABxwvi6tWO7uszO3MgWzoevAuQ==
+
 country-to-iso@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/country-to-iso/-/country-to-iso-1.1.1.tgz#b168d9001149c14b97a57b0a8dac741a20a4f157"
@@ -2647,6 +2652,11 @@ platform@1.3.6:
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/platform/-/platform-1.3.6.tgz#48b4ce983164b209c2d45a107adb31f473a6e7a7"
   integrity sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==
+
+pluralize@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-8.0.0.tgz#1a6fa16a38d12a1901e0320fa017051c539ce3b1"
+  integrity sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==
 
 pnp-webpack-plugin@1.6.4:
   version "1.6.4"

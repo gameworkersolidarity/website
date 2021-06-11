@@ -1,9 +1,8 @@
 import Head from 'next/head'
 import { getSingleSolidarityAction, getSolidarityActions } from '../../data/solidarityAction';
 import { SolidarityAction } from '../../data/types';
-import { SolidarityActionItem, SolidarityActionCard } from '../../components/SolidarityActions';
+import { SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
-import { getCountryData } from '../api/country';
 
 export default function Page({ action }: { action: SolidarityAction }) {
   return action ? (
@@ -46,8 +45,7 @@ export async function getStaticProps(context) {
 
   return {
     props: {
-      action,
-      // country: await getCountryData(action.fields['Country Code'][0])
+      action
     },
     revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
   }

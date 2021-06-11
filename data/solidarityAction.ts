@@ -66,7 +66,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
   })
 }
 
-export async function getSolidarityActionsByCountry (iso2: string) {
+export async function getSolidarityActionsByCountryCode (iso2: string) {
   const filterByFormula = `FIND("${iso2}", {Country Code}) > 0`
   return getSolidarityActions({ filterByFormula })
 }

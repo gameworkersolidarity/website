@@ -1,8 +1,7 @@
-import { SolidarityActionsList, SolidarityActionsFullList } from '../components/SolidarityActions';
+import { SolidarityActionsFullList } from '../components/SolidarityActions';
 import { getSolidarityActions } from '../data/solidarityAction';
 import { SolidarityAction } from '../data/types';
 import { format } from 'date-fns';
-import { CountryData, getCountryData } from './api/country';
 import { SolidarityActionsData } from './api/solidarityActions';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {

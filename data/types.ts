@@ -79,6 +79,12 @@ export interface StaticPage extends BaseRecord {
 }
 
 export interface Country extends BaseRecord {
+  emoji?: {
+   code: string,
+   unicode: string
+   name: string
+   emoji: string
+  }
   fields: {
     Name: string;
     'Country Code':       string;
