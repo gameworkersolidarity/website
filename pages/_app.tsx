@@ -45,8 +45,7 @@ function MyApp({ Component, pageProps, links }) {
       <VerticalScrollPage>
         <Link href='/'>
           <div className='text-4xl font-bold cursor-pointer hover:text-pink-400'>
-            <div className='text-gray-400'>A living history of</div>
-            <div>game worker solidarity</div>
+            <div>Game Worker Solidarity Project</div>
           </div>
         </Link>
 

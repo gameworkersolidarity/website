@@ -3,6 +3,8 @@ import { getSolidarityActions } from '../data/solidarityAction';
 import { SolidarityAction } from '../data/types';
 import { format } from 'date-fns';
 import { SolidarityActionsData } from './api/solidarityActions';
+import Link from 'next/link';
+import { projectStrings } from '../data/site';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
   const latestYear = parseInt(format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy'))
@@ -10,8 +12,8 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
 
   return (
     <>
-      <h1 className='text-2xl font-bold'>
-        <div>Timeline of solidarity actions</div>
+      <h1 className='text-4xl font-bold'>
+        <div>Timeline</div>
         <div className='text-gray-400'>
           {earliestYear} &rarr; {latestYear}
         </div>
