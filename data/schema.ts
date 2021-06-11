@@ -37,7 +37,7 @@ export const staticPageSchema = baseRecordSchema.extend({
 export const thumbnailsSchema = z.object({
   small: fullSchema,
   large: fullSchema,
-  full: fullSchema,
+  full: fullSchema.optional(),
 });
 
 export const documentSchema = z.object({
@@ -79,6 +79,14 @@ export const solidarityActionSchema = baseRecordSchema.extend({
 });
 
 export const countrySchema = baseRecordSchema.extend({
+  emoji: z
+    .object({
+      code: z.string(),
+      unicode: z.string(),
+      name: z.string(),
+      emoji: z.string(),
+    })
+    .optional(),
   fields: z.object({
     Name: z.string(),
     "Country Code": z.string(),

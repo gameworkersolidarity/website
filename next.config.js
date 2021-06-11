@@ -8,4 +8,7 @@ module.exports = {
     }
     return config;
   },
+  images: {
+    domains: ['dl.airtable.com'],
+  },
 }

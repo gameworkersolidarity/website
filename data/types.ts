@@ -18,7 +18,7 @@ export interface Document {
 export interface Thumbnails {
   small: Full;
   large: Full;
-  full: Full;
+  full?: Full;
 }
 
 export interface Full {

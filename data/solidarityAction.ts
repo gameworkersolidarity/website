@@ -23,7 +23,7 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
   return d
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['Document', 'Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
   env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').default('Solidarity Actions').asString()
@@ -46,7 +46,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
         { field: "Date", direction: "asc", },
         // { field: "Country", direction: "asc", }
       ],
-      fields: fields,
+      // fields: fields,
       maxRecords: 1000,
       view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
       ...selectArgs

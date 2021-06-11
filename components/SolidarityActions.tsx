@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
 import { SolidarityAction, Country } from '../data/types';
 import { stringifyArray } from '../utils/string';
-import { ExternalLinkIcon } from '@heroicons/react/outline';
+import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
@@ -17,6 +17,7 @@ import { useMemo, useRef } from 'react';
 import pluralize from 'pluralize'
 import Emoji from 'a11y-react-emoji';
 import { projectStrings } from '../data/site';
+import Image from 'next/image'
 
 interface ListProps {
   data: SolidarityAction[],
@@ -193,12 +194,19 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
         : null}
         <h3 className={cx(isFeatured ? 'text-2xl' : 'text-lg', 'font-bold leading-snug')}>{data.fields.Name}</h3>
         {data.fields.Link && (
-          <a href={data.fields.Link} className='my-1 text-sm text-gray-400 hover:text-pink-400'>
+          <a href={data.fields.Link} className='block my-1 text-sm text-gray-400 hover:text-pink-400'>
             <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
             &nbsp;
             <span className='align-middle underline text-inherit '>{new URL(data.fields.Link).hostname}</span>
           </a>
         )}
+        {data.fields.Document?.map(doc => (
+          <a href={doc.url} className='block my-1 text-sm text-gray-400 hover:text-pink-400'>
+            <PaperClipIcon className='h-3 w-3 inline-block text-inherit align-middle' />
+            &nbsp;
+            <span className='align-middle underline text-inherit '>{doc.filename}</span>
+          </a>
+        ))}
       </div>
       {isFeatured && data.fields.Summary && (
         <div className={cx(isFeatured ? 'text-gray-200' : 'text-gray-400', 'w-full px-4 pb-2')}>
@@ -252,6 +260,24 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
               &nbsp;
               <span className='align-middle underline text-inherit '>{new URL(data.fields.Link).hostname}</span>
             </a>
+          </div>
+        )}
+        {data.fields.Document?.length && (
+          <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 rounded-md border-t-2 border-dotted border-gray-800 hover:bg-gray-900 transition duration-75 pt-3'>
+            <div className='uppercase text-sm text-gray-400 pb-2'>Attachments</div>
+            <div className='grid gap-4'>
+              {data.fields.Document.map(doc => (
+                <a key={doc.id} href={doc.url} className='rounded-md overflow-hidden box-border border-2 border-gray-800'>
+                  <div className='text-lg mb-1 px-4 pt-3'>{doc.filename}</div>
+                  <div className='text-gray-400 font-mono pb-2 px-4'>{doc.type}</div>
+                  <Image
+                    src={doc.thumbnails.large.url}
+                    width={doc.thumbnails.large.width}
+                    height={doc.thumbnails.large.height}
+                  />
+                </a>
+              ))}
+            </div>
           </div>
         )}
         <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 text-gray-500 rounded-md border-t-2 border-dotted border-gray-800 pt-3'>
