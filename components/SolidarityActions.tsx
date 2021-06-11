@@ -16,6 +16,7 @@ import qs from 'query-string';
 import { useMemo, useRef } from 'react';
 import pluralize from 'pluralize'
 import Emoji from 'a11y-react-emoji';
+import { projectStrings } from '../data/site';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -69,20 +70,20 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
         {selectedAction?.fields && (
           <>
             <Dialog.Overlay className="fixed z-10 inset-0 bg-black opacity-75" />
-            <div className='absolute z-20 w-full max-w-xl top-1/4 left-1/2 transform -translate-x-1/2 py-5'>
+            <div className='absolute z-20 w-full max-w-xl top-[15%] left-1/2 transform -translate-x-1/2 py-5'>
               <Dialog.Title className='hidden'>{selectedAction.fields.Name}</Dialog.Title>
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
-              <SolidarityActionCard
-                data={selectedAction}
-                {...cardProps}
-              />
               <button
                 type="button"
-                className="py-4"
+                className="mb-3 rounded-md px-2 py-1 border-box"
                 onClick={onClose}
               >
                 &larr; Back
               </button>
+              <SolidarityActionCard
+                data={selectedAction}
+                {...cardProps}
+              />
             </div>
           </>
         )}
@@ -254,7 +255,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
           </div>
         )}
         <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 text-gray-500 rounded-md border-t-2 border-dotted border-gray-800 pt-3'>
-          Have more info about this action? <a className='link' href='mailto:hello@gameworkersolidarity.com'>Let us know</a>.
+          Have more info about this action? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know</a>.
         </div>
       </article>
 
