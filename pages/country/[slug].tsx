@@ -4,6 +4,10 @@ import { getCountries, getCountryDataBySlug, CountryData } from '../../data/coun
 import Emoji from 'a11y-react-emoji';
 
 export default function Page({ country }: { country: CountryData }) {
+  if (!country?.country?.fields) {
+    return <div />
+  }
+
   return (
     <>
       <NextSeo
