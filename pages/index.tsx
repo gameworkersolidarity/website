@@ -22,6 +22,20 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
       <section>
         <SolidarityActionsFullList />
       </section>
+
+      <div className='my-5'>
+        <p>Can you contribute more info about worker organising?</p>
+        <div className='space-x-2'>
+          <Link href='/submit'>
+            <span className='button'>
+              Submit a solidarity action
+            </span>
+          </Link>
+          <a className='button' href={`mailto:${projectStrings.email}`}>
+            Contact us
+          </a>
+        </div>
+      </div>
     </>
   )
 }

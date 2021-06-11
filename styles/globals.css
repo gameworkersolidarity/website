@@ -17,4 +17,8 @@ body {
   .link {
     @apply underline cursor-pointer hover:text-pink-400
   }
+
+  .button {
+    @apply cursor-pointer inline-block px-2 py-1 rounded-md border-2 border-gray-800 hover:border-pink-600 transition duration-75 mt-2 hover:text-pink-400
+  }
 }

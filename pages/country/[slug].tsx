@@ -23,11 +23,23 @@ export default function Page({ country }: { country: CountryData }) {
         {country?.country?.fields['Name'].trim()} <Emoji symbol={country.country.emoji.emoji} label='flag' /> game worker solidarity
       </h1>
 
-      {country.country.fields.Notes &&
-        <div className='py-4'>
-          <div className='prose' dangerouslySetInnerHTML={{ __html: country.country.fields.Notes}} />
+      <div className='my-4'>
+        {country.country.fields.Notes &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.fields.Notes}} />}
+      </div>
+
+      <div className='mb-5 mt-2'>
+        <p>Can you contribute more info about game worker organising in {country.country.fields.Name}?</p>
+        <div className='space-x-2'>
+          <Link href='/submit'>
+            <span className='button'>
+              Submit a solidarity action
+            </span>
+          </Link>
+          <a className='button' href={`mailto:${projectStrings.email}`}>
+            Contact us
+          </a>
         </div>
-      }
+      </div>
 
       <SolidarityActionsList
         data={country?.country?.solidarityActions}
