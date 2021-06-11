@@ -75,12 +75,12 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
               <SolidarityActionCard
                 data={selectedAction}
                 {...cardProps}
-        />
-        <button
-          type="button"
-          className="py-4"
-          onClick={onClose}
-        >
+              />
+              <button
+                type="button"
+                className="py-4"
+                onClick={onClose}
+              >
                 &larr; Back
               </button>
             </div>
@@ -181,7 +181,7 @@ export function SolidarityActionsFullList () {
 
 export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAction, isFeatured?: boolean }) {
   return (
-    <article className={cx(isFeatured && 'border-t-8 border-gray-800', 'bg-gray-900 group-hover:bg-gray-800 rounded-md flex flex-col space-y-1 justify-between')}>
+    <article className={cx(isFeatured && 'border-t-8 border-gray-800', 'bg-gray-900 group-hover:bg-gray-800 transition duration-75 rounded-md flex flex-col space-y-1 justify-between')}>
       <div className='space-y-1 p-4 pb-2'>
         {data.fields.Category?.length ?
           <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
@@ -289,7 +289,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
   
   return data?.fields ? (
     <Link href={`/country/${data.fields.Slug}`}>
-      <div className='cursor-pointer bg-gray-900 hover:bg-gray-800 rounded-md p-4 md:p-5 space-y-3'>
+      <div className='cursor-pointer bg-gray-900 hover:bg-gray-800 rounded-md p-4'>
         <div className='font-bold text-lg'>
           {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
         </div>
