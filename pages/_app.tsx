@@ -54,7 +54,7 @@ function MyApp({ Component, pageProps, links }) {
 
         <nav className='space-x-2 md:space-x-4'>
             <Link href={'/'}>
-              <span className='link'>Solidarity actions</span>
+              <span className='link'>All data</span>
             </Link>
             <Link href={'/submit'}>
               <span className='link'>Add data</span>
