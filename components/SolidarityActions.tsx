@@ -7,7 +7,7 @@ import { ExternalLinkIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
-import { Dialog } from '@headlessui/react'
+import { Dialog, Transition } from '@headlessui/react'
 import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
 import cx from 'classnames'
@@ -44,33 +44,50 @@ interface ContextProps {
 
 export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps }: DialogProps) {
   const router = useRouter()
-  let completeButtonRef = useRef(null)
 
   function onClose () {
     return router.replace(returnHref, returnHref, { shallow: true })
   }
 
+  const showDialog = !!selectedAction
+
   return (
-    <Dialog
-      open={!!selectedAction}
-      onClose={onClose}
-      className="fixed z-40 inset-0 overflow-y-auto"
+    <Transition
+      show={showDialog}
+      enter="transition duration-100 ease-out"
+      enterFrom="transform scale-95 opacity-0"
+      enterTo="transform scale-100 opacity-100"
+      leave="transition duration-75 ease-out"
+      leaveFrom="transform scale-100 opacity-100"
+      leaveTo="transform scale-95 opacity-0"
     >
-      <Dialog.Overlay className="fixed z-10 inset-0 bg-black opacity-75" />
-      <div className='absolute z-20 w-full max-w-xl top-1/4 left-1/2 transform -translate-x-1/2 py-5'>
-        <SolidarityActionCard
-          data={selectedAction}
-          {...cardProps}
+      <Dialog
+        open={showDialog}
+        onClose={onClose}
+        className="fixed z-40 inset-0 overflow-y-auto"
+      >
+        {selectedAction?.fields && (
+          <>
+            <Dialog.Overlay className="fixed z-10 inset-0 bg-black opacity-75" />
+            <div className='absolute z-20 w-full max-w-xl top-1/4 left-1/2 transform -translate-x-1/2 py-5'>
+              <Dialog.Title className='hidden'>{selectedAction.fields.Name}</Dialog.Title>
+              <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
+              <SolidarityActionCard
+                data={selectedAction}
+                {...cardProps}
         />
         <button
           type="button"
           className="py-4"
           onClick={onClose}
         >
-          &larr; Back
-        </button>
-      </div>
-    </Dialog>
+                &larr; Back
+              </button>
+            </div>
+          </>
+        )}
+      </Dialog>
+    </Transition>
   )
 }
 
