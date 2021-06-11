@@ -20,10 +20,9 @@ export default function Page({ country }: { country: CountryData }) {
       </h1>
 
       {country.country.fields.Notes &&
-        <>
-        <div className='prose' dangerouslySetInnerHTML={{ __html: country.country.fields.Notes}} />
-        <div className='py-4' />
-        </>
+        <div className='py-4'>
+          <div className='prose' dangerouslySetInnerHTML={{ __html: country.country.fields.Notes}} />
+        </div>
       }
 
       <SolidarityActionsList
