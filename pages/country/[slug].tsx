@@ -14,10 +14,8 @@ export default function Page({ country }: { country: CountryData }) {
     <>
       <NextSeo
         title={country.country.fields.Name}
-        description={`Solidarity actions by game workers in ${country.country.fields.Name}`}
         openGraph={{
           title: `Game worker solidarity in ${country.country.fields.Name}`,
-          description: `Solidarity actions by game workers in ${country.country.fields.Name}`
         }}
       />
 
