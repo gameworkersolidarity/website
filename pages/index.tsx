@@ -26,7 +26,7 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
       <div className='w-7 border border-gray-800 my-5' />
 
       <section className='my-4 mb-5'>
-        <CumulativeMovementChart data={solidarityActions} />
+        <CumulativeMovementChart data={solidarityActions} cumulative />
       </section>
 
       <section className='my-4'>
