@@ -6,8 +6,13 @@ import { SolidarityActionsData } from './api/solidarityActions';
 import Link from 'next/link';
 import { projectStrings } from '../data/site';
 import { CumulativeMovementChart } from '../components/ActionChart';
+import { Map } from '../components/Map';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
+  if (!solidarityActions.length) {
+    return <div>Loading...</div>
+  }
+
   const latestYear = parseInt(format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy'))
   const earliestYear = parseInt(format(new Date(solidarityActions[0].fields.Date), 'yyyy'))
 
@@ -27,6 +32,10 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
 
       <section className='my-4 mb-5'>
         <CumulativeMovementChart data={solidarityActions} cumulative />
+      </section>
+
+      <section className='my-4 mb-5'>
+        <Map data={solidarityActions} />
       </section>
 
       <section className='my-4'>
