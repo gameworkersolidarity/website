@@ -20,12 +20,6 @@ import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
 import { useMemo } from 'react';
 
-// function thresholdTime(scale) {
-//   return (data, min, max) => {
-//     return scale
-//   };
-// }
-
 export function CumulativeMovementChart ({ data, cumulative }: { data: SolidarityAction[], cumulative?: boolean }) {
   const actionDates = data.map(d => new Date(d.fields.Date))
   const minDate = min([new Date('2000-01-01'), ...actionDates])
