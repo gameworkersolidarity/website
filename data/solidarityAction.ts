@@ -6,13 +6,16 @@ import { QueryParams } from 'airtable/lib/query_params';
 import coords from 'country-coords'
 import { airtableFilterAND } from '../utils/airtable';
 // import { countryToAlpha2 } from "country-to-iso"
+import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
 
 export const formatSolidarityAction = (d: SolidarityAction) => {
   const { country: iso3166, ...countryCoordData } = coordsByCountry.get(d.fields['Country Code'][0])
+  const emoji = countryFlagEmoji.get(d.fields['Country Code'][0])
   try {
     d.geography = {
       country: {
+        emoji,
         iso3166,
         ...countryCoordData
       }

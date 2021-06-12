@@ -27,11 +27,22 @@ export interface Full {
   height: number;
 }
 
+/**
+ * From the "country-flag-emoji" npm package
+ */
+export interface CountryEmoji {
+  code: string,
+  unicode: string
+  name: string
+  emoji: string
+ }
+
 //////////////
 // Domain data
 export interface SolidarityAction extends BaseRecord {
   geography?: {
     country: {
+      emoji: CountryEmoji
       iso3166: string
       latitude: number,
       longitude: number
@@ -79,12 +90,7 @@ export interface StaticPage extends BaseRecord {
 }
 
 export interface Country extends BaseRecord {
-  emoji?: {
-   code: string,
-   unicode: string
-   name: string
-   emoji: string
-  }
+  emoji?: CountryEmoji
   fields: {
     Name: string;
     'Country Code':       string;

@@ -213,9 +213,12 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
           <div className='max-w-xl text-sm' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
         </div>
       )}
-      <div className='text-xs space-x-3 flex justify-between w-full flex-row p-4 pt-0'>
-        <span className='text-gray-400'>{stringifyArray(data.fields.Location, ...data.fields['Country Name'])}</span>
-        <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
+      <div className='text-xs space-x-3 flex justify-between items-center align-middle w-full flex-row px-4 pb-2'>
+        <span className='space-x-1'>
+          {data.geography?.country && <Emoji className='text-lg align-middle' symbol={data.geography.country.emoji.emoji} label={`Flag of ${data.fields['Country Name']}`} />}
+          <span className='text-gray-400 align-middle'>{stringifyArray(data.fields.Location, ...data.fields['Country Name'])}</span>
+        </span>
+        <time className='align-middle text-gray-400' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
       </div>
     </article>
   )
@@ -238,6 +241,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
         <div className='space-y-1 px-4 md:px-5 pt-4 md:pt-5'>
           <div className='text-xs space-x-3 flex w-full flex-row'>
             <span className='text-gray-400'>{stringifyArray(data.fields.Location, ...data.fields['Country Name'])}</span>
+            {data.geography?.country && <Emoji symbol={data.geography.country.emoji.emoji} label={`Flag of ${data.fields['Country Name']}`} />}
             <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
             {data.fields.Category?.length ?
               <span className='text-pink-400 space-x-1'>{data.fields.Category?.map(c =>

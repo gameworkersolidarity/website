@@ -12,6 +12,13 @@ export const fullSchema = z.object({
   height: z.number(),
 });
 
+export const countryEmojiSchema = z.object({
+  code: z.string(),
+  unicode: z.string(),
+  name: z.string(),
+  emoji: z.string(),
+});
+
 export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
@@ -53,6 +60,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
   geography: z
     .object({
       country: z.object({
+        emoji: countryEmojiSchema,
         iso3166: z.string(),
         latitude: z.number(),
         longitude: z.number(),
@@ -79,14 +87,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
 });
 
 export const countrySchema = baseRecordSchema.extend({
-  emoji: z
-    .object({
-      code: z.string(),
-      unicode: z.string(),
-      name: z.string(),
-      emoji: z.string(),
-    })
-    .optional(),
+  emoji: countryEmojiSchema.optional(),
   fields: z.object({
     Name: z.string(),
     "Country Code": z.string(),
