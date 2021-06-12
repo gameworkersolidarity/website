@@ -1,5 +1,5 @@
 import { SolidarityAction } from '../data/types';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import env from 'env-var';
 import { stringifyArray } from '../utils/string';
@@ -7,9 +7,9 @@ import Emoji from 'a11y-react-emoji';
 
 export function Map({ data, ...initialViewport }: { data: SolidarityAction[], width?: any, height?: any }) {
   const [viewport, setViewport] = useState({
-    latitude: 37.7577,
-    longitude: -122.4376,
-    zoom: 1,
+    latitude: 15,
+    longitude: 0,
+    zoom: 0.7,
     width: '100%',
     height: 350,
     ...initialViewport,
@@ -24,17 +24,31 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
       className="rounded-md"
     >
       {data.map(d => (
-        <Marker
-          key={d.id}
-          latitude={d.geography.country.latitude} 
-          longitude={d.geography.country.longitude}
-        >
-          <div>
-            <Emoji symbol='💥' />
-            <span>{stringifyArray(d.fields.Category)}</span>
-          </div>
-        </Marker>
+        <MapMarker key={d.id} data={d} />
       ))}
     </ReactMapGL>
   );
 }
+
+const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
+  let geoData = {
+    latitude: data?.geography.country.latitude,
+    longitude: data?.geography.country.longitude
+  }
+  if (data?.geography.city) {
+    geoData = {
+      latitude: data?.geography.city.loc.coordinates[1],
+      longitude: data?.geography.city.loc.coordinates[0],
+    }
+  }
+
+  return (
+    <Marker {...geoData}>
+      <div className='text-xs space-x-1 text-center transform -translate-x-1/2'>
+        <Emoji symbol='💥' />
+        {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
+        <div className='inline capitalize'>{data?.geography?.city?.name || data.fields['Country Name']}</div>
+      </div>
+    </Marker>
+  )
+})

@@ -19,6 +19,11 @@ export const countryEmojiSchema = z.object({
   emoji: z.string(),
 });
 
+export const locSchema = z.object({
+  type: z.string(),
+  coordinates: z.array(z.number()),
+});
+
 export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
@@ -47,6 +52,20 @@ export const thumbnailsSchema = z.object({
   full: fullSchema.optional(),
 });
 
+export const citySchema = z.object({
+  cityId: z.union([z.string(), z.number()]),
+  name: z.string(),
+  country: z.string(),
+  altCountry: z.string(),
+  muni: z.string(),
+  muniSub: z.string(),
+  featureClass: z.string(),
+  featureCode: z.string(),
+  adminCode: z.union([z.string(), z.number()]),
+  population: z.number(),
+  loc: locSchema,
+});
+
 export const documentSchema = z.object({
   id: z.string(),
   url: z.string(),
@@ -65,6 +84,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
         latitude: z.number(),
         longitude: z.number(),
       }),
+      city: z.union([citySchema.partial(), z.null()]).optional(),
     })
     .optional(),
   fields: z.object({

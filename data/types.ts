@@ -37,6 +37,29 @@ export interface CountryEmoji {
   emoji: string
  }
 
+ /**
+  * From the 'all-the-cities' npm package
+  */
+ export interface City {
+  cityId:       string | number;
+  name:         string;
+  country:      string;
+  altCountry:   string;
+  muni:         string;
+  muniSub:      string;
+  featureClass: string;
+  featureCode:  string;
+  adminCode:    string | number;
+  population:   number;
+  loc:          LOC;
+}
+
+export interface LOC {
+  type:        string;
+  coordinates: number[];
+}
+
+
 //////////////
 // Domain data
 export interface SolidarityAction extends BaseRecord {
@@ -46,7 +69,8 @@ export interface SolidarityAction extends BaseRecord {
       iso3166: string
       latitude: number,
       longitude: number
-    }
+    },
+    city?: Partial<City> | null
   },
   fields: {
     Name:       string;

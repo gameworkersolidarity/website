@@ -1,4 +1,4 @@
-import { SolidarityAction } from './types';
+import { SolidarityAction, City } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { solidarityActionSchema } from './schema';
@@ -8,6 +8,7 @@ import { airtableFilterAND } from '../utils/airtable';
 // import { countryToAlpha2 } from "country-to-iso"
 import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
+import cities from 'all-the-cities'
 
 export const formatSolidarityAction = (d: SolidarityAction) => {
   const { country: iso3166, ...countryCoordData } = coordsByCountry.get(d.fields['Country Code'][0])
@@ -18,9 +19,18 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
         emoji,
         iso3166,
         ...countryCoordData
-      }
+      },
+      city: d.fields.Location ? (cities as City[]).find(city => (
+        city.name.includes(d.fields.Location) ||
+        d.fields.Location.includes(city.name)
+      )) || null : null
     }
   } catch (e) {
+    console.error(e)
+  }
+  try {
+    solidarityActionSchema.parse(d)
+  } catch(e) {
     console.error(e)
   }
   return d
@@ -28,6 +38,7 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
 
 const fields: Array<keyof SolidarityAction['fields']> = ['Document', 'Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
+// @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
   env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').default('Solidarity Actions').asString()
 )
