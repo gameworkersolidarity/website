@@ -201,7 +201,7 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
           </a>
         )}
         {data.fields.Document?.map(doc => (
-          <a href={doc.url} className='block my-1 text-sm text-gray-400 hover:text-pink-400'>
+          <a key={doc.id} href={doc.url} className='block my-1 text-sm text-gray-400 hover:text-pink-400'>
             <PaperClipIcon className='h-3 w-3 inline-block text-inherit align-middle' />
             &nbsp;
             <span className='align-middle underline text-inherit '>{doc.filename}</span>
@@ -312,7 +312,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
     }
   }), { revalidateOnMount: true })
 
-  const actionCount = data?.fields?.['Solidarity Actions']?.length
+  const actionCount = data?.fields?.['Solidarity Actions']?.length - 1
   
   return data?.fields ? (
     <Link href={`/country/${data.fields.Slug}`}>
@@ -320,7 +320,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
         <div className='font-bold text-lg'>
           {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
         </div>
-        <div className='text-gray-400 pb-3'>{data.fields['Solidarity Actions'].length - 0} other {pluralize('action', actionCount)}</div>
+        <div className='text-gray-400 pb-3'>{actionCount} other {pluralize('action', actionCount)}</div>
         <div className='link text-sm'>
           View country dashboard &rarr;
         </div>

@@ -4,6 +4,7 @@ import { getCountries, getCountryDataBySlug, CountryData } from '../../data/coun
 import Emoji from 'a11y-react-emoji';
 import Link from 'next/link';
 import { projectStrings } from '../../data/site';
+import { CumulativeMovementChart } from '../../components/ActionChart';
 
 export default function Page({ country }: { country: CountryData }) {
   if (!country?.country?.fields) {
@@ -26,6 +27,11 @@ export default function Page({ country }: { country: CountryData }) {
       <div className='my-4'>
         {country.country.fields.Notes &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.fields.Notes}} />}
       </div>
+
+      {country?.country?.solidarityActions?.length > 2
+        && <CumulativeMovementChart data={country?.country?.solidarityActions} />
+      }
+
 
       <div className='mb-5 mt-2'>
         <p>Can you contribute more info about game worker organising in {country.country.fields.Name}?</p>

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { SolidarityActionsData } from './api/solidarityActions';
 import Link from 'next/link';
 import { projectStrings } from '../data/site';
+import { CumulativeMovementChart } from '../components/ActionChart';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
   const latestYear = parseInt(format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy'))
@@ -23,6 +24,10 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
       <p className='my-4 max-w-xl text-gray-200'>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
 
       <div className='w-7 border border-gray-800 my-5' />
+
+      <section className='my-4 mb-5'>
+        <CumulativeMovementChart data={solidarityActions} />
+      </section>
 
       <section className='my-4'>
         <SolidarityActionsFullList />
