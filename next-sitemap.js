@@ -8,7 +8,7 @@ module.exports = {
   ],
   robotsTxtOptions: {
     additionalSitemaps: [
-      'https://example.com/server-sitemap.xml',
+      `${process.env.SITE_BASE_URL || "https://gameworkersolidarity.com"}/server-sitemap.xml`,
     ],
   },
 }
