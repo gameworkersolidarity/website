@@ -1,4 +1,4 @@
-import { SolidarityAction, City } from './types';
+import { SolidarityAction, City, Country } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { solidarityActionSchema } from './schema';
@@ -11,23 +11,32 @@ const coordsByCountry = coords.byCountry()
 import cities from 'all-the-cities'
 
 export const formatSolidarityAction = (d: SolidarityAction) => {
-  const { country: iso3166, ...countryCoordData } = coordsByCountry.get(d.fields['Country Code'][0])
-  const emoji = countryFlagEmoji.get(d.fields['Country Code'][0])
-  try {
-    d.geography = {
-      country: {
+  d.geography = { country: [], city: null }
+
+  // Add country-level data
+  let i = 0
+  for (const countryCode of d.fields['Country Code']) {
+    const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
+    const emoji = countryFlagEmoji.get(countryCode)
+    try {
+      d.geography.country.push({
+        name: d.fields['Country Name'][i],
         emoji,
         iso3166,
         ...countryCoordData
-      },
-      city: d.fields.Location ? (cities as City[]).find(city => (
-        city.name.includes(d.fields.Location) ||
-        d.fields.Location.includes(city.name)
-      )) || null : null
+      })
+    } catch (e) {
+      console.error(e)
     }
-  } catch (e) {
-    console.error(e)
+    i++;
   }
+
+  // Add city
+  d.geography.city = d.fields.Location ? (cities as City[]).find(city => (
+    city.name.includes(d.fields.Location) ||
+    d.fields.Location.includes(city.name)
+  )) || null : null
+
   try {
     solidarityActionSchema.parse(d)
   } catch(e) {
@@ -81,7 +90,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
 }
 
 export async function getSolidarityActionsByCountryCode (iso2: string) {
-  const filterByFormula = `FIND("${iso2}", {Country Code}) > 0`
+  const filterByFormula = `FIND("${iso2}", ARRAYJOIN({Country Code})) > 0`
   return getSolidarityActions({ filterByFormula })
 }
 

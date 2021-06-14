@@ -214,9 +214,22 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
         </div>
       )}
       <div className='text-xs space-x-3 flex justify-between items-center align-middle w-full flex-row px-4 pb-2'>
-        <span className='space-x-1'>
-          {data.geography?.country && <Emoji className='text-lg align-middle' symbol={data.geography.country.emoji.emoji} label={`Flag of ${data.fields['Country Name']}`} />}
-          <span className='text-gray-400 align-middle'>{stringifyArray(data.fields.Location, ...data.fields['Country Name'])}</span>
+        <span className='space-x-1 text-gray-400'>
+          {data.fields.Location ? (
+            <span>
+              <span>{data.fields.Location}</span>
+              <span className='pointer-events-none'>,</span>
+            </span>
+          ) : null}
+          {data.geography?.country.map(country => (
+            <span className='space-x-1' key={country.iso3166}>
+              <span>{country.name}</span>
+              <Emoji
+                symbol={country.emoji.emoji}
+                label={`Flag of ${country.name}`}
+              />
+            </span>
+          ))}
         </span>
         <time className='align-middle text-gray-400' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
       </div>
@@ -239,9 +252,17 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
       />
       <article className='bg-gray-900 rounded-md flex flex-col space-y-4 justify-between'>
         <div className='space-y-1 px-4 md:px-5 pt-4 md:pt-5'>
-          <div className='text-xs space-x-3 flex w-full flex-row'>
-            <span className='text-gray-400'>{stringifyArray(data.fields.Location, ...data.fields['Country Name'])}</span>
-            {data.geography?.country && <Emoji symbol={data.geography.country.emoji.emoji} label={`Flag of ${data.fields['Country Name']}`} />}
+          <div className='text-xs space-x-2 flex w-full flex-row text-gray-400'>
+            {data.fields.Location ? <span>{data.fields.Location}</span> : null}
+            {data.geography?.country.map(country => (
+              <span className='space-x-1' key={country.iso3166}>
+                <span>{country.name}</span>
+                <Emoji
+                  symbol={country.emoji.emoji}
+                  label={`Flag of ${country.name}`}
+                />
+              </span>
+            ))}
             <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className='text-gray-400'>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
             {data.fields.Category?.length ?
               <span className='text-pink-400 space-x-1'>{data.fields.Category?.map(c =>

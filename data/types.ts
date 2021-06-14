@@ -64,12 +64,13 @@ export interface LOC {
 // Domain data
 export interface SolidarityAction extends BaseRecord {
   geography?: {
-    country: {
+    country: Array<{
+      name: string
       emoji: CountryEmoji
       iso3166: string
       latitude: number,
       longitude: number
-    },
+    }>,
     city?: Partial<City> | null
   },
   fields: {

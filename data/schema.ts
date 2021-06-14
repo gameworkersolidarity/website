@@ -78,12 +78,15 @@ export const documentSchema = z.object({
 export const solidarityActionSchema = baseRecordSchema.extend({
   geography: z
     .object({
-      country: z.object({
-        emoji: countryEmojiSchema,
-        iso3166: z.string(),
-        latitude: z.number(),
-        longitude: z.number(),
-      }),
+      country: z.array(
+        z.object({
+          name: z.string(),
+          emoji: countryEmojiSchema,
+          iso3166: z.string(),
+          latitude: z.number(),
+          longitude: z.number(),
+        })
+      ),
       city: z.union([citySchema.partial(), z.null()]).optional(),
     })
     .optional(),

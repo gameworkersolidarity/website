@@ -1,5 +1,5 @@
 export const stringifyArray = <T>(...ds: T[]): string => {
-  return unique(...noNull(...ds)).join(", ")
+  return unique(...noNull(...ds)).map(s => s.toString().trim()).join(", ")
 }
 
 export const noNull = <T>(...ds: T[]) => {
