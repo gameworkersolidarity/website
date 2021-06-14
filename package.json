@@ -2,6 +2,10 @@
   "name": "game-worker-solidarity-project",
   "version": "0.1.0",
   "private": true,
+  "cacheDirectories": [
+    "node_modules/",
+    ".next/cache/"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build && next-sitemap",
