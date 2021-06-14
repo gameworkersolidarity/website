@@ -1,5 +1,8 @@
+const env = require('env-var')
+const siteUrl = env.get('SITE_BASE_URL').default('https://gameworkersolidarity.com').asString()
+
 module.exports = {
-  siteUrl: process.env.SITE_BASE_URL || 'https://gameworkersolidarity.com',
+  siteUrl,
   generateRobotsTxt: true,
   exclude: [
     '/api/*',
@@ -8,7 +11,7 @@ module.exports = {
   ],
   robotsTxtOptions: {
     additionalSitemaps: [
-      `${process.env.SITE_BASE_URL || "https://gameworkersolidarity.com"}/server-sitemap.xml`,
+      `${siteUrl}/server-sitemap.xml`,
     ],
   },
 }
