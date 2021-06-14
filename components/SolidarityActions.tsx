@@ -316,7 +316,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
     }
   }), { revalidateOnMount: true })
 
-  const actionCount = data?.fields?.['Solidarity Actions']?.length - 1
+  const actionCount = data?.fields?.['Solidarity Actions']?.length
   
   return data?.fields ? (
     <Link href={`/country/${data.fields.Slug}`}>
@@ -324,7 +324,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
         <div className='font-bold text-lg'>
           {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
         </div>
-        <div className='text-gray-400 pb-3'>{actionCount} other {pluralize('action', actionCount)}</div>
+        <div className='text-gray-400 pb-3'>{pluralize('action', actionCount, true)}</div>
         <div className='link text-sm'>
           View country dashboard &rarr;
         </div>
