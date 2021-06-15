@@ -186,7 +186,7 @@ export function SolidarityActionsFullList () {
 export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAction, isFeatured?: boolean }) {
   return (
     <article className={cx(isFeatured && 'border-t-8 border-gray-800', 'bg-gray-900 group-hover:bg-gray-800 transition duration-75 rounded-md flex flex-col space-y-1 justify-between')}>
-      <div className='space-y-1 p-4 pb-2'>
+      <div className='space-y-1 p-4 pt-3 pb-2'>
         {data.fields.Category?.length ?
           <div className='text-xs space-x-3 flex justify-between w-full flex-row'>
             <span className='text-pink-400 space-x-1'>{data.fields.Category?.map(c =>
@@ -194,7 +194,7 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
             )}</span>
           </div>
         : null}
-        <h3 className={cx(isFeatured ? 'text-2xl' : 'text-lg', 'font-bold leading-snug')}>{data.fields.Name}</h3>
+        <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-lg leading-snug', 'font-bold')}>{data.fields.Name}</h3>
         {data.fields.Link && (
           <a href={data.fields.Link} className='block my-1 text-sm text-gray-400 hover:text-pink-400'>
             <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
@@ -215,7 +215,7 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
           <div className='max-w-xl text-sm' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
         </div>
       )}
-      <div className='text-xs space-x-3 flex justify-between items-center align-middle w-full flex-row px-4 pb-2'>
+      <div className='text-xs space-x-3 flex justify-between items-center align-middle w-full flex-row px-4 pb-3'>
         <span className='space-x-1 text-gray-400'>
           {data.fields.Location ? (
             <span>
