@@ -93,7 +93,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
         longitude: z.number(),
       })
     ),
-    city: z.union([citySchema.partial(), z.null()]).optional(),
+    city: z.array(citySchema.partial()),
   }),
   fields: z.object({
     Name: z.string(),

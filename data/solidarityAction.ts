@@ -10,14 +10,41 @@ import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
 import cities from 'all-the-cities'
 import { parseMarkdown } from './markdown';
+import Fuse from 'fuse.js'
+import { getCountries } from './country';
+import { groupBy } from 'lodash'
+
+const searchOptions: Fuse.IFuseOptions<City> = {
+  isCaseSensitive: false,
+  shouldSort: true,
+  threshold: 0.485,
+  keys: ['name']
+}
+const initialiseCitySearch = (cities: City[]) => {
+  return new Fuse(cities, searchOptions)
+}
+
+const countryCityCache = groupBy(cities as City[], city => city.country)
+const citySearchDict = Object.entries(countryCityCache).reduce((dict, [code, cities]) => {
+  dict[code] = {
+    search: initialiseCitySearch(cities),
+    cities
+  }
+  return dict
+}, {} as {
+  [iso2: string]: {
+    search: ReturnType<typeof initialiseCitySearch>,
+    cities: City[]
+  }
+})
 
 export const formatSolidarityAction = (action: SolidarityAction) => {
   action.summary = parseMarkdown(action.fields.Summary || '')
+  action.geography = { country: [], city: [] }
 
-  // Add country-level data
-  action.geography = { country: [], city: null }
   let i = 0
   for (const countryCode of action.fields['Country Code']) {
+    // Add country data
     const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
     const emoji = countryFlagEmoji.get(countryCode)
     try {
@@ -31,17 +58,27 @@ export const formatSolidarityAction = (action: SolidarityAction) => {
       console.error(JSON.stringify(action), e)
     }
     i++;
-  }
 
-  // Add city
-  action.geography.city = action.fields.Location ? (cities as City[]).find(city => (
-    city.name.includes(action.fields.Location) ||
-    action.fields.Location.includes(city.name)
-  )) || null : null
+    // TODO: Add US states, because they are arrogantly large
+
+    // Add city
+    if (action.fields.Location) {
+      const citySearch = citySearchDict[countryCode].search
+      let city = citySearch.search(action.fields.Location!)?.[0]?.item
+      if (city) {
+        action.geography.city.push(city)
+      } else {
+        city = citySearch.search(action.fields.Location!.split(',')[0])?.[0]?.item
+        if (city) {
+          action.geography.city.push(city)
+        }
+      }
+    }
+  }
 
   try {
     // Remove any keys not expected by the parser
-    const d = solidarityActionSchema.parse(action)
+    action = solidarityActionSchema.parse(action)
   } catch(e) {
     console.error(JSON.stringify(action), e)
   }
@@ -77,17 +114,25 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
       view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
       ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
-      records.forEach(function(record) {
-        solidarityActions.push(formatSolidarityAction(record._rawJson))
-      });
-      fetchNextPage();
+      try {
+        records.forEach(function(record) {
+          solidarityActions.push(formatSolidarityAction(record._rawJson))
+        });
+        fetchNextPage();
+      } catch (e) {
+        console.log(e)
+      }
     }, function done(err) {
+      try {
       if (err) { reject(err); return; }
       resolve(
         solidarityActions.filter(a =>
           solidarityActionSchema.safeParse(a).success === true
         )
       )
+    } catch (e) {
+      console.log(e)
+    }
     })
   })
 }

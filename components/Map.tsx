@@ -35,10 +35,10 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
     latitude: data.geography.country[0].latitude,
     longitude: data.geography.country[0].longitude
   }
-  if (data?.geography?.city?.loc) {
+  if (data?.geography?.city[0]?.loc) {
     geoData = {
-      latitude: data.geography.city.loc.coordinates[1],
-      longitude: data.geography.city.loc.coordinates[0],
+      latitude: data.geography.city[0].loc.coordinates[1],
+      longitude: data.geography.city[0].loc.coordinates[0],
     }
   }
 
@@ -46,8 +46,9 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
     <Marker {...geoData}>
       <div className='text-xs space-x-1 text-center transform -translate-x-1/2'>
         <Emoji symbol='💥' />
+        <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        <div className='inline capitalize'>{data?.geography?.city?.name || data.fields['Country Name']}</div>
+        <div className='inline capitalize'>{data?.geography?.city[0]?.name || data.fields['Country Name']}</div>
       </div>
     </Marker>
   )

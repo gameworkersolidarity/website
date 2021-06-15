@@ -77,7 +77,7 @@ export interface SolidarityAction extends BaseRecord {
       latitude: number,
       longitude: number
     }>,
-    city?: Partial<City> | null
+    city: Array<Partial<City>>
   },
   fields: {
     Name:       string;

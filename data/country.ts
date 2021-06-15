@@ -47,6 +47,7 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
       fields: fields,
       maxRecords: 249,
       view: env.get('AIRTABLE_TABLE_VIEW_COUNTRIES').default('Grid view').asString(),
+      filterByFormula: 'COUNTA({Solidarity Actions}) > 0',
       ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
