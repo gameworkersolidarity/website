@@ -4,6 +4,7 @@ import { SolidarityAction } from '../../data/types';
 import { SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
 import env from 'env-var';
+import { GetStaticPaths, GetStaticProps } from 'next';
 
 export default function Page({ action }: { action: SolidarityAction }) {
   return action ? (
@@ -29,7 +30,7 @@ export default function Page({ action }: { action: SolidarityAction }) {
   ) : null
 }
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async (context) => {
   const links = await getSolidarityActions()
   return {
     paths: links.map(page => ({
@@ -41,7 +42,9 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps(context) {
+export const getStaticProps: GetStaticProps<
+  { action: SolidarityAction }, { actionId: string }
+> = async (context) => {
   const action = await getSingleSolidarityAction(context.params.actionId)
 
   return {

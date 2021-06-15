@@ -1,8 +1,9 @@
 import Head from 'next/head'
 import { getSingleStaticPage, getStaticPageLinks } from '../data/staticPage';
-import { BlogPost } from '../data/types';
+import { BlogPost, StaticPage } from '../data/types';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
+import { GetStaticPaths, GetStaticProps } from 'next';
 
 export default function Page({ article }: { article: BlogPost }) {
   return article ? (
@@ -27,7 +28,7 @@ export default function Page({ article }: { article: BlogPost }) {
   ) : null
 }
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async (context) => {
   const links = (await getStaticPageLinks()).filter(page => !!page.fields.Slug)
   return {
     paths: links.map(page => ({
@@ -39,7 +40,9 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps(context) {
+export const getStaticProps: GetStaticProps<
+  { article: StaticPage }, { slug: string[] }
+> = async (context) => {
   return {
     props: {
       article: await getSingleStaticPage(context.params.slug.join('/'))

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { projectStrings } from '../../data/site';
 import { CumulativeMovementChart } from '../../components/ActionChart';
 import env from 'env-var';
+import { GetStaticPaths, GetStaticProps } from 'next';
 
 export default function Page({ country }: { country: CountryData }) {
   if (!country?.country?.fields) {
@@ -62,7 +63,7 @@ export default function Page({ country }: { country: CountryData }) {
   )
 }
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async (context) => {
   const links = await getCountries()
   return {
     paths: links.map(country => ({
@@ -74,8 +75,11 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps(context) {
+export const getStaticProps: GetStaticProps<
+  { country: CountryData }, { slug: string }
+> = async (context) => {
   const country = await getCountryDataBySlug(context.params.slug)
+
   return {
     props: {
       country

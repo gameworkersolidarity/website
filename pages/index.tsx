@@ -8,6 +8,7 @@ import { projectStrings } from '../data/site';
 import { CumulativeMovementChart } from '../components/ActionChart';
 import { Map } from '../components/Map';
 import env from 'env-var';
+import { GetStaticProps } from 'next';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
   if (!solidarityActions.length) {
@@ -60,7 +61,10 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
   )
 }
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps<
+  SolidarityActionsData,
+  {}
+> = async (context) => {
   const data = await getSolidarityActions()
   return {
     props: {

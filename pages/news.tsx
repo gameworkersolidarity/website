@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { getBlogPosts } from '../data/blogPost';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
+import { GetStaticProps } from 'next';
 
 type Props = {
   blogPosts: BlogPost[],
@@ -47,7 +48,7 @@ export default function Page({ blogPosts }: Props) {
   )
 }
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
       blogPosts: await getBlogPosts()

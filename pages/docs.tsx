@@ -4,6 +4,7 @@ import { CodeBlock } from '../components/CodeBlock';
 import { getSolidarityActions } from '../data/solidarityAction';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
+import { GetStaticProps } from 'next';
 export const markdown = new MarkdownIt();
 
 interface Doc {
@@ -45,7 +46,7 @@ export default function Page({ docs }: { docs: Doc[] }) {
   )
 }
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async (context) => {
   const docs = [
     {
       title: 'GET /api/solidarityActions',

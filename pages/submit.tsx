@@ -2,6 +2,7 @@ import Head from 'next/head'
 import env from 'env-var';
 import qs from 'query-string'
 import { NextSeo } from 'next-seo';
+import { GetStaticProps } from 'next';
 
 export default function Page({ embedUrl }) {
   return (
@@ -29,7 +30,7 @@ export default function Page({ embedUrl }) {
   )
 }
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
       embedUrl: qs.stringifyUrl({
