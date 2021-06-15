@@ -1,46 +1,19 @@
 import { SolidarityAction, City, Country } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
-import { solidarityActionSchema } from './schema';
+import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
 import coords from 'country-coords'
 import { airtableFilterAND } from '../utils/airtable';
 // import { countryToAlpha2 } from "country-to-iso"
 import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
-import cities from 'all-the-cities'
 import { parseMarkdown } from './markdown';
-import Fuse from 'fuse.js'
-import { getCountries } from './country';
-import { groupBy } from 'lodash'
+import { geocodeOpenStreetMap } from './geo';
 
-const searchOptions: Fuse.IFuseOptions<City> = {
-  isCaseSensitive: false,
-  shouldSort: true,
-  threshold: 0.485,
-  keys: ['name']
-}
-const initialiseCitySearch = (cities: City[]) => {
-  return new Fuse(cities, searchOptions)
-}
-
-const countryCityCache = groupBy(cities as City[], city => city.country)
-const citySearchDict = Object.entries(countryCityCache).reduce((dict, [code, cities]) => {
-  dict[code] = {
-    search: initialiseCitySearch(cities),
-    cities
-  }
-  return dict
-}, {} as {
-  [iso2: string]: {
-    search: ReturnType<typeof initialiseCitySearch>,
-    cities: City[]
-  }
-})
-
-export const formatSolidarityAction = (action: SolidarityAction) => {
+export const formatSolidarityAction = async (action: SolidarityAction) => {
   action.summary = parseMarkdown(action.fields.Summary || '')
-  action.geography = { country: [], city: [] }
+  action.geography = { country: [] }
 
   let i = 0
   for (const countryCode of action.fields['Country Code']) {
@@ -59,19 +32,22 @@ export const formatSolidarityAction = (action: SolidarityAction) => {
     }
     i++;
 
-    // TODO: Add US states, because they are arrogantly large
-
     // Add city
-    if (action.fields.Location) {
-      const citySearch = citySearchDict[countryCode].search
-      let city = citySearch.search(action.fields.Location!)?.[0]?.item
-      if (city) {
-        action.geography.city.push(city)
-      } else {
-        city = citySearch.search(action.fields.Location!.split(',')[0])?.[0]?.item
-        if (city) {
-          action.geography.city.push(city)
-        }
+    if (action.fields.LocationData) {
+      action.geography.location = JSON.parse(action.fields.LocationData)
+    } else if (action.fields.Location) {
+
+      console.log("Fetching location data from OpenStreetMap")
+      const _data = await geocodeOpenStreetMap(action.fields.Location!, countryCode)
+      // @ts-ignore
+      const { data, error } = openStreetMapReverseGeocodeResponseSchema.safeParse(_data)
+      if (error) {
+        console.error(_data, error)
+      } else if (data) {
+        action.geography.location = data
+        solidarityActionBase().update(action.id, {
+          LocationData: JSON.stringify(data)
+        })
       }
     }
   }
@@ -85,7 +61,7 @@ export const formatSolidarityAction = (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['Document', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['LocationData', 'Document', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -113,11 +89,11 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
       maxRecords: 1000,
       view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
       ...selectArgs
-    }).eachPage(function page(records, fetchNextPage) {
+    }).eachPage(async function page(records, fetchNextPage) {
       try {
-        records.forEach(function(record) {
-          solidarityActions.push(formatSolidarityAction(record._rawJson))
-        });
+        for (const record of records) {
+          solidarityActions.push(await formatSolidarityAction(record._rawJson))
+        }
         fetchNextPage();
       } catch (e) {
         console.log(e)
@@ -126,9 +102,10 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
       try {
       if (err) { reject(err); return; }
       resolve(
-        solidarityActions.filter(a =>
-          solidarityActionSchema.safeParse(a).success === true
-        )
+        solidarityActions
+          .filter(a =>
+            solidarityActionSchema.safeParse(a).success === true
+          )
       )
     } catch (e) {
       console.log(e)
@@ -144,11 +121,11 @@ export async function getSolidarityActionsByCountryCode (iso2: string) {
 
 export async function getSingleSolidarityAction (recordId: string) {
   return new Promise<SolidarityAction>((resolve, reject) => {
-    solidarityActionBase().find(recordId, (error, record) => {
+    solidarityActionBase().find(recordId, async (error, record) => {
       if (error || !record) {
         return reject(error || `No record found for ID ${recordId}`)
       }
-      return resolve(formatSolidarityAction(record._rawJson))
+      return resolve(await formatSolidarityAction(record._rawJson))
     })
   })
 }

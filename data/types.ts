@@ -27,6 +27,8 @@ export interface Full {
   height: number;
 }
 
+////// Package and third party
+
 /**
  * From the "country-flag-emoji" npm package
  */
@@ -37,28 +39,90 @@ export interface CountryEmoji {
   emoji: string
  }
 
- /**
-  * From the 'all-the-cities' npm package
-  */
- export interface City {
-  cityId:       string | number;
-  name:         string;
-  country:      string;
-  altCountry:   string;
-  muni:         string;
-  muniSub:      string;
-  featureClass: string;
-  featureCode:  string;
-  adminCode:    string | number;
-  population:   number;
-  loc:          LOC;
+export interface OpenStreetMapReverseGeocodeResponse {
+  place_id:     number;
+  licence:      string;
+  osm_type:     string;
+  osm_id:       number;
+  lat:          string;
+  lon:          string;
+  place_rank:   number;
+  category:     string;
+  type:         string;
+  importance:   number;
+  addresstype?:  string;
+  name?:         string;
+  display_name: string;
+  address?:      Address;
+  boundingbox:  string[];
 }
 
-export interface LOC {
-  type:        string;
-  coordinates: number[];
-}
+export interface Address {
+  continent?: string
 
+  country?: string
+   country_code?: string
+
+  region?: string
+   state?: string
+   state_district?: string
+   county?: string
+
+  municipality?: string
+   city?: string
+   town?: string
+   village?: string
+
+  city_district?: string
+   district?: string
+   borough?: string
+   suburb?: string
+   subdivision?: string
+
+  hamlet?: string
+   croft?: string
+   isolated_dwelling?: string
+
+  neighbourhood?: string
+   allotments?: string
+   quarter?: string
+
+  city_block?: string
+   residental?: string
+   farm?: string
+   farmyard?: string
+   industrial?: string
+   commercial?: string
+   retail?: string
+
+  road?: string
+
+  house_number?: string
+   house_name?: string
+
+  emergency?: string
+   historic?: string
+   military?: string
+   natural?: string
+   landuse?: string
+   place?: string
+   railway?: string
+   man_made?: string
+   aerialway?: string
+   boundary?: string
+   amenity?: string
+   aeroway?: string
+   club?: string
+   craft?: string
+   leisure?: string
+   office?: string
+   mountain_pass?: string
+   shop?: string
+   tourism?: string
+   bridge?: string
+   tunnel?: string
+   waterway?: string
+}
 
 //////////////
 // Domain data
@@ -77,7 +141,7 @@ export interface SolidarityAction extends BaseRecord {
       latitude: number,
       longitude: number
     }>,
-    city: Array<Partial<City>>
+    location?: OpenStreetMapReverseGeocodeResponse
   },
   fields: {
     Name:       string;
@@ -86,6 +150,7 @@ export interface SolidarityAction extends BaseRecord {
     Date:       string;
     LastModified: string;
     Link?:      string;
+    LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
     // 'Country': string[] // Not really useful — Zod will parse these out
     'Country Name': string[]
     'Country Code': string[]
