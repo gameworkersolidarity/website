@@ -5,6 +5,7 @@ import { getSolidarityActions } from '../data/solidarityAction';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
+import { getCountryByCode } from '../data/country';
 export const markdown = new MarkdownIt();
 
 interface Doc {
@@ -62,6 +63,18 @@ Example output:
           filterByFormula: 'AND(Public, Name!="", Country!="", Category!="")',
           maxRecords: 1
         })).slice(0, 1)
+      }
+    },
+    {
+      title: 'GET /api/country?iso2=GB',
+      href: '/api/country?iso2=GB',
+      text: markdown.render(`
+Serves country data.
+
+Example output:
+      `),
+      exampleOutputJSON: {
+        solidarityActions: (await getCountryByCode('GB'))
       }
     }
   ]
