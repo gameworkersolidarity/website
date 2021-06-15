@@ -27,7 +27,7 @@ export default function Page({ country }: { country: CountryData }) {
       </h1>
 
       <div className='my-4'>
-        {country.country.fields.Notes &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.notes.html }} />}
+        {country.country.fields.Summary &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.summary.html }} />}
       </div>
 
       {country?.country?.solidarityActions?.length > 2

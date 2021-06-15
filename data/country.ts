@@ -11,7 +11,7 @@ export const formatCountry = (country: Country) => {
   country.emoji = countryFlagEmoji.get(country.fields['Country Code'])
   country.fields.Name.trim()
 
-  country.notes = parseMarkdown(country.fields.Notes || '')
+  country.summary = parseMarkdown(country.fields.Summary || '')
 
   try {
     countrySchema.parse(country)
@@ -21,7 +21,7 @@ export const formatCountry = (country: Country) => {
   return country
 }
 
-const fields: Array<keyof Country['fields']> = ['Name', 'Country Code', 'Notes', 'Slug']
+const fields: Array<keyof Country['fields']> = ['Name', 'Country Code', 'Summary', 'Slug', 'Solidarity Actions']
 
 export const countryBase = () => airtableBase()<Country['fields']>(
   env.get('AIRTABLE_TABLE_NAME_COUNTRIES').default('Countries').asString()

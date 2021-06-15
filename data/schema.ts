@@ -122,7 +122,7 @@ export const countrySchema = baseRecordSchema.extend({
   fields: z.object({
     Name: z.string(),
     "Country Code": z.string(),
-    Notes: z.string().optional(),
+    Summary: z.string().optional(),
     Slug: z.string(),
     "Official Name": z.string(),
     "Solidarity Actions": z.array(z.any()),
@@ -137,5 +137,5 @@ export const countrySchema = baseRecordSchema.extend({
     "Name (from Solidarity Actions)": z.array(z.any()),
   }),
   solidarityActions: z.array(solidarityActionSchema).optional(),
-  notes: copyTypeSchema,
+  summary: copyTypeSchema,
 });

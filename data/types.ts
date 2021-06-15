@@ -143,5 +143,5 @@ export interface Country extends BaseRecord {
     'Name (from Solidarity Actions)': any[]
   }
   solidarityActions?: SolidarityAction[],
-  notes: CopyType
+  summary: CopyType
 }
