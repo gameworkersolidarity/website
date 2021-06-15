@@ -24,6 +24,11 @@ export const locSchema = z.object({
   coordinates: z.array(z.number()),
 });
 
+export const copyTypeSchema = z.object({
+  html: z.string(),
+  plaintext: z.string(),
+});
+
 export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
@@ -33,6 +38,7 @@ export const blogPostSchema = baseRecordSchema.extend({
     Date: z.string(),
     Public: z.literal(true),
   }),
+  body: copyTypeSchema,
 });
 
 export const staticPageSchema = baseRecordSchema.extend({
@@ -44,6 +50,7 @@ export const staticPageSchema = baseRecordSchema.extend({
     Link: z.string().optional(),
     Public: z.literal(true),
   }),
+  body: copyTypeSchema,
 });
 
 export const thumbnailsSchema = z.object({
@@ -107,6 +114,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Notes: z.string().optional(),
     Public: z.literal(true),
   }),
+  summary: copyTypeSchema,
 });
 
 export const countrySchema = baseRecordSchema.extend({
@@ -129,4 +137,5 @@ export const countrySchema = baseRecordSchema.extend({
     "Name (from Solidarity Actions)": z.array(z.any()),
   }),
   solidarityActions: z.array(solidarityActionSchema).optional(),
+  notes: copyTypeSchema,
 });

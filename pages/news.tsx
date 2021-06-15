@@ -38,7 +38,7 @@ export default function Page({ blogPosts }: Props) {
                   {b.fields.Title}
                 </h2>
                 <p className='text-gray-300 font-bold'>{b.fields.Summary}</p>
-                <div className='prose text-gray-300' dangerouslySetInnerHTML={{ __html: b.fields.Body }} />
+                <div className='prose text-gray-300' dangerouslySetInnerHTML={{ __html: b.body.html }} />
               </div>
             </article>
           // </Link>

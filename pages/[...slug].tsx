@@ -10,10 +10,10 @@ export default function Page({ article }: { article: BlogPost }) {
     <>
       <NextSeo
         title={article.fields.Title}
-        description={article.fields.Summary}
+        description={article.body.plaintext}
         openGraph={{
           title: article.fields.Title,
-          description: article.fields.Summary
+          description: article.body.plaintext
         }}
       />
 
@@ -21,7 +21,7 @@ export default function Page({ article }: { article: BlogPost }) {
         <article className='space-y-2'>
           <h1 className='text-4xl font-bold'>{article.fields.Title}</h1>
           <p className='text-2xl text-gray-300 font-bold'>{article.fields.Summary}</p>
-          <div className='prose text-gray-300' dangerouslySetInnerHTML={{ __html: article.fields.Body }} />
+          <div className='prose text-gray-300' dangerouslySetInnerHTML={{ __html: article.body.html }} />
         </article>
       </section>
     </>

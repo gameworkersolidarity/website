@@ -1,13 +1,12 @@
-import MarkdownIt from 'markdown-it'
 import { BlogPost, StaticPage } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { blogPostSchema } from './schema';
-
-const markdown = new MarkdownIt();
+import { parseMarkdown } from './markdown';
 
 export const formatBlogPost = (blog: BlogPost): BlogPost => {
-  blog.fields.Body = markdown.render(blog.fields.Body)
+  blog.body = parseMarkdown(blog.fields.Body || '')
+
   try {
     blogPostSchema.parse(blog)
   } catch(e) {

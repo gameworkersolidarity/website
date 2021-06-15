@@ -210,7 +210,7 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
       </div>
       {isFeatured && data.fields.Summary && (
         <div className={cx(isFeatured ? 'text-gray-200' : 'text-gray-400', 'w-full px-4 pb-2')}>
-          <div className='max-w-xl text-sm' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
+          <div className='max-w-xl text-sm' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
         </div>
       )}
       <div className='text-xs space-x-3 flex justify-between items-center align-middle w-full flex-row px-4 pb-2'>
@@ -244,10 +244,10 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
     <>
       <NextSeo
         title={seoTitle}
-        description={data.fields.Summary}
+        description={data.summary.plaintext}
         openGraph={{
           title: seoTitle,
-          description: data.fields.Summary
+          description: data.summary.plaintext
         }}
       />
       <article className='bg-gray-900 rounded-md flex flex-col space-y-4 justify-between'>
@@ -274,7 +274,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
         </div>
         {data.fields.Summary && (
           <div className='w-full text-gray-200 px-4 md:px-5'>
-            <div className='max-w-xl -my-1' dangerouslySetInnerHTML={{ __html: data.fields.Summary }} />
+            <div className='max-w-xl -my-1' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
           </div>
         )}
         {data.fields.Link && (

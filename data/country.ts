@@ -3,15 +3,15 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { countrySchema, solidarityActionSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
-import MarkdownIt from 'markdown-it'
 import { getSolidarityActionsByCountryCode } from './solidarityAction';
-const markdown = new MarkdownIt();
 import countryFlagEmoji from "country-flag-emoji";
+import { parseMarkdown } from './markdown';
 
 export const formatCountry = (country: Country) => {
   country.emoji = countryFlagEmoji.get(country.fields['Country Code'])
   country.fields.Name.trim()
-  country.fields.Notes = markdown.render(country.fields.Notes || '')
+
+  country.notes = parseMarkdown(country.fields.Notes || '')
 
   try {
     countrySchema.parse(country)

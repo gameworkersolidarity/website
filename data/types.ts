@@ -62,6 +62,12 @@ export interface LOC {
 
 //////////////
 // Domain data
+
+export type CopyType = {
+  html: string
+  plaintext: string
+}
+
 export interface SolidarityAction extends BaseRecord {
   geography?: {
     country: Array<{
@@ -89,7 +95,8 @@ export interface SolidarityAction extends BaseRecord {
     DisplayStyle?: "Featured" | null
     Notes?:     string;
     Public:     true; // We can't accept records that haven't been marked for publication
-  }
+  },
+  summary: CopyType
 }
 
 export interface BlogPost extends BaseRecord {
@@ -100,7 +107,8 @@ export interface BlogPost extends BaseRecord {
     Body:   string;
     Date:       string;
     Public:     true; // We can't accept records that haven't been marked for publication
-  }
+  },
+  body: CopyType
 }
 
 export interface StaticPage extends BaseRecord {
@@ -111,7 +119,8 @@ export interface StaticPage extends BaseRecord {
     Body:   string;
     Link?: string;
     Public:     true; // We can't accept records that haven't been marked for publication
-  }
+  },
+  body: CopyType
 }
 
 export interface Country extends BaseRecord {
@@ -133,5 +142,6 @@ export interface Country extends BaseRecord {
     'Location (from Solidarity Actions)': any[]
     'Name (from Solidarity Actions)': any[]
   }
-  solidarityActions?: SolidarityAction[]
+  solidarityActions?: SolidarityAction[],
+  notes: CopyType
 }
