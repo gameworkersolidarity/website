@@ -12,6 +12,12 @@ export const formatCountry = (country: Country) => {
   country.emoji = countryFlagEmoji.get(country.fields['Country Code'])
   country.fields.Name.trim()
   country.fields.Notes = markdown.render(country.fields.Notes || '')
+
+  try {
+    countrySchema.parse(country)
+  } catch(e) {
+    console.error(e)
+  }
   return country
 }
 

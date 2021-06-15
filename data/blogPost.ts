@@ -8,6 +8,11 @@ const markdown = new MarkdownIt();
 
 export const formatBlogPost = (blog: BlogPost): BlogPost => {
   blog.fields.Body = markdown.render(blog.fields.Body)
+  try {
+    blogPostSchema.parse(blog)
+  } catch(e) {
+    console.error(e)
+  }
   return blog
 }
 
@@ -31,7 +36,7 @@ export async function getBlogPosts (): Promise<Array<BlogPost>> {
       view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').asString(),
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
-        blogPosts.push(record._rawJson)
+        blogPosts.push(formatBlogPost(record._rawJson))
       });
       fetchNextPage();
     }, function done(err) {
@@ -39,7 +44,7 @@ export async function getBlogPosts (): Promise<Array<BlogPost>> {
       resolve(
         blogPosts.filter(a =>
           blogPostSchema.safeParse(a).success === true
-        ).map(formatBlogPost)
+        )
       )
     });
   })

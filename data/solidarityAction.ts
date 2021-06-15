@@ -9,11 +9,14 @@ import { airtableFilterAND } from '../utils/airtable';
 import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
 import cities from 'all-the-cities'
+import MarkdownIt from 'markdown-it'
+const markdown = new MarkdownIt();
 
 export const formatSolidarityAction = (d: SolidarityAction) => {
-  d.geography = { country: [], city: null }
+  d.fields.Summary = markdown.render(d.fields.Summary || '')
 
   // Add country-level data
+  d.geography = { country: [], city: null }
   let i = 0
   for (const countryCode of d.fields['Country Code']) {
     const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
