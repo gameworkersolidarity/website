@@ -18,8 +18,8 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
   return (
     <ReactMapGL
       {...viewport}
-      mapboxApiAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-      mapStyle="mapbox://styles/commonknowledge/ckptscib5346h19purz84rb2o"
+      mapboxApiAccessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
+      mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckptscib5346h19purz84rb2o').asString()}
       onViewportChange={nextViewport => setViewport(nextViewport)}
       className="rounded-md"
     >
