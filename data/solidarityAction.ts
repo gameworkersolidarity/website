@@ -12,18 +12,18 @@ import cities from 'all-the-cities'
 import MarkdownIt from 'markdown-it'
 const markdown = new MarkdownIt();
 
-export const formatSolidarityAction = (d: SolidarityAction) => {
-  d.fields.Summary = markdown.render(d.fields.Summary || '')
+export const formatSolidarityAction = (action: SolidarityAction) => {
+  action.fields.Summary = markdown.render(action.fields.Summary || '')
 
   // Add country-level data
-  d.geography = { country: [], city: null }
+  action.geography = { country: [], city: null }
   let i = 0
-  for (const countryCode of d.fields['Country Code']) {
+  for (const countryCode of action.fields['Country Code']) {
     const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
     const emoji = countryFlagEmoji.get(countryCode)
     try {
-      d.geography.country.push({
-        name: d.fields['Country Name'][i],
+      action.geography.country.push({
+        name: action.fields['Country Name'][i],
         emoji,
         iso3166,
         ...countryCoordData
@@ -35,17 +35,17 @@ export const formatSolidarityAction = (d: SolidarityAction) => {
   }
 
   // Add city
-  d.geography.city = d.fields.Location ? (cities as City[]).find(city => (
-    city.name.includes(d.fields.Location) ||
-    d.fields.Location.includes(city.name)
+  action.geography.city = action.fields.Location ? (cities as City[]).find(city => (
+    city.name.includes(action.fields.Location) ||
+    action.fields.Location.includes(city.name)
   )) || null : null
 
   try {
-    solidarityActionSchema.parse(d)
+    solidarityActionSchema.parse(action)
   } catch(e) {
     console.error(e)
   }
-  return d
+  return action
 }
 
 const fields: Array<keyof SolidarityAction['fields']> = ['Document', 'Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
