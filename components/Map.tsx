@@ -1,5 +1,5 @@
 import { SolidarityAction } from '../data/types';
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import env from 'env-var';
 import { stringifyArray } from '../utils/string';
@@ -11,24 +11,34 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
     longitude: 0,
     zoom: 0.7,
     width: '100%',
-    height: 350,
+    height: 700,
     ...initialViewport,
   });
+
+  const updateViewport = useCallback(nextViewport => setViewport(nextViewport), [])
 
   return (
     <ReactMapGL
       {...viewport}
       mapboxApiAccessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
       mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckptscib5346h19purz84rb2o').asString()}
-      onViewportChange={nextViewport => setViewport(nextViewport)}
+      onViewportChange={updateViewport}
       className="rounded-md"
     >
-      {data.map(d => (
-        <MapMarker key={d.id} data={d} />
-      ))}
+      <MapLayer data={data} />
     </ReactMapGL>
   );
 }
+
+const MapLayer = memo(({ data }: { data: SolidarityAction[] }) => {
+  return (
+    <>
+      {data.map(d => (
+        <MapMarker key={d.id} data={d} />
+      ))}
+    </>
+  )
+})
 
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
   let geoData = {
