@@ -39,6 +39,8 @@ export async function getStaticProps() {
         }
       })
     },
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

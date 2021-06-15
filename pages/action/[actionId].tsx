@@ -3,6 +3,7 @@ import { getSingleSolidarityAction, getSolidarityActions } from '../../data/soli
 import { SolidarityAction } from '../../data/types';
 import { SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
+import env from 'env-var';
 
 export default function Page({ action }: { action: SolidarityAction }) {
   return action ? (
@@ -47,6 +48,8 @@ export async function getStaticProps(context) {
     props: {
       action
     },
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

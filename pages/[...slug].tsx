@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { getSingleStaticPage, getStaticPageLinks } from '../data/staticPage';
 import { BlogPost } from '../data/types';
 import { NextSeo } from 'next-seo';
+import env from 'env-var';
 
 export default function Page({ article }: { article: BlogPost }) {
   return article ? (
@@ -43,6 +44,8 @@ export async function getStaticProps(context) {
     props: {
       article: await getSingleStaticPage(context.params.slug.join('/'))
     },
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

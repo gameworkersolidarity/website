@@ -3,6 +3,7 @@ import { BlogPost } from '../data/types';
 import { format } from 'date-fns';
 import { getBlogPosts } from '../data/blogPost';
 import { NextSeo } from 'next-seo';
+import env from 'env-var';
 
 type Props = {
   blogPosts: BlogPost[],
@@ -51,6 +52,8 @@ export async function getStaticProps() {
     props: {
       blogPosts: await getBlogPosts()
     },
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

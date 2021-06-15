@@ -5,6 +5,7 @@ import Emoji from 'a11y-react-emoji';
 import Link from 'next/link';
 import { projectStrings } from '../../data/site';
 import { CumulativeMovementChart } from '../../components/ActionChart';
+import env from 'env-var';
 
 export default function Page({ country }: { country: CountryData }) {
   if (!country?.country?.fields) {
@@ -79,6 +80,8 @@ export async function getStaticProps(context) {
     props: {
       country
     },
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

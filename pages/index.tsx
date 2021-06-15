@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { projectStrings } from '../data/site';
 import { CumulativeMovementChart } from '../components/ActionChart';
 import { Map } from '../components/Map';
+import env from 'env-var';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
   if (!solidarityActions.length) {
@@ -65,6 +66,8 @@ export async function getStaticProps() {
     props: {
       solidarityActions: data
     } as SolidarityActionsData,
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

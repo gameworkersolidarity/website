@@ -3,6 +3,7 @@ import MarkdownIt from 'markdown-it'
 import { CodeBlock } from '../components/CodeBlock';
 import { getSolidarityActions } from '../data/solidarityAction';
 import { NextSeo } from 'next-seo';
+import env from 'env-var';
 export const markdown = new MarkdownIt();
 
 interface Doc {
@@ -68,6 +69,8 @@ Example output:
     props: {
       docs
     },
-    revalidate: process.env.NODE_ENV === 'production' ? 60 : 5, // In seconds
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt() // In seconds
   }
 }
