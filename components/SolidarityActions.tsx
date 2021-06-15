@@ -48,7 +48,9 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
   const router = useRouter()
 
   function onClose () {
-    return router.replace(returnHref, returnHref, { shallow: true })
+    if (returnHref) {
+      return router.replace(returnHref, returnHref, { shallow: true })
+    }
   }
 
   const showDialog = !!selectedAction
@@ -165,7 +167,7 @@ export function SolidarityActionsFullList () {
 
   return (
     <SolidarityActionsList
-      data={data?.data?.solidarityActions}
+      data={data?.data?.solidarityActions || []}
       withDialog
       dialogProps={{
         cardProps: {
@@ -337,7 +339,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
     }
   }), { revalidateOnMount: true })
 
-  const actionCount = data?.fields?.['Solidarity Actions']?.length
+  const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
   
   return data?.fields ? (
     <Link href={`/country/${data.fields.Slug}`}>

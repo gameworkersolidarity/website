@@ -1,4 +1,4 @@
-import { Country, SolidarityAction } from './types';
+import { Country, SolidarityAction, CountryEmoji } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { countrySchema, solidarityActionSchema } from './schema';
@@ -8,15 +8,16 @@ import countryFlagEmoji from "country-flag-emoji";
 import { parseMarkdown } from './markdown';
 
 export const formatCountry = (country: Country) => {
-  country.emoji = countryFlagEmoji.get(country.fields['Country Code'])
+  country.emoji = countryFlagEmoji.get(country.fields['Country Code']) as CountryEmoji
   country.fields.Name.trim()
 
   country.summary = parseMarkdown(country.fields.Summary || '')
 
   try {
-    countrySchema.parse(country)
+    // Remove any keys not expected by the parser
+    country = countrySchema.parse(country)
   } catch(e) {
-    console.error(e)
+    console.error(JSON.stringify(country), e)
   }
   return country
 }
@@ -29,14 +30,13 @@ export const countryBase = () => airtableBase()<Country['fields']>(
 
 export async function getCountries (selectArgs: QueryParams<Country['fields']> = {}): Promise<Array<Country>> {
   return new Promise((resolve, reject) => {
-    const countrys: Country[] = []
+    const countries: Country[] = []
 
     function finish () {
       resolve(
-        // countrys.filter(a =>
-        //   countrySchema.safeParse(a).success === true
-        // )
-        countrys
+        countries.filter(a =>
+          countrySchema.safeParse(a).success === true
+        )
       )
     }
 
@@ -50,7 +50,7 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
       ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(function(record) {
-        countrys.push(formatCountry(record._rawJson))
+        countries.push(formatCountry(record._rawJson))
       });
       try {
         fetchNextPage();
@@ -64,18 +64,21 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
   })
 }
 
-export async function getCountryBy (selectArgs: QueryParams<Country['fields']> = {}) {
+export async function getCountryBy (selectArgs: QueryParams<Country['fields']> = {}, description?: string) {
   let country: Country
   return new Promise<Country>((resolve, reject) => {
     countryBase().select({
       // sort: [
       //   { field: "Name", direction: "asc", },
       // ],
-      // fields: fields,
+      fields: fields,
       maxRecords: 1,
       // view: env.get('AIRTABLE_TABLE_VIEW_COUNTRIES').default('Grid view').asString(),
       ...selectArgs
     }).firstPage(function page(error, records) {
+      if (error || !records) {
+        return reject(error || `No record found for filter ${JSON.stringify(selectArgs)}`)
+      }
       country = records[0]._rawJson
       resolve(formatCountry(country))
     })

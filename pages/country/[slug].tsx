@@ -30,8 +30,8 @@ export default function Page({ country }: { country: CountryData }) {
         {country.country.fields.Summary &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.summary.html }} />}
       </div>
 
-      {country?.country?.solidarityActions?.length > 2
-        && <CumulativeMovementChart data={country?.country?.solidarityActions} />
+      {country?.country?.solidarityActions?.length
+        && <CumulativeMovementChart data={country?.country?.solidarityActions || []} />
       }
 
 
@@ -49,10 +49,10 @@ export default function Page({ country }: { country: CountryData }) {
         </div>
       </div>
 
-      <SolidarityActionsList
+      {country?.country?.solidarityActions && <SolidarityActionsList
         data={country?.country?.solidarityActions}
         withDialog
-      />
+      />}
 
       <Link href='/'>
         <div className='link text-gray-300 text-sm mt-4'>
@@ -78,6 +78,8 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 export const getStaticProps: GetStaticProps<
   { country: CountryData }, { slug: string }
 > = async (context) => {
+  if (!context?.params?.slug) throw new Error()
+
   const country = await getCountryDataBySlug(context.params.slug)
 
   return {

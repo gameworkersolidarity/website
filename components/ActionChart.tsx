@@ -120,17 +120,21 @@ export function CumulativeChart ({
       snapTooltipToDatumY
       showVerticalCrosshair
       showSeriesGlyphs
-      renderTooltip={({ tooltipData, colorScale }) => (
+      renderTooltip={({ tooltipData, colorScale }) =>
         <div className='text-md font-mono'>
-          <div className='text-lg'>{pluralize('action', accessors.yAccessor(tooltipData.nearestDatum.datum), true)}</div>
-          <div className='text-gray-500'>
-            {cumulative
-              ? <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-              : <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-            }
-          </div>
+          {tooltipData?.nearestDatum ? <>
+            <div className='text-lg'>
+              {pluralize('action', accessors.yAccessor(tooltipData.nearestDatum.datum), true)}
+            </div>
+            <div className='text-gray-500'>
+              {cumulative
+                ? <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
+                : <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
+              }
+            </div>
+          </> : null}
         </div>
-      )}
+      }
     />
     </XYChart>
   )

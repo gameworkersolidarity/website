@@ -36,8 +36,8 @@ export async function getSingleStaticPage (slug: string) {
       maxRecords: 1,
       view: env.get('AIRTABLE_TABLE_VIEW_STATIC_PAGES').default('All Pages').asString(),
     }).firstPage((error, records) => {
-      if (error) {
-        return reject(error)
+      if (error || !records) {
+        return reject(error || `No record found for slug ${slug}`)
       }
       return resolve(formatBlogPost(records[0]._rawJson))
     })

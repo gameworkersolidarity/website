@@ -29,11 +29,11 @@ export default function Page({ article }: { article: BlogPost }) {
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const links = (await getStaticPageLinks()).filter(page => !!page.fields.Slug)
+  const links = (await getStaticPageLinks()).filter(page => typeof page.fields.Slug === 'string')
   return {
     paths: links.map(page => ({
       params: {
-        slug: page.fields.Slug.split('/')
+        slug: page.fields.Slug!.split('/')
       }
     })),
     fallback: true
@@ -43,6 +43,8 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 export const getStaticProps: GetStaticProps<
   { article: StaticPage }, { slug: string[] }
 > = async (context) => {
+  if (!context?.params?.slug) throw new Error()
+
   return {
     props: {
       article: await getSingleStaticPage(context.params.slug.join('/'))

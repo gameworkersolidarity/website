@@ -83,20 +83,18 @@ export const documentSchema = z.object({
 });
 
 export const solidarityActionSchema = baseRecordSchema.extend({
-  geography: z
-    .object({
-      country: z.array(
-        z.object({
-          name: z.string(),
-          emoji: countryEmojiSchema,
-          iso3166: z.string(),
-          latitude: z.number(),
-          longitude: z.number(),
-        })
-      ),
-      city: z.union([citySchema.partial(), z.null()]).optional(),
-    })
-    .optional(),
+  geography: z.object({
+    country: z.array(
+      z.object({
+        name: z.string(),
+        emoji: countryEmojiSchema,
+        iso3166: z.string(),
+        latitude: z.number(),
+        longitude: z.number(),
+      })
+    ),
+    city: z.union([citySchema.partial(), z.null()]).optional(),
+  }),
   fields: z.object({
     Name: z.string(),
     Location: z.string().optional(),
@@ -104,37 +102,25 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Date: z.string(),
     LastModified: z.string(),
     Link: z.string().optional(),
-    Country: z.array(z.string()),
     "Country Name": z.array(z.string()),
     "Country Code": z.array(z.string()),
     "Country Slug": z.array(z.string()),
     Category: z.array(z.string()).optional(),
     Document: z.array(documentSchema).optional(),
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
-    Notes: z.string().optional(),
     Public: z.literal(true),
   }),
   summary: copyTypeSchema,
 });
 
 export const countrySchema = baseRecordSchema.extend({
-  emoji: countryEmojiSchema.optional(),
+  emoji: countryEmojiSchema,
   fields: z.object({
     Name: z.string(),
     "Country Code": z.string(),
     Summary: z.string().optional(),
     Slug: z.string(),
-    "Official Name": z.string(),
-    "Solidarity Actions": z.array(z.any()),
-    "DisplayStyle (from Solidarity Actions)": z.array(z.any()),
-    "Public (from Solidarity Actions)": z.array(z.any()),
-    "Category (from Solidarity Actions)": z.array(z.any()),
-    "Document (from Solidarity Actions)": z.array(z.any()),
-    "Link (from Solidarity Actions)": z.array(z.any()),
-    "Date (from Solidarity Actions)": z.array(z.any()),
-    "Summary (from Solidarity Actions)": z.array(z.any()),
-    "Location (from Solidarity Actions)": z.array(z.any()),
-    "Name (from Solidarity Actions)": z.array(z.any()),
+    "Solidarity Actions": z.array(z.string()).optional(),
   }),
   solidarityActions: z.array(solidarityActionSchema).optional(),
   summary: copyTypeSchema,

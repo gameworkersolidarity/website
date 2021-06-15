@@ -69,7 +69,7 @@ export type CopyType = {
 }
 
 export interface SolidarityAction extends BaseRecord {
-  geography?: {
+  geography: {
     country: Array<{
       name: string
       emoji: CountryEmoji
@@ -86,14 +86,14 @@ export interface SolidarityAction extends BaseRecord {
     Date:       string;
     LastModified: string;
     Link?:      string;
-    'Country': string[]
+    // 'Country': string[] // Not really useful — Zod will parse these out
     'Country Name': string[]
     'Country Code': string[]
     'Country Slug': string[]
     Category?:  string[],
     Document?:  Document[];
     DisplayStyle?: "Featured" | null
-    Notes?:     string;
+    // Notes?:     string; // These are private — Zod will parse these out
     Public:     true; // We can't accept records that haven't been marked for publication
   },
   summary: CopyType
@@ -124,23 +124,19 @@ export interface StaticPage extends BaseRecord {
 }
 
 export interface Country extends BaseRecord {
-  emoji?: CountryEmoji
+  emoji: CountryEmoji
   fields: {
     Name: string;
     'Country Code':       string;
-    Notes?:   string;
+    Summary?:   string;
     Slug: string
-    'Official Name':   string;
-    'Solidarity Actions': any[]
-    'DisplayStyle (from Solidarity Actions)': any[]
-    'Public (from Solidarity Actions)': any[]
-    'Category (from Solidarity Actions)': any[]
-    'Document (from Solidarity Actions)': any[]
-    'Link (from Solidarity Actions)': any[]
-    'Date (from Solidarity Actions)': any[]
-    'Summary (from Solidarity Actions)': any[]
-    'Location (from Solidarity Actions)': any[]
-    'Name (from Solidarity Actions)': any[]
+    // 'Official Name':   string;
+    'Solidarity Actions'?: string[]
+    // 'DisplayStyle (from Solidarity Actions)': string[]
+    // 'Category (from Solidarity Actions)': string[]
+    // 'Document (from Solidarity Actions)': Document[]
+    // 'Date (from Solidarity Actions)': string[]
+    // 'Name (from Solidarity Actions)': string[]
   }
   solidarityActions?: SolidarityAction[],
   summary: CopyType

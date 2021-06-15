@@ -32,13 +32,13 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
 
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
   let geoData = {
-    latitude: data?.geography.country[0].latitude,
-    longitude: data?.geography.country[0].longitude
+    latitude: data.geography.country[0].latitude,
+    longitude: data.geography.country[0].longitude
   }
-  if (data?.geography.city) {
+  if (data?.geography?.city?.loc) {
     geoData = {
-      latitude: data?.geography.city.loc.coordinates[1],
-      longitude: data?.geography.city.loc.coordinates[0],
+      latitude: data.geography.city.loc.coordinates[1],
+      longitude: data.geography.city.loc.coordinates[0],
     }
   }
 

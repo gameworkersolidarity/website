@@ -5,7 +5,7 @@ const markdown = new MarkdownIt();
 export function parseMarkdown(md: string) {
   const html = markdown.render(md)
   return {
-    html: html,
+    html: html as string,
     plaintext: removeMd(html) as string
   }
 }

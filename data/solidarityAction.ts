@@ -28,7 +28,7 @@ export const formatSolidarityAction = (action: SolidarityAction) => {
         ...countryCoordData
       })
     } catch (e) {
-      console.error(e)
+      console.error(JSON.stringify(action), e)
     }
     i++;
   }
@@ -40,14 +40,15 @@ export const formatSolidarityAction = (action: SolidarityAction) => {
   )) || null : null
 
   try {
-    solidarityActionSchema.parse(action)
+    // Remove any keys not expected by the parser
+    const d = solidarityActionSchema.parse(action)
   } catch(e) {
-    console.error(e)
+    console.error(JSON.stringify(action), e)
   }
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['Document', 'Country', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['Document', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -71,7 +72,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
         { field: "Date", direction: "asc", },
         // { field: "Country", direction: "asc", }
       ],
-      // fields: fields,
+      fields: fields,
       maxRecords: 1000,
       view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
       ...selectArgs
@@ -99,8 +100,8 @@ export async function getSolidarityActionsByCountryCode (iso2: string) {
 export async function getSingleSolidarityAction (recordId: string) {
   return new Promise<SolidarityAction>((resolve, reject) => {
     solidarityActionBase().find(recordId, (error, record) => {
-      if (error) {
-        return reject(error)
+      if (error || !record) {
+        return reject(error || `No record found for ID ${recordId}`)
       }
       return resolve(formatSolidarityAction(record._rawJson))
     })

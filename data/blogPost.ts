@@ -8,9 +8,10 @@ export const formatBlogPost = (blog: BlogPost): BlogPost => {
   blog.body = parseMarkdown(blog.fields.Body || '')
 
   try {
-    blogPostSchema.parse(blog)
+    // Remove any keys not expected by the parser
+    blog = blogPostSchema.parse(blog)
   } catch(e) {
-    console.error(e)
+    console.error(JSON.stringify(blog), e)
   }
   return blog
 }
@@ -57,8 +58,8 @@ export async function getSingleBlogPost (slug: string): Promise<BlogPost> {
       maxRecords: 1,
       view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').asString(),
     }).firstPage((error, records) => {
-      if (error) {
-        return reject(error)
+      if (error || !records) {
+        return reject(error || `No record found for slug ${slug}`)
       }
       return resolve(formatBlogPost(records[0]._rawJson))
     })
