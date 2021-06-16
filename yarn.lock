@@ -1854,11 +1854,6 @@ country-flag-emoji@^1.0.3:
   resolved "https://registry.yarnpkg.com/country-flag-emoji/-/country-flag-emoji-1.0.3.tgz#2417e1c1fa088200c4ecfc53bb1a0f7d05e7917d"
   integrity sha512-OVMltN9rF8Rd9fjDzcNAT376fslwlkTuu+BeqzY4Z+kr+nF/3u4Kod5SyEKuABxwvi6tWO7uszO3MgWzoevAuQ==
 
-country-to-iso@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/country-to-iso/-/country-to-iso-1.1.1.tgz#b168d9001149c14b97a57b0a8dac741a20a4f157"
-  integrity sha512-j8VnsOUa/JOB96MixfRgGglgexo+nF7i7aifmaCgZT12pG0lXNQqRUepMS8UNXhj9P3pe1vHnk06/nnO6Q7hoA==
-
 create-ecdh@^4.0.0:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/create-ecdh/-/create-ecdh-4.0.4.tgz#d6e7f4bffa66736085a0762fd3a632684dabcc4e"
@@ -2598,11 +2593,6 @@ format@^0.2.0:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/format/-/format-0.2.2.tgz#d6170107e9efdc4ed30c9dc39016df942b5cb58b"
   integrity sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=
-
-fp-ts@^2.10.5:
-  version "2.10.5"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.10.5.tgz#7c77868fe8bd9b229743303c1bec505b959f631b"
-  integrity sha512-X2KfTIV0cxIk3d7/2Pvp/pxL/xr2MV1WooyEzKtTWYSc1+52VF4YzjBTXqeOlSiZsPCxIBpDGfT9Dyo7WEY0DQ==
 
 fraction.js@^4.1.1:
   version "4.1.1"
@@ -4771,13 +4761,6 @@ toidentifier@1.0.0:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
 
-tozod@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/tozod/-/tozod-0.1.4.tgz#0dbce0e0640d2a9ef19906f1a3720b19801c964b"
-  integrity sha512-SyLZpdxkuF/vnyWp7T0D9vVj3kCY9g5ICaMXTH84Dlv5WBLNEX+mIleBMCbbLRdLrZCu24171BQn4N+DlFw2uA==
-  dependencies:
-    zod "^2.0.0-beta.20"
-
 tr46@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-1.0.1.tgz#a8b13fd6bfd2489519674ccde55ba3693b706d09"
@@ -5112,11 +5095,6 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-zod@^2.0.0-beta.20:
-  version "2.0.0-beta.30"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-2.0.0-beta.30.tgz#67ec3305c4a106a7bf9ef72078de72892d485dbe"
-  integrity sha512-nwCSRXRy1jt0872mMXT2E6VVHXr2hO7jGEtwc/TDqOBb7gGodwAjsQ6UCS4XJLUmjVvmqLsuPvAIN8oL26weCQ==
 
 zod@^3.1.0:
   version "3.1.0"

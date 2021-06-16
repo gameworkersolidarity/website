@@ -5,7 +5,6 @@ import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema } fro
 import { QueryParams } from 'airtable/lib/query_params';
 import coords from 'country-coords'
 import { airtableFilterAND } from '../utils/airtable';
-// import { countryToAlpha2 } from "country-to-iso"
 import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
 import { parseMarkdown } from './markdown';
