@@ -185,7 +185,7 @@ export function SolidarityActionsFullList () {
 
 export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAction, isFeatured?: boolean }) {
   return (
-    <article className={cx(isFeatured ? 'bg-gwOrangeLight' : 'bg-gray-100', 'rounded-md group-hover:bg-gwOrange transition duration-75 flex flex-col space-y-1 py-2 justify-between')}>
+    <article className={cx(isFeatured ? 'bg-gwOrangeLight' : 'bg-gray-200', 'rounded-md group-hover:bg-gwOrange transition duration-75 flex flex-col space-y-1 py-2 justify-between')}>
       <div className='space-y-1 space-x-2 px-4 md:grid grid-cols-5 gap-2 text-sm align-baseline items-baseline'>
         <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
         {data.geography?.country.map(country => (
@@ -198,10 +198,7 @@ export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAc
           </span>
         ))}
         {data.fields.Location ? (
-          <span>
-            <span>{data.fields.Location}</span>
-            <span className='pointer-events-none'>,</span>
-          </span>
+          <span>{data.fields.Location}</span>
         ) : null}
         {data.fields.Link && (
           <a href={data.fields.Link} className='block my-1'>
