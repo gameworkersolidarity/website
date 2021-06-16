@@ -4,6 +4,7 @@ import {
   BarSeries,
   XYChart,
   Tooltip,
+  GlyphSeries
 } from '@visx/xychart';
 import { ParentSize } from '@visx/responsive';
 import { SolidarityAction } from '../data/types';
@@ -105,14 +106,6 @@ export function CumulativeChart ({
       yScale={{ type: 'linear' }}
       margin={{ left: 0, right: 0, bottom: 20, top: 0 }}
     >
-    <Axis
-      orientation="bottom"
-      tickFormat={timeFormat(isSmallScreen ? "%y" : "%Y")}
-      tickLabelProps={props => ({
-        ...props,
-        style: tw`font-mono fill-current text-gwPink`
-      })}
-    />
     <BarSeries
       dataKey="Cumulative"
       data={cumulativeBinnedData as any} {...accessors}
@@ -123,11 +116,37 @@ export function CumulativeChart ({
       data={binnedData as any} {...accessors}
       colorAccessor={d => theme`colors.gwPink`}
     />
+    <GlyphSeries
+      dataKey="Frequency"
+      data={binnedData as any} {...accessors}
+      // colorAccessor={d => theme`colors.gwPink`}
+      renderGlyph={(props, context) => {
+        return props.datum['y'] > 0 ? (
+          <text x={props.x} y={props.y - 3}
+            dominantBaseline="bottom" textAnchor="middle"
+            className='fill-current text-green-500 font-bold text-xs font-mono'>
+            +{props.datum['y']}
+          </text>
+        ) : null
+      }}
+    />
+    <Axis
+      orientation="bottom"
+      axisLineClassName='stroke-current text-gray-400'
+      tickFormat={timeFormat(isSmallScreen ? "%y" : "%Y")}
+      tickLabelProps={props => ({
+        ...props,
+        style: tw`font-mono fill-current text-gray-400`
+      })}
+    />
     <Tooltip<Datum>
       snapTooltipToDatumX
       snapTooltipToDatumY
       showVerticalCrosshair
       showSeriesGlyphs
+      glyphStyle={{
+        fill: theme`colors.gwOrange`
+      }}
       renderTooltip={({ tooltipData, colorScale }) =>
         <div className='text-md font-mono'>
           {tooltipData?.nearestDatum ? <>
