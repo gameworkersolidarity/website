@@ -1,4 +1,4 @@
-import { SolidarityAction, City, Country } from './types';
+import { SolidarityAction } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema } from './schema';

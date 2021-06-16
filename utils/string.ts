@@ -1,4 +1,4 @@
-export const stringifyArray = <T>(...ds: T[]): string => {
+export const stringifyArray = (...ds: any[]): string => {
   return unique(...noNull(...ds)).map(s => s.toString().trim()).join(", ")
 }
 

@@ -85,7 +85,7 @@ export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
     Title: z.string(),
-    Summary: z.string(),
+    Summary: z.string().optional(),
     Body: z.string(),
     Date: z.string(),
     Public: z.literal(true),
@@ -97,7 +97,7 @@ export const staticPageSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
     Title: z.string(),
-    Summary: z.string(),
+    Summary: z.string().optional(),
     Body: z.string(),
     Link: z.string().optional(),
     Public: z.literal(true),

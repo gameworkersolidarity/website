@@ -45,6 +45,8 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 export const getStaticProps: GetStaticProps<
   { action: SolidarityAction }, { actionId: string }
 > = async (context) => {
+  if (!context?.params?.actionId) throw new Error()
+
   const action = await getSingleSolidarityAction(context.params.actionId)
 
   return {

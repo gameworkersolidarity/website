@@ -168,7 +168,7 @@ export interface BlogPost extends BaseRecord {
   fields: {
     Slug?: string;
     Title:       string;
-    Summary:   string;
+    Summary?:   string;
     Body:   string;
     Date:       string;
     Public:     true; // We can't accept records that haven't been marked for publication
@@ -180,7 +180,7 @@ export interface StaticPage extends BaseRecord {
   fields: {
     Slug?: string;
     Title:       string;
-    Summary:   string;
+    Summary?:   string;
     Body:   string;
     Link?: string;
     Public:     true; // We can't accept records that haven't been marked for publication
