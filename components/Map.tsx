@@ -40,6 +40,7 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
       {country && <div className='p-1 hidden md:flex absolute top-0 left-0 items-stretch z-10 h-full' style={{
         width: 400,
       }}>
+        <div className='absolute top-4 right-4 text-sm uppercase font-bold link' onClick={() => setCountry(undefined)}>Close</div>
         <CountryPanel iso2={country} />
       </div>}
       <ReactMapGL
