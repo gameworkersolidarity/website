@@ -46,9 +46,9 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
           maxWidth: '50vw',
         }}>
         {country && (
-          <div className='pointer-events-auto'>
+          <div>
             <CountryPanel iso2={country} />
-            <div className='absolute top-4 right-4 text-sm uppercase font-bold link z-20' onClick={() => setCountry(undefined)}>Close</div>
+            <div className='pointer-events-auto absolute top-4 right-4 text-sm uppercase font-bold link z-20' onClick={() => setCountry(undefined)}>Close</div>
           </div>
         )}
       </div>
@@ -285,7 +285,7 @@ const CountryPanel = memo(({ iso2 }: { iso2: string }) => {
   const country = data?.data?.country
 
   return (
-    <div className=' rounded-md p-3 space-y-4 flex flex-col bg-gray-100 w-full'>
+    <div className='pointer-events-auto rounded-md p-3 space-y-4 flex flex-col bg-gray-100 w-full'>
       {!country ? <div>Loading {iso2}</div> : <>
         <h2 className=' font-bold text-2xl max-w-xl'>
           {country?.fields['Name'].trim()} <Emoji symbol={country.emoji.emoji} label='flag' />
