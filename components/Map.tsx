@@ -39,12 +39,14 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
       maxHeight: '85vh',
       width: '100%'
     }}>
-      <div className='p-1 hidden overflow-y-auto md:flex absolute top-0 left-0 items-stretch z-10 h-full' style={{
-        width: 400,
-        maxWidth: '50vw',
-      }}>
+      <div
+        className='p-1 hidden overflow-y-auto md:flex absolute top-0 left-0 items-stretch z-10 h-full pointer-events-none'
+        style={{
+          width: 400,
+          maxWidth: '50vw',
+        }}>
         {country && (
-          <div>
+          <div className='pointer-events-auto'>
             <CountryPanel iso2={country} />
             <div className='absolute top-4 right-4 text-sm uppercase font-bold link z-20' onClick={() => setCountry(undefined)}>Close</div>
           </div>
