@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply min-h-screen   max-w-full overflow-x-hidden;
+  @apply min-h-screen bg-gray-100 max-w-full overflow-x-hidden;
 }
 
 @layer utilities {
