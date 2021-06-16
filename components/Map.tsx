@@ -217,7 +217,7 @@ function getCoordinatesForAction(data: SolidarityAction) {
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
     return (
     <Marker {...getCoordinatesForAction(data)}>
-      <div className='text-xs space-x-1 text-center transform -translate-x-1/2'>
+      <div className='text-xs space-x-1 text-center transform'>
         <Emoji symbol='💥' />
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
