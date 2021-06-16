@@ -26,7 +26,7 @@ export function CumulativeMovementChart ({ data, cumulative }: { data: Solidarit
   const maxDate = new Date()
 
   return (
-    <div className='bg-gray-900 text-gray-700 rounded-md overflow-hidden p-4 pb-0 flex flex-col justify-center text-center align-center' style={{ maxHeight: 350, height: '80vh' }}>
+    <div className='bg-gray-900 text-gray-700 rounded-md overflow-hidden p-4 pb-0 flex flex-col justify-center text-center align-center' style={{ maxHeight: 175, height: '80vh' }}>
       <ParentSize>{(parent) => (
         <>
           <h3 className='text-lg block text-left text-gray-500 mb-3'>
