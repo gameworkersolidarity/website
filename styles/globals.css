@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply min-h-screen bg-black text-white max-w-full overflow-x-hidden;
+  @apply min-h-screen   max-w-full overflow-x-hidden;
 }
 
 @layer utilities {
@@ -15,10 +15,10 @@ body {
 
 @layer components {
   .link {
-    @apply underline cursor-pointer hover:text-pink-400
+    @apply underline cursor-pointer hover:text-gwPink
   }
 
   .button {
-    @apply cursor-pointer inline-block px-2 py-1 rounded-md border-2 border-gray-800 hover:border-pink-600 transition duration-75 mt-2 hover:text-pink-400
+    @apply cursor-pointer inline-block px-2 py-1 border-2 border-gwPink rounded-md hover:bg-gwPink hover:text-white transition duration-75 mt-2
   }
 }

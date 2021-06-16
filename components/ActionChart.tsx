@@ -20,23 +20,22 @@ import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
 import { useMemo } from 'react';
 
-export function CumulativeMovementChart ({ data, cumulative }: { data: SolidarityAction[], cumulative?: boolean }) {
+export function CumulativeMovementChart ({ data }: { data: SolidarityAction[], cumulative?: boolean }) {
   const actionDates = data.map(d => new Date(d.fields.Date))
   const minDate = min([new Date('2000-01-01'), ...actionDates])
   const maxDate = new Date()
 
   return (
-    <div className='flex flex-col justify-center text-center align-center relative' style={{ maxHeight: 175, height: '80vh' }}>
+    <div className='flex flex-col justify-center text-center align-center relative' style={{ height: 160, maxHeight: '80vh' }}>
       <ParentSize>{(parent) => (
         <>
           <h3 className='text-xs text-left text-gwPink absolute top-0 left-0 font-mono uppercase'>
-            {cumulative ? 'Accumulating momentum of actions' : 'Actions per year'}
+            Worker actions / year
           </h3>
           <CumulativeChart
             data={data}
             minDate={minDate}
             maxDate={maxDate}
-            cumulative={cumulative}
             width={parent.width}
             height={parent.height}
           />
@@ -63,7 +62,6 @@ export function CumulativeChart ({
   data,
   height = 300,
   width = 300,
-  cumulative,
   minDate,
   maxDate
 }: {
@@ -81,17 +79,21 @@ export function CumulativeChart ({
     .value(d => new Date(d.fields.Date))
     .domain([minDate, maxDate])
 
+  const cumulativeBinnedData = useMemo(() => {
+    let d = binFn(data)
+    for(var i = 0; i < d.length; i++) {
+      d[i]['y'] = d[i].length + (d?.[i-1]?.['y'] || 0)
+    }
+    return d
+  }, [data])
+
   const binnedData = useMemo(() => {
     let d = binFn(data)
     for(var i = 0; i < d.length; i++) {
-      if (cumulative) {
-        d[i]['y'] = d[i].length + (d?.[i-1]?.['y'] || 0)
-      } else {
-        d[i]['y'] = d[i].length || 0
-      }
+      d[i]['y'] = d[i].length || 0
     }
     return d
-  }, [data, cumulative])
+  }, [data])
 
   const isSmallScreen = !useMediaQuery(up('sm'))
 
@@ -101,7 +103,7 @@ export function CumulativeChart ({
       height={height}
       xScale={{ type: 'band' }}
       yScale={{ type: 'linear' }}
-      margin={{ left: 0, right: 0, bottom: 90, top: 0 }}
+      margin={{ left: 0, right: 0, bottom: 20, top: 0 }}
     >
     <Axis
       orientation="bottom"
@@ -111,11 +113,13 @@ export function CumulativeChart ({
         style: tw`font-mono fill-current text-gwPink`
       })}
     />
-    {/* <Grid columns={false}
-      lineStyle={tw`stroke-current text-gray-800`}
-    /> */}
     <BarSeries
-      dataKey="Solidarity Actions"
+      dataKey="Cumulative"
+      data={cumulativeBinnedData as any} {...accessors}
+      colorAccessor={d => theme`colors.gwOrangeLight`}
+    />
+    <BarSeries
+      dataKey="Frequency"
       data={binnedData as any} {...accessors}
       colorAccessor={d => theme`colors.gwPink`}
     />
@@ -127,15 +131,16 @@ export function CumulativeChart ({
       renderTooltip={({ tooltipData, colorScale }) =>
         <div className='text-md font-mono'>
           {tooltipData?.nearestDatum ? <>
-            <div className='text-lg'>
-              {pluralize('action', accessors.yAccessor(tooltipData.nearestDatum.datum), true)}
+            <div className='text-md'>
+              {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum), true)} in {timeFormat('%Y')(accessors.xAccessor(tooltipData.datumByKey['Frequency'].datum))}
             </div>
-            <div>
-              {cumulative
-                ? <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-                : <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-              }
+            <div className='text-md text-opacity-50 text-black'>
+              {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum), true)} since {timeFormat('%Y')(minDate)}
             </div>
+            {/* <div>
+              <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
+              <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
+            </div> */}
           </> : null}
         </div>
       }

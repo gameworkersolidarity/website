@@ -45,12 +45,12 @@ function MyApp({ Component, pageProps, links }) {
 
       <VerticalScrollPage>
         <Link href='/'>
-          <div className='text-2xl font-bold cursor-pointer text-gray-300 hover:text-pink-400'>
+          <div className='text-2xl font-bold cursor-pointer  hover:text-gwPink'>
             <div>Game Worker Solidarity Project</div>
           </div>
         </Link>
 
-        <nav className='space-x-2 md:space-x-4 text-sm text-gray-300'>
+        <nav className='space-x-2 md:space-x-4 text-sm '>
             <Link href={'/'}>
               <span className='link'>All data</span>
             </Link>
@@ -65,7 +65,7 @@ function MyApp({ Component, pageProps, links }) {
               <span className='link'>News</span>
             </Link>
             {links?.map((link, i) => (
-              <a href={link.fields.Slug || link.fields.Link} key={link.fields.Slug || link.fields.Link}>
+              <a href={link.fields.Slug ? `/${link.fields.Slug}` : link.fields.Link} key={link.fields.Slug || link.fields.Link}>
                 <span className='link'>{link.fields.Title}</span>
               </a>
             ))}

@@ -41,7 +41,14 @@ module.exports = {
     extend: {
       colors: {
         transparent: 'transparent',
-        inherit: 'inherit'
+        inherit: 'inherit',
+        gwYellow: '#EBFF00',
+        gwBlue: '#3B97EC',
+        gwBlueLight: '#E8EFF5',
+        gwPink: '#DD96FF',
+        gwPinkLight: '#FFCAD9'  ,
+        gwOrange: '#FF8038',
+        gwOrangeLight: '#FFC58E'      ,
       },
       maxWidth: {
         full: "100%"

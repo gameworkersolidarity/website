@@ -22,7 +22,7 @@ export default function Page({ country }: { country: CountryData }) {
         }}
       />
 
-      <h1 className='text-gray-200 font-bold text-4xl max-w-xl'>
+      <h1 className=' font-bold text-4xl max-w-xl'>
         {country?.country?.fields['Name'].trim()} <Emoji symbol={country.country.emoji.emoji} label='flag' /> game worker solidarity
       </h1>
 
@@ -34,8 +34,7 @@ export default function Page({ country }: { country: CountryData }) {
         && <CumulativeMovementChart data={country?.country?.solidarityActions || []} />
       }
 
-
-      <div className='mb-5 mt-2'>
+      <div className='my-5'>
         <p>Can you contribute more info about game worker organising in {country.country.fields.Name}?</p>
         <div className='space-x-2'>
           <Link href='/submit'>
@@ -55,7 +54,7 @@ export default function Page({ country }: { country: CountryData }) {
       />}
 
       <Link href='/'>
-        <div className='link text-gray-300 text-sm mt-4'>
+        <div className='link  text-sm mt-4'>
           &larr; All actions
         </div>
       </Link>

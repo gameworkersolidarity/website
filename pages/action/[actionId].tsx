@@ -22,7 +22,7 @@ export default function Page({ action }: { action: SolidarityAction }) {
       </div>
       <div className='my-4' />
       <Link href='/'>
-        <div className='link text-gray-300 text-sm'>
+        <div className='link  text-sm'>
           &larr; All actions
         </div>
       </Link>

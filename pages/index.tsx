@@ -22,21 +22,19 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
     <>
       <h1 className='text-4xl font-bold'>
         <div>Documenting years of solidarity</div>
-        <div className='text-gray-500 font-normal'>
+        <div className=' font-normal'>
           {earliestYear} &rarr; {latestYear}
         </div>
       </h1>
 
-      <p className='my-4 max-w-xl text-gray-200'>The Game Worker Solidarity Project is mapping and documenting collective movements by game workers striving to improve their working conditions.</p>
-      <p className='my-4 max-w-xl text-gray-200'>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
+      <p className='my-4 max-w-xl '>The Game Worker Solidarity Project is mapping and documenting collective movements by game workers striving to improve their working conditions.</p>
+      <p className='my-4 max-w-xl '>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
 
-      <div className='w-7 border border-gray-800 my-5' />
-
-      <section className='my-4 mb-5'>
+      <section className='my-4'>
         <CumulativeMovementChart data={solidarityActions} cumulative />
       </section>
 
-      <section className='my-4 mb-5'>
+      <section className=''>
         <Map data={solidarityActions} />
       </section>
 

@@ -32,7 +32,7 @@ export default function Page({ docs }: { docs: Doc[] }) {
       <section>
         {docs.map(doc => 
           <article key={doc.title} className='space-y-2'>
-            <h2 className='text-xl'><a href={doc.href} className='font-mono text-pink-400'>
+            <h2 className='text-xl'><a href={doc.href} className='font-mono text-gwPink'>
               {doc.title}
             </a></h2>
             <div className='prose' dangerouslySetInnerHTML={{ __html: doc.text }} />

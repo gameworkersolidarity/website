@@ -12,6 +12,8 @@ import qs from 'query-string';
 import { CountryData } from '../data/country';
 import { SolidarityActionItem, SolidarityActionsList } from './SolidarityActions';;
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { theme } from 'twin.macro';
+import { opacify, rgba } from 'polished'
 
 const MapContext = createContext<MapRef | null>(null)
 
@@ -37,34 +39,38 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
       maxHeight: '85vh',
       width: '100%'
     }}>
-      {country && <div className='p-1 hidden md:flex absolute top-0 left-0 items-stretch z-10 h-full' style={{
-        width: 400,
-      }}>
-        <div className='absolute top-4 right-4 text-sm uppercase font-bold link' onClick={() => setCountry(undefined)}>Close</div>
-        <CountryPanel iso2={country} />
-      </div>}
-      <ReactMapGL
-        style={{
-          // position: 'absolute',
-          // top: 0,
-          // left: 0,
-          width: '100%',
-          height: '100%'
-        }}
-        {...viewport}
-        accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
-        mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckptscib5346h19purz84rb2o').asString()}
-        onViewportChange={updateViewport}
-        className="rounded-md"
-        ref={ref}
-      >
-        <MapLayer data={data} onSelectCountry={newId => setCountry(oldId => newId)} />
-      </ReactMapGL>
+      {country && (
+        <div>
+          <CountryPanel iso2={country} />
+          <div className='absolute top-4 right-4 text-sm uppercase font-bold link z-20' onClick={() => setCountry(undefined)}>Close</div>
+        </div>
+      )}
+      <div className='p-1 hidden md:flex absolute top-0 left-0 items-stretch z-10 h-full' style={{ width: '100%', height: 800, maxHeight: '80vh' }}>
+        <ReactMapGL
+          style={{
+            // position: 'absolute',
+            // top: 0,
+            // left: 0,
+            width: '100%',
+            height: '100%'
+          }}
+          {...viewport}
+          accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
+          mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckpzergl604py17s2jrpjp8eu').asString()}
+          onViewportChange={updateViewport}
+          className="rounded-md"
+          ref={ref}
+        >
+          <MapLayer data={data} onSelectCountry={newId => setCountry(oldId => newId)} />
+        </ReactMapGL>
+      </div>
     </div>
   );
 }
 
-const MapLayer = memo(({ data, onSelectCountry }: { data: SolidarityAction[], onSelectCountry: (iso2: string) => void }) => {
+const MapLayer = memo(({ data, onSelectCountry }: {
+  data: SolidarityAction[], onSelectCountry: (iso2: string) => void
+}) => {
   const [hoverCountry, setHoverCountry] = useState<string>('XX')
   return (
     <>
@@ -87,7 +93,32 @@ const MapLayer = memo(({ data, onSelectCountry }: { data: SolidarityAction[], on
         "type": "vector",
         "url": "mapbox://mapbox.country-boundaries-v1"
       }} />
-
+      {/* <Layer
+        {...{
+          "id": "undisputed country boundary line",
+          "source": "country-boundaries",
+          "source-layer": "country_boundaries",
+          "type": "line",
+          "filter": [
+            "==",
+            [
+              "get",
+              "disputed"
+            ],
+            "false"
+          ],
+          "paint": {
+            "line-color": "rgba(66,100,251, 0.3)",
+            // "line-outline-color": "#0000ff",
+            "line-opacity": [
+              'case',
+              ['==', ['get', 'iso_3166_1'], hoverCountry],
+              1,
+              0.5
+            ]
+          }
+        }}
+      /> */}
       <Layer
         onClick={event => {
           const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
@@ -115,14 +146,13 @@ const MapLayer = memo(({ data, onSelectCountry }: { data: SolidarityAction[], on
             "false"
           ],
           "paint": {
-            "fill-color": "rgba(66,100,251, 0.3)",
-            "fill-outline-color": "#0000ff",
-            "fill-opacity": [
+            "fill-color": [
               'case',
               ['==', ['get', 'iso_3166_1'], hoverCountry],
-              1,
-              0.5
-            ]
+              rgba((theme`colors.gwBlue`), 0.5),
+              "rgba(66,100,251, 0)"
+            ],
+            "fill-outline-color": theme`colors.gwBlue`,
           }
         }}
       />
@@ -155,12 +185,24 @@ const MapLayer = memo(({ data, onSelectCountry }: { data: SolidarityAction[], on
             'interpolate',
             ['linear'],
             ['heatmap-density'],
-             0,'rgba(35, 23, 27, 0)',
-             0.2,'rgba(47, 157, 245, 1)',
-             0.4,'rgba(77, 248, 132, 1)',
-             0.6,'rgba(222, 221, 50, 1)',
-             0.8,'rgba(246, 95, 24, 1)',
-             1,'rgba(144, 12, 0, 1)',
+            0, rgba(255, 255, 255, 0),
+            0.1, rgba(255, 255, 255, 0.5),
+            // 0.175, rgba(255, 255, 255, 0.5),
+            0.2, rgba(theme`colors.gwBlueLight`, 0.5),
+            // 0.2,'rgba(47, 157, 245, 1)',
+            // 0.4,'rgba(77, 248, 132, 1)',
+            0.3, rgba(theme`colors.gwBlue`, 1),
+            // 0.6,'rgba(222, 221, 50, 1)',
+            0.4, rgba(theme`colors.gwPink`, 1),
+            // 0.8,'rgba(246, 95, 24, 1)',
+            0.8, rgba(theme`colors.gwOrangeLight`, 1),
+            1, rgba(theme`colors.gwOrange`, 1),
+            //  0,'rgba(35, 23, 27, 0)',
+            //  0.2,'rgba(47, 157, 245, 1)',
+            //  0.4,'rgba(77, 248, 132, 1)',
+            //  0.6,'rgba(222, 221, 50, 1)',
+            //  0.8,'rgba(246, 95, 24, 1)',
+            //  1,'rgba(144, 12, 0, 1)',
             // ...[
             // 0,
             // 0.2,
@@ -215,13 +257,13 @@ function getCoordinatesForAction(data: SolidarityAction) {
 }
 
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
-    return (
+  return (
     <Marker {...getCoordinatesForAction(data)}>
       <div className='text-xs space-x-1 text-center transform'>
         <Emoji symbol='💥' />
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        <div className='inline capitalize font-bold tracking-tight bg-gray-900 text-gray-200 px-1 rounded-md pointer-events-none'>
+        <div className='bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-md pointer-events-none'>
           {data.geography.location?.display_name?.split(',')?.[0] || data.fields['Country Name']}
         </div>
       </div>
@@ -238,9 +280,9 @@ const CountryPanel = memo(({ iso2 }: { iso2: string }) => {
   const country = data?.data?.country
 
   return (
-    <div className='bg-black rounded-md p-3 space-y-4 flex flex-col'>
+    <div className=' rounded-md p-3 space-y-4 flex flex-col bg-gray-100 w-full'>
       {!country ? <div>Loading {iso2}</div> : <>
-        <h2 className='text-gray-200 font-bold text-2xl max-w-xl'>
+        <h2 className=' font-bold text-2xl max-w-xl'>
           {country?.fields['Name'].trim()} <Emoji symbol={country.emoji.emoji} label='flag' />
         </h2>
         <div className='my-4'>
