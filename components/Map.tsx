@@ -12,7 +12,6 @@ import qs from 'query-string';
 import { CountryData } from '../data/country';
 import { SolidarityActionItem, SolidarityActionsList } from './SolidarityActions';;
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { CumulativeMovementChart } from './ActionChart';
 
 const MapContext = createContext<MapRef | null>(null)
 
@@ -38,17 +37,12 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
       maxHeight: '85vh',
       width: '100%'
     }}>
-      {country && (
-        <div className='p-1 hidden md:flex absolute top-0 left-0 items-stretch z-10 h-full' style={{
-          width: 400,
-        }}>
-          <div className='absolute top-4 right-4 text-sm uppercase font-bold link' onClick={() => setCountry(undefined)}>Close</div>
-          <CountryPanel iso2={country} />
-        </div>
-      )}
-      <section className='absolute bottom-0 left-0 w-full z-10 opacity-50 p-4'>
-        <CumulativeMovementChart data={data} cumulative />
-      </section>
+      {country && <div className='p-1 hidden md:flex absolute top-0 left-0 items-stretch z-10 h-full' style={{
+        width: 400,
+      }}>
+        <div className='absolute top-4 right-4 text-sm uppercase font-bold link' onClick={() => setCountry(undefined)}>Close</div>
+        <CountryPanel iso2={country} />
+      </div>}
       <ReactMapGL
         style={{
           // position: 'absolute',
