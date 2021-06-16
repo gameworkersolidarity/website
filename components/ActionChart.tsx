@@ -26,10 +26,10 @@ export function CumulativeMovementChart ({ data, cumulative }: { data: Solidarit
   const maxDate = new Date()
 
   return (
-    <div className='bg-gray-900 text-gray-700 rounded-md overflow-hidden p-4 pb-0 flex flex-col justify-center text-center align-center' style={{ maxHeight: 175, height: '80vh' }}>
+    <div className='flex flex-col justify-center text-center align-center relative' style={{ maxHeight: 175, height: '80vh' }}>
       <ParentSize>{(parent) => (
         <>
-          <h3 className='text-lg block text-left text-gray-500 mb-3'>
+          <h3 className='text-xs text-left text-gwPink absolute top-0 left-0 font-mono uppercase'>
             {cumulative ? 'Accumulating momentum of actions' : 'Actions per year'}
           </h3>
           <CumulativeChart
@@ -101,19 +101,23 @@ export function CumulativeChart ({
       height={height}
       xScale={{ type: 'band' }}
       yScale={{ type: 'linear' }}
-      margin={{ left: 20, right: 20, bottom: 90, top: 0 }}
+      margin={{ left: 0, right: 0, bottom: 90, top: 0 }}
     >
     <Axis
       orientation="bottom"
       tickFormat={timeFormat(isSmallScreen ? "%y" : "%Y")}
+      tickLabelProps={props => ({
+        ...props,
+        style: tw`font-mono fill-current text-gwPink`
+      })}
     />
-    <Grid columns={false}
+    {/* <Grid columns={false}
       lineStyle={tw`stroke-current text-gray-800`}
-    />
+    /> */}
     <BarSeries
       dataKey="Solidarity Actions"
       data={binnedData as any} {...accessors}
-      colorAccessor={d => theme`colors.gray.400`}
+      colorAccessor={d => theme`colors.gwPink`}
     />
     <Tooltip<Datum>
       snapTooltipToDatumX
@@ -126,7 +130,7 @@ export function CumulativeChart ({
             <div className='text-lg'>
               {pluralize('action', accessors.yAccessor(tooltipData.nearestDatum.datum), true)}
             </div>
-            <div className='text-gray-500'>
+            <div>
               {cumulative
                 ? <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
                 : <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
