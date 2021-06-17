@@ -19,6 +19,7 @@ import Emoji from 'a11y-react-emoji';
 import { projectStrings } from '../data/site';
 import Image from 'next/image'
 import Fuse from 'fuse.js';
+import { CumulativeMovementChart } from './ActionChart';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -199,23 +200,27 @@ export function SolidarityActionsFullList () {
 
   return (
     <div className='md:flex flex-row relative'>
-      <SolidarityActionsList
-        data={displayedActions}
-        withDialog
-        dialogProps={{
-          cardProps: {
-            withContext: true,
-            contextProps: {
-              listProps: {
-                withDialog: false
+      <div>
+        <CumulativeMovementChart data={displayedActions} />
+
+        <SolidarityActionsList
+          data={displayedActions}
+          withDialog
+          dialogProps={{
+            cardProps: {
+              withContext: true,
+              contextProps: {
+                listProps: {
+                  withDialog: false
+                }
               }
-            }
-          },
-        }}
-      />
+            },
+          }}
+        />
+      </div>
       <div className='hidden md:block sticky top-0'>
-        <div className='px-4 py-6 space-y-3'>
-          <h4 className='text-lg font-bold'>Filter</h4>
+        <div className='pl-5 space-y-3'>
+          <h4 className='text-lg font-bold leading-tight'>Filter actions</h4>
           <div className='space-y-3'>
             {categories.map(category => (
               <div

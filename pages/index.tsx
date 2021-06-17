@@ -41,10 +41,6 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
       </div>
 
       <section className='my-4 content-wrapper'>
-        <CumulativeMovementChart data={solidarityActions} cumulative />
-      </section>
-
-      <section className='my-4 content-wrapper'>
         <SolidarityActionsFullList />
       </section>
 
