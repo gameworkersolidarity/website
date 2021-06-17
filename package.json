@@ -30,6 +30,7 @@
     "d3": "6",
     "date-fns": "^2.22.1",
     "env-var": "^7.0.1",
+    "fuse.js": "^6.4.6",
     "jsonfeed-to-rss": "^3.0.4",
     "mapbox-gl": "^2.3.0",
     "markdown-it": "^12.0.6",

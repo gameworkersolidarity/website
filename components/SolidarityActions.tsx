@@ -13,11 +13,12 @@ import { up } from '../utils/screens';
 import cx from 'classnames'
 import { NextSeo } from 'next-seo';
 import qs from 'query-string';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import pluralize from 'pluralize'
 import Emoji from 'a11y-react-emoji';
 import { projectStrings } from '../data/site';
 import Image from 'next/image'
+import Fuse from 'fuse.js';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -162,22 +163,69 @@ export function SolidarityActionsList ({
 
 export function SolidarityActionsFullList () {
   const data = useSWR<SolidarityActionsData>('/api/solidarityActions')
+  const actions = data?.data?.solidarityActions || []
+  const search = useMemo(() => new Fuse(actions, {
+    keys: ['fields.Category'],
+    threshold: 0.5
+  }), [actions])
+  const categories = useMemo(() => {
+    return Array.from(new Set(actions.reduce((arr, action) => [...arr, ...(action.fields?.Category || [] as string[])], [])))
+  }, [actions])
+  //
+  const [filteredCategories, setCategories] = useState<string[]>([])
+  const toggleCategory = (category: string) => {
+    let categories = JSON.parse(JSON.stringify(filteredCategories))
+    const i = categories.indexOf(category)
+    console.log(categories, category, i)
+    let _categories
+    if (i > -1) {
+      categories.splice(i, 1)
+      _categories = categories
+    } else {
+      _categories = Array.from(new Set(categories.concat([category])))
+    }
+    console.log(_categories)
+    setCategories(_categories)
+  }
+  const displayedActions = useMemo(() => {
+    if (!filteredCategories.length) return actions
+    return search.search({
+      $or: filteredCategories.map(c => ({ 'fields.Category': `'${c}` }))
+    }).map(s => s.item)
+  }, [actions, search, filteredCategories])
 
   return (
-    <SolidarityActionsList
-      data={data?.data?.solidarityActions || []}
-      withDialog
-      dialogProps={{
-        cardProps: {
-          withContext: true,
-          contextProps: {
-            listProps: {
-              withDialog: false
+    <div className='md:flex flex-row relative'>
+      <SolidarityActionsList
+        data={displayedActions}
+        withDialog
+        dialogProps={{
+          cardProps: {
+            withContext: true,
+            contextProps: {
+              listProps: {
+                withDialog: false
+              }
             }
-          }
-        },
-      }}
-    />
+          },
+        }}
+      />
+      <div className='hidden md:block sticky top-0'>
+        <div className='px-4 py-6 space-y-3'>
+          <h4 className='text-lg font-bold'>Filter</h4>
+          <div className='space-y-3'>
+            {categories.map(category => (
+              <div
+                key={category}
+                className={cx(filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600', 'cursor-pointer capitalize')}
+                onClick={() => toggleCategory(category)}>
+                  {category}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -202,7 +250,10 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
     <article className={('bg-gray-100 rounded-md group-hover:shadow-glow transition duration-75 grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
-      <Emoji symbol='💥' label='Action icon' className='text-xl' />
+      <div>
+        <Emoji symbol='💥' label='Action icon' className='text-xl' />
+        {stringifyArray(data.fields.Category)}
+      </div>
       <div className='col-span-5'>
         <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-md italic leading-snug', 'max-w-xl px-4')}>{data.fields.Name}</h3>
         <div className='px-4 md:flex flex-row md:space-x-6'>
