@@ -9,9 +9,12 @@ export default function VerticalScrollPage ({ children }) {
 
       <div className='py-6' />
 
-      <footer className='mt-auto space-x-5 '>
+      <footer className='mt-auto space-x-2 '>
         <a href='https://commonknowledge.coop'>
-          Developed with <Emoji symbol='✊' label='worker power' /> by Common Knowledge Co-operative
+          Developed with <Emoji symbol='✊' label='worker power' /> by <span className='link'>Common Knowledge Co-operative</span>
+        </a>
+        <a href='http://shaunabuckley.com/'>
+          Design by <span className='link'>Shauna Buckley</span>
         </a>
       </footer>
     </div>
