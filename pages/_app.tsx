@@ -1,13 +1,13 @@
 import App from 'next/app'
 import { SWRConfig } from 'swr'
 import '../styles/globals.css'
-import Head from 'next/head';
 import Link from 'next/link';
 import VerticalScrollPage from '../components/VerticalScrollPage';
 import { getStaticPageLinks } from '../data/staticPage';
 import { projectStrings } from '../data/site';
 import { useRouter } from 'next/dist/client/router';
 import {DefaultSeo} from 'next-seo';
+import { KonamiCode } from '../components/KonamiCode';
 
 function MyApp({ Component, pageProps, links }) {
   const router = useRouter()
@@ -72,6 +72,8 @@ function MyApp({ Component, pageProps, links }) {
         </nav>
 
         <hr className='my-3 border-transparent' />
+
+        <KonamiCode />
 
         <Component {...pageProps} />
       </VerticalScrollPage>
