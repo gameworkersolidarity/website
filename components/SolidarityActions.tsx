@@ -180,7 +180,6 @@ export function SolidarityActionsFullList () {
   const toggleCategory = (category: string) => {
     let categories = JSON.parse(JSON.stringify(filteredCategories))
     const i = categories.indexOf(category)
-    console.log(categories, category, i)
     let _categories
     if (i > -1) {
       categories.splice(i, 1)
@@ -188,7 +187,6 @@ export function SolidarityActionsFullList () {
     } else {
       _categories = Array.from(new Set(categories.concat([category])))
     }
-    console.log(_categories)
     setCategories(_categories)
   }
   const displayedActions = useMemo(() => {
