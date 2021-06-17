@@ -280,7 +280,9 @@ const CountryPanel = memo(({ iso2 }: { iso2: string }) => {
   const data = useSWR<CountryData>(qs.stringifyUrl({
     url: '/api/countryData',
     query: { iso2 }
-  }))
+  }), { 
+    revalidateOnMount: true
+  })
 
   const country = data?.data?.country
 
