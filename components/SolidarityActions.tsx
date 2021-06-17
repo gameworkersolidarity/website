@@ -23,7 +23,8 @@ interface ListProps {
   data: SolidarityAction[],
   withDialog?: boolean,
   gridStyle?: string,
-  dialogProps?: Partial<DialogProps>
+  dialogProps?: Partial<DialogProps>,
+  mini?: boolean
 }
 
 interface DialogProps {
@@ -103,7 +104,7 @@ export function useSelectedAction(solidarityActions: SolidarityAction[], key = '
 }
 
 export function SolidarityActionsList ({
-  data: solidarityActions, withDialog, gridStyle = 'grid-cols-1', dialogProps
+  data: solidarityActions, withDialog, gridStyle = 'grid-cols-1', dialogProps, mini
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
@@ -134,7 +135,7 @@ export function SolidarityActionsList ({
         {actionsByYear && Object.values(actionsByYear).map((actions, i) => {
           return (
             <div key={i}>
-              <h2 className='text-2xl text-center font-bold py-6'>
+              <h2 className={cx(mini ? 'text-lg py-3' : 'text-2xl py-6', 'text-center font-bold')}>
                 {format(new Date(actions[0].fields.Date), 'yyyy')}
               </h2>
               <div className='space-y-4'>
@@ -146,10 +147,7 @@ export function SolidarityActionsList ({
                     shallow={linksAsDialogs}
                   >
                     <div className='transition cursor-pointer group'>
-                      <SolidarityActionItem
-                        data={action}
-                        isFeatured={action.fields.DisplayStyle === 'Featured'}
-                      />
+                      {mini ? <SolidarityActionMiniItem data={action} /> : <SolidarityActionItem data={action} />}
                     </div>
                   </Link>
                 )}
@@ -183,44 +181,67 @@ export function SolidarityActionsFullList () {
   )
 }
 
-export function SolidarityActionItem ({ data, isFeatured }: { data: SolidarityAction, isFeatured?: boolean }) {
+export function SolidarityActionMiniItem ({ data }: { data: SolidarityAction }) {
   return (
-    <article className={cx(isFeatured ? 'bg-gwOrangeLight' : 'bg-gray-200', 'rounded-md group-hover:bg-gwOrange transition duration-75 flex flex-col space-y-1 py-2 justify-between')}>
-      <div className='space-y-1 space-x-2 px-4 md:grid grid-cols-5 gap-2 text-sm align-baseline items-baseline'>
-        <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
+    <article className={'flex flex-row space-x-2 border-gwOrange border-2 rounded-md group-hover:shadow-glow transition duration-75 p-3 justify-between'}>
+      <Emoji symbol='💥' label='Action icon' className='text-xl' />
+      <h3 className={'max-w-lg px-4 w-full'}>{data.fields.Name}</h3>
+      {data.geography?.country.map(country => (
+        <Emoji
+          key={country.iso3166}
+          symbol={country.emoji.emoji}
+          label={`Flag of ${country.name}`}
+          className='align-top'
+        />
+      ))}
+    </article>
+  )
+}
+
+export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
+  const isFeatured = data.fields.DisplayStyle === 'Featured'
+  return (
+    <article className={('bg-gray-100 rounded-md group-hover:shadow-glow transition duration-75 grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
+      <Emoji symbol='💥' label='Action icon' className='text-xl' />
+      <div className='col-span-5'>
+        <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-md italic leading-snug', 'max-w-xl px-4')}>{data.fields.Name}</h3>
+        <div className='px-4 md:flex flex-row md:space-x-6'>
+          {data.fields.Link && (
+            <a href={data.fields.Link} className='block my-1'>
+              <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
+              &nbsp;
+              <span className='align-middle underline text-inherit text-gwBlue'>{new URL(data.fields.Link).hostname}</span>
+            </a>
+          )}
+          {data.fields.Document?.map(doc => (
+            <a key={doc.id} href={doc.url} className='block my-1'>
+              <PaperClipIcon className='h-3 w-3 inline-block text-inherit align-middle' />
+              &nbsp;
+              <span className='align-middle underline text-inherit text-gwBlue'>{doc.filename}</span>
+            </a>
+          ))}
+        </div>
+        {isFeatured && data.fields.Summary && (
+          <div className={'w-full px-4 pt-4 pb-3'}>
+            <div className='max-w-md text-sm' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
+          </div>
+        )}
+      </div>
+      <div className='space-x-1'>
         {data.geography?.country.map(country => (
           <span className='space-x-1' key={country.iso3166}>
-            <span>{country.name}</span>
             <Emoji
               symbol={country.emoji.emoji}
               label={`Flag of ${country.name}`}
             />
+            <span>{country.name}</span>
           </span>
         ))}
         {data.fields.Location ? (
-          <span>{data.fields.Location}</span>
-        ) : null}
-        {data.fields.Link && (
-          <a href={data.fields.Link} className='block my-1'>
-            <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
-            &nbsp;
-            <span className='align-middle underline text-inherit '>{new URL(data.fields.Link).hostname}</span>
-          </a>
-        )}
-        {data.fields.Document?.map(doc => (
-          <a key={doc.id} href={doc.url} className='block my-1  hover:'>
-            <PaperClipIcon className='h-3 w-3 inline-block text-inherit align-middle' />
-            &nbsp;
-            <span className='align-middle underline text-inherit '>{doc.filename}</span>
-          </a>
-        ))}
+            <span><br />{data.fields.Location}</span>
+          ) : null}
       </div>
-      <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-lg leading-snug', 'max-w-lg px-4 font-bold')}>{data.fields.Name}</h3>
-      {isFeatured && data.fields.Summary && (
-        <div className={cx(isFeatured ? '' : '', 'w-full px-4 pb-2')}>
-          <div className='max-w-sm text-sm' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
-        </div>
-      )}
+      <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
     </article>
   )
 }
@@ -244,11 +265,11 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
             {data.fields.Location ? <span>{data.fields.Location}</span> : null}
             {data.geography?.country.map(country => (
               <span className='space-x-1' key={country.iso3166}>
-                <span>{country.name}</span>
                 <Emoji
                   symbol={country.emoji.emoji}
                   label={`Flag of ${country.name}`}
                 />
+                <span>{country.name}</span>
               </span>
             ))}
             <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className=''>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
@@ -301,7 +322,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
       {withContext && (
         <>
           <div className='my-4' />
-          <div className='uppercase text-sm  pb-2'>Related</div>
+          <div className='uppercase text-sm pb-2'>Related</div>
           <div className='grid sm:grid-cols-2 gap-4'>
             {data.fields['Country Code'].map(code =>
               <SolidarityActionCountryRelatedActions

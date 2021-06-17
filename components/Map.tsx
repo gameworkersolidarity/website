@@ -36,7 +36,7 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
   return (
     <div className='relative' style={{
       height: 850,
-      maxHeight: '85vh',
+      maxHeight: '66vh',
       width: '100%'
     }}>
       <div
@@ -295,6 +295,7 @@ const CountryPanel = memo(({ iso2 }: { iso2: string }) => {
         </div>
         <div className='overflow-y-auto'>
           <SolidarityActionsList
+            mini
             data={country.solidarityActions || []}
             withDialog
             gridStyle=''

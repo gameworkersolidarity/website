@@ -20,29 +20,35 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
 
   return (
     <>
-      <h1 className='text-4xl font-bold'>
-        <div>Documenting years of solidarity</div>
-        <div className=' font-normal'>
-          {earliestYear} &rarr; {latestYear}
-        </div>
-      </h1>
-
-      <p className='my-4 max-w-xl '>The Game Worker Solidarity Project is mapping and documenting collective movements by game workers striving to improve their working conditions.</p>
-      <p className='my-4 max-w-xl '>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
-
       <section className='my-4'>
-        <CumulativeMovementChart data={solidarityActions} cumulative />
-      </section>
-
-      <section className=''>
         <Map data={solidarityActions} />
       </section>
 
-      <section className='my-4'>
+      <div className='content-wrapper'>
+        <section className='bg-gwPink p-4 md:p-5 rounded-md'>
+          <div className='max-w-3xl mx-auto'>
+            <h1 className='text-xl font-bold text-center'>
+              <div>Documenting years of solidarity</div>
+              <div className=' font-normal'>
+                {earliestYear} &rarr; forever
+              </div>
+            </h1>
+
+            <p className='my-4'>The Game Worker Solidarity Project is mapping and documenting collective movements by game workers striving to improve their working conditions.</p>
+            <p className='my-4'>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
+          </div>
+        </section>
+      </div>
+
+      <section className='my-4 content-wrapper'>
+        <CumulativeMovementChart data={solidarityActions} cumulative />
+      </section>
+
+      <section className='my-4 content-wrapper'>
         <SolidarityActionsFullList />
       </section>
 
-      <div className='my-5'>
+      <div className='my-5 content-wrapper'>
         <p>Can you contribute more info about worker organising?</p>
         <div className='space-x-2'>
           <Link href='/submit'>

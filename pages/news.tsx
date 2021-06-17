@@ -20,30 +20,32 @@ export default function Page({ blogPosts }: Props) {
         }}
       />
 
-      <h1 className='text-4xl font-bold'>
-        Project news
-      </h1>
+      <div className='content-wrapper'>
+        <h1 className='text-4xl font-bold'>
+          Project news
+        </h1>
 
-      <div className='py-2' />
+        <div className='py-2' />
 
-      <section className='space-y-6 w-full max-w-xl'>
-        {blogPosts.map(b => (
-          // <Link href={`/news/${b.fields.Slug}`} key={b.id}>
-            <article key={b.id} className='border border-gwBlue p-4'>
-              <header className=' space-x-4'>
-                {b.fields.Date && <time dateTime={format(new Date(b.fields.Date), 'yyyy-MM-dd')}>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</time>}
-              </header>
-              <div className='max-w-2xl space-y-2 col-span-2'>
-                <h2 className='font-bold text-2xl leading-snug'>
-                  {b.fields.Title}
-                </h2>
-                <p className=' font-bold'>{b.fields.Summary}</p>
-                <div className='prose ' dangerouslySetInnerHTML={{ __html: b.body.html }} />
-              </div>
-            </article>
-          // </Link>
-        ))}
-      </section>
+        <section className='space-y-6 w-full max-w-xl'>
+          {blogPosts.map(b => (
+            // <Link href={`/news/${b.fields.Slug}`} key={b.id}>
+              <article key={b.id} className='border border-gwBlue p-4'>
+                <header className=' space-x-4'>
+                  {b.fields.Date && <time dateTime={format(new Date(b.fields.Date), 'yyyy-MM-dd')}>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</time>}
+                </header>
+                <div className='max-w-2xl space-y-2 col-span-2'>
+                  <h2 className='font-bold text-2xl leading-snug'>
+                    {b.fields.Title}
+                  </h2>
+                  <p className=' font-bold'>{b.fields.Summary}</p>
+                  <div className='prose ' dangerouslySetInnerHTML={{ __html: b.body.html }} />
+                </div>
+              </article>
+            // </Link>
+          ))}
+        </section>
+      </div>
     </>
   )
 }

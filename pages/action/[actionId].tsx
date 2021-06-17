@@ -9,23 +9,18 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 export default function Page({ action }: { action: SolidarityAction }) {
   return action ? (
     <>
-      <div className='max-w-xl'>
+      <div className='max-w-xl mx-auto'>
         <SolidarityActionCard
           data={action}
           withContext
-          contextProps={{
-            listProps: {
-              withDialog: true
-            }
-          }}
         />
+        <div className='my-4' />
+        <Link href='/'>
+          <div className='link  text-sm'>
+            &larr; All actions
+          </div>
+        </Link>
       </div>
-      <div className='my-4' />
-      <Link href='/'>
-        <div className='link  text-sm'>
-          &larr; All actions
-        </div>
-      </Link>
     </>
   ) : null
 }

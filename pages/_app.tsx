@@ -44,32 +44,31 @@ function MyApp({ Component, pageProps, links }) {
       />
 
       <VerticalScrollPage>
-        <Link href='/'>
-          <div className='text-2xl font-bold cursor-pointer  hover:text-gwPink'>
-            <div>Game Worker Solidarity Project</div>
+        <header className='my-4'>
+          <div className='content-wrapper'>
+            <nav className='lg:flex flex-row justify-between items-center'>
+              <div className='text-2xl font-bold cursor-pointer  hover:text-gwPink'>
+                <div>Game Worker Solidarity Project</div>
+              </div>
+              <div className='ml-auto space-x-2'>
+                <Link href={'/submit'}>
+                  <span className='link'>Submit</span>
+                </Link>
+                <Link href='/docs'>
+                  <span className='link'>API</span>
+                </Link>
+                <Link href={'/news'}>
+                  <span className='link'>News</span>
+                </Link>
+                {links?.map((link, i) => (
+                  <a href={link.fields.Slug ? `/${link.fields.Slug}` : link.fields.Link} key={link.fields.Slug || link.fields.Link}>
+                    <span className='link'>{link.fields.Title}</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
           </div>
-        </Link>
-
-        <nav className='space-x-2 md:space-x-4 text-sm '>
-            <Link href={'/'}>
-              <span className='link'>All data</span>
-            </Link>
-            <Link href={'/submit'}>
-              <span className='link'>Add data</span>
-            </Link>
-            <Link href='/docs'>
-              <span className='link'>API docs</span>
-            </Link>
-            <span>&middot;</span>
-            <Link href={'/news'}>
-              <span className='link'>News</span>
-            </Link>
-            {links?.map((link, i) => (
-              <a href={link.fields.Slug ? `/${link.fields.Slug}` : link.fields.Link} key={link.fields.Slug || link.fields.Link}>
-                <span className='link'>{link.fields.Title}</span>
-              </a>
-            ))}
-        </nav>
+        </header>
 
         <hr className='my-3 border-transparent' />
 

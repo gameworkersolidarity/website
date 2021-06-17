@@ -50,6 +50,9 @@ module.exports = {
         gwOrange: '#FF8038',
         gwOrangeLight: '#FFC58E'      ,
       },
+      boxShadow: {
+        'glow': 'inset 4px 4px 20px 6px #FF8038'
+      },
       maxWidth: {
         full: "100%"
       },

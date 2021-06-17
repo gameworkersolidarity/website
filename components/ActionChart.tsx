@@ -212,12 +212,12 @@ export function CumulativeChart ({
             {tooltipData?.nearestDatum ? <>
               <div className='text-md text-opacity-50'>
                 <span className='text-gwOrange font-bold'>
-                  {accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum)}
+                  {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum), true)}
                 </span> since {timeFormat('%Y')(minDate)}
               </div>
               <div className='text-md'>
                 <span className='text-gwPink font-bold'>
-                  +{pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum), true)}
+                  +{accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum)}
                 </span> in {timeFormat('%Y')(accessors.xAccessor(tooltipData.datumByKey['Frequency'].datum))}
               </div>
               {/* <div>

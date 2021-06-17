@@ -17,7 +17,7 @@ export default function Page({ article }: { article: BlogPost }) {
         }}
       />
 
-      <section>
+      <section className='content-wrapper'>
         <article className='space-y-2'>
           <h1 className='text-4xl font-bold'>{article.fields.Title}</h1>
           <p className='text-2xl  font-bold'>{article.fields.Summary}</p>

@@ -21,4 +21,8 @@ body {
   .button {
     @apply cursor-pointer inline-block px-2 py-1 border-2 border-gwPink rounded-md hover:bg-gwPink hover:text-white transition duration-75 mt-2
   }
+
+  .content-wrapper {
+    @apply max-w-7xl mx-auto px-4 md:px-7;
+  }
 }

@@ -22,42 +22,44 @@ export default function Page({ country }: { country: CountryData }) {
         }}
       />
 
-      <h1 className=' font-bold text-4xl max-w-xl'>
-        {country?.country?.fields['Name'].trim()} <Emoji symbol={country.country.emoji.emoji} label='flag' /> game worker solidarity
-      </h1>
+      <div className='content-wrapper'>
+        <h1 className=' font-bold text-4xl max-w-xl'>
+          {country?.country?.fields['Name'].trim()} <Emoji symbol={country.country.emoji.emoji} label='flag' /> game worker solidarity
+        </h1>
 
-      <div className='my-4'>
-        {country.country.fields.Summary &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.summary.html }} />}
-      </div>
-
-      {country?.country?.solidarityActions?.length
-        && <CumulativeMovementChart data={country?.country?.solidarityActions || []} />
-      }
-
-      <div className='my-5'>
-        <p>Can you contribute more info about game worker organising in {country.country.fields.Name}?</p>
-        <div className='space-x-2'>
-          <Link href='/submit'>
-            <span className='button'>
-              Submit a solidarity action
-            </span>
-          </Link>
-          <a className='button' href={`mailto:${projectStrings.email}`}>
-            Contact us
-          </a>
+        <div className='my-4'>
+          {country.country.fields.Summary &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.country.summary.html }} />}
         </div>
-      </div>
 
-      {country?.country?.solidarityActions && <SolidarityActionsList
-        data={country?.country?.solidarityActions}
-        withDialog
-      />}
-
-      <Link href='/'>
-        <div className='link  text-sm mt-4'>
-          &larr; All actions
+        <div className='my-4 mb-6'>
+          <p>Can you contribute more info about game worker organising in {country.country.fields.Name}?</p>
+          <div className='space-x-2'>
+            <Link href='/submit'>
+              <span className='button'>
+                Submit a solidarity action
+              </span>
+            </Link>
+            <a className='button' href={`mailto:${projectStrings.email}`}>
+              Contact us
+            </a>
+          </div>
         </div>
-      </Link>
+
+        {country?.country?.solidarityActions?.length
+          && <CumulativeMovementChart data={country?.country?.solidarityActions || []} />
+        }
+
+        {country?.country?.solidarityActions && <SolidarityActionsList
+          data={country?.country?.solidarityActions}
+          withDialog
+        />}
+
+        <Link href='/'>
+          <div className='link  text-sm mt-4'>
+            &larr; All actions
+          </div>
+        </Link>
+      </div>
     </>
   )
 }
