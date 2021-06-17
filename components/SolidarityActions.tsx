@@ -166,7 +166,10 @@ export function SolidarityActionsFullList () {
   const actions = data?.data?.solidarityActions || []
   const search = useMemo(() => new Fuse(actions, {
     keys: ['fields.Category'],
-    threshold: 0.5
+    // threshold: 0.5,
+    findAllMatches: true,
+    shouldSort: false,
+    useExtendedSearch: true
   }), [actions])
   const categories = useMemo(() => {
     return Array.from(new Set(actions.reduce((arr, action) => [...arr, ...(action.fields?.Category || [] as string[])], [])))
