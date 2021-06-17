@@ -237,7 +237,7 @@ export function SolidarityActionsFullList () {
 
 export function SolidarityActionMiniItem ({ data }: { data: SolidarityAction }) {
   return (
-    <article className={'flex flex-row space-x-2 border-gwOrange border-2 rounded-md group-hover:shadow-glow transition duration-75 p-3 justify-between'}>
+    <article className={'flex flex-row space-x-2 border-gwOrange border-2 rounded-md shadow-noglow group-hover:shadow-glow transition duration-100 p-3 justify-between'}>
       <Emoji symbol='💥' label='Action icon' className='text-xl' />
       <h3 className={'max-w-lg px-4 w-full'}>{data.fields.Name}</h3>
       {data.geography?.country.map(country => (
@@ -255,7 +255,7 @@ export function SolidarityActionMiniItem ({ data }: { data: SolidarityAction }) 
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
-    <article className={('bg-gray-100 rounded-md group-hover:shadow-glow transition duration-75 lg:grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
+    <article className={('bg-gray-100 rounded-md shadow-noglow group-hover:shadow-glow transition duration-100 lg:grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
       <div>
         <Emoji symbol='💥' label='Action icon' className='text-xl' />
         {stringifyArray(data.fields.Category)}
