@@ -249,14 +249,14 @@ export function SolidarityActionMiniItem ({ data }: { data: SolidarityAction }) 
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
-    <article className={('bg-gray-100 rounded-md group-hover:shadow-glow transition duration-75 grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
+    <article className={('bg-gray-100 rounded-md group-hover:shadow-glow transition duration-75 lg:grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
       <div>
         <Emoji symbol='💥' label='Action icon' className='text-xl' />
         {stringifyArray(data.fields.Category)}
       </div>
       <div className='col-span-5'>
-        <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-md italic leading-snug', 'max-w-xl px-4')}>{data.fields.Name}</h3>
-        <div className='px-4 md:flex flex-row md:space-x-6'>
+        <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-md italic leading-snug', 'max-w-xl ')}>{data.fields.Name}</h3>
+        <div className=' md:flex flex-row md:space-x-6'>
           {data.fields.Link && (
             <a href={data.fields.Link} className='block my-1'>
               <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
@@ -273,7 +273,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
           ))}
         </div>
         {isFeatured && data.fields.Summary && (
-          <div className={'w-full px-4 pt-4 pb-3'}>
+          <div className={'w-full  pt-4 pb-3'}>
             <div className='max-w-md text-sm' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
           </div>
         )}
