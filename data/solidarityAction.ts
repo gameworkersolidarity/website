@@ -95,7 +95,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
         }
         fetchNextPage();
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }, function done(err) {
       try {
@@ -107,7 +107,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
           )
       )
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
     })
   })
