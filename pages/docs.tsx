@@ -25,24 +25,26 @@ export default function Page({ docs }: { docs: Doc[] }) {
         }}
       />
 
-      <h1 className='text-4xl font-bold mb-4'>
-        Public API documentation
-      </h1>
+      <div className='py-5'>
+        <h1 className='text-4xl font-bold mb-4'>
+          Public API documentation
+        </h1>
 
-      <section>
-        {docs.map(doc => 
-          <article key={doc.title} className='space-y-2'>
-            <h2 className='text-xl'><a href={doc.href} className='font-mono text-gwPink'>
-              {doc.title}
-            </a></h2>
-            <div className='prose' dangerouslySetInnerHTML={{ __html: doc.text }} />
-            <CodeBlock
-              language='json'
-              value={JSON.stringify(doc.exampleOutputJSON, null, 2)}
-            />
-          </article>
-        )}
-      </section>
+        <section>
+          {docs.map(doc => 
+            <article key={doc.title} className='space-y-2'>
+              <h2 className='text-xl'><a href={doc.href} className='font-mono text-gwPink'>
+                {doc.title}
+              </a></h2>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: doc.text }} />
+              <CodeBlock
+                language='json'
+                value={JSON.stringify(doc.exampleOutputJSON, null, 2)}
+              />
+            </article>
+          )}
+        </section>
+      </div>
     </PageLayout>
   )
 }

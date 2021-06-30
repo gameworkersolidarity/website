@@ -8,7 +8,7 @@ import countryFlagEmoji from "country-flag-emoji";
 import { parseMarkdown } from './markdown';
 
 export const formatCountry = (country: Country) => {
-  country.emoji = countryFlagEmoji.get(country.fields['Country Code']) as CountryEmoji
+  country.emoji = countryFlagEmoji.get(country.fields.countryCode) as CountryEmoji
   country.fields.Name.trim()
 
   country.summary = parseMarkdown(country.fields.Summary || '')
@@ -22,7 +22,7 @@ export const formatCountry = (country: Country) => {
   return country
 }
 
-const fields: Array<keyof Country['fields']> = ['Name', 'Country Code', 'Summary', 'Slug', 'Solidarity Actions']
+const fields: Array<keyof Country['fields']> = ['Name', 'countryCode', 'Summary', 'Slug', 'Solidarity Actions']
 
 export const countryBase = () => airtableBase()<Country['fields']>(
   env.get('AIRTABLE_TABLE_NAME_COUNTRIES').default('Countries').asString()
@@ -86,6 +86,7 @@ export async function getCountryBy (selectArgs: QueryParams<Country['fields']> =
         if (error || !records?.length) {
           return reject(`No countries was found for filter ${JSON.stringify(selectArgs)}`)
         }
+        const country = records?.[0]._rawJson
         resolve(formatCountry(country))
       } catch(e) {
         reject(e)
@@ -96,7 +97,7 @@ export async function getCountryBy (selectArgs: QueryParams<Country['fields']> =
 
 export async function getCountryByCode (countryCode: string) {
   return getCountryBy({
-    filterByFormula: `{Country Code}="${countryCode.toUpperCase()}"`
+    filterByFormula: `{countryCode}="${countryCode.toUpperCase()}"`
   })
 }
 
@@ -145,7 +146,7 @@ export const getCountryDataBySlug = async (slug: string): Promise<CountryData> =
     throw new Error(`No country was found called '${slug}'`)
   }
 
-  const solidarityActions = await getSolidarityActionsByCountryCode(country.fields['Country Code'])
+  const solidarityActions = await getSolidarityActionsByCountryCode(country.fields.countryCode)
 
   return {
     country: {

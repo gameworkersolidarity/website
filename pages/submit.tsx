@@ -14,18 +14,20 @@ export default function Page({ embedUrl }) {
         }}
       />
 
-      <h1 className='text-2xl font-bold mb-4 hidden'>
-        Submit a solidarity action to the timeline 
-      </h1>
+      <div className='py-5'>
+        <h1 className='text-2xl font-bold mb-4 hidden'>
+          Submit a solidarity action to the timeline 
+        </h1>
 
-      <script src="https://static.airtable.com/js/embed/embed_snippet_v1.js"></script>
-      <iframe
-        className="airtable-embed airtable-dynamic-height"
-        src={embedUrl}
-        // @ts-ignore
-        frameBorder="0" onmousewheel="" width="100%" height="1815"
-        style={{ background: 'transparent', border: 'transparent' }}
-      />
+        <script src="https://static.airtable.com/js/embed/embed_snippet_v1.js"></script>
+        <iframe
+          className="airtable-embed airtable-dynamic-height"
+          src={embedUrl}
+          // @ts-ignore
+          frameBorder="0" onmousewheel="" width="100%" height="1815"
+          style={{ background: 'transparent', border: 'transparent' }}
+        />
+      </div>
     </PageLayout>
   )
 }

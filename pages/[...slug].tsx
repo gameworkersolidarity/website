@@ -23,7 +23,7 @@ export default function Page({ article, errorMessage }: PageProps) {
         }}
       />
 
-      <section className='content-wrapper'>
+      <section className='content-wrapper py-5'>
         <article className='space-y-2'>
           <h1 className='text-4xl font-bold'>{article.fields.Title}</h1>
           <p className='text-2xl  font-bold'>{article.fields.Summary}</p>

@@ -31,10 +31,10 @@ export function CumulativeMovementChart ({ data }: { data: SolidarityAction[], c
     <div className='relative' style={{ height: 160, maxHeight: '80vh' }}>
       <ParentSize>{(parent) => (
         <>
-          <h3 className='text-xs text-center absolute top-0 left-0 w-full font-mono uppercase'>
-            Worker actions / year
+          <h3 className='text-xs text-left absolute top-0 left-0 w-full font-mono uppercase'>
+            Solidarity actions / year
           </h3>
-          <div className='text-xs'>
+          {/* <div className='text-xs'>
             <div className='space-x-1'>
               <span className='align-middle inline-block w-3 h-3 bg-gwOrangeLight' />
               <span className='align-middle'>Growth</span>
@@ -43,7 +43,7 @@ export function CumulativeMovementChart ({ data }: { data: SolidarityAction[], c
               <span className='align-middle inline-block w-3 h-3 bg-gwPink' />
               <span className='align-middle'>Frequency</span>
             </div>
-          </div>
+          </div> */}
           <CumulativeChart
             data={data}
             minDate={minDate}
@@ -125,7 +125,7 @@ export function CumulativeChart ({
   return (
     <ThemeContext.Provider value={{
       backgroundColor: 'transparent',
-      colors: [theme`colors.gwOrangeLight`, theme`colors.gwPink`],
+      colors: [theme`colors.gwPink`],
       axisStyles: {
         x: {
           // @ts-ignore
@@ -135,7 +135,9 @@ export function CumulativeChart ({
               stroke: theme`colors.gray.400`
             },
             tickLine: {
-              stroke: theme`colors.gray.400`,
+              // stroke: theme`colors.gray.400`,
+              // opacity: 0,
+              stroke: 'transparent'
               // y2: 0
             },
             tickLabel: {
@@ -154,7 +156,7 @@ export function CumulativeChart ({
         yScale={{ type: 'linear' }}
         margin={{ left: 0, right: 0, bottom: 50, top: 0 }}
       >
-      <AreaSeries
+      {/* <AreaSeries
         dataKey="Cumulative"
         data={cumulativeBinnedData as any} {...accessors}
         // renderLine={true}
@@ -162,7 +164,7 @@ export function CumulativeChart ({
         //   stroke: theme`colors.gwOrange`,
         //   strokeWidth: 2
         // }}
-      />
+      /> */}
       {/* <GlyphSeries
         dataKey="Cumulative"
         data={cumulativeBinnedData as any} {...accessors}
@@ -180,7 +182,7 @@ export function CumulativeChart ({
         dataKey="FrequencyMonth"
         data={monthlyBinnedData as any} {...accessors}
       /> */}
-      <GlyphSeries
+      {/* <GlyphSeries
         dataKey="Frequency"
         data={binnedData as any} {...accessors}
         renderGlyph={(props, context) => {
@@ -192,7 +194,7 @@ export function CumulativeChart ({
             </text>
           ) : null
         }}
-      />
+      /> */}
       <Axis
         orientation="bottom"
         tickFormat={timeFormat(isSmallScreen ? "%y" : "%Y")}
@@ -208,13 +210,13 @@ export function CumulativeChart ({
         className='absolute'
         style={{}}
         renderTooltip={({ tooltipData, colorScale }) =>
-          <div className='bg-white px-2 py-1 text-sm rounded-md font-mono z-10'>
+          <div className='bg-white px-2 py-1 text-sm rounded-lg font-mono z-10'>
             {tooltipData?.nearestDatum ? <>
-              <div className='text-md text-opacity-50'>
+              {/* <div className='text-md text-opacity-50'>
                 <span className='text-gwOrange font-bold'>
                   {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum), true)}
                 </span> since {timeFormat('%Y')(minDate)}
-              </div>
+              </div> */}
               <div className='text-md'>
                 <span className='text-gwPink font-bold'>
                   +{accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum)}

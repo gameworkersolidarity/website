@@ -15,7 +15,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   action.geography = { country: [] }
 
   let i = 0
-  for (const countryCode of action.fields['Country Code']) {
+  for (const countryCode of action.fields.countryCode) {
     // Add country data
     const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
     const emoji = countryFlagEmoji.get(countryCode)
@@ -60,7 +60,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['LocationData', 'Document', 'Country Code', 'Country Name', 'Country Code', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['LocationData', 'Document', 'countryCode', 'Country Name', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -116,7 +116,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
 }
 
 export async function getSolidarityActionsByCountryCode (iso2: string) {
-  const filterByFormula = `FIND("${iso2}", ARRAYJOIN({Country Code})) > 0`
+  const filterByFormula = `FIND("${iso2}", ARRAYJOIN({countryCode})) > 0`
   return getSolidarityActions({ filterByFormula })
 }
 

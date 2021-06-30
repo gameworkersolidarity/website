@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply min-h-screen bg-gray-100 max-w-full overflow-x-hidden;
+  @apply min-h-screen bg-white max-w-full;
 }
 
 @font-face {
@@ -29,7 +29,7 @@ body {
   }
 
   .button {
-    @apply cursor-pointer inline-block px-2 py-1 border-2 border-gwPink rounded-md hover:bg-gwPink hover:text-white transition duration-75 mt-2
+    @apply cursor-pointer inline-block px-2 py-1 border-2 border-gwPink rounded-lg hover:bg-gwPink hover:text-white transition duration-75 mt-2
   }
 
   .content-wrapper {

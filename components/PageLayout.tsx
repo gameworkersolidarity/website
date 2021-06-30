@@ -7,25 +7,21 @@ import { doNotFetch } from '../utils/swr';
 import { LinksData } from '../pages/api/links';
 import cx from 'classnames';
 
-export default function PageLayout ({ children }) {
+export default function PageLayout ({ children, fullWidth }: { children: any, fullWidth?: boolean }) {
   return (
     <div className='min-h-screen flex flex-col'>
-      <Header />
-
-      <div className='py-4' />
+      <Header fullWidth={fullWidth} />
 
       <main>
         {children}
       </main>
 
-      <div className='py-6' />
-
-      <Footer />
+      <Footer fullWidth={fullWidth} />
     </div>
   )
 }
 
-function Header () {
+function Header ({ fullWidth }: { fullWidth?: boolean }) {
   const { data } = useSWR<LinksData>(qs.stringifyUrl({
     url: '/api/links'
   }), { 
@@ -35,12 +31,12 @@ function Header () {
 
   return (
     <header className={cx(`py-5 bg-gwPink space-y-2`)}>
-      <div className='content-wrapper grid grid-cols-1 lg:grid-cols-3 gap-4'>
+      <div className={cx(fullWidth ? 'px-4 md:px-5' : 'content-wrapper', 'grid grid-cols-1 lg:grid-cols-3 gap-4')}>
         <div className='space-y-3 col-span-2'>
           <div className='text-6xl font-identity cursor-pointer hover:text-gwPinkLight'>
             <Link href='/'>Game Worker Solidarity</Link>
           </div>
-          <p className='text-2xl text-200'>
+          <p className='text-2xl text-200 max-w-2xl font-light'>
             Mapping and documenting collective movements by game workers striving to improve their working conditions.
           </p>
         </div>
@@ -60,10 +56,10 @@ function Header () {
   )
 }
 
-function Footer () {
+function Footer ({ fullWidth }: { fullWidth?: boolean }) {
   return (
     <footer className='mt-auto bg-gwYellow'>
-      <div className='content-wrapper py-5 md:py-6'>
+      <div className={cx(fullWidth ? 'px-4 md:px-5' : 'content-wrapper', 'py-5 md:py-6')}>
         <div className='space-x-2 text-sm'>
           <a href='https://commonknowledge.coop'>
             Developed with <Emoji symbol='✊' label='worker power' /> by <span className='link'>Common Knowledge Co-operative</span>

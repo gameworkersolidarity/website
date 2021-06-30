@@ -1,23 +1,18 @@
 import { SolidarityAction } from '../data/types';
-import { memo, useCallback, useState, useRef, createContext, useEffect, useContext } from 'react';
+import { memo, useCallback, useState, useRef } from 'react';
 import ReactMapGL, { Layer, MapRef, Marker, Source } from '@urbica/react-map-gl';
 import env from 'env-var';
 // import { stringifyArray } from '../utils/string';
 import Emoji from 'a11y-react-emoji';
-import { Map as MapType } from 'mapbox-gl';
-// import { interpolateTurbo } from 'd3-scale-chromatic';
-import { only } from '../utils/screens';
-import useSWR from 'swr';
-import qs from 'query-string';
-import { CountryData } from '../data/country';
-import { SolidarityActionItem, SolidarityActionsList } from './SolidarityActions';;
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
 
-const MapContext = createContext<MapRef | null>(null)
+// const MapContext = createContext<MapRef | null>(null)
 
-export function Map({ data, ...initialViewport }: { data: SolidarityAction[], width?: any, height?: any }) {
+export function Map({ data, onSelectCountry, ...initialViewport }: {
+  data: SolidarityAction[], width?: any, height?: any, onSelectCountry?: (iso2id: string | null) => void
+}) {
   const [viewport, setViewport] = useState({
     latitude: 15,
     longitude: 0,
@@ -31,32 +26,13 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
 
   const ref = useRef<MapRef>(null)
 
-  const [country, setCountry] = useState<string>()
-
   return (
-    <div className='relative' style={{
-      height: 850,
-      maxHeight: '66vh',
+    <div className='relative overflow-hidden rounded-lg' style={{
+      height: '100%',
       width: '100%'
     }}>
-      <div
-        className='p-1 hidden overflow-y-auto md:flex absolute top-0 left-0 items-stretch z-10 h-full pointer-events-none'
-        style={{
-          width: 400,
-          maxWidth: '50vw',
-        }}>
-        {country && (
-          <div>
-            <CountryPanel iso2={country} />
-            <div className='pointer-events-auto absolute top-4 right-4 text-sm uppercase font-bold link z-20' onClick={() => setCountry(undefined)}>Close</div>
-          </div>
-        )}
-      </div>
       <ReactMapGL
         style={{
-          // position: 'absolute',
-          // top: 0,
-          // left: 0,
           width: '100%',
           height: '100%'
         }}
@@ -64,17 +40,17 @@ export function Map({ data, ...initialViewport }: { data: SolidarityAction[], wi
         accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
         mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckpzergl604py17s2jrpjp8eu').asString()}
         onViewportChange={updateViewport}
-        className="rounded-md"
+        className="rounded-lg"
         ref={ref}
       >
-        <MapLayer data={data} onSelectCountry={newId => setCountry(oldId => newId)} />
+        <MapLayer data={data} onSelectCountry={onSelectCountry} />
       </ReactMapGL>
     </div>
   );
 }
 
 const MapLayer = memo(({ data, onSelectCountry }: {
-  data: SolidarityAction[], onSelectCountry: (iso2: string) => void
+  data: SolidarityAction[], onSelectCountry?: (iso2: string | null) => void
 }) => {
   const [hoverCountry, setHoverCountry] = useState<string>('XX')
   return (
@@ -98,69 +74,6 @@ const MapLayer = memo(({ data, onSelectCountry }: {
         "type": "vector",
         "url": "mapbox://mapbox.country-boundaries-v1"
       }} />
-      {/* <Layer
-        {...{
-          "id": "undisputed country boundary line",
-          "source": "country-boundaries",
-          "source-layer": "country_boundaries",
-          "type": "line",
-          "filter": [
-            "==",
-            [
-              "get",
-              "disputed"
-            ],
-            "false"
-          ],
-          "paint": {
-            "line-color": "rgba(66,100,251, 0.3)",
-            // "line-outline-color": "#0000ff",
-            "line-opacity": [
-              'case',
-              ['==', ['get', 'iso_3166_1'], hoverCountry],
-              1,
-              0.5
-            ]
-          }
-        }}
-      /> */}
-      <Layer
-        onClick={event => {
-          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-          onSelectCountry(countryIso2)
-        }}
-        onHover={event => {
-          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-          setHoverCountry(countryIso2)
-        }}
-        onLeave={event => {
-          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-          setHoverCountry('XX')
-        }}
-        {...{
-          "id": "undisputed country boundary fill",
-          "source": "country-boundaries",
-          "source-layer": "country_boundaries",
-          "type": "fill",
-          "filter": [
-            "==",
-            [
-              "get",
-              "disputed"
-            ],
-            "false"
-          ],
-          "paint": {
-            "fill-color": [
-              'case',
-              ['==', ['get', 'iso_3166_1'], hoverCountry],
-              polished.rgba((theme`colors.gwBlue`), 0.5),
-              "rgba(66,100,251, 0)"
-            ],
-            "fill-outline-color": theme`colors.gwBlue`,
-          }
-        }}
-      />
       <Layer
         id='heatmap'
         type='heatmap'
@@ -191,17 +104,17 @@ const MapLayer = memo(({ data, onSelectCountry }: {
             ['linear'],
             ['heatmap-density'],
             0, polished.rgba(255, 255, 255, 0),
-            0.1, polished.rgba(255, 255, 255, 0.5),
-            // 0.175, rgba(255, 255, 255, 0.5),
-            0.2, polished.rgba(theme`colors.gwBlueLight`, 0.5),
-            // 0.2,'rgba(47, 157, 245, 1)',
-            // 0.4,'rgba(77, 248, 132, 1)',
-            0.3, polished.rgba(theme`colors.gwBlue`, 1),
+            0.1, polished.rgba(255, 255, 255, 0.25),
+            // 0.175, rgba(255, 255, 255, 0.25),
+            0.2, polished.rgba(theme`colors.gwBlueLight`, 0.25),
+            // 0.2,'rgba(47, 157, 245, 0.66)',
+            // 0.4,'rgba(77, 248, 132, 0.66)',
+            0.3, polished.rgba(theme`colors.gwBlue`, 0.25),
             // 0.6,'rgba(222, 221, 50, 1)',
-            0.4, polished.rgba(theme`colors.gwPink`, 1),
+            0.4, polished.rgba(theme`colors.gwPink`, 0.5),
             // 0.8,'rgba(246, 95, 24, 1)',
-            0.8, polished.rgba(theme`colors.gwOrangeLight`, 1),
-            1, polished.rgba(theme`colors.gwOrange`, 1),
+            // 0.8, polished.rgba(theme`colors.gwOrangeLight`, 0.5),
+            1, polished.rgba(theme`colors.gwOrange`, 0.5),
             //  0,'rgba(35, 23, 27, 0)',
             //  0.2,'rgba(47, 157, 245, 1)',
             //  0.4,'rgba(77, 248, 132, 1)',
@@ -240,6 +153,70 @@ const MapLayer = memo(({ data, onSelectCountry }: {
           ]
         }}
       />
+      {/* <Layer
+        {...{
+          "id": "undisputed country boundary line",
+          "source": "country-boundaries",
+          "source-layer": "country_boundaries",
+          "type": "line",
+          "filter": [
+            "==",
+            [
+              "get",
+              "disputed"
+            ],
+            "false"
+          ],
+          "paint": {
+            "line-width": 3,
+            "line-color": "rgba(66,100,251, 0.3)",
+            // "line-outline-color": "#0000ff",
+            "line-opacity": [
+              'case',
+              ['==', ['get', 'iso_3166_1'], hoverCountry],
+              1,
+              0.5
+            ]
+          }
+        }}
+      /> */}
+      <Layer
+        onClick={event => {
+          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+          onSelectCountry?.(countryIso2)
+        }}
+        onHover={event => {
+          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+          setHoverCountry(countryIso2)
+        }}
+        onLeave={event => {
+          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+          setHoverCountry('XX')
+        }}
+        {...{
+          "id": "undisputed country boundary fill",
+          "source": "country-boundaries",
+          "source-layer": "country_boundaries",
+          "type": "fill",
+          "filter": [
+            "==",
+            [
+              "get",
+              "disputed"
+            ],
+            "false"
+          ],
+          "paint": {
+            "fill-color": [
+              'case',
+              ['==', ['get', 'iso_3166_1'], hoverCountry],
+              polished.rgba((theme`colors.gwBlue`), 0.5),
+              "rgba(66,100,251, 0)"
+            ],
+            "fill-outline-color": theme`colors.gwBlue`,
+          }
+        }}
+      />
       {data.map(d => (
         <MapMarker key={d.id} data={d} />
       ))}
@@ -268,45 +245,10 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
         <Emoji symbol='💥' />
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        <div className='bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-md pointer-events-none'>
+        <div className='bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
           {data.geography.location?.display_name?.split(',')?.[0] || data.fields['Country Name']}
         </div>
       </div>
     </Marker>
-  )
-})
-
-const CountryPanel = memo(({ iso2 }: { iso2: string }) => {
-  const data = useSWR<CountryData>(qs.stringifyUrl({
-    url: '/api/countryData',
-    query: { iso2 }
-  }), { 
-    revalidateOnMount: true
-  })
-
-  const country = data?.data?.country
-
-  return (
-    <div className='pointer-events-auto rounded-md p-3 space-y-4 flex flex-col bg-gray-100 w-full'>
-      {!country ? <div>Loading {iso2}</div> : <>
-        <h2 className=' font-bold text-2xl max-w-xl'>
-          {country?.fields['Name'].trim()} <Emoji symbol={country.emoji.emoji} label='flag' />
-        </h2>
-        <div className='my-4'>
-          {country.fields.Summary &&<div className='prose' dangerouslySetInnerHTML={{ __html: country.summary.html }} />}
-        </div>
-        <div className='overflow-y-auto'>
-          <SolidarityActionsList
-            mini
-            data={country.solidarityActions || []}
-            withDialog
-            gridStyle=''
-            dialogProps={{
-              key: "MapPopup"
-            }}
-          />
-        </div>
-      </>}
-    </div>
   )
 })

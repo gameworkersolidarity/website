@@ -20,7 +20,7 @@ export default function Page({ blogPosts }: Props) {
         }}
       />
 
-      <div className='content-wrapper'>
+      <div className='content-wrapper py-5'>
         <h1 className='text-4xl font-bold'>
           Project news
         </h1>
@@ -30,7 +30,7 @@ export default function Page({ blogPosts }: Props) {
         <section className='space-y-6 w-full max-w-xl'>
           {blogPosts.map(b => (
             // <Link href={`/news/${b.fields.Slug}`} key={b.id}>
-              <article key={b.id} className='border border-gwBlue p-4'>
+              <article key={b.id} className='border-b border-gwPink pb-5 mb-5'>
                 <header className=' space-x-4'>
                   {b.fields.Date && <time dateTime={format(new Date(b.fields.Date), 'yyyy-MM-dd')}>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</time>}
                 </header>

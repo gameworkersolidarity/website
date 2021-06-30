@@ -82,7 +82,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
               <button
                 type="button"
-                className="mb-3 rounded-md px-2 py-1 border-box"
+                className="mb-3 rounded-lg px-2 py-1 border-box"
                 onClick={onClose}
               >
                 &larr; Back
@@ -138,9 +138,14 @@ export function SolidarityActionsList ({
         {actionsByYear && Object.values(actionsByYear).map((actions, i) => {
           return (
             <div key={i}>
-              <h2 className={cx(mini ? 'text-lg py-3' : 'text-2xl py-6', 'text-center font-bold')}>
-                {format(new Date(actions[0].fields.Date), 'yyyy')}
-              </h2>
+              <div className='flex flex-row justify-between items-center pb-3'>
+                <h2 className={cx(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}>
+                  {format(new Date(actions[0].fields.Date), 'yyyy')}
+                </h2>
+                <div className='text-xs'>
+                  {pluralize('action', actions.length, true)}
+                </div>
+              </div>
               <div className='space-y-4'>
                 {actions.map(action =>
                   <Link
@@ -150,7 +155,7 @@ export function SolidarityActionsList ({
                     shallow={linksAsDialogs}
                   >
                     <div className='transition cursor-pointer group'>
-                      {mini ? <SolidarityActionMiniItem data={action} /> : <SolidarityActionItem data={action} />}
+                      <SolidarityActionItem data={action} />
                     </div>
                   </Link>
                 )}
@@ -203,7 +208,7 @@ export function SolidarityActionsFullList () {
   return (
     <div className='md:flex flex-row relative'>
       <div>
-        <div className='hidden md:block sticky top-0'>
+        <div className='hidden md:block'>
           <div className='pl-5 space-y-3'>
             <h4 className='text-lg font-bold leading-tight'>Filter actions</h4>
             <div className='flex flex-row flex-wrap space-x-2 space-y-2'>
@@ -212,7 +217,7 @@ export function SolidarityActionsFullList () {
                   key={category}
                   className={cx(
                     filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600',
-                    'cursor-pointer capitalize rounded-md p-2 bg-gwOrangeLight'
+                    'cursor-pointer capitalize rounded-lg p-2 bg-gwOrangeLight'
                   )}
                   onClick={() => toggleCategory(category)}>
                   {category}
@@ -243,56 +248,17 @@ export function SolidarityActionsFullList () {
   )
 }
 
-export function SolidarityActionMiniItem ({ data }: { data: SolidarityAction }) {
-  return (
-    <article className={'flex flex-row space-x-2 border-gwOrange border-2 rounded-md shadow-noglow group-hover:shadow-glow transition duration-100 p-3 justify-between'}>
-      <Emoji symbol='💥' label='Action icon' className='text-xl' />
-      <h3 className={'max-w-lg px-4 w-full'}>{data.fields.Name}</h3>
-      {data.geography?.country.map(country => (
-        <Emoji
-          key={country.iso3166}
-          symbol={country.emoji.emoji}
-          label={`Flag of ${country.name}`}
-          className='align-top'
-        />
-      ))}
-    </article>
-  )
-}
-
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
-    <article className={('bg-gray-100 rounded-md shadow-noglow group-hover:shadow-glow transition duration-100 lg:grid grid-cols-8 gap-4 p-4 border-2 border-gwOrange text-sm')}>
+    <article className={('bg-white rounded-lg p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <div>
-        <Emoji symbol='💥' label='Action icon' className='text-xl' />
-        {stringifyArray(data.fields.Category)}
       </div>
-      <div className='col-span-5'>
-        <h3 className={cx(isFeatured ? 'text-2xl leading-tight' : 'text-md italic leading-snug', 'max-w-xl ')}>{data.fields.Name}</h3>
-        <div className=' md:flex flex-row md:space-x-6'>
-          {data.fields.Link && (
-            <a href={data.fields.Link} className='block my-1'>
-              <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
-              &nbsp;
-              <span className='align-middle underline text-inherit text-gwBlue'>{new URL(data.fields.Link).hostname}</span>
-            </a>
-          )}
-          {data.fields.Document?.map(doc => (
-            <a key={doc.id} href={doc.url} className='block my-1'>
-              <PaperClipIcon className='h-3 w-3 inline-block text-inherit align-middle' />
-              &nbsp;
-              <span className='align-middle underline text-inherit text-gwBlue'>{doc.filename}</span>
-            </a>
-          ))}
-        </div>
-        {isFeatured && data.fields.Summary && (
-          <div className={'w-full  pt-4 pb-3'}>
-            <div className='max-w-md text-sm' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
-          </div>
-        )}
-      </div>
-      <div className='space-x-1'>
+      <div className='space-x-4 flex tracking-normal'>
+        <time className='font-semibold' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
+          {format(new Date(data.fields.Date), 'dd MMM yyyy')}
+        </time>
+        {data.fields?.Category?.map(c => <span className='capitalize block' key={c}>{c}</span>)}
         {data.geography?.country.map(country => (
           <span className='space-x-1' key={country.iso3166}>
             <Emoji
@@ -303,10 +269,35 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
           </span>
         ))}
         {data.fields.Location ? (
-            <span><br />{data.fields.Location}</span>
-          ) : null}
+          <span>{data.fields.Location}</span>
+        ) : null}
       </div>
-      <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
+      <div className='col-span-5'>
+        <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>
+          {data.fields.Name}
+        </h3>
+        {isFeatured && data.fields.Summary && (
+          <div className={'w-full pt-4'}>
+            <div className='max-w-xl text-lg' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
+          </div>
+        )}
+        <div className='flex flex-row space-x-4 mt-3'>
+          {data.fields.Link && (
+            <a href={data.fields.Link} className='block my-1'>
+            <Emoji symbol='🔗' label='Link' />
+              &nbsp;
+              <span className='align-middle underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
+            </a>
+          )}
+          {data.fields.Document?.map(doc => (
+            <a key={doc.id} href={doc.url} className='block my-1'>
+              <Emoji symbol='📎' label='File' />
+              &nbsp;
+              <span className='align-middle underline text-inherit'>{doc.filename}</span>
+            </a>
+          ))}
+        </div>
+      </div>
     </article>
   )
 }
@@ -324,7 +315,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
           description: data.summary.plaintext
         }}
       />
-      <article className='bg-gwOrangeLight rounded-md flex flex-col space-y-4 justify-between'>
+      <article className='bg-gwOrangeLight rounded-lg flex flex-col space-y-4 justify-between'>
         <div className='space-y-1 px-4 md:px-5 pt-4 md:pt-5'>
           <div className='text-xs space-x-2 flex w-full flex-row '>
             {data.fields.Location ? <span>{data.fields.Location}</span> : null}
@@ -340,7 +331,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
             <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className=''>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
             {data.fields.Category?.length ?
               <span className=' space-x-1'>{data.fields.Category?.map(c =>
-                <div className='capitalize-first inline-block' key={c}>{c}</div>
+                <div className='capitalize inline-block' key={c}>{c}</div>
               )}</span>
             : null }
           </div>
@@ -387,9 +378,9 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
       {withContext && (
         <>
           <div className='my-4' />
-          <div className='uppercase text-sm pb-2'>Related</div>
+          {/* <div className='uppercase text-sm pb-2'>Related</div> */}
           <div className='grid sm:grid-cols-2 gap-4'>
-            {data.fields['Country Code'].map(code =>
+            {data.fields.countryCode.map(code =>
               <SolidarityActionCountryRelatedActions
                 key={code}
                 countryCode={code}
@@ -414,8 +405,8 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
   const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
   
   return data?.fields ? (
-    <Link href={`/country/${data.fields.Slug}`}>
-      <div className='cursor-pointer bg-gwOrangeLight hover: rounded-md p-4'>
+    <Link href={`/?countryCode=${data.fields.countryCode.toUpperCase()}`}>
+      <div className='cursor-pointer bg-gwOrangeLight hover: rounded-lg p-4'>
         <div className='font-bold text-lg'>
           {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
         </div>

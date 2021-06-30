@@ -15,7 +15,7 @@ export default function Page({ action, errorMessage }: PageProps) {
 
   return (
     <PageLayout>
-      <div className='max-w-xl mx-auto'>
+      <div className='max-w-xl mx-auto py-5'>
         <SolidarityActionCard
           data={action}
           withContext

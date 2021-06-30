@@ -1,6 +1,6 @@
-import { SolidarityActionsFullList } from '../components/SolidarityActions';
+import { SolidarityActionsFullList, SolidarityActionsList } from '../components/SolidarityActions';
 import { getSolidarityActions } from '../data/solidarityAction';
-import { SolidarityAction } from '../data/types';
+import { SolidarityAction, CountryEmoji } from '../data/types';
 import { format } from 'date-fns';
 import { SolidarityActionsData } from './api/solidarityActions';
 import Link from 'next/link';
@@ -9,53 +9,172 @@ import { Map } from '../components/Map';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
 import PageLayout from '../components/PageLayout';
+import { CumulativeMovementChart } from '../components/ActionChart';
+import { useMemo, useState, useEffect } from 'react';
+import Fuse from 'fuse.js';
+import countryFlagEmoji from 'country-flag-emoji';
+import Emoji from 'a11y-react-emoji';
+import pluralize from 'pluralize';
+import cx from 'classnames';
+import qs from 'query-string';
+import { useRouter } from 'next/dist/client/router';
+import { useURLStateFactory } from '../utils/state';
+import { ensureArray } from '../utils/string';
 
-export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
-  if (!solidarityActions.length) {
-    return <div>Loading...</div>
+type PageData = {
+  solidarityActions: SolidarityAction[],
+}
+type PageParams = {
+  countryCode?: string
+}
+
+export default function Page({ solidarityActions: actions }: PageData) {
+  const search = useMemo(() => new Fuse(actions, {
+    keys: [
+      'fields.Category',
+      'fields.countryCode'
+    ],
+    // threshold: 0.5,
+    findAllMatches: true,
+    shouldSort: false,
+    useExtendedSearch: true
+  }), [actions])
+
+  const categories = useMemo(() => {
+    return Array.from(new Set(actions.reduce((arr, action) => [...arr, ...(action.fields?.Category || [] as string[])], [])))
+  }, [actions])
+
+  const useURLState = useURLStateFactory()
+
+  const [filteredCategories, setCategories] = useURLState(
+    'categories',
+    (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
+  )
+
+  const [countryCodeFilter, setCountry] = useURLState(
+    'countryCode',
+    initial => useState<string | undefined>(initial?.toString().toUpperCase())
+  )
+
+  // TODO: load actual country data including description, unions, etc.
+  const selectedCountryData = useMemo(() => {
+    if (countryCodeFilter) {
+      return countryFlagEmoji.get(countryCodeFilter) as CountryEmoji
+    } else {
+      return null
+    }
+  }, [countryCodeFilter])
+
+  const toggleCategory = (category: string) => {
+    let categories = JSON.parse(JSON.stringify(filteredCategories))
+    const i = categories.indexOf(category)
+    let _categories
+    if (i > -1) {
+      categories.splice(i, 1)
+      _categories = categories
+    } else {
+      _categories = Array.from(new Set(categories.concat([category])))
+    }
+    setCategories(_categories)
   }
 
-  const latestYear = parseInt(format(new Date(solidarityActions[solidarityActions.length - 1].fields.Date), 'yyyy'))
-  const earliestYear = parseInt(format(new Date(solidarityActions[0].fields.Date), 'yyyy'))
+  const filteredActions = useMemo(() => {
+    const expression: Fuse.Expression = { $and: [] }
+    if (filteredCategories.length) {
+      expression.$and!.push({ $or: filteredCategories.map(c => ({ 'fields.Category': `'${c}` })) })
+    }
+    if (!!countryCodeFilter) {
+      expression.$and!.push({ 'fields.countryCode': `'${countryCodeFilter}` })
+    }
+    if (expression.$and!.length) {
+      return search.search(expression).map(s => s.item)
+    } else {
+      return actions
+    }
+  }, [actions, search, filteredCategories, countryCodeFilter])
 
   return (
-    <PageLayout>
-      <section className='my-4'>
-        <Map data={solidarityActions} />
-      </section>
-
-      <div className='content-wrapper'>
-        <section className='bg-gwPink p-4 md:p-5 rounded-md'>
-          <div className='max-w-3xl mx-auto'>
-            <h1 className='text-xl font-bold text-center'>
-              <div>Documenting years of solidarity</div>
-              <div className=' font-normal'>
-                {earliestYear} &rarr; forever
-              </div>
-            </h1>
-
-            <p className='my-4'>The Game Worker Solidarity Project is mapping and documenting collective movements by game workers striving to improve their working conditions.</p>
-            <p className='my-4'>We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.</p>
+    <PageLayout fullWidth>
+      <div className='grid md:grid-cols-2'>
+        <section className='p-4 lg:p-5'>
+          <div className='sticky top-4 lg:top-5 space-y-4'>
+            <div className='flex flex-wrap p-1'>
+              {categories.map(category => (
+                <div
+                  key={category}
+                  className={cx(
+                    filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600',
+                    'cursor-pointer capitalize rounded-lg px-2 py-1 text-sm bg-gwOrangeLight m-2 -mt-1 -ml-1'
+                  )}
+                  onClick={() => toggleCategory(category)}>
+                  {category}
+                </div>
+              ))}
+            </div>
+            <div className='w-full' style={{ maxHeight: '50vh', height: 500 }}>
+              <Map data={filteredActions} onSelectCountry={NEW => setCountry(old => (NEW === null || old === NEW) ? undefined : NEW)} />
+            </div>
+            <CumulativeMovementChart data={filteredActions} />
           </div>
         </section>
-      </div>
 
-      <section className='my-4 content-wrapper'>
-        <SolidarityActionsFullList />
-      </section>
+        <section className='bg-gray-100 p-4 lg:p-5 space-y-4'>
+          <h2 className='text-6xl font-identity'>
+            {pluralize('action', filteredActions.length, true)}
+          </h2>
 
-      <div className='my-5 content-wrapper'>
-        <p>Can you contribute more info about worker organising?</p>
-        <div className='space-x-2'>
-          <Link href='/submit'>
-            <span className='button'>
-              Submit a solidarity action
-            </span>
-          </Link>
-          <a className='button' href={`mailto:${projectStrings.email}`}>
-            Contact us
-          </a>
-        </div>
+          <div className='flex flex-wrap w-full justify-start p-1'>
+            {selectedCountryData && (
+              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block' onClick={() => setCountry(undefined)}>
+                <Emoji symbol={selectedCountryData.emoji} /> {selectedCountryData?.name}
+              </div>
+            )}
+            {filteredCategories?.map(category =>
+              <div key={category} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block' onClick={() => toggleCategory(category)}>
+                {category}
+              </div>
+            )}
+
+            {(selectedCountryData || filteredCategories.length) ? (
+              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg border-black border px-3 py-2 font-semibold inline-block ml-auto' onClick={() => {
+                setCountry(undefined)
+                setCategories([])
+              }}>
+                Clear all filters <div className='inline-block transform rotate-45'>+</div>
+              </div>
+            ) : null}
+          </div>
+
+          <SolidarityActionsList
+            data={filteredActions}
+            withDialog
+            dialogProps={{
+              cardProps: {
+                withContext: true,
+                contextProps: {
+                  listProps: {
+                    withDialog: false
+                  }
+                }
+              },
+            }}
+          />
+
+          <article>
+            <p>Can you contribute more info about worker organising?</p>
+
+            <div className='space-x-2'>
+              <Link href='/submit'>
+                <span className='button'>
+                  Submit a solidarity action
+                </span>
+              </Link>
+              <a className='button' href={`mailto:${projectStrings.email}`}>
+                Contact us
+              </a>
+            </div>
+          </article>
+        </section>
       </div>
     </PageLayout>
   )
@@ -63,12 +182,12 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
 
 export const getStaticProps: GetStaticProps<
   SolidarityActionsData,
-  {}
+  PageParams
 > = async (context) => {
   const data = await getSolidarityActions()
   return {
     props: {
-      solidarityActions: data
+      solidarityActions: data,
     } as SolidarityActionsData,
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5
