@@ -25,7 +25,7 @@ body {
 
 @layer components {
   .link {
-    @apply underline cursor-pointer hover:text-gwPink
+    @apply underline cursor-pointer hover:text-gwPink font-semibold
   }
 
   .button {

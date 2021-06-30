@@ -5,6 +5,7 @@ import qs from 'query-string';
 import useSWR from 'swr';
 import { doNotFetch } from '../utils/swr';
 import { LinksData } from '../pages/api/links';
+import cx from 'classnames';
 
 export default function PageLayout ({ children }) {
   return (
@@ -33,28 +34,26 @@ function Header () {
   })
 
   return (
-    <header className='my-4'>
-      <div className='content-wrapper'>
-        <nav className='lg:flex flex-row justify-between items-center'>
-          <div className='text-2xl font-identity font-bold cursor-pointer  hover:text-gwPink'>
+    <header className={cx(`py-5 bg-gwPink space-y-2`)}>
+      <div className='content-wrapper grid grid-cols-1 lg:grid-cols-3 gap-4'>
+        <div className='space-y-3 col-span-2'>
+          <div className='text-6xl font-identity cursor-pointer hover:text-gwPinkLight'>
             <Link href='/'>Game Worker Solidarity</Link>
           </div>
-          <div className='ml-auto space-x-2'>
-            <Link href={'/submit'}>
-              <span className='link'>Submit</span>
-            </Link>
-            <Link href='/docs'>
-              <span className='link'>API</span>
-            </Link>
-            <Link href={'/news'}>
-              <span className='link'>News</span>
-            </Link>
-            {data?.links?.map?.((link, i) => (
-              <a href={link.fields.Slug ? `/${link.fields.Slug}` : link.fields.Link} key={link.fields.Slug || link.fields.Link}>
-                <span className='link'>{link.fields.Title}</span>
-              </a>
-            ))}
-          </div>
+          <p className='text-2xl text-200'>
+            Mapping and documenting collective movements by game workers striving to improve their working conditions.
+          </p>
+        </div>
+        <nav className='space-x-2 lg:text-right lg:space-x-none xl:space-x-2 lg:pt-2'>
+          {data?.links?.map?.((link, i) => (
+            <a
+              href={link.fields.Slug ? `/${link.fields.Slug}` : link.fields.Link}
+              key={link.fields.Slug || link.fields.Link}
+              className='lg:block xl:inline-block'
+            >
+              <span className='link'>{link.fields.Title}</span>
+            </a>
+          ))}
         </nav>
       </div>
     </header>
