@@ -28,12 +28,12 @@ export function CumulativeMovementChart ({ data }: { data: SolidarityAction[], c
   const maxDate = new Date()
 
   return (
-    <div className='relative' style={{ height: 160, maxHeight: '80vh' }}>
+    <div className='relative' style={{ height: 100, maxHeight: '80vh' }}>
       <ParentSize>{(parent) => (
         <>
-          <h3 className='text-xs text-left absolute top-0 left-0 w-full font-mono uppercase'>
+          {/* <h3 className='text-xs text-left absolute top-0 left-0 w-full font-mono uppercase'>
             Solidarity actions / year
-          </h3>
+          </h3> */}
           {/* <div className='text-xs'>
             <div className='space-x-1'>
               <span className='align-middle inline-block w-3 h-3 bg-gwOrangeLight' />

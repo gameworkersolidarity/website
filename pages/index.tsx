@@ -97,24 +97,37 @@ export default function Page({ solidarityActions: actions }: PageData) {
     <PageLayout fullWidth>
       <div className='grid md:grid-cols-2'>
         <section className='p-4 lg:p-5'>
-          <div className='sticky top-4 lg:top-5 space-y-4'>
-            <div className='flex flex-wrap p-1'>
-              {categories.map(category => (
-                <div
-                  key={category}
-                  className={cx(
-                    filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600',
-                    'cursor-pointer capitalize rounded-lg px-2 py-1 text-sm bg-gwOrangeLight m-2 -mt-1 -ml-1'
-                  )}
-                  onClick={() => toggleCategory(category)}>
-                  {category}
-                </div>
-              ))}
-            </div>
-            <div className='w-full' style={{ maxHeight: '50vh', height: 500 }}>
+          <div className='sticky top-4 lg:top-5 space-y-4 overflow-y-auto'>
+            <section className='-mb-3'>
+              <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
+                Filter by category
+              </h3>
+              <div className='flex flex-wrap p-1'>
+                {categories.map(category => (
+                  <div
+                    key={category}
+                    className={cx(
+                      filteredCategories.includes(category) ? 'bg-gwOrange' : 'bg-gray-100',
+                      'cursor-pointer capitalize rounded-lg px-3 py-2 text-sm m-2 -mt-1 -ml-1'
+                    )}
+                    onClick={() => toggleCategory(category)}>
+                    {category}
+                  </div>
+                ))}
+              </div>
+            </section>
+            <section className='w-full' style={{ maxHeight: '40vh', height: 500 }}>
+              <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
+                Filter by country
+              </h3>
               <Map data={filteredActions} onSelectCountry={NEW => setCountry(old => (NEW === null || old === NEW) ? undefined : NEW)} />
-            </div>
-            <CumulativeMovementChart data={filteredActions} />
+            </section>
+            <section className='pt-1'>
+              <h3 className='text-xs text-left w-full font-mono uppercase pt-4'>
+                Filter by year
+              </h3>
+              <CumulativeMovementChart data={filteredActions} />
+            </section>
           </div>
         </section>
 
