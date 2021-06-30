@@ -1,22 +1,19 @@
 import App from 'next/app'
 import { SWRConfig } from 'swr'
 import '../styles/globals.css'
-import Link from 'next/link';
-import VerticalScrollPage from '../components/VerticalScrollPage';
 import { getStaticPageLinks } from '../data/staticPage';
 import { projectStrings } from '../data/site';
-import { useRouter } from 'next/dist/client/router';
 import {DefaultSeo} from 'next-seo';
 import { KonamiCode } from '../components/KonamiCode';
+import { doNotFetch } from '../utils/swr';
+import { useCanonicalURL } from '../data/seo';
 
 function MyApp({ Component, pageProps, links }) {
-  const router = useRouter()
-  const canonicalURL = (new URL(router.asPath, projectStrings.baseUrl)).toString()
+  const canonicalURL = useCanonicalURL()
   return (
     <SWRConfig value={{
-      initialData: pageProps,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
+      initialData: { ...pageProps, links },
+      ...doNotFetch()
     }}>
       <DefaultSeo
         defaultTitle={projectStrings.name}
@@ -42,40 +39,10 @@ function MyApp({ Component, pageProps, links }) {
           cardType: 'summary_large_image',
         }}
       />
-
-      <VerticalScrollPage>
-        <header className='my-4'>
-          <div className='content-wrapper'>
-            <nav className='lg:flex flex-row justify-between items-center'>
-              <div className='text-2xl font-identity font-bold cursor-pointer  hover:text-gwPink'>
-                <div>Game Worker Solidarity</div>
-              </div>
-              <div className='ml-auto space-x-2'>
-                <Link href={'/submit'}>
-                  <span className='link'>Submit</span>
-                </Link>
-                <Link href='/docs'>
-                  <span className='link'>API</span>
-                </Link>
-                <Link href={'/news'}>
-                  <span className='link'>News</span>
-                </Link>
-                {links?.map((link, i) => (
-                  <a href={link.fields.Slug ? `/${link.fields.Slug}` : link.fields.Link} key={link.fields.Slug || link.fields.Link}>
-                    <span className='link'>{link.fields.Title}</span>
-                  </a>
-                ))}
-              </div>
-            </nav>
-          </div>
-        </header>
-
-        <hr className='my-3 border-transparent' />
-
+      <div>
         <KonamiCode />
-
         <Component {...pageProps} />
-      </VerticalScrollPage>
+      </div>
     </SWRConfig>
   )
 }

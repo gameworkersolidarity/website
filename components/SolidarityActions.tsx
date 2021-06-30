@@ -20,6 +20,7 @@ import { projectStrings } from '../data/site';
 import Image from 'next/image'
 import Fuse from 'fuse.js';
 import { CumulativeMovementChart } from './ActionChart';
+import { doNotFetch } from '../utils/swr';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -163,7 +164,10 @@ export function SolidarityActionsList ({
 }
 
 export function SolidarityActionsFullList () {
-  const data = useSWR<SolidarityActionsData>('/api/solidarityActions')
+  const data = useSWR<SolidarityActionsData>('/api/solidarityActions', { 
+    // Data should have been loaded by _app.tsx already,
+    ...doNotFetch()
+  })
   const actions = data?.data?.solidarityActions || []
   const search = useMemo(() => new Fuse(actions, {
     keys: ['fields.Category'],
@@ -199,6 +203,25 @@ export function SolidarityActionsFullList () {
   return (
     <div className='md:flex flex-row relative'>
       <div>
+        <div className='hidden md:block sticky top-0'>
+          <div className='pl-5 space-y-3'>
+            <h4 className='text-lg font-bold leading-tight'>Filter actions</h4>
+            <div className='flex flex-row flex-wrap space-x-2 space-y-2'>
+              {categories.map(category => (
+                <div
+                  key={category}
+                  className={cx(
+                    filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600',
+                    'cursor-pointer capitalize rounded-md p-2 bg-gwOrangeLight'
+                  )}
+                  onClick={() => toggleCategory(category)}>
+                  {category}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <CumulativeMovementChart data={displayedActions} />
 
         <SolidarityActionsList
@@ -215,21 +238,6 @@ export function SolidarityActionsFullList () {
             },
           }}
         />
-      </div>
-      <div className='hidden md:block sticky top-0'>
-        <div className='pl-5 space-y-3'>
-          <h4 className='text-lg font-bold leading-tight'>Filter actions</h4>
-          <div className='space-y-3'>
-            {categories.map(category => (
-              <div
-                key={category}
-                className={cx(filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600', 'cursor-pointer capitalize')}
-                onClick={() => toggleCategory(category)}>
-                  {category}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )

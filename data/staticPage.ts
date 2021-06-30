@@ -30,29 +30,42 @@ export async function getStaticPageLinks (): Promise<Array<StaticPage>> {
       maxRecords: 1000,
       view: env.get('AIRTABLE_TABLE_VIEW_STATIC_PAGES').default('Main Menu Link Order').asString(),
     }).eachPage(function page(records, fetchNextPage) {
-      records.forEach(function(record) {
-        staticPages.push(record._rawJson)
-      });
-      fetchNextPage();
+      try {
+        records.forEach(function(record) {
+          staticPages.push(record._rawJson)
+        });
+        fetchNextPage();
+      } catch(e) {
+        reject(e)
+      }
     }, function done(err) {
-      if (err) { reject(err); return; }
-      resolve(staticPages)
+      try {
+        if (err) { reject(err); return; }
+        resolve(staticPages)
+      } catch (e) {
+        reject(e)
+      }
     });
   })
 }
 
 export async function getSingleStaticPage (slug: string) {
-  return new Promise<StaticPage>((resolve, reject) => {
+  return new Promise<StaticPage | null>((resolve, reject) => {
     staticPageBase().select({
       filterByFormula: `AND(Public, Slug="${slug}")`,
       fields: ['Title', 'Summary', 'Slug', 'Link', 'Body', 'Public'],
       maxRecords: 1,
       view: env.get('AIRTABLE_TABLE_VIEW_STATIC_PAGES').default('All Pages').asString(),
     }).firstPage((error, records) => {
-      if (error || !records) {
-        return reject(error || `No record found for slug ${slug}`)
+      try {
+        if (error) console.error(error)
+        if (error || !records?.length) {
+          return reject(`No page was found at '${slug}'`)
+        }
+        return resolve(formatStaticPage(records[0]._rawJson))
+      } catch (e) {
+        reject(e)
       }
-      return resolve(formatStaticPage(records[0]._rawJson))
     })
   })
 }

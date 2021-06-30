@@ -5,10 +5,10 @@ import { format } from 'date-fns';
 import { SolidarityActionsData } from './api/solidarityActions';
 import Link from 'next/link';
 import { projectStrings } from '../data/site';
-import { CumulativeMovementChart } from '../components/ActionChart';
 import { Map } from '../components/Map';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
+import PageLayout from '../components/PageLayout';
 
 export default function Page({ solidarityActions }: { solidarityActions: SolidarityAction[] }) {
   if (!solidarityActions.length) {
@@ -19,7 +19,7 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
   const earliestYear = parseInt(format(new Date(solidarityActions[0].fields.Date), 'yyyy'))
 
   return (
-    <>
+    <PageLayout>
       <section className='my-4'>
         <Map data={solidarityActions} />
       </section>
@@ -57,7 +57,7 @@ export default function Page({ solidarityActions }: { solidarityActions: Solidar
           </a>
         </div>
       </div>
-    </>
+    </PageLayout>
   )
 }
 

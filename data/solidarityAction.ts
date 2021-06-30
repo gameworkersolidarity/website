@@ -96,19 +96,21 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
         fetchNextPage();
       } catch (e) {
         console.error(e)
+        reject(e)
       }
     }, function done(err) {
       try {
-      if (err) { reject(err); return; }
-      resolve(
-        solidarityActions
-          .filter(a =>
-            solidarityActionSchema.safeParse(a).success === true
-          )
-      )
-    } catch (e) {
-      console.error(e)
-    }
+        if (err) { reject(err); return; }
+        resolve(
+          solidarityActions
+            .filter(a =>
+              solidarityActionSchema.safeParse(a).success === true
+            )
+        )
+      } catch (e) {
+        console.error(e)
+        reject(e)
+      }
     })
   })
 }
@@ -121,8 +123,9 @@ export async function getSolidarityActionsByCountryCode (iso2: string) {
 export async function getSingleSolidarityAction (recordId: string) {
   return new Promise<SolidarityAction>((resolve, reject) => {
     solidarityActionBase().find(recordId, async (error, record) => {
+      if (error) console.error(error)
       if (error || !record) {
-        return reject(error || `No record found for ID ${recordId}`)
+        return reject(`No solidarity action was found for with the ID '${recordId}'`)
       }
       return resolve(await formatSolidarityAction(record._rawJson))
     })

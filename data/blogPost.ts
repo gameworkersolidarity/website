@@ -35,17 +35,25 @@ export async function getBlogPosts (): Promise<Array<BlogPost>> {
       maxRecords: 1000,
       view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').asString(),
     }).eachPage(function page(records, fetchNextPage) {
-      records.forEach(function(record) {
-        blogPosts.push(formatBlogPost(record._rawJson))
-      });
-      fetchNextPage();
+      try {
+        records.forEach(function(record) {
+          blogPosts.push(formatBlogPost(record._rawJson))
+        });
+        fetchNextPage();
+      } catch (e) {
+        reject(e)
+      }
     }, function done(err) {
-      if (err) { reject(err); return; }
-      resolve(
-        blogPosts.filter(a =>
-          blogPostSchema.safeParse(a).success === true
+      try {
+        if (err) { reject(err); return; }
+        resolve(
+          blogPosts.filter(a =>
+            blogPostSchema.safeParse(a).success === true
+          )
         )
-      )
+      } catch (e) {
+        reject(e)
+      }
     });
   })
 }
@@ -58,10 +66,14 @@ export async function getSingleBlogPost (slug: string): Promise<BlogPost> {
       maxRecords: 1,
       view: env.get('AIRTABLE_TABLE_VIEW_BLOG_POSTS').default('Grid view').asString(),
     }).firstPage((error, records) => {
-      if (error || !records) {
-        return reject(error || `No record found for slug ${slug}`)
+      try {
+        if (error || !records?.length) {
+          return reject(error || `No record found for slug ${slug}`)
+        }
+        return resolve(formatBlogPost(records[0]._rawJson))
+      } catch(e) {
+        reject(e)
       }
-      return resolve(formatBlogPost(records[0]._rawJson))
     })
   })
 }

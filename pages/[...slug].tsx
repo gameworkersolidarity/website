@@ -1,13 +1,19 @@
-import Head from 'next/head'
 import { getSingleStaticPage, getStaticPageLinks } from '../data/staticPage';
 import { BlogPost, StaticPage } from '../data/types';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import PageLayout from '../components/PageLayout';
+import ErrorPage from './404'
 
-export default function Page({ article }: { article: BlogPost }) {
-  return article ? (
-    <>
+type PageProps = { article: StaticPage | null, errorMessage?: string }
+type PageParams = { slug: string[] }
+
+export default function Page({ article, errorMessage }: PageProps) {
+  if (!article) return <ErrorPage message={errorMessage} />
+
+  return (
+    <PageLayout>
       <NextSeo
         title={article.fields.Title}
         description={article.body.plaintext}
@@ -24,8 +30,8 @@ export default function Page({ article }: { article: BlogPost }) {
           <div className='prose ' dangerouslySetInnerHTML={{ __html: article.body.html }} />
         </article>
       </section>
-    </>
-  ) : null
+    </PageLayout>
+  )
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
@@ -41,13 +47,24 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 }
 
 export const getStaticProps: GetStaticProps<
-  { article: StaticPage }, { slug: string[] }
+  PageProps, PageParams
 > = async (context) => {
   if (!context?.params?.slug) throw new Error()
 
+  let article
+  let errorMessage = ''
+  try {
+    article = await getSingleStaticPage(context.params.slug.join('/')) || null
+  } catch (e) {
+    console.error("No article was found", e)
+    article = null
+    errorMessage = e.toString()
+  }
+
   return {
     props: {
-      article: await getSingleStaticPage(context.params.slug.join('/'))
+      article,
+      errorMessage
     },
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5

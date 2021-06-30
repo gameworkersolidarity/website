@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import MarkdownIt from 'markdown-it'
 import { CodeBlock } from '../components/CodeBlock';
 import { getSolidarityActions } from '../data/solidarityAction';
@@ -6,6 +5,7 @@ import { NextSeo } from 'next-seo';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
 import { getCountryByCode } from '../data/country';
+import PageLayout from '../components/PageLayout';
 export const markdown = new MarkdownIt();
 
 interface Doc {
@@ -17,7 +17,7 @@ interface Doc {
 
 export default function Page({ docs }: { docs: Doc[] }) {
   return (
-    <>
+    <PageLayout>
       <NextSeo
         title={'API Documentation'}
         openGraph={{
@@ -43,7 +43,7 @@ export default function Page({ docs }: { docs: Doc[] }) {
           </article>
         )}
       </section>
-    </>
+    </PageLayout>
   )
 }
 

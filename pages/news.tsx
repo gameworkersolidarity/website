@@ -1,10 +1,10 @@
-import Head from 'next/head'
 import { BlogPost } from '../data/types';
 import { format } from 'date-fns';
 import { getBlogPosts } from '../data/blogPost';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
+import PageLayout from '../components/PageLayout';
 
 type Props = {
   blogPosts: BlogPost[],
@@ -12,7 +12,7 @@ type Props = {
 
 export default function Page({ blogPosts }: Props) {
   return (
-    <>
+    <PageLayout>
       <NextSeo
         title={'News'}
         openGraph={{
@@ -46,14 +46,14 @@ export default function Page({ blogPosts }: Props) {
           ))}
         </section>
       </div>
-    </>
+    </PageLayout>
   )
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
-      blogPosts: await getBlogPosts()
+      blogPosts: await getBlogPosts() || []
     },
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5

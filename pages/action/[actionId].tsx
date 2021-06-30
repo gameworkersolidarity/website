@@ -1,14 +1,20 @@
-import Head from 'next/head'
 import { getSingleSolidarityAction, getSolidarityActions } from '../../data/solidarityAction';
 import { SolidarityAction } from '../../data/types';
 import { SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
 import env from 'env-var';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import ErrorPage from '../404'
+import PageLayout from '../../components/PageLayout';
 
-export default function Page({ action }: { action: SolidarityAction }) {
-  return action ? (
-    <>
+type PageProps = { action: SolidarityAction | null, errorMessage?: string }
+type PageParams = { actionId: string }
+
+export default function Page({ action, errorMessage }: PageProps) {
+  if (!action) return <ErrorPage message={errorMessage} />
+
+  return (
+    <PageLayout>
       <div className='max-w-xl mx-auto'>
         <SolidarityActionCard
           data={action}
@@ -21,8 +27,8 @@ export default function Page({ action }: { action: SolidarityAction }) {
           </div>
         </Link>
       </div>
-    </>
-  ) : null
+    </PageLayout>
+  )
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
@@ -38,15 +44,24 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 }
 
 export const getStaticProps: GetStaticProps<
-  { action: SolidarityAction }, { actionId: string }
+  PageProps, PageParams
 > = async (context) => {
   if (!context?.params?.actionId) throw new Error()
 
-  const action = await getSingleSolidarityAction(context.params.actionId)
+  let action
+  let errorMessage = ''
+  try {
+    action = await getSingleSolidarityAction(context.params.actionId) || null
+  } catch (e) {
+    console.error("No action was found", e)
+    errorMessage = e.toString()
+    action = null
+  }
 
   return {
     props: {
-      action
+      action,
+      errorMessage
     },
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5

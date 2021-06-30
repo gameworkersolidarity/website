@@ -7,19 +7,30 @@ import { projectStrings } from '../../data/site';
 import { CumulativeMovementChart } from '../../components/ActionChart';
 import env from 'env-var';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import ErrorPage from '../404'
+import PageLayout from '../../components/PageLayout';
+import { useCanonicalURL } from '../../data/seo';
+import { useRouter } from 'next/dist/client/router';
 
-export default function Page({ country }: { country: CountryData }) {
+type PageProps = { country: CountryData | null, errorMessage?: string }
+type PageParams = { countryNameSlug: string }
+
+export default function Page({ country, errorMessage }: PageProps) {
   if (!country?.country?.fields) {
-    return <div />
+    return <ErrorPage message={errorMessage} />
   }
 
+  const router = useRouter()
+  const canonicalURL = useCanonicalURL(router.asPath.toLowerCase())
+
   return (
-    <>
+    <PageLayout>
       <NextSeo
         title={country.country.fields.Name}
         openGraph={{
           title: `Game worker solidarity in ${country.country.fields.Name}`,
         }}
+        canonical={canonicalURL}
       />
 
       <div className='content-wrapper'>
@@ -60,7 +71,7 @@ export default function Page({ country }: { country: CountryData }) {
           </div>
         </Link>
       </div>
-    </>
+    </PageLayout>
   )
 }
 
@@ -69,7 +80,7 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
   return {
     paths: links.map(country => ({
       params: {
-        slug: country.fields.Slug
+        countryNameSlug: country.fields.Slug
       }
     })),
     fallback: true
@@ -77,15 +88,24 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 }
 
 export const getStaticProps: GetStaticProps<
-  { country: CountryData }, { slug: string }
+  PageProps, PageParams
 > = async (context) => {
-  if (!context?.params?.slug) throw new Error()
+  if (!context?.params?.countryNameSlug) throw new Error()
 
-  const country = await getCountryDataBySlug(context.params.slug)
+  let country
+  let errorMessage = ''
+  try {
+    country = await getCountryDataBySlug(context.params.countryNameSlug) || null
+  } catch (e) {
+    console.error("No country was found", e)
+    country = null
+    errorMessage = e.toString()
+  }
 
   return {
     props: {
-      country
+      country,
+      errorMessage
     },
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5

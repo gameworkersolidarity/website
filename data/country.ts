@@ -33,11 +33,15 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
     const countries: Country[] = []
 
     function finish () {
-      resolve(
-        countries.filter(a =>
-          countrySchema.safeParse(a).success === true
+      try {
+        resolve(
+          countries.filter(a =>
+            countrySchema.safeParse(a).success === true
+          )
         )
-      )
+      } catch (e) {
+        reject(e)
+      }
     }
 
     countryBase().select({
@@ -50,10 +54,10 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
       filterByFormula: 'COUNTA({Solidarity Actions}) > 0',
       ...selectArgs
     }).eachPage(function page(records, fetchNextPage) {
-      records.forEach(function(record) {
-        countries.push(formatCountry(record._rawJson))
-      });
       try {
+        records.forEach(function(record) {
+          countries.push(formatCountry(record._rawJson))
+        });
         fetchNextPage();
       } catch(e) {
         finish()
@@ -77,24 +81,28 @@ export async function getCountryBy (selectArgs: QueryParams<Country['fields']> =
       // view: env.get('AIRTABLE_TABLE_VIEW_COUNTRIES').default('Grid view').asString(),
       ...selectArgs
     }).firstPage(function page(error, records) {
-      if (error || !records) {
-        return reject(error || `No record found for filter ${JSON.stringify(selectArgs)}`)
+      try {
+        if (error) console.error(error)
+        if (error || !records?.length) {
+          return reject(`No countries was found for filter ${JSON.stringify(selectArgs)}`)
+        }
+        resolve(formatCountry(country))
+      } catch(e) {
+        reject(e)
       }
-      country = records[0]._rawJson
-      resolve(formatCountry(country))
     })
   })
 }
 
 export async function getCountryByCode (countryCode: string) {
   return getCountryBy({
-    filterByFormula: `{Country Code}="${countryCode}"`
+    filterByFormula: `{Country Code}="${countryCode.toUpperCase()}"`
   })
 }
 
 export async function getCountryBySlug (slug: string) {
   return getCountryBy({
-    filterByFormula: `{Slug}="${slug}"`
+    filterByFormula: `{Slug}="${slug.toLowerCase()}"`
   })
 }
 
@@ -109,7 +117,7 @@ export const getCountryDataByCode = async (iso2: string): Promise<CountryData> =
   }
   const country = await getCountryByCode(iso2)
   if (!country) {
-    throw new Error("No such country found for this country code.")
+    throw new Error("No such country was found for this country code.")
   }
 
   const solidarityActions = await getSolidarityActionsByCountryCode(iso2)
@@ -124,11 +132,17 @@ export const getCountryDataByCode = async (iso2: string): Promise<CountryData> =
 
 export const getCountryDataBySlug = async (slug: string): Promise<CountryData> => {
   if (!/[A-Za-z-]+/.test(slug)) {
-    throw new Error("A valid slug must be provided")
+    throw new Error(`'${slug}' isn't a valid country name`)
   }
-  const country = await getCountryBySlug(slug)
-  if (!country) {
-    throw new Error("No such country found for this slug.")
+  let country
+  try {
+    country = await getCountryBySlug(slug)
+    if (!country) {
+      throw new Error(`No country was found called '${slug}'`)
+    }
+  } catch (e) {
+    console.error(e)
+    throw new Error(`No country was found called '${slug}'`)
   }
 
   const solidarityActions = await getSolidarityActionsByCountryCode(country.fields['Country Code'])

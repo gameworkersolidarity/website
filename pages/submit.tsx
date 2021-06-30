@@ -1,12 +1,12 @@
-import Head from 'next/head'
 import env from 'env-var';
 import qs from 'query-string'
 import { NextSeo } from 'next-seo';
 import { GetStaticProps } from 'next';
+import PageLayout from '../components/PageLayout';
 
 export default function Page({ embedUrl }) {
   return (
-    <>
+    <PageLayout>
       <NextSeo
         title={'Submit data'}
         openGraph={{
@@ -26,7 +26,7 @@ export default function Page({ embedUrl }) {
         frameBorder="0" onmousewheel="" width="100%" height="1815"
         style={{ background: 'transparent', border: 'transparent' }}
       />
-    </>
+    </PageLayout>
   )
 }
 
