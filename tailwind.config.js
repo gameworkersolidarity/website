@@ -2,9 +2,11 @@
 /** @typedef { import('tailwindcss/defaultTheme') } DefaultTheme */
 /** @typedef { DefaultConfig & { theme: { extend: DefaultTheme } } } TailwindConfig */
 
+const defaultTheme = require ('tailwindcss/defaultTheme')
+
 /** @type {TailwindConfig} */
 module.exports = {
-  // mode: "jit",
+  mode: "jit",
   purge: [
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}'
@@ -39,6 +41,12 @@ module.exports = {
       7: '80px',
     },
     extend: {
+      fontFamily: {
+        identity: [
+          'Parabole',
+          ...defaultTheme.fontFamily.sans
+        ]
+      },
       colors: {
         transparent: 'transparent',
         inherit: 'inherit',

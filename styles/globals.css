@@ -7,6 +7,16 @@ body {
   @apply min-h-screen bg-gray-100 max-w-full overflow-x-hidden;
 }
 
+@font-face {
+  font-family: 'Parabole';
+  src: url('/fonts/Parabole-Regular.woff2') format('woff2'),
+      url('/fonts/Parabole-Regular.woff') format('woff'),
+      url('/fonts/Parabole-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer utilities {
   .capitalize-first:first-letter {
     text-transform: uppercase;

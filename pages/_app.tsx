@@ -24,10 +24,10 @@ function MyApp({ Component, pageProps, links }) {
         description={projectStrings.description}
         canonical={canonicalURL}
         additionalLinkTags={[
-          { rel: 'icon', href: '/favicon.ico' },
-          { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-          { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
-          { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+          { rel: 'icon', href: '/favicon/favicon.ico' },
+          { rel: "apple-touch-icon", sizes: "180x180", href: "/favicon/apple-touch-icon.png" },
+          { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon/favicon-32x32.png" },
+          { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon/favicon-16x16.png" },
           { rel: "manifest", href: "/site.webmanifest" }
         ]}
         openGraph={{
@@ -47,8 +47,8 @@ function MyApp({ Component, pageProps, links }) {
         <header className='my-4'>
           <div className='content-wrapper'>
             <nav className='lg:flex flex-row justify-between items-center'>
-              <div className='text-2xl font-bold cursor-pointer  hover:text-gwPink'>
-                <div>Game Worker Solidarity Project</div>
+              <div className='text-2xl font-identity font-bold cursor-pointer  hover:text-gwPink'>
+                <div>Game Worker Solidarity</div>
               </div>
               <div className='ml-auto space-x-2'>
                 <Link href={'/submit'}>
