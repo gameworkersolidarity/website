@@ -1,5 +1,5 @@
 import { SolidarityAction } from '../data/types';
-import { memo, useCallback, useState, useRef } from 'react';
+import { memo, useCallback, useState, useRef, createContext, useContext } from 'react';
 import ReactMapGL, { Layer, MapRef, Marker, Source } from '@urbica/react-map-gl';
 import env from 'env-var';
 // import { stringifyArray } from '../utils/string';
@@ -7,16 +7,22 @@ import Emoji from 'a11y-react-emoji';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
+import { useRouter } from 'next/dist/client/router';
+import { scrollToId } from '../utils/router';
 
-// const MapContext = createContext<MapRef | null>(null)
+const defaultViewport = {
+  latitude: 15,
+  longitude: 0,
+  zoom: 0.7,
+}
+
+const MapContext = createContext(defaultViewport)
 
 export function Map({ data, onSelectCountry, ...initialViewport }: {
   data: SolidarityAction[], width?: any, height?: any, onSelectCountry?: (iso2id: string | null) => void
 }) {
   const [viewport, setViewport] = useState({
-    latitude: 15,
-    longitude: 0,
-    zoom: 0.7,
+    ...defaultViewport,
     // width: '100%',
     // height: 700,
     ...initialViewport,
@@ -27,25 +33,27 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
   const ref = useRef<MapRef>(null)
 
   return (
-    <div className='relative overflow-hidden rounded-lg' style={{
-      height: '100%',
-      width: '100%'
-    }}>
-      <ReactMapGL
-        style={{
-          width: '100%',
-          height: '100%'
-        }}
-        {...viewport}
-        accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
-        mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckpzergl604py17s2jrpjp8eu').asString()}
-        onViewportChange={updateViewport}
-        className="rounded-lg"
-        ref={ref}
-      >
-        <MapLayer data={data} onSelectCountry={onSelectCountry} withHeatmap={false} />
-      </ReactMapGL>
-    </div>
+    <MapContext.Provider value={viewport}>
+      <div className='relative overflow-hidden rounded-lg' style={{
+        height: '100%',
+        width: '100%'
+      }}>
+        <ReactMapGL
+          style={{
+            width: '100%',
+            height: '100%'
+          }}
+          {...viewport}
+          accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
+          mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckpzergl604py17s2jrpjp8eu').asString()}
+          onViewportChange={updateViewport}
+          className="rounded-lg"
+          ref={ref}
+        >
+          <MapLayer data={data} onSelectCountry={onSelectCountry} withHeatmap={false} />
+        </ReactMapGL>
+      </div>
+    </MapContext.Provider>
   );
 }
 
@@ -240,15 +248,18 @@ function getCoordinatesForAction(data: SolidarityAction) {
 }
 
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
+  const context = useContext(MapContext)
+  const router = useRouter()
+
   return (
     <Marker {...getCoordinatesForAction(data)}>
-      <div className='space-x-1 text-center transform'>
+      <div className='space-x-1 text-center transform' onClick={() => scrollToId(router, data.id)}>
         {!!data.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>}
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        {/* <div className='text-sm bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
+        <div style={{ opacity: context.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
           {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
-        </div> */}
+        </div>
       </div>
     </Marker>
   )

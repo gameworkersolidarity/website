@@ -20,12 +20,13 @@ import { getCompanies } from '../data/company';
 import { Listbox, Disclosure } from '@headlessui/react'
 import { getCategories } from '../data/category';
 import { getCountries, CountryData } from '../data/country';
-import { useRouter } from 'next/dist/client/router';
+import { NextRouter, useRouter } from 'next/dist/client/router';
 import useSWR from 'swr';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components/OrganisingGroup';
 import { UnionsByCountryData } from './api/organisingGroupsByCountry';
 import { ChevronRightIcon } from '@heroicons/react/outline';
+import { scrollToId } from '../utils/router';
 
 type PageProps = {
   actions: SolidarityAction[],
@@ -123,25 +124,6 @@ export default function Page({ actions, companies, categories, countries }: Page
 
   //
 
-  function scrollToYear(year: string) {
-    const element = document.getElementById(year);
-    if (!element) return
-
-    if (!!element.scrollIntoView) {
-      // Smooth scroll to that elment
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest',
-      });
-      setTimeout(() => {
-        router.push({ hash: year }, undefined, { shallow: true, scroll: false })
-      }, 1500)
-    } else {
-      router.push({ hash: year }, undefined, { shallow: true, scroll: false })
-    }
-  }
-
   const unions = useSWR<UnionsByCountryData>(
     selectedCountries.length ? `/api/organisingGroupsByCountry?iso2=${selectedCountries[0]?.emoji.code}` : null,
     {
@@ -175,16 +157,16 @@ export default function Page({ actions, companies, categories, countries }: Page
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='overflow-y-auto p-1 rounded-lg bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
                         {countries.map((country) => (
                           <Listbox.Option
                             key={country.id}
                             value={country.fields.Slug}
                           >
-                            <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer text-left flex justify-start w-full'>
                               <span><Emoji symbol={country.emoji.emoji} /></span>
-                              <span className='ml-1 inline-block'>{country.fields.Name}</span>
-                              <span className='text-sm inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
+                              <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
+                              <span className='inline-block align-baseline text-xs ml-auto text-gray-500 pl-2'>
                                 {pluralize('action', country.fields['Solidarity Actions']?.length || 0, true)}
                               </span>
                             </div>
@@ -202,16 +184,16 @@ export default function Page({ actions, companies, categories, countries }: Page
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='overflow-y-auto p-1 rounded-lg bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
                         {categories.map((category) => (
                           <Listbox.Option
                             key={category.id}
                             value={category.fields.Name}
                           >
-                            <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
-                              <span className='text-sm inline-block'>{category.fields.Emoji}</span>
-                              <span className='text-sm inline-block capitalize ml-1'>{category.fields.Name}</span>
-                              <span className='inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer text-left flex justify-start w-full'>
+                              <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
+                              <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
+                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
                                 {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
                               </span>
                             </div>
@@ -229,15 +211,15 @@ export default function Page({ actions, companies, categories, countries }: Page
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='overflow-y-auto p-1 rounded-lg bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
                         {companies.map((company) => (
                           <Listbox.Option
                             key={company.id}
                             value={company.fields.Name}
                           >
-                            <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
-                              <span className='text-sm inline-block'>{company.fields.Name}</span>
-                              <span className='inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer text-left flex justify-start w-full'>
+                              <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
+                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
                                 {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
                               </span>
                             </div>
@@ -264,7 +246,7 @@ export default function Page({ actions, companies, categories, countries }: Page
               <h3 className='text-xs text-left w-full font-mono uppercase pt-4'>
                 Filter by year
               </h3>
-              <CumulativeMovementChart data={filteredActions} onSelectYear={scrollToYear} />
+              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
             </section>
           </div>
         </section>

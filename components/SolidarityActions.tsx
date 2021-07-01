@@ -13,7 +13,7 @@ import { up } from '../utils/screens';
 import cx from 'classnames'
 import { NextSeo } from 'next-seo';
 import qs from 'query-string';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import pluralize from 'pluralize'
 import Emoji from 'a11y-react-emoji';
 import { projectStrings } from '../data/site';
@@ -111,7 +111,6 @@ export function SolidarityActionsList ({
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
-  const screenIsWiderThanMd = useMediaQuery(up("md"));
 
   const actionsByYear = solidarityActions?.reduce((bins, action) => {
     const key = `${getYear(new Date(action.fields.Date))}`
@@ -155,7 +154,7 @@ export function SolidarityActionsList ({
                     as={`/action/${action.id}`}
                     shallow
                   >
-                    <div className='transition cursor-pointer group'>
+                    <div className='transition cursor-pointer group' id={action.id}>
                       <SolidarityActionItem data={action} />
                     </div>
                   </Link>
@@ -170,9 +169,25 @@ export function SolidarityActionsList ({
 }
 
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
+  const router = useRouter()
+  const [isHighlighted, setIsHighlighted] = useState(false)
+
+  useEffect(() => {
+    const handleHashChangeComplete = (url, obj) => {
+      const { hash } = new URL(url, window.location.toString())
+      setIsHighlighted(() => hash.replace('#', '') === data.id)
+    }
+
+    router.events.on('hashChangeComplete', handleHashChangeComplete)
+
+    return () => {
+      router.events.off('hashChangeComplete', handleHashChangeComplete)
+    }
+  }, [])
+
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
-    <article className={('bg-white rounded-lg p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
+    <article className={cx(isHighlighted && 'shadow-glow', 'bg-white rounded-lg p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <div>
       </div>
       <div className='space-x-4 flex tracking-normal'>
