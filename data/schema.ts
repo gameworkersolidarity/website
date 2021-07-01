@@ -159,11 +159,13 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     LastModified: z.string(),
     Link: z.string().optional(),
     LocationData: z.string().optional(),
-    "Country Name": z.array(z.string()),
+    countryName: z.array(z.string()),
     countryCode: z.array(z.string()),
-    "Country Slug": z.array(z.string()),
+    countrySlug: z.array(z.string()),
     Company: z.array(z.string()).optional(),
     Category: z.array(z.string()).optional(),
+    CategoryName: z.array(z.string()).optional(),
+    CategoryEmoji: z.array(z.string()).optional(),
     Document: z.array(documentSchema).optional(),
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     Public: z.literal(true),
@@ -185,6 +187,16 @@ export const countrySchema = baseRecordSchema.extend({
 });
 
 export const companySchema = baseRecordSchema.extend({
+  fields: z.object({
+    Name: z.string(),
+    Summary: z.string().optional(),
+    "Solidarity Actions": z.array(z.string()).optional(),
+  }),
+  solidarityActions: z.array(solidarityActionSchema).optional(),
+  summary: copyTypeSchema,
+});
+
+export const categorySchema = baseRecordSchema.extend({
   fields: z.object({
     Name: z.string(),
     Summary: z.string().optional(),

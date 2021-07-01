@@ -21,7 +21,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
     const emoji = countryFlagEmoji.get(countryCode)
     try {
       action.geography.country.push({
-        name: action.fields['Country Name'][i],
+        name: action.fields['countryName'][i],
         emoji,
         iso3166,
         ...countryCoordData
@@ -60,7 +60,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['Company', 'LocationData', 'Document', 'countryCode', 'Country Name', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['Company', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -86,7 +86,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
       ],
       fields: fields,
       maxRecords: 1000,
-      view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
+      // view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
       ...selectArgs
     }).eachPage(async function page(records, fetchNextPage) {
       try {
@@ -122,6 +122,11 @@ export async function getSolidarityActionsByCountryCode (iso2: string) {
 
 export async function getSolidarityActionsByCompanyId (companyId: string) {
   const filterByFormula = `FIND("${companyId}", ARRAYJOIN({Company})) > 0`
+  return getSolidarityActions({ filterByFormula })
+}
+
+export async function getSolidarityActionsByCategoryId (categoryId: string) {
+  const filterByFormula = `FIND("${categoryId}", ARRAYJOIN({Category})) > 0`
   return getSolidarityActions({ filterByFormula })
 }
 

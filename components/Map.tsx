@@ -246,7 +246,7 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
         <div className='bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
-          {data.geography.location?.display_name?.split(',')?.[0] || data.fields['Country Name']}
+          {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
         </div>
       </div>
     </Marker>

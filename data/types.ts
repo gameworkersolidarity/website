@@ -152,11 +152,13 @@ export interface SolidarityAction extends BaseRecord {
     Link?:      string;
     LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
     // 'Country': string[] // Not really useful — Zod will parse these out
-    'Country Name': string[]
+    'countryName': string[]
     'countryCode': string[]
-    'Country Slug': string[]
+    'countrySlug': string[]
     'Company'?: string[]
     Category?:  string[],
+    CategoryName?: string[],
+    CategoryEmoji?: string[],
     Document?:  Document[];
     DisplayStyle?: "Featured" | null
     // Notes?:     string; // These are private — Zod will parse these out
@@ -209,6 +211,22 @@ export interface Country extends BaseRecord {
 }
 
 export interface Company extends BaseRecord {
+  fields: {
+    Name: string;
+    Summary?:   string;
+    // 'Official Name':   string;
+    'Solidarity Actions'?: string[]
+    // 'DisplayStyle (from Solidarity Actions)': string[]
+    // 'Category (from Solidarity Actions)': string[]
+    // 'Document (from Solidarity Actions)': Document[]
+    // 'Date (from Solidarity Actions)': string[]
+    // 'Name (from Solidarity Actions)': string[]
+  }
+  solidarityActions?: SolidarityAction[],
+  summary: CopyType
+}
+
+export interface Category extends BaseRecord {
   fields: {
     Name: string;
     Summary?:   string;

@@ -1,6 +1,6 @@
 import { SolidarityActionsList } from '../components/SolidarityActions';
 import { getSolidarityActions } from '../data/solidarityAction';
-import { SolidarityAction, CountryEmoji, Company } from '../data/types';
+import { SolidarityAction, CountryEmoji, Company, Category } from '../data/types';
 import Link from 'next/link';
 import { projectStrings } from '../data/site';
 import { Map } from '../components/Map';
@@ -18,32 +18,33 @@ import { useURLStateFactory } from '../utils/state';
 import { ensureArray, toggleInArray } from '../utils/string';
 import { getCompanies } from '../data/company';
 import { Listbox } from '@headlessui/react'
+import { getCategories } from '../data/category';
 
 type PageProps = {
   actions: SolidarityAction[],
-  companies: Company[]
+  companies: Company[],
+  categories: Category[]
 }
 type PageParams = {
   countryCode?: string
 }
 
-export default function Page({ actions, companies }: PageProps) {
+export default function Page({ actions, companies, categories }: PageProps) {
   const useURLState = useURLStateFactory()
 
   /**
    * Categories
    */
-  const [filteredCategories, setCategories] = useURLState(
+  const [filteredCategoryNames, setCategories] = useURLState(
     'categories',
     (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
   const toggleCategory = (category: string) => {
     setCategories(categories => toggleInArray(categories, category))
   }
-  // TODO: load categories from a relational table
-  const categories = useMemo(() => {
-    return Array.from(new Set(actions.reduce((arr, action) => [...arr, ...(action.fields?.Category || [] as string[])], [])))
-  }, [actions])
+  const selectedCategories = useMemo(() =>
+    filteredCategoryNames.map(name => categories.find(c => c.fields.Name === name)),
+  [filteredCategoryNames])
 
   /**
    * Companies
@@ -52,13 +53,12 @@ export default function Page({ actions, companies }: PageProps) {
     'companies',
     (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
-  const selectedCompanies = useMemo(() =>
-    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)),
-  [filteredCompanyNames])
-
   const toggleCompany = (id: string) => {
     setCompanies(companies => toggleInArray(companies, id))
   }
+  const selectedCompanies = useMemo(() =>
+    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)),
+  [filteredCompanyNames])
 
   /**
    * Countries
@@ -79,7 +79,7 @@ export default function Page({ actions, companies }: PageProps) {
   /**
    * Filter metadata
    */
-  const hasFilters = countryCodeFilter || filteredCategories.length || selectedCompanies.length
+  const hasFilters = countryCodeFilter || filteredCategoryNames.length || selectedCompanies.length
 
   const clearAllFilters = () => {
     setCountry(undefined)
@@ -105,8 +105,8 @@ export default function Page({ actions, companies }: PageProps) {
   const filteredActions = useMemo(() => {
     if (!hasFilters) return actions
     const expression: Fuse.Expression = { $and: [] }
-    if (filteredCategories.length) {
-      expression.$and!.push({ $or: filteredCategories.map(c => ({ 'fields.Category': `'${c}` })) })
+    if (filteredCategoryNames.length) {
+      expression.$and!.push({ $or: filteredCategoryNames.map(c => ({ 'fields.Category': `'${c}` })) })
     }
     if (selectedCompanies.length) {
       expression.$and!.push({ $or: selectedCompanies.map(c => ({ 'fields.Company': `'${c?.id}` })) })
@@ -115,7 +115,7 @@ export default function Page({ actions, companies }: PageProps) {
       expression.$and!.push({ 'fields.countryCode': `'${countryCodeFilter}` })
     }
     return search.search(expression).map(s => s.item)
-  }, [actions, search, hasFilters, filteredCategories, selectedCompanies, countryCodeFilter])
+  }, [actions, search, hasFilters, filteredCategoryNames, selectedCompanies, countryCodeFilter])
 
   /**
    * Render
@@ -125,53 +125,63 @@ export default function Page({ actions, companies }: PageProps) {
       <div className='grid md:grid-cols-2'>
         <section className='p-4 lg:p-5'>
           <div className='sticky top-4 lg:top-5 space-y-4 overflow-y-auto'>
-            <section className='-mb-3'>
-              <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
-                Filter by category
-              </h3>
-              <div className='flex flex-wrap p-1'>
-                {categories.map(category => (
-                  <div
-                    key={category}
-                    className={cx(
-                      filteredCategories.includes(category) ? 'bg-gwOrange' : 'bg-gray-100',
-                      'cursor-pointer capitalize rounded-lg px-3 py-2 text-sm m-2 -mt-1 -ml-1'
-                    )}
-                    onClick={() => toggleCategory(category)}>
-                    {category}
-                  </div>
-                ))}
-              </div>
-            </section>
             <section>
               <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
-                Filter by company
+                Filter by
               </h3>
-              <div className='relative'>
-                <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
-                  <Listbox.Button>
-                    <div className='rounded-lg border border-gray-200 p-4 text-sm'>
-                      {selectedCompanies[0]?.fields.Name || "Filter by company"}
-                    </div>
-                  </Listbox.Button>
-                  <Listbox.Options>
-                    <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                      {companies.map((company) => (
-                        <Listbox.Option
-                          key={company.id}
-                          value={company.fields.Name}
-                        >
-                          <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
-                            <span>{company.fields.Name}</span>
-                            <span className='ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
-                              {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
-                            </span>
-                          </div>
-                        </Listbox.Option>
-                      ))}
-                    </div>
-                  </Listbox.Options>
-                </Listbox>
+              <div className='relative space-x-2 flex'>
+                <div>
+                  <Listbox value={filteredCategoryNames[0]} onChange={v => setCategories([v])}>
+                    <Listbox.Button>
+                      <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                        {selectedCategories[0]?.fields.Name || "Category"}
+                      </div>
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                        {categories.map((category) => (
+                          <Listbox.Option
+                            key={category.id}
+                            value={category.fields.Name}
+                          >
+                            <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
+                              <span className='inline-block'>{category.fields.Name}</span>
+                              <span className='inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
+                                {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
+                              </span>
+                            </div>
+                          </Listbox.Option>
+                        ))}
+                      </div>
+                    </Listbox.Options>
+                  </Listbox>
+                </div>
+                <div>
+                  <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
+                    <Listbox.Button>
+                      <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                        {selectedCompanies[0]?.fields.Name || "Company"}
+                      </div>
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                        {companies.map((company) => (
+                          <Listbox.Option
+                            key={company.id}
+                            value={company.fields.Name}
+                          >
+                            <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
+                              <span className='inline-block'>{company.fields.Name}</span>
+                              <span className='inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
+                                {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
+                              </span>
+                            </div>
+                          </Listbox.Option>
+                        ))}
+                      </div>
+                    </Listbox.Options>
+                  </Listbox>
+                </div>
               </div>
             </section>
             <section className='w-full' style={{ maxHeight: '40vh', height: 500 }}>
@@ -200,13 +210,13 @@ export default function Page({ actions, companies }: PageProps) {
                 <Emoji symbol={selectedCountryData.emoji} /> {selectedCountryData?.name}
               </div>
             )}
-            {filteredCategories?.map(category =>
-              <div key={category} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCategory(category)
-              }>
-                {category}
+            {selectedCategories?.map(category => category ? (
+              <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+                onClick={() => toggleCategory(category.fields.Name)}
+              >
+                {category?.fields.Name}
               </div>
-            )}
+            ) : null)}
             {selectedCompanies?.map(company => company ? (
               <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => toggleCompany(company.fields.Name)}
@@ -264,10 +274,12 @@ export const getStaticProps: GetStaticProps<
 > = async (context) => {
   const actions = await getSolidarityActions()
   const companies = await getCompanies()
+  const categories = await getCategories()
   return {
     props: {
       actions,
-      companies
+      companies,
+      categories
     },
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5

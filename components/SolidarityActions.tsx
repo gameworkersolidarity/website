@@ -166,86 +166,6 @@ export function SolidarityActionsList ({
   )
 }
 
-export function SolidarityActionsFullList () {
-  const data = useSWR<SolidarityActionsData>('/api/solidarityActions', { 
-    // Data should have been loaded by _app.tsx already,
-    ...doNotFetch()
-  })
-  const actions = data?.data?.solidarityActions || []
-  const search = useMemo(() => new Fuse(actions, {
-    keys: ['fields.Category'],
-    // threshold: 0.5,
-    findAllMatches: true,
-    shouldSort: false,
-    useExtendedSearch: true
-  }), [actions])
-  const categories = useMemo(() => {
-    return Array.from(new Set(actions.reduce((arr, action) => [...arr, ...(action.fields?.Category || [] as string[])], [])))
-  }, [actions])
-  //
-  const [filteredCategories, setCategories] = useState<string[]>([])
-  const toggleCategory = (category: string) => {
-    let categories = JSON.parse(JSON.stringify(filteredCategories))
-    const i = categories.indexOf(category)
-    let _categories
-    if (i > -1) {
-      categories.splice(i, 1)
-      _categories = categories
-    } else {
-      _categories = Array.from(new Set(categories.concat([category])))
-    }
-    setCategories(_categories)
-  }
-  const displayedActions = useMemo(() => {
-    if (!filteredCategories.length) return actions
-    return search.search({
-      $or: filteredCategories.map(c => ({ 'fields.Category': `'${c}` }))
-    }).map(s => s.item)
-  }, [actions, search, filteredCategories])
-
-  return (
-    <div className='md:flex flex-row relative'>
-      <div>
-        <div className='hidden md:block'>
-          <div className='pl-5 space-y-3'>
-            <h4 className='text-lg font-bold leading-tight'>Filter actions</h4>
-            <div className='flex flex-row flex-wrap space-x-2 space-y-2'>
-              {categories.map(category => (
-                <div
-                  key={category}
-                  className={cx(
-                    filteredCategories.includes(category) ? 'text-gwOrange' : 'text-gray-600',
-                    'cursor-pointer capitalize rounded-lg p-2 bg-gwOrangeLight'
-                  )}
-                  onClick={() => toggleCategory(category)}>
-                  {category}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <CumulativeMovementChart data={displayedActions} />
-
-        <SolidarityActionsList
-          data={displayedActions}
-          withDialog
-          dialogProps={{
-            cardProps: {
-              withContext: true,
-              contextProps: {
-                listProps: {
-                  withDialog: false
-                }
-              }
-            },
-          }}
-        />
-      </div>
-    </div>
-  )
-}
-
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
@@ -256,7 +176,9 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
         <time className='font-semibold' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
           {format(new Date(data.fields.Date), 'dd MMM yyyy')}
         </time>
-        {data.fields?.Category?.map(c => <span className='capitalize block' key={c}>{c}</span>)}
+        {data.fields?.Category?.map((c, i) => 
+          <span className='capitalize block' key={c}>{data.fields.CategoryEmoji?.[i]} {data.fields.CategoryName?.[i]}</span>
+        )}
         {data.geography?.country.map(country => (
           <span className='space-x-1' key={country.iso3166}>
             <Emoji
@@ -328,8 +250,8 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
             ))}
             <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className=''>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
             {data.fields.Category?.length ?
-              <span className=' space-x-1'>{data.fields.Category?.map(c =>
-                <div className='capitalize inline-block' key={c}>{c}</div>
+              <span className=' space-x-1'>{data.fields.Category?.map((c, i) =>
+                <div className='capitalize inline-block' key={c}>{data.fields.CategoryEmoji?.[i]} {data.fields.CategoryName?.[i]}</div>
               )}</span>
             : null }
           </div>
