@@ -237,7 +237,10 @@ export default function Page({ actions, companies, categories, countries }: Page
                 Filter by country
               </h3>
               <Map data={filteredActions} onSelectCountry={iso2 => {
-                toggleCountry(countries.find(c => c.fields.countryCode === iso2)!.fields.Slug)
+                const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
+                if (countrySlug) {
+                  toggleCountry(countrySlug)
+                }
               }} />
             </section>
             <section className='pt-1'>
