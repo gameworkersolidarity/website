@@ -77,7 +77,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
         {selectedAction?.fields && (
           <>
             <Dialog.Overlay className="fixed z-10 inset-0 bg-gwBlue opacity-75" />
-            <div className='absolute z-20 w-full max-w-xl top-[15%] left-1/2 transform -translate-x-1/2 py-5'>
+            <div className='absolute z-20 w-full max-w-xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
               <Dialog.Title className='hidden'>{selectedAction.fields.Name}</Dialog.Title>
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
               <button
@@ -120,8 +120,6 @@ export function SolidarityActionsList ({
     return bins
   }, {} as { [key: string]: SolidarityAction[] })
 
-  const linksAsDialogs = screenIsWiderThanMd && withDialog
-
   const router = useRouter()
   const returnHref = useMemo(() => typeof window !== 'undefined' ? window.location.pathname : router.pathname, [])
 
@@ -150,9 +148,9 @@ export function SolidarityActionsList ({
                 {actions.map(action =>
                   <Link
                     key={action.id}
-                    href={!linksAsDialogs ? `/action/${action.id}` : makeContextualHref({ [dialogKey]: action.id })}
+                    href={makeContextualHref({ [dialogKey]: action.id })}
                     as={`/action/${action.id}`}
-                    shallow={linksAsDialogs}
+                    shallow
                   >
                     <div className='transition cursor-pointer group'>
                       <SolidarityActionItem data={action} />
