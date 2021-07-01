@@ -22,13 +22,13 @@ import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
 import { useMemo } from 'react';
 
-export function CumulativeMovementChart ({ data }: { data: SolidarityAction[], cumulative?: boolean }) {
+export function CumulativeMovementChart ({ data, onSelectYear }: { data: SolidarityAction[], cumulative?: boolean, onSelectYear?: (year: string) => void }) {
   const actionDates = data.map(d => new Date(d.fields.Date))
   const minDate = min([new Date('2000-01-01'), ...actionDates])
   const maxDate = new Date()
 
   return (
-    <div className='relative' style={{ height: 100, maxHeight: '80vh' }}>
+    <div className='relative cursor-pointer' style={{ height: 100, maxHeight: '80vh' }}>
       <ParentSize>{(parent) => (
         <>
           {/* <h3 className='text-xs text-left absolute top-0 left-0 w-full font-mono uppercase'>
@@ -50,6 +50,7 @@ export function CumulativeMovementChart ({ data }: { data: SolidarityAction[], c
             maxDate={maxDate}
             width={parent.width}
             height={parent.height}
+            onSelectYear={onSelectYear}
           />
         </>
       )}</ParentSize>
@@ -75,7 +76,8 @@ export function CumulativeChart ({
   height = 300,
   width = 300,
   minDate,
-  maxDate
+  maxDate,
+  onSelectYear
 }: {
   minDate: Date
   maxDate: Date
@@ -83,6 +85,7 @@ export function CumulativeChart ({
   height: number,
   width: number,
   cumulative?: boolean
+  onSelectYear?: (year: string) => void
 }) {
   var yearBins = timeYears(timeMonth.offset(minDate, -1), timeMonth.offset(maxDate, 1));
   var monthBins = timeMonths(timeMonth.offset(minDate, -1), timeMonth.offset(maxDate, 1));
@@ -96,13 +99,13 @@ export function CumulativeChart ({
 
   const yearBinFn = createBinFn(yearBins)
 
-  const cumulativeBinnedData = useMemo(() => {
-    let d = yearBinFn(data)
-    for(var i = 0; i < d.length; i++) {
-      d[i]['y'] = d[i].length + (d?.[i-1]?.['y'] || 0)
-    }
-    return d
-  }, [data])
+  // const cumulativeBinnedData = useMemo(() => {
+  //   let d = yearBinFn(data)
+  //   for(var i = 0; i < d.length; i++) {
+  //     d[i]['y'] = d[i].length + (d?.[i-1]?.['y'] || 0)
+  //   }
+  //   return d
+  // }, [data])
 
   const binnedData = useMemo(() => {
     let d = yearBinFn(data)
@@ -177,6 +180,9 @@ export function CumulativeChart ({
       <BarSeries
         dataKey="Frequency"
         data={binnedData as any} {...accessors}
+        onPointerUp={(e) => {
+          onSelectYear?.(timeFormat('%Y')(accessors.xAccessor(e.datum)))
+        }}
       />
       {/* <BarSeries
         dataKey="FrequencyMonth"
@@ -209,26 +215,28 @@ export function CumulativeChart ({
         }}
         className='absolute'
         style={{}}
-        renderTooltip={({ tooltipData, colorScale }) =>
-          <div className='bg-white px-2 py-1 text-sm rounded-lg font-mono z-10'>
-            {tooltipData?.nearestDatum ? <>
-              {/* <div className='text-md text-opacity-50'>
-                <span className='text-gwOrange font-bold'>
-                  {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum), true)}
-                </span> since {timeFormat('%Y')(minDate)}
-              </div> */}
-              <div className='text-md'>
-                <span className='text-gwPink font-bold'>
-                  +{accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum)}
-                </span> in {timeFormat('%Y')(accessors.xAccessor(tooltipData.datumByKey['Frequency'].datum))}
-              </div>
-              {/* <div>
-                <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-                <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-              </div> */}
-            </> : null}
-          </div>
-        }
+        renderTooltip={({ tooltipData, colorScale }) => {
+          return (
+            <div className='bg-white px-2 py-1 text-sm rounded-lg font-mono z-10'>
+              {tooltipData?.nearestDatum ? <>
+                {/* <div className='text-md text-opacity-50'>
+                  <span className='text-gwOrange font-bold'>
+                    {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum), true)}
+                  </span> since {timeFormat('%Y')(minDate)}
+                </div> */}
+                <div className='text-md'>
+                  <span className='text-gwPink font-bold'>
+                    +{accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum)}
+                  </span> in {timeFormat('%Y')(accessors.xAccessor(tooltipData.datumByKey['Frequency'].datum))}
+                </div>
+                {/* <div>
+                  <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
+                  <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
+                </div> */}
+              </> : null}
+            </div>
+          )
+        }}
       />
       </XYChart>
     </ThemeContext.Provider>

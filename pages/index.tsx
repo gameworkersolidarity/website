@@ -20,6 +20,7 @@ import { getCompanies } from '../data/company';
 import { Listbox } from '@headlessui/react'
 import { getCategories } from '../data/category';
 import { getCountries } from '../data/country';
+import { useRouter } from 'next/dist/client/router';
 
 type PageProps = {
   actions: SolidarityAction[],
@@ -29,6 +30,7 @@ type PageProps = {
 }
 
 export default function Page({ actions, companies, categories, countries }: PageProps) {
+  const router = useRouter()
   const useURLState = useURLStateFactory()
 
   /**
@@ -113,6 +115,27 @@ export default function Page({ actions, companies, categories, countries }: Page
     }
     return search.search(expression).map(s => s.item)
   }, [actions, search, hasFilters, selectedCategories, selectedCompanies, selectedCountries])
+
+  //
+
+  function scrollToYear(year: string) {
+    const element = document.getElementById(year);
+    if (!element) return
+
+    if (!!element.scrollIntoView) {
+      // Smooth scroll to that elment
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      });
+      setTimeout(() => {
+        router.push({ hash: year }, undefined, { shallow: true, scroll: false })
+      }, 1500)
+    } else {
+      router.push({ hash: year }, undefined, { shallow: true, scroll: false })
+    }
+  }
 
   /**
    * Render
@@ -221,7 +244,7 @@ export default function Page({ actions, companies, categories, countries }: Page
               <h3 className='text-xs text-left w-full font-mono uppercase pt-4'>
                 Filter by year
               </h3>
-              <CumulativeMovementChart data={filteredActions} />
+              <CumulativeMovementChart data={filteredActions} onSelectYear={scrollToYear} />
             </section>
           </div>
         </section>

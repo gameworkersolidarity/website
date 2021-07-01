@@ -9,21 +9,7 @@ type URLStateOptions<H> = {
 
 export function useURLStateFactory () {
   const router = useRouter()
-
-  // const [params, updateParams] = useState({})
   const params = useRef({})
-  // const debouncedParams = useDebounce(params, 1000)
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     router.push(qs.stringifyUrl({
-  //       url: router.asPath,
-  //       query: params.current
-  //     }), undefined, { shallow: true })
-  //   }, 100)
-
-  //   return () => clearInterval(interval)
-  // }, [])
 
   return function <H = [any, any]>(
     key: string,
@@ -46,17 +32,14 @@ export function useURLStateFactory () {
     const state = stateHook(initialValue)
 
     const [updateURL] = useDebounce((params) => {
-      router.push(qs.stringifyUrl({
-        url: router.asPath,
-        query: params
-      }), undefined, { shallow: true })
+      router.push({ query: params }, undefined, { shallow: true })
     }, 500)
 
     // Update URL object when state changes
     useEffect(() => {
       params.current = ({ ...params.current, ...serialiseStateToObject(key, state) })
       updateURL(params.current)
-    }, [state[0]])
+    }, [state[0] /* state value */])
 
     // Pass through state
     return state

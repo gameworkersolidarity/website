@@ -134,11 +134,14 @@ export function SolidarityActionsList ({
       )}
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear && Object.values(actionsByYear).map((actions, i) => {
+          const yearString = format(new Date(actions[0].fields.Date), 'yyyy')
           return (
             <div key={i}>
               <div className='flex flex-row justify-between items-center pb-3'>
-                <h2 className={cx(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}>
-                  {format(new Date(actions[0].fields.Date), 'yyyy')}
+                <h2
+                  className={cx(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}
+                  id={yearString}>
+                  {yearString}
                 </h2>
                 <div className='text-xs'>
                   {pluralize('action', actions.length, true)}
