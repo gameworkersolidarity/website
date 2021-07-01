@@ -164,6 +164,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     countryCode: z.array(z.string()),
     countrySlug: z.array(z.string()),
     Company: z.array(z.string()).optional(),
+    "Organising Groups": z.array(z.string()).optional(),
     Category: z.array(z.string()).optional(),
     CategoryName: z.array(z.string()).optional(),
     CategoryEmoji: z.array(z.string()).optional(),
@@ -174,17 +175,19 @@ export const solidarityActionSchema = baseRecordSchema.extend({
   summary: copyTypeSchema,
 });
 
-export const countrySchema = baseRecordSchema.extend({
-  emoji: countryEmojiSchema,
+export const organisingGroupSchema = baseRecordSchema.extend({
   fields: z.object({
     Name: z.string(),
-    countryCode: z.string(),
-    Summary: z.string().optional(),
-    Slug: z.string(),
+    "Full Name": z.string().optional(),
+    Country: z.array(z.string()).optional(),
+    countryName: z.array(z.string()).optional(),
+    countryCode: z.array(z.string()).optional(),
+    IsUnion: z.boolean().optional(),
+    Website: z.string().optional(),
+    Twitter: z.string().optional(),
     "Solidarity Actions": z.array(z.string()).optional(),
   }),
   solidarityActions: z.array(solidarityActionSchema).optional(),
-  summary: copyTypeSchema,
 });
 
 export const companySchema = baseRecordSchema.extend({
@@ -205,5 +208,21 @@ export const categorySchema = baseRecordSchema.extend({
     "Solidarity Actions": z.array(z.string()).optional(),
   }),
   solidarityActions: z.array(solidarityActionSchema).optional(),
+  summary: copyTypeSchema,
+});
+
+export const countrySchema = baseRecordSchema.extend({
+  emoji: countryEmojiSchema,
+  fields: z.object({
+    Name: z.string(),
+    countryCode: z.string(),
+    Summary: z.string().optional(),
+    Slug: z.string(),
+    Unions: z.array(z.string()).optional(),
+    unionNames: z.array(z.string()).optional(),
+    "Solidarity Actions": z.array(z.string()).optional(),
+  }),
+  solidarityActions: z.array(solidarityActionSchema).optional(),
+  organisingGroups: z.array(organisingGroupSchema).optional(),
   summary: copyTypeSchema,
 });

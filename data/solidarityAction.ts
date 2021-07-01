@@ -60,7 +60,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
+const fields: Array<keyof SolidarityAction['fields']> = ['Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -120,13 +120,18 @@ export async function getSolidarityActionsByCountryCode (iso2: string) {
   return getSolidarityActions({ filterByFormula })
 }
 
-export async function getSolidarityActionsByCompanyId (companyId: string) {
-  const filterByFormula = `FIND("${companyId}", ARRAYJOIN({Company})) > 0`
+export async function getSolidarityActionsByCompanyId (id: string) {
+  const filterByFormula = `FIND("${id}", ARRAYJOIN({Company})) > 0`
   return getSolidarityActions({ filterByFormula })
 }
 
-export async function getSolidarityActionsByCategoryId (categoryId: string) {
-  const filterByFormula = `FIND("${categoryId}", ARRAYJOIN({Category})) > 0`
+export async function getSolidarityActionsByCategoryId (id: string) {
+  const filterByFormula = `FIND("${id}", ARRAYJOIN({Category})) > 0`
+  return getSolidarityActions({ filterByFormula })
+}
+
+export async function getSolidarityActionsByOrganisingGroupId (id: string) {
+  const filterByFormula = `FIND("${id}", ARRAYJOIN({Organising Groups})) > 0`
   return getSolidarityActions({ filterByFormula })
 }
 

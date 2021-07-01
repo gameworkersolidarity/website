@@ -47,7 +47,7 @@ export async function getCompanies (selectArgs: QueryParams<Company['fields']> =
         { field: "Name", direction: "asc", },
       ],
       fields: fields,
-      maxRecords: 249,
+      maxRecords: 1000,
       // view: env.get('AIRTABLE_TABLE_VIEW_COMPANIES').default('Grid view').asString(),
       filterByFormula: 'COUNTA({Solidarity Actions}) > 0',
       ...selectArgs

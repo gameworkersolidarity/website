@@ -6,6 +6,7 @@ import { QueryParams } from 'airtable/lib/query_params';
 import { getSolidarityActionsByCountryCode } from './solidarityAction';
 import countryFlagEmoji from "country-flag-emoji";
 import { parseMarkdown } from './markdown';
+import { getOrganisingGroupsByCountryId } from './organisingGroup';
 
 export const formatCountry = (country: Country) => {
   country.emoji = countryFlagEmoji.get(country.fields.countryCode) as CountryEmoji
@@ -122,10 +123,12 @@ export const getCountryDataByCode = async (iso2: string): Promise<CountryData> =
   }
 
   const solidarityActions = await getSolidarityActionsByCountryCode(iso2)
+  const organisingGroups = await getOrganisingGroupsByCountryId(country.id)
 
   return {
     country: {
       ...country,
+      organisingGroups,
       solidarityActions
     }
   }

@@ -1,6 +1,6 @@
 import { SolidarityActionsList } from '../components/SolidarityActions';
 import { getSolidarityActions } from '../data/solidarityAction';
-import { SolidarityAction, CountryEmoji, Company, Category, Country } from '../data/types';
+import { SolidarityAction, CountryEmoji, Company, Category, Country, OrganisingGroup } from '../data/types';
 import Link from 'next/link';
 import { projectStrings } from '../data/site';
 import { Map } from '../components/Map';
@@ -17,10 +17,15 @@ import cx from 'classnames';
 import { useURLStateFactory } from '../utils/state';
 import { ensureArray, toggleInArray } from '../utils/string';
 import { getCompanies } from '../data/company';
-import { Listbox } from '@headlessui/react'
+import { Listbox, Disclosure } from '@headlessui/react'
 import { getCategories } from '../data/category';
-import { getCountries } from '../data/country';
+import { getCountries, CountryData } from '../data/country';
 import { useRouter } from 'next/dist/client/router';
+import useSWR from 'swr';
+import { useContextualRouting } from 'next-use-contextual-routing';
+import { OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components/OrganisingGroup';
+import { UnionsByCountryData } from './api/organisingGroupsByCountry';
+import { ChevronRightIcon } from '@heroicons/react/outline';
 
 type PageProps = {
   actions: SolidarityAction[],
@@ -137,11 +142,23 @@ export default function Page({ actions, companies, categories, countries }: Page
     }
   }
 
+  const unions = useSWR<UnionsByCountryData>(
+    selectedCountries.length ? `/api/organisingGroupsByCountry?iso2=${selectedCountries[0]?.emoji.code}` : null,
+    {
+      initialData: { unionsByCountry: [], iso2: '' },
+      revalidateOnMount: true
+    }
+  )
+  const UNION_DISPLAY_LIMIT = 5
+  const { makeContextualHref, returnHref } = useContextualRouting();
+  const [selectedUnion, unionDialogKey] = useSelectedOrganisingGroup(unions.data?.unionsByCountry || [])
+
   /**
    * Render
    */
   return (
     <PageLayout fullWidth>
+      <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true }) }} />
       <div className='grid md:grid-cols-2'>
         <section className='p-4 lg:p-5'>
           <div className='sticky top-4 lg:top-5 space-y-4 overflow-y-auto'>
@@ -239,7 +256,7 @@ export default function Page({ actions, companies, categories, countries }: Page
               <Map data={filteredActions} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
                 if (countrySlug) {
-                  toggleCountry(countrySlug)
+                  setCountries([countrySlug])
                 }
               }} />
             </section>
@@ -288,6 +305,70 @@ export default function Page({ actions, companies, categories, countries }: Page
               </div>
             ) : null}
           </div>
+
+          {!!selectedCategories[0]?.summary?.html && (
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {selectedCategories[0].fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCategories[0]?.summary.html }} />
+            </article>
+          )}
+
+          {!!selectedCompanies[0]?.summary?.html && (
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {selectedCompanies[0].fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCompanies[0]?.summary.html }} />
+            </article>
+          )}
+
+          {!!selectedCountries[0]?.summary?.html && (
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {selectedCountries[0].fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCountries[0]?.summary.html }} />
+            </article>
+          )}
+
+          {!!selectedCountries[0]?.fields.Name && !!unions?.data?.unionsByCountry?.length && (
+            <article>
+              <h3 className='text-3xl font-light'>Active organising groups in {selectedCountries[0].fields.Name}</h3>
+              <ul className='list space-y-1 my-3'>
+                <Disclosure>
+                  {({ open }) => (
+                    <>
+                      {unions?.data?.unionsByCountry?.slice(0, open ? 1000 : UNION_DISPLAY_LIMIT).map(union =>
+                        <Link href={makeContextualHref({ [unionDialogKey]: union.id })} key={union.id}>
+                          <li className='space-x-1'>
+                            <Emoji
+                              symbol={categories.find(c => c.fields.Name === 'union')?.fields.Emoji || '🤝'}
+                              label={union.fields.IsUnion ? 'Union' : 'Organising Group'}
+                            />
+                            <span className='link'>{union.fields.Name}</span>
+                            {union.fields.IsUnion && <span className='inline-block ml-2 text-gray-400 rounded-full text-xs ml-auto'>
+                              ({union.fields.IsUnion ? 'Union' : 'Organising Group'})
+                            </span>}
+                          </li>
+                        </Link>
+                      )}
+                      {(unions?.data?.unionsByCountry?.length || 0) > UNION_DISPLAY_LIMIT && (
+                        <Disclosure.Button>
+                          <div className='text-sm link px-2 my-2'>
+                            <span>{open
+                              ? "Show fewer organising groups"
+                              : `Show all ${unions?.data?.unionsByCountry?.length} organising groups`
+                            }</span>
+                            <ChevronRightIcon
+                              className={`${open ? "rotate-270" : "rotate-90"} transform w-3 inline-block`}
+                            />
+                          </div>
+                        </Disclosure.Button>
+                      )}
+                    </>
+                  )}
+                </Disclosure>
+              </ul>
+            </article>
+          )}
+
+          <div className='pb-1' />
 
           <SolidarityActionsList
             data={filteredActions}
