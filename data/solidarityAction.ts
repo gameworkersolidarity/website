@@ -60,7 +60,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['Company', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
+const fields: Array<keyof SolidarityAction['fields']> = ['Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(

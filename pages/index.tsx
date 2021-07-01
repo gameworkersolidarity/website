@@ -1,6 +1,6 @@
 import { SolidarityActionsList } from '../components/SolidarityActions';
 import { getSolidarityActions } from '../data/solidarityAction';
-import { SolidarityAction, CountryEmoji, Company, Category } from '../data/types';
+import { SolidarityAction, CountryEmoji, Company, Category, Country } from '../data/types';
 import Link from 'next/link';
 import { projectStrings } from '../data/site';
 import { Map } from '../components/Map';
@@ -19,17 +19,16 @@ import { ensureArray, toggleInArray } from '../utils/string';
 import { getCompanies } from '../data/company';
 import { Listbox } from '@headlessui/react'
 import { getCategories } from '../data/category';
+import { getCountries } from '../data/country';
 
 type PageProps = {
   actions: SolidarityAction[],
   companies: Company[],
-  categories: Category[]
-}
-type PageParams = {
-  countryCode?: string
+  categories: Category[],
+  countries: Country[]
 }
 
-export default function Page({ actions, companies, categories }: PageProps) {
+export default function Page({ actions, companies, categories, countries }: PageProps) {
   const useURLState = useURLStateFactory()
 
   /**
@@ -63,26 +62,24 @@ export default function Page({ actions, companies, categories }: PageProps) {
   /**
    * Countries
    */
-  const [countryCodeFilter, setCountry] = useURLState(
-    'countryCode',
-    initial => useState<string | undefined>(initial?.toString().toUpperCase())
+  const [filteredCountrySlugs, setCountries] = useURLState(
+    'countries',
+    (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
-  // TODO: load actual country data including description, unions, etc.
-  const selectedCountryData = useMemo(() => {
-    if (countryCodeFilter) {
-      return countryFlagEmoji.get(countryCodeFilter) as CountryEmoji
-    } else {
-      return null
-    }
-  }, [countryCodeFilter])
+  const toggleCountry = (id: string) => {
+    setCountries(countries => toggleInArray(countries, id))
+  }
+  const selectedCountries = useMemo(() =>
+    filteredCountrySlugs.map(slug => countries.find(c => c.fields.Slug === slug)),
+  [filteredCountrySlugs])
 
   /**
    * Filter metadata
    */
-  const hasFilters = countryCodeFilter || filteredCategoryNames.length || selectedCompanies.length
+  const hasFilters = selectedCountries.length || selectedCompanies.length || selectedCategories.length
 
   const clearAllFilters = () => {
-    setCountry(undefined)
+    setCountries([])
     setCategories([])
     setCompanies([])
   }
@@ -93,8 +90,8 @@ export default function Page({ actions, companies, categories }: PageProps) {
   const search = useMemo(() => new Fuse(actions, {
     keys: [
       'fields.Category',
-      'fields.countryCode',
-      'fields.Company'
+      'fields.Company',
+      'fields.Country',
     ],
     // threshold: 0.5,
     findAllMatches: true,
@@ -105,17 +102,17 @@ export default function Page({ actions, companies, categories }: PageProps) {
   const filteredActions = useMemo(() => {
     if (!hasFilters) return actions
     const expression: Fuse.Expression = { $and: [] }
-    if (filteredCategoryNames.length) {
-      expression.$and!.push({ $or: filteredCategoryNames.map(c => ({ 'fields.Category': `'${c}` })) })
+    if (selectedCategories.length) {
+      expression.$and!.push({ $or: selectedCategories.map(c => ({ 'fields.Category': `'${c?.id}` })) })
     }
     if (selectedCompanies.length) {
       expression.$and!.push({ $or: selectedCompanies.map(c => ({ 'fields.Company': `'${c?.id}` })) })
     }
-    if (!!countryCodeFilter) {
-      expression.$and!.push({ 'fields.countryCode': `'${countryCodeFilter}` })
+    if (selectedCountries.length) {
+      expression.$and!.push({ $or: selectedCountries.map(c => ({ 'fields.Country': `'${c?.id}` })) })
     }
     return search.search(expression).map(s => s.item)
-  }, [actions, search, hasFilters, filteredCategoryNames, selectedCompanies, countryCodeFilter])
+  }, [actions, search, hasFilters, selectedCategories, selectedCompanies, selectedCountries])
 
   /**
    * Render
@@ -131,10 +128,37 @@ export default function Page({ actions, companies, categories }: PageProps) {
               </h3>
               <div className='relative space-x-2 flex'>
                 <div>
+                  <Listbox value={filteredCountrySlugs[0]} onChange={v => setCountries([v])}>
+                    <Listbox.Button>
+                      <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                        {"Country"}
+                      </div>
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='overflow-y-auto p-1 rounded-lg bg-gray-100 absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                        {countries.map((country) => (
+                          <Listbox.Option
+                            key={country.id}
+                            value={country.fields.Slug}
+                          >
+                            <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
+                              <span><Emoji symbol={country.emoji.emoji} /></span>
+                              <span className='ml-1 inline-block'>{country.fields.Name}</span>
+                              <span className='text-sm inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
+                                {pluralize('action', country.fields['Solidarity Actions']?.length || 0, true)}
+                              </span>
+                            </div>
+                          </Listbox.Option>
+                        ))}
+                      </div>
+                    </Listbox.Options>
+                  </Listbox>
+                </div>
+                <div>
                   <Listbox value={filteredCategoryNames[0]} onChange={v => setCategories([v])}>
                     <Listbox.Button>
                       <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
-                        {selectedCategories[0]?.fields.Name || "Category"}
+                        {"Category"}
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
@@ -145,7 +169,8 @@ export default function Page({ actions, companies, categories }: PageProps) {
                             value={category.fields.Name}
                           >
                             <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
-                              <span className='inline-block'>{category.fields.Name}</span>
+                              <span className='text-sm inline-block'>{category.fields.Emoji}</span>
+                              <span className='text-sm inline-block capitalize ml-1'>{category.fields.Name}</span>
                               <span className='inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
                                 {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
                               </span>
@@ -160,7 +185,7 @@ export default function Page({ actions, companies, categories }: PageProps) {
                   <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
                     <Listbox.Button>
                       <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
-                        {selectedCompanies[0]?.fields.Name || "Company"}
+                        {"Company"}
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
@@ -171,7 +196,7 @@ export default function Page({ actions, companies, categories }: PageProps) {
                             value={company.fields.Name}
                           >
                             <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
-                              <span className='inline-block'>{company.fields.Name}</span>
+                              <span className='text-sm inline-block'>{company.fields.Name}</span>
                               <span className='inline-block ml-2 bg-white rounded-full px-2 py-1 text-xs ml-auto'>
                                 {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
                               </span>
@@ -188,7 +213,9 @@ export default function Page({ actions, companies, categories }: PageProps) {
               <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
                 Filter by country
               </h3>
-              <Map data={filteredActions} onSelectCountry={NEW => setCountry(old => (NEW === null || old === NEW) ? undefined : NEW)} />
+              <Map data={filteredActions} onSelectCountry={iso2 => {
+                toggleCountry(countries.find(c => c.fields.countryCode === iso2)!.fields.Slug)
+              }} />
             </section>
             <section className='pt-1'>
               <h3 className='text-xs text-left w-full font-mono uppercase pt-4'>
@@ -205,16 +232,19 @@ export default function Page({ actions, companies, categories }: PageProps) {
           </h2>
 
           <div className='flex flex-wrap w-full justify-start p-1'>
-            {selectedCountryData && (
-              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block' onClick={() => setCountry(undefined)}>
-                <Emoji symbol={selectedCountryData.emoji} /> {selectedCountryData?.name}
+            {selectedCountries?.map(country => country ? (
+              <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+                onClick={() => toggleCountry(country.fields.Slug)}
+              >
+                <Emoji symbol={country.emoji.emoji} /> {country?.emoji.name}
               </div>
-            )}
+            ) : null)}
             {selectedCategories?.map(category => category ? (
               <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => toggleCategory(category.fields.Name)}
               >
-                {category?.fields.Name}
+                <span className='inline-block'>{category.fields.Emoji}</span>
+                <span className='inline-block capitalize ml-1'>{category.fields.Name}</span>
               </div>
             ) : null)}
             {selectedCompanies?.map(company => company ? (
@@ -270,16 +300,18 @@ export default function Page({ actions, companies, categories }: PageProps) {
 
 export const getStaticProps: GetStaticProps<
   PageProps,
-  PageParams
+  {}
 > = async (context) => {
   const actions = await getSolidarityActions()
   const companies = await getCompanies()
   const categories = await getCategories()
+  const countries = await getCountries()
   return {
     props: {
       actions,
       companies,
-      categories
+      categories,
+      countries
     },
     revalidate: env.get('PAGE_TTL').default(
       env.get('NODE_ENV').asString() === 'production' ? 60 : 5

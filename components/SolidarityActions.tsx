@@ -325,7 +325,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
   const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
   
   return data?.fields ? (
-    <Link href={`/?countryCode=${data.fields.countryCode.toUpperCase()}`}>
+    <Link href={`/?countries=${data.fields.Slug}`}>
       <div className='cursor-pointer bg-gwOrangeLight hover: rounded-lg p-4'>
         <div className='font-bold text-lg'>
           {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />

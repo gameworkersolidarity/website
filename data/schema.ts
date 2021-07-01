@@ -159,6 +159,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     LastModified: z.string(),
     Link: z.string().optional(),
     LocationData: z.string().optional(),
+    Country: z.array(z.string()).optional(),
     countryName: z.array(z.string()),
     countryCode: z.array(z.string()),
     countrySlug: z.array(z.string()),
@@ -199,6 +200,7 @@ export const companySchema = baseRecordSchema.extend({
 export const categorySchema = baseRecordSchema.extend({
   fields: z.object({
     Name: z.string(),
+    Emoji: z.string(),
     Summary: z.string().optional(),
     "Solidarity Actions": z.array(z.string()).optional(),
   }),

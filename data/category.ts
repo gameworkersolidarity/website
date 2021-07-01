@@ -20,7 +20,7 @@ export const formatCategory = (category: Category) => {
   return category
 }
 
-const fields: Array<keyof Category['fields']> = ['Name', 'Summary', 'Solidarity Actions']
+const fields: Array<keyof Category['fields']> = ['Name', 'Summary', 'Emoji', 'Solidarity Actions']
 
 export const categoryBase = () => airtableBase()<Category['fields']>(
   env.get('AIRTABLE_TABLE_NAME_CATEGORIES').default('Categories').asString()
