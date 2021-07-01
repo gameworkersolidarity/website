@@ -23,3 +23,16 @@ export const ensureArray = <T>(x: T): T[] => {
   if (Array.isArray(x)) return x
   return [x]
 }
+
+export const toggleInArray = (arr: string[], value: string) => {
+  let newArr = JSON.parse(JSON.stringify(arr))
+  const i = newArr.indexOf(value)
+  let _newArr
+  if (i > -1) {
+    newArr.splice(i, 1)
+    _newArr = newArr
+  } else {
+    _newArr = Array.from(new Set(newArr.concat([value])))
+  }
+  return _newArr
+}

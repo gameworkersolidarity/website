@@ -60,7 +60,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['LocationData', 'Document', 'countryCode', 'Country Name', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
+const fields: Array<keyof SolidarityAction['fields']> = ['Company', 'LocationData', 'Document', 'countryCode', 'Country Name', 'Country Slug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -117,6 +117,11 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
 
 export async function getSolidarityActionsByCountryCode (iso2: string) {
   const filterByFormula = `FIND("${iso2}", ARRAYJOIN({countryCode})) > 0`
+  return getSolidarityActions({ filterByFormula })
+}
+
+export async function getSolidarityActionsByCompanyId (companyId: string) {
+  const filterByFormula = `FIND("${companyId}", ARRAYJOIN({Company})) > 0`
   return getSolidarityActions({ filterByFormula })
 }
 

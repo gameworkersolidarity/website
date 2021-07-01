@@ -13,7 +13,7 @@
     "generateschema": "ts-to-zod data/types.ts data/schema.ts"
   },
   "dependencies": {
-    "@headlessui/react": "^1.2.0",
+    "@headlessui/react": "^1.3.0",
     "@heroicons/react": "^1.0.1",
     "@tailwindcss/typography": "^0.4.1",
     "@urbica/react-map-gl": "^1.14.3",

@@ -155,6 +155,7 @@ export interface SolidarityAction extends BaseRecord {
     'Country Name': string[]
     'countryCode': string[]
     'Country Slug': string[]
+    'Company'?: string[]
     Category?:  string[],
     Document?:  Document[];
     DisplayStyle?: "Featured" | null
@@ -195,6 +196,22 @@ export interface Country extends BaseRecord {
     countryCode:       string;
     Summary?:   string;
     Slug: string
+    // 'Official Name':   string;
+    'Solidarity Actions'?: string[]
+    // 'DisplayStyle (from Solidarity Actions)': string[]
+    // 'Category (from Solidarity Actions)': string[]
+    // 'Document (from Solidarity Actions)': Document[]
+    // 'Date (from Solidarity Actions)': string[]
+    // 'Name (from Solidarity Actions)': string[]
+  }
+  solidarityActions?: SolidarityAction[],
+  summary: CopyType
+}
+
+export interface Company extends BaseRecord {
+  fields: {
+    Name: string;
+    Summary?:   string;
     // 'Official Name':   string;
     'Solidarity Actions'?: string[]
     // 'DisplayStyle (from Solidarity Actions)': string[]
