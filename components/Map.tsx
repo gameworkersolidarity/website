@@ -43,14 +43,15 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         className="rounded-lg"
         ref={ref}
       >
-        <MapLayer data={data} onSelectCountry={onSelectCountry} />
+        <MapLayer data={data} onSelectCountry={onSelectCountry} withHeatmap={false} />
       </ReactMapGL>
     </div>
   );
 }
 
-const MapLayer = memo(({ data, onSelectCountry }: {
-  data: SolidarityAction[], onSelectCountry?: (iso2: string | null) => void
+const MapLayer = memo(({ data, onSelectCountry, withHeatmap = true }: {
+  data: SolidarityAction[], onSelectCountry?: (iso2: string | null) => void,
+  withHeatmap?: boolean
 }) => {
   const [hoverCountry, setHoverCountry] = useState<string>('XX')
   return (
@@ -74,7 +75,7 @@ const MapLayer = memo(({ data, onSelectCountry }: {
         "type": "vector",
         "url": "mapbox://mapbox.country-boundaries-v1"
       }} />
-      <Layer
+      {withHeatmap && <Layer
         id='heatmap'
         type='heatmap'
         source='actions'
@@ -152,7 +153,7 @@ const MapLayer = memo(({ data, onSelectCountry }: {
             8, 0
           ]
         }}
-      />
+      />}
       {/* <Layer
         {...{
           "id": "undisputed country boundary line",
@@ -241,13 +242,13 @@ function getCoordinatesForAction(data: SolidarityAction) {
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
   return (
     <Marker {...getCoordinatesForAction(data)}>
-      <div className='text-xs space-x-1 text-center transform'>
-        <Emoji symbol='💥' />
+      <div className='space-x-1 text-center transform'>
+        {!!data.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>}
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        <div className='bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
+        {/* <div className='text-sm bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
           {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
-        </div>
+        </div> */}
       </div>
     </Marker>
   )
