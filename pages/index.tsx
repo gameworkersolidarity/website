@@ -48,11 +48,14 @@ export default function Page({ actions, companies }: PageProps) {
   /**
    * Companies
    */
-  const [filteredCompanyIds, setCompanies] = useURLState(
+  const [filteredCompanyNames, setCompanies] = useURLState(
     'companies',
     (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
-  const selectedCompanies = filteredCompanyIds.map(id => companies.find(c => c.id === id))
+  const selectedCompanies = useMemo(() =>
+    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)),
+  [filteredCompanyNames])
+
   const toggleCompany = (id: string) => {
     setCompanies(companies => toggleInArray(companies, id))
   }
@@ -105,14 +108,14 @@ export default function Page({ actions, companies }: PageProps) {
     if (filteredCategories.length) {
       expression.$and!.push({ $or: filteredCategories.map(c => ({ 'fields.Category': `'${c}` })) })
     }
-    if (filteredCompanyIds.length) {
-      expression.$and!.push({ $or: filteredCompanyIds.map(id => ({ 'fields.Company': `'${id}` })) })
+    if (selectedCompanies.length) {
+      expression.$and!.push({ $or: selectedCompanies.map(c => ({ 'fields.Company': `'${c?.id}` })) })
     }
     if (!!countryCodeFilter) {
       expression.$and!.push({ 'fields.countryCode': `'${countryCodeFilter}` })
     }
     return search.search(expression).map(s => s.item)
-  }, [actions, search, hasFilters, filteredCategories, filteredCompanyIds, countryCodeFilter])
+  }, [actions, search, hasFilters, filteredCategories, selectedCompanies, countryCodeFilter])
 
   /**
    * Render
@@ -145,7 +148,7 @@ export default function Page({ actions, companies }: PageProps) {
                 Filter by company
               </h3>
               <div className='relative'>
-                <Listbox value={filteredCompanyIds[0]} onChange={v => setCompanies([v])}>
+                <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
                   <Listbox.Button>
                     <div className='rounded-lg border border-gray-200 p-4 text-sm'>
                       {selectedCompanies[0]?.fields.Name || "Filter by company"}
@@ -156,7 +159,7 @@ export default function Page({ actions, companies }: PageProps) {
                       {companies.map((company) => (
                         <Listbox.Option
                           key={company.id}
-                          value={company.id}
+                          value={company.fields.Name}
                         >
                           <div className='px-3 py-1 hover:bg-white rounded-lg cursor-pointer flex justify-between'>
                             <span>{company.fields.Name}</span>
@@ -206,7 +209,7 @@ export default function Page({ actions, companies }: PageProps) {
             )}
             {selectedCompanies?.map(company => company ? (
               <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCompany(company.id)}
+                onClick={() => toggleCompany(company.fields.Name)}
               >
                 {company?.fields.Name}
               </div>
