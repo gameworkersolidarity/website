@@ -15,7 +15,7 @@ export default function Page() {
       />
 
       <div>
-        <h1 className='text-2xl font-bold mb-4 hidden'>
+        <h1 className='font-identity text-4xl font-bold mb-4 hidden'>
           Submit a solidarity action to the timeline 
         </h1>
 

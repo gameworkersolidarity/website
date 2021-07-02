@@ -14,8 +14,8 @@ export default function Page({ embedUrl }) {
       />
 
       <div>
-        <h1 className='text-2xl font-bold mb-4 hidden'>
-          All data
+        <h1 className='font-identity text-4xl mb-4 px-4 md:px-5 py-4'>
+          All solidarity action data
         </h1>
 
         <AirtableDataEmbed url={EMBED_URL} />
@@ -41,7 +41,7 @@ function AirtableDataEmbed ({ url }) {
       className="airtable-embed"
       src={url}
       frameBorder="0" width="100%"
-      style={{ height: '75vh' }}
+      style={{ height: '66vh' }}
     />
   )
 }

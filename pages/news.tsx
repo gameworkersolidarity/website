@@ -21,7 +21,7 @@ export default function Page({ blogPosts }: Props) {
       />
 
       <div className='content-wrapper py-5'>
-        <h1 className='text-4xl font-bold'>
+        <h1 className='font-identity text-4xl'>
           Project news
         </h1>
 
@@ -35,7 +35,7 @@ export default function Page({ blogPosts }: Props) {
                   {b.fields.Date && <time dateTime={format(new Date(b.fields.Date), 'yyyy-MM-dd')}>{format(new Date(b.fields.Date), 'dd MMM yyyy')}</time>}
                 </header>
                 <div className='max-w-2xl space-y-2 col-span-2'>
-                  <h2 className='font-bold text-2xl leading-snug'>
+                  <h2 className='font-identity text-2xl leading-snug'>
                     {b.fields.Title}
                   </h2>
                   <p className=' font-bold'>{b.fields.Summary}</p>

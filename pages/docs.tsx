@@ -6,6 +6,7 @@ import env from 'env-var';
 import { GetStaticProps } from 'next';
 import { getCountryByCode } from '../data/country';
 import PageLayout from '../components/PageLayout';
+import { projectStrings } from '../data/site';
 export const markdown = new MarkdownIt();
 
 interface Doc {
@@ -25,10 +26,13 @@ export default function Page({ docs }: { docs: Doc[] }) {
         }}
       />
 
-      <div className='py-5'>
-        <h1 className='text-4xl font-bold mb-4'>
-          Public API documentation
+      <div className='py-5 content-wrapper'>
+        <h1 className='font-identity text-4xl mb-2'>
+          API documentation
         </h1>
+        <p className='mb-6 max-w-2xl'>
+          This is a public API that we hope might be useful to you for solidarity projects. Please <a href={`mailto:${projectStrings.email}`}>let us know</a> if you use it, we're curious to hear!
+        </p>
 
         <section>
           {docs.map(doc => 

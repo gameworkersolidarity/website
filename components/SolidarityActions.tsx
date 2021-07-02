@@ -142,7 +142,7 @@ export function SolidarityActionsList ({
                   id={yearString}>
                   {yearString}
                 </h2>
-                <div className='text-xs'>
+                <div className='text-xs font-semibold'>
                   {pluralize('action', actions.length, true)}
                 </div>
               </div>
@@ -190,7 +190,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
     <article className={cx(isHighlighted && 'shadow-glow', 'bg-white rounded-lg p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <div>
       </div>
-      <div className='space-x-4 flex tracking-normal'>
+      <div className='space-x-4 flex tracking-tight'>
         <time className='font-semibold' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
           {format(new Date(data.fields.Date), 'dd MMM yyyy')}
         </time>
@@ -348,7 +348,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
         <div className='font-bold text-lg'>
           {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
         </div>
-        <div className=' pb-3'>{pluralize('action', actionCount, true)}</div>
+        <div className='pb-3'>{pluralize('action', actionCount, true)}</div>
         <div className='link text-sm'>
           View country dashboard &rarr;
         </div>
