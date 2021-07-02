@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { GetStaticProps } from 'next';
 import PageLayout from '../components/PageLayout';
 
-export default function Page({ embedUrl }) {
+export default function Page() {
   return (
     <PageLayout>
       <NextSeo
@@ -14,36 +14,41 @@ export default function Page({ embedUrl }) {
         }}
       />
 
-      <div className='py-5'>
+      <div>
         <h1 className='text-2xl font-bold mb-4 hidden'>
           Submit a solidarity action to the timeline 
         </h1>
 
-        <script src="https://static.airtable.com/js/embed/embed_snippet_v1.js"></script>
-        <iframe
-          className="airtable-embed airtable-dynamic-height"
-          src={embedUrl}
-          // @ts-ignore
-          frameBorder="0" onmousewheel="" width="100%" height="1815"
-          style={{ background: 'transparent', border: 'transparent' }}
-        />
+        <AirtableEmbed url={EMBED_URL} />
       </div>
     </PageLayout>
   )
 }
 
+const EMBED_URL = qs.stringifyUrl({
+  url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').asString()}`,
+  query: {
+    backgroundColor: 'red'
+  }
+})
+
+function AirtableEmbed ({ url }) {
+  return (
+    <>
+      <script src="https://static.airtable.com/js/embed/embed_snippet_v1.js"></script>
+      <iframe
+        className="airtable-embed airtable-dynamic-height"
+        src={EMBED_URL}
+        // @ts-ignore
+        frameBorder="0" onmousewheel="" width="100%" height="1815"
+        style={{ background: 'transparent', border: 'transparent' }}
+      />
+    </>
+  )
+}
+
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
-    props: {
-      embedUrl: qs.stringifyUrl({
-        url: `https://airtable.com/embed/${env.get('AIRTABLE_SUBMIT_EMBED_ID').default('shrghSX8tcj2XwhqO').asString()}`,
-        query: {
-          backgroundColor: 'red'
-        }
-      })
-    },
-    revalidate: env.get('PAGE_TTL').default(
-      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
-    ).asInt(), // In seconds
+    props: {}
   }
 }
