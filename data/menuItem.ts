@@ -53,7 +53,7 @@ export async function getMenuItems (selectArgs: QueryParams<MenuItem['fields']> 
   })
 }
 
-export async function getMenuItemsForSection (sectionName: MenuItem['fields']['placement']) {
+export async function getMenuItemsForSection (sectionName: MenuItem['fields']['placement'][0]) {
   const filterByFormula = `FIND("${sectionName}", ARRAYJOIN({placement})) > 0`
   return getMenuItems({ filterByFormula, view: sectionName })
 }

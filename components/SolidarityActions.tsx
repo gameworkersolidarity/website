@@ -214,9 +214,9 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
         <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>
           {data.fields.Name}
         </h3>
-        {isFeatured && data.fields.Summary && (
+        {data.fields.Summary && (
           <div className={'w-full pt-4'}>
-            <div className='max-w-xl text-lg' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
+            <div className='max-w-xl text-md' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
           </div>
         )}
         <div className='flex flex-row space-x-4 mt-3'>
