@@ -187,7 +187,6 @@ export interface StaticPage extends BaseRecord {
     Title:       string;
     Summary?:   string;
     Body:   string;
-    Link?: string;
     Public:     true; // We can't accept records that haven't been marked for publication
   },
   body: CopyType

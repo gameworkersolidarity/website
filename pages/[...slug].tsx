@@ -1,4 +1,4 @@
-import { getSingleStaticPage, getStaticPageLinks } from '../data/staticPage';
+import { getSingleStaticPage, getStaticPages } from '../data/staticPage';
 import { BlogPost, StaticPage } from '../data/types';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
@@ -35,7 +35,7 @@ export default function Page({ article, errorMessage }: PageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const links = (await getStaticPageLinks()).filter(page => typeof page.fields.Slug === 'string')
+  const links = (await getStaticPages()).filter(page => typeof page.fields.Slug === 'string')
   return {
     paths: links.map(page => ({
       params: {

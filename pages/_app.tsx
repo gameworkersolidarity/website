@@ -1,7 +1,6 @@
 import App from 'next/app'
 import { SWRConfig } from 'swr'
 import '../styles/globals.css'
-import { getStaticPageLinks } from '../data/staticPage';
 import { projectStrings } from '../data/site';
 import {DefaultSeo} from 'next-seo';
 import { KonamiCode } from '../components/KonamiCode';
