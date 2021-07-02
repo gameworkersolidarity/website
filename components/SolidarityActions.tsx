@@ -13,7 +13,7 @@ import { up } from '../utils/screens';
 import cx from 'classnames'
 import { NextSeo } from 'next-seo';
 import qs from 'query-string';
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect, useContext } from 'react';
 import pluralize from 'pluralize'
 import Emoji from 'a11y-react-emoji';
 import { projectStrings } from '../data/site';
@@ -21,6 +21,8 @@ import Image from 'next/image'
 import Fuse from 'fuse.js';
 import { CumulativeMovementChart } from './ActionChart';
 import { doNotFetch } from '../utils/swr';
+import { FilterContext } from '../pages';
+import Highlighter, { Chunk } from "react-highlight-words";
 
 interface ListProps {
   data: SolidarityAction[],
@@ -168,9 +170,29 @@ export function SolidarityActionsList ({
   )
 }
 
+function groupBy<T>(arr: T[], getGroupKey: (i: T) => string) {
+  return arr.reduce((groups, i) => {
+    groups[getGroupKey(i)] ??= []
+    groups[getGroupKey(i)].push(i)
+    return groups
+  }, {} as { [key: string]: T[] })
+}
+
+function getChunks (array: Fuse.FuseResultMatch[]) {
+  return array.reduce((indicies, d) => {
+    return indicies.concat(d.indices.map(([start, end]) => ({ start, end: end + 1 })))
+  }, [] as Chunk[])
+}
+
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const router = useRouter()
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const { search, matches } = useContext(FilterContext)
+  const match = matches?.find(m => m.item.id === data.id)
+  const matchesByKey = groupBy(
+    JSON.parse(JSON.stringify(match?.matches || [])) as Fuse.FuseResultMatch[],
+    (match) => String(match.key)
+  )
 
   useEffect(() => {
     const handleHashChangeComplete = (url, obj) => {
@@ -212,11 +234,21 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
       </div>
       <div className='col-span-5'>
         <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>
-          {data.fields.Name}
+          <Highlighter
+            highlightClassName="bg-gwYellow"
+            searchWords={[search || '']}
+            autoEscape={true}
+            textToHighlight={data.fields.Name}          
+          />
         </h3>
         {data.fields.Summary && (
           <div className={'w-full pt-4'}>
-            <div className='max-w-xl text-md' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
+            <Highlighter
+              highlightClassName="bg-gwYellow"
+              searchWords={[search || '']}
+              autoEscape={true}
+              textToHighlight={data.summary.plaintext}          
+            />
           </div>
         )}
         <div className='flex flex-row space-x-4 mt-3'>

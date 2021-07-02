@@ -8,7 +8,7 @@ import env from 'env-var';
 import { GetStaticProps } from 'next';
 import PageLayout from '../components/PageLayout';
 import { CumulativeMovementChart } from '../components/ActionChart';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, createContext } from 'react';
 import Fuse from 'fuse.js';
 import countryFlagEmoji from 'country-flag-emoji';
 import Emoji from 'a11y-react-emoji';
@@ -34,6 +34,11 @@ type PageProps = {
   categories: Category[],
   countries: Country[]
 }
+
+export const FilterContext = createContext<{
+  search?: string
+  matches: Fuse.FuseResult<SolidarityAction>[]
+}>({ matches: [] })
 
 export default function Page({ actions, companies, categories, countries }: PageProps) {
   const router = useRouter()
@@ -104,6 +109,7 @@ export default function Page({ actions, companies, categories, countries }: Page
   /**
    * Filtering
    */
+  const [matches, setMatches] = useState<Fuse.FuseResult<SolidarityAction>[]>([])
   const search = useMemo(() => new Fuse(actions, {
     keys: [
       'fields.Category',
@@ -111,14 +117,16 @@ export default function Page({ actions, companies, categories, countries }: Page
       'fields.Country',
       'fields.Name',
       'fields.Location',
-      'fields.Summary',
+      'summary.plaintext',
       'fields.CategoryName',
       'fields.countryName',
       'fields.companyName',
       'fields.organisingGroupName',
     ],
-    threshold: 0.2,
+    threshold: 0.01,
     ignoreLocation: true,
+    includeMatches: true,
+    minMatchCharLength: 2,
     findAllMatches: true,
     shouldSort: false,
     useExtendedSearch: true
@@ -139,17 +147,19 @@ export default function Page({ actions, companies, categories, countries }: Page
     if (filterText.trim().length > 0) {
       expression.$and!.push({
         $or: [
-          { 'fields.Name': filterText },
-          { 'fields.Summary': filterText },
-          { 'fields.Location': filterText },
-          { 'fields.CategoryName': filterText },
-          { 'fields.countryName': filterText },
-          { 'fields.companyName': filterText },
-          { 'fields.organisingGroupName': filterText },
+          { 'fields.Name': `'${filterText}` },
+          { 'summary.plaintext': `'${filterText}` },
+          { 'fields.Location': `'${filterText}` },
+          { 'fields.CategoryName': `'${filterText}` },
+          { 'fields.countryName': `'${filterText}` },
+          { 'fields.companyName': `'${filterText}` },
+          { 'fields.organisingGroupName': `'${filterText}` },
         ]
       })
     }
-    return search.search(expression).map(s => s.item)
+    const results = search.search(expression)
+    setMatches(results)
+    return results.map(s => s.item)
   }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedCountries])
 
   //
@@ -395,20 +405,22 @@ export default function Page({ actions, companies, categories, countries }: Page
 
           <div className='pb-1' />
 
-          <SolidarityActionsList
-            data={filteredActions}
-            withDialog
-            dialogProps={{
-              cardProps: {
-                withContext: true,
-                contextProps: {
-                  listProps: {
-                    withDialog: false
+          <FilterContext.Provider value={{ matches, search: filterText }}>
+            <SolidarityActionsList
+              data={filteredActions}
+              withDialog
+              dialogProps={{
+                cardProps: {
+                  withContext: true,
+                  contextProps: {
+                    listProps: {
+                      withDialog: false
+                    }
                   }
-                }
-              },
-            }}
-          />
+                },
+              }}
+            />
+          </FilterContext.Provider>
 
           <article>
             <p>Can you contribute more info about worker organising?</p>
