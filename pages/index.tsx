@@ -82,11 +82,20 @@ export default function Page({ actions, companies, categories, countries }: Page
   [filteredCountrySlugs])
 
   /**
+   * Full text search
+   */
+  const [filterText, setFilterText] = useURLState(
+    'search',
+    (initial) => useState<string>(initial ? initial.toString() : '')
+  )
+
+  /**
    * Filter metadata
    */
-  const hasFilters = selectedCountries.length || selectedCompanies.length || selectedCategories.length
+  const hasFilters = filterText.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length
 
   const clearAllFilters = () => {
+    setFilterText('')
     setCountries([])
     setCategories([])
     setCompanies([])
@@ -100,8 +109,16 @@ export default function Page({ actions, companies, categories, countries }: Page
       'fields.Category',
       'fields.Company',
       'fields.Country',
+      'fields.Name',
+      'fields.Location',
+      'fields.Summary',
+      'fields.CategoryName',
+      'fields.countryName',
+      'fields.companyName',
+      'fields.organisingGroupName',
     ],
-    // threshold: 0.5,
+    threshold: 0.2,
+    ignoreLocation: true,
     findAllMatches: true,
     shouldSort: false,
     useExtendedSearch: true
@@ -119,8 +136,21 @@ export default function Page({ actions, companies, categories, countries }: Page
     if (selectedCountries.length) {
       expression.$and!.push({ $or: selectedCountries.map(c => ({ 'fields.Country': `'${c?.id}` })) })
     }
+    if (filterText.trim().length > 0) {
+      expression.$and!.push({
+        $or: [
+          { 'fields.Name': filterText },
+          { 'fields.Summary': filterText },
+          { 'fields.Location': filterText },
+          { 'fields.CategoryName': filterText },
+          { 'fields.countryName': filterText },
+          { 'fields.companyName': filterText },
+          { 'fields.organisingGroupName': filterText },
+        ]
+      })
+    }
     return search.search(expression).map(s => s.item)
-  }, [actions, search, hasFilters, selectedCategories, selectedCompanies, selectedCountries])
+  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedCountries])
 
   //
 
@@ -152,7 +182,7 @@ export default function Page({ actions, companies, categories, countries }: Page
                 <div>
                   <Listbox value={filteredCountrySlugs[0]} onChange={v => setCountries([v])}>
                     <Listbox.Button>
-                      <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                      <div className='text-gray-400 rounded-lg border border-gray-200 px-3 py-2 text-sm'>
                         {"Country"}
                       </div>
                     </Listbox.Button>
@@ -179,7 +209,7 @@ export default function Page({ actions, companies, categories, countries }: Page
                 <div>
                   <Listbox value={filteredCategoryNames[0]} onChange={v => setCategories([v])}>
                     <Listbox.Button>
-                      <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                      <div className='text-gray-400 rounded-lg border border-gray-200 px-3 py-2 text-sm'>
                         {"Category"}
                       </div>
                     </Listbox.Button>
@@ -206,7 +236,7 @@ export default function Page({ actions, companies, categories, countries }: Page
                 <div>
                   <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
                     <Listbox.Button>
-                      <div className='rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                      <div className='text-gray-400 rounded-lg border border-gray-200 px-3 py-2 text-sm'>
                         {"Company"}
                       </div>
                     </Listbox.Button>
@@ -229,12 +259,18 @@ export default function Page({ actions, companies, categories, countries }: Page
                     </Listbox.Options>
                   </Listbox>
                 </div>
+                <div>
+                  <input
+                    placeholder='Full text search'
+                    type='search' 
+                    value={filterText}
+                    onChange={e => setFilterText(e.target.value.trimStart())}
+                    className='rounded-lg border border-gray-200 px-3 py-2 text-sm'
+                  />
+                </div>
               </div>
             </section>
             <section className='w-full' style={{ maxHeight: '40vh', height: 500 }}>
-              <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
-                Filter by country
-              </h3>
               <Map data={filteredActions} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
                 if (countrySlug) {
@@ -244,7 +280,7 @@ export default function Page({ actions, companies, categories, countries }: Page
             </section>
             <section className='pt-1'>
               <h3 className='text-xs text-left w-full font-mono uppercase pt-4'>
-                Filter by year
+                Select year
               </h3>
               <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
             </section>
@@ -256,7 +292,7 @@ export default function Page({ actions, companies, categories, countries }: Page
             {pluralize('action', filteredActions.length, true)}
           </h2>
 
-          <div className='flex flex-wrap w-full justify-start p-1'>
+          <div className='flex flex-wrap w-full justify-start p-1 text-sm'>
             {selectedCountries?.map(country => country ? (
               <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => toggleCountry(country.fields.Slug)}
@@ -279,6 +315,13 @@ export default function Page({ actions, companies, categories, countries }: Page
                 {company?.fields.Name}
               </div>
             ) : null)}
+            {filterText.trim().length > 0 && [filterText].map(textFragment =>
+              <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+                onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
+              >
+                "{textFragment}"
+              </div>
+            )}
             {hasFilters ? (
               <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg border-black border px-3 py-2 font-semibold inline-block'
                 onClick={clearAllFilters}
