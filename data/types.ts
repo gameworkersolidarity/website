@@ -268,3 +268,11 @@ export interface Category extends BaseRecord {
   solidarityActions?: SolidarityAction[],
   summary: CopyType
 }
+
+export interface MenuItem extends BaseRecord {
+  fields: {
+    label: string;
+    url: string;
+    placement: Array<'Header' | 'Footer'>;
+  }
+}

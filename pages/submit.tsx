@@ -40,7 +40,7 @@ function AirtableEmbed ({ url }) {
         className="airtable-embed airtable-dynamic-height"
         src={EMBED_URL}
         // @ts-ignore
-        frameBorder="0" onmousewheel="" width="100%" height="1815"
+        frameBorder="0" width="100%" height="1815"
         style={{ background: 'transparent', border: 'transparent' }}
       />
     </>
@@ -49,6 +49,9 @@ function AirtableEmbed ({ url }) {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
-    props: {}
+    props: {},
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt() // In seconds
   }
 }

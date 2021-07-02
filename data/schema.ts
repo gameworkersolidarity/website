@@ -105,6 +105,14 @@ export const staticPageSchema = baseRecordSchema.extend({
   body: copyTypeSchema,
 });
 
+export const menuItemSchema = baseRecordSchema.extend({
+  fields: z.object({
+    label: z.string(),
+    url: z.string(),
+    placement: z.array(z.union([z.literal("Header"), z.literal("Footer")])),
+  }),
+});
+
 export const thumbnailsSchema = z.object({
   small: fullSchema,
   large: fullSchema,

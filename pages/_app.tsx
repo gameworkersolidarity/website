@@ -7,12 +7,13 @@ import {DefaultSeo} from 'next-seo';
 import { KonamiCode } from '../components/KonamiCode';
 import { doNotFetch } from '../utils/swr';
 import { useCanonicalURL } from '../data/seo';
+import { getMenuItems } from '../data/menuItem';
 
-function MyApp({ Component, pageProps, links }) {
+function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const canonicalURL = useCanonicalURL()
   return (
     <SWRConfig value={{
-      initialData: { ...pageProps, links },
+      initialData: { ...pageProps, headerLinks, footerLinks },
       ...doNotFetch()
     }}>
       <DefaultSeo
@@ -49,8 +50,12 @@ function MyApp({ Component, pageProps, links }) {
 
 MyApp.getInitialProps = async (appContext) => {
   const appProps = await App.getInitialProps(appContext);
-  const links = await getStaticPageLinks()
-  return { ...appProps, links }
+  const links = await getMenuItems()
+  return {
+    ...appProps,
+    headerLinks: links.filter(l => l.fields.placement.includes('Header')),
+    footerLinks: links.filter(l => l.fields.placement.includes('Footer'))
+  }
 }
 
 export default MyApp
