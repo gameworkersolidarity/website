@@ -21,7 +21,7 @@ import Image from 'next/image'
 import Fuse from 'fuse.js';
 import { CumulativeMovementChart } from './ActionChart';
 import { doNotFetch } from '../utils/swr';
-import { FilterContext } from '../pages';
+import { FilterContext } from '../components/Timeline';
 import Highlighter, { Chunk } from "react-highlight-words";
 
 interface ListProps {
