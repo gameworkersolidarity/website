@@ -21,8 +21,12 @@ import { scrollToId } from '../utils/router';
 
 export const FilterContext = createContext<{
   search?: string
-  matches: Fuse.FuseResult<SolidarityAction>[]
-}>({ matches: [] })
+  matches: Fuse.FuseResult<SolidarityAction>[],
+  categories?: string[]
+  countries?: string[]
+  companies?: string[]
+  hasFilters: boolean
+}>({ matches: [], hasFilters: false })
 
 export function SolidarityActionsTimeline ({
   actions,
@@ -91,7 +95,7 @@ export function SolidarityActionsTimeline ({
   /**
    * Filter metadata
    */
-  const hasFilters = filterText.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length
+  const hasFilters = !!(filterText.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
 
   const clearAllFilters = () => {
     setFilterText('')
@@ -399,18 +403,20 @@ export function SolidarityActionsTimeline ({
 
           <div className='pb-1' />
 
-          <FilterContext.Provider value={{ matches, search: filterText }}>
+          <FilterContext.Provider value={{
+            matches,
+            search: filterText,
+            categories: filteredCategoryNames,
+            countries: filteredCountrySlugs,
+            companies: filteredCompanyNames,
+            hasFilters
+          }}>
             <SolidarityActionsList
               data={filteredActions}
               withDialog
               dialogProps={{
                 cardProps: {
-                  withContext: true,
-                  contextProps: {
-                    listProps: {
-                      withDialog: false
-                    }
-                  }
+                  withContext: true
                 },
               }}
             />

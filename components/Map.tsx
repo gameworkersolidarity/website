@@ -1,5 +1,5 @@
 import { SolidarityAction } from '../data/types';
-import { memo, useCallback, useState, useRef, createContext, useContext } from 'react';
+import { memo, useCallback, useState, useRef, createContext, useContext, useMemo } from 'react';
 import ReactMapGL, { Layer, MapRef, Marker, Source } from '@urbica/react-map-gl';
 import env from 'env-var';
 // import { stringifyArray } from '../utils/string';
@@ -9,6 +9,9 @@ import { theme } from 'twin.macro';
 import * as polished from 'polished'
 import { useRouter } from 'next/dist/client/router';
 import { scrollToId } from '../utils/router';
+import { FilterContext } from './Timeline';
+import { scaleLinear, scalePow } from 'd3-scale';
+import { max, median, min } from 'd3-array';
 
 const defaultViewport = {
   latitude: 15,
@@ -32,6 +35,33 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
 
   const ref = useRef<MapRef>(null)
 
+  const filterContext = useContext(FilterContext)
+  const displayStyle = !filterContext.countries?.length ? 'summary' : 'detail'
+
+  const countryCounts = useMemo(() => {
+    const counts = data.reduce((countries, action) => {
+      for (const code of action.fields.countryCode) {
+        countries[code] ??= 0
+        countries[code]++
+      }
+      return countries
+    }, {} as CountryCounts)
+
+    const domain = Object.values(counts)
+
+    const colorScale = scalePow()
+      .exponent(0.5)
+      .domain([min(domain), median(domain), max(domain)] as number[])
+      .range([theme`colors.gwBlue`, theme`colors.gwPink`, theme`colors.gwOrange`] as any)
+
+    for (const code in counts) {
+      const count = counts[code]
+      counts[code] = colorScale(count)
+    }
+
+    return counts
+  }, [data])
+
   return (
     <MapContext.Provider value={viewport}>
       <div className='relative overflow-hidden rounded-xl' style={{
@@ -45,190 +75,117 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           }}
           {...viewport}
           accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
-          mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckpzergl604py17s2jrpjp8eu').asString()}
+          mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckqsa4g09145h17p84g69t7ns').asString()}
           onViewportChange={updateViewport}
           className="rounded-xl"
           ref={ref}
         >
-          <MapLayer data={data} onSelectCountry={onSelectCountry} withHeatmap={false} />
+          <ActionSource data={data} />
+          <CountryLayer
+            mode={displayStyle}
+            countryCounts={countryCounts}
+            onSelectCountry={onSelectCountry}
+          />
+          {displayStyle === 'detail' && data.map(d => (
+            <MapMarker key={d.id} data={d} />
+          ))}
         </ReactMapGL>
       </div>
     </MapContext.Provider>
   );
 }
 
-const MapLayer = memo(({ data, onSelectCountry, withHeatmap = true }: {
-  data: SolidarityAction[], onSelectCountry?: (iso2: string | null) => void,
-  withHeatmap?: boolean
+function ActionSource ({ data }: { data: SolidarityAction[] }) {
+  return (
+    <Source id='actions' type='geojson' data={{
+      type: "FeatureCollection",
+      features: data.map(d => {
+        const coords = getCoordinatesForAction(d)
+        return {
+          type: "Feature",
+          id: d.id,
+          properties: d,
+          geometry: {
+            type: "Point",
+            coordinates: [coords.longitude, coords.latitude]
+          }
+        }
+      })
+    }} />
+  )
+}
+
+type CountryCounts = { [iso2: string]: number }
+
+const CountryLayer = memo(({
+  mode,
+  countryCounts,
+  onSelectCountry
+}: {
+  mode: 'summary' | 'detail'
+  countryCounts: CountryCounts
+  onSelectCountry: any
 }) => {
   const [hoverCountry, setHoverCountry] = useState<string>('XX')
+
   return (
     <>
-      <Source id='actions' type='geojson' data={{
-        type: "FeatureCollection",
-        features: data.map(d => {
-          const coords = getCoordinatesForAction(d)
-          return {
-            type: "Feature",
-            id: d.id,
-            properties: d,
-            geometry: {
-              type: "Point",
-              coordinates: [coords.longitude, coords.latitude]
-            }
-          }
-        })
-      }} />
-      <Source id="country-boundaries" {...{
-        "type": "vector",
-        "url": "mapbox://mapbox.country-boundaries-v1"
-      }} />
-      {withHeatmap && <Layer
-        id='heatmap'
-        type='heatmap'
-        source='actions'
-        paint={{
-          // Increase the heatmap weight based on frequency and property magnitude
-          'heatmap-weight': [
-            'interpolate',
-            ['linear'],
-            ['get', 'mag'],
-            0, 0,
-            6, 1
+    <Source id="country-boundaries" {...{
+      "type": "vector",
+      "url": "mapbox://mapbox.country-boundaries-v1"
+    }} />
+    <Layer
+      {...{
+        "id": "undisputed country boundary fill",
+        "source": "country-boundaries",
+        "source-layer": "country_boundaries",
+        "type": "fill",
+        "filter": [ "==", [ "get", "disputed" ], "false" ],
+        "paint": {
+          "fill-color": [
+            "coalesce",
+              ['get',
+                ['get', 'iso_3166_1'],
+                ["literal", countryCounts]
+              ],
+              theme`colors.gray.200`
           ],
-          // Increase the heatmap color weight weight by zoom level
-          // heatmap-intensity is a multiplier on top of heatmap-weight
-          // 'heatmap-intensity': [
-          //   'interpolate',
-          //   ['linear'],
-          //   ['zoom'],
-          //   0, 1,
-          //   9, 2
-          // ],
-          // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-          // Begin color ramp at 0-stop with a 0-transparancy color
-          // to create a blur-like effect.
-          'heatmap-color': [
-            'interpolate',
-            ['linear'],
-            ['heatmap-density'],
-            0, polished.rgba(255, 255, 255, 0),
-            0.1, polished.rgba(255, 255, 255, 0.25),
-            // 0.175, rgba(255, 255, 255, 0.25),
-            0.2, polished.rgba(theme`colors.gwBlueLight`, 0.25),
-            // 0.2,'rgba(47, 157, 245, 0.66)',
-            // 0.4,'rgba(77, 248, 132, 0.66)',
-            0.3, polished.rgba(theme`colors.gwBlue`, 0.25),
-            // 0.6,'rgba(222, 221, 50, 1)',
-            0.4, polished.rgba(theme`colors.gwPink`, 0.5),
-            // 0.8,'rgba(246, 95, 24, 1)',
-            // 0.8, polished.rgba(theme`colors.gwOrangeLight`, 0.5),
-            1, polished.rgba(theme`colors.gwOrange`, 0.5),
-            //  0,'rgba(35, 23, 27, 0)',
-            //  0.2,'rgba(47, 157, 245, 1)',
-            //  0.4,'rgba(77, 248, 132, 1)',
-            //  0.6,'rgba(222, 221, 50, 1)',
-            //  0.8,'rgba(246, 95, 24, 1)',
-            //  1,'rgba(144, 12, 0, 1)',
-            // ...[
-            // 0,
-            // 0.2,
-            // 0.4,
-            // 0.6,
-            // 0.8,
-            // 1,
-            // ].reduce((ar, n) => {
-            //   console.log(interpolateTurbo(n))
-            //   return [...ar,
-            //     n, interpolateTurbo(n)
-            //   ]
-            // }, [])
-          ],
-          // Adjust the heatmap radius by zoom level
-          'heatmap-radius': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0, 75,
-            9, 20
-          ],
-          // Transition from heatmap to circle layer by zoom level
-          'heatmap-opacity': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            7, 1,
-            8, 0
-          ]
-        }}
-      />}
-      {/* <Layer
-        {...{
-          "id": "undisputed country boundary line",
-          "source": "country-boundaries",
-          "source-layer": "country_boundaries",
-          "type": "line",
-          "filter": [
-            "==",
-            [
-              "get",
-              "disputed"
-            ],
-            "false"
-          ],
-          "paint": {
-            "line-width": 3,
-            "line-color": "rgba(66,100,251, 0.3)",
-            // "line-outline-color": "#0000ff",
-            "line-opacity": [
-              'case',
-              ['==', ['get', 'iso_3166_1'], hoverCountry],
-              1,
-              0.5
-            ]
-          }
-        }}
-      /> */}
-      <Layer
-        onClick={event => {
-          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+        }
+      }}
+    />
+    <Layer
+      onClick={event => {
+        const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+        if (Object.keys(countryCounts).includes(countryIso2)) {
           onSelectCountry?.(countryIso2)
-        }}
-        onHover={event => {
-          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+        }
+      }}
+      onHover={event => {
+        const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+        if (Object.keys(countryCounts).includes(countryIso2)) {
           setHoverCountry(countryIso2)
-        }}
-        onLeave={event => {
-          const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-          setHoverCountry('XX')
-        }}
-        {...{
-          "id": "undisputed country boundary fill",
-          "source": "country-boundaries",
-          "source-layer": "country_boundaries",
-          "type": "fill",
-          "filter": [
-            "==",
-            [
-              "get",
-              "disputed"
-            ],
-            "false"
+        }
+      }}
+      onLeave={event => {
+        // const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
+        setHoverCountry('XX')
+      }}
+      {...{
+        "id": "undisputed country boundary fill hoverable",
+        "source": "country-boundaries",
+        "source-layer": "country_boundaries",
+        "type": "fill",
+        "filter": [ "==", [ "get", "disputed" ], "false" ],
+        "paint": {
+          "fill-color": [
+            'case',
+            ['==', ['get', 'iso_3166_1'], hoverCountry],
+            theme`colors.white`,
+            'rgba(0,0,0,0)'
           ],
-          "paint": {
-            "fill-color": [
-              'case',
-              ['==', ['get', 'iso_3166_1'], hoverCountry],
-              polished.rgba((theme`colors.gwBlue`), 0.5),
-              "rgba(66,100,251, 0)"
-            ],
-            "fill-outline-color": theme`colors.gwBlue`,
-          }
-        }}
-      />
-      {data.map(d => (
-        <MapMarker key={d.id} data={d} />
-      ))}
+        }
+      }}
+    />
     </>
   )
 })
