@@ -14,12 +14,12 @@ export function KonamiCode () {
       <div className='absolute z-20 w-full max-w-xl top-[15%] left-1/2 transform -translate-x-1/2 py-5'>
         <button
           type="button"
-          className="mb-3 rounded-lg px-2 py-1 border-box"
+          className="mb-3 rounded-xl px-2 py-1 border-box"
           onClick={close}
         >
           &larr; Back
         </button>
-        <div className='p-5 bg-gwOrangeLight rounded-lg space-y-4 absolute'>
+        <div className='p-5 bg-gwOrangeLight rounded-xl space-y-4 absolute'>
           <Dialog.Title className='text-2xl font-bold'>
             You found the easter egg! <Emoji symbol='🎁' label='Picture of a gift box' />
           </Dialog.Title>

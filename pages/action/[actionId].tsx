@@ -15,17 +15,19 @@ export default function Page({ action, errorMessage }: PageProps) {
 
   return (
     <PageLayout>
-      <div className='max-w-xl mx-auto py-5 px-4'>
-        <SolidarityActionCard
-          data={action}
-          withContext
-        />
-        <div className='my-4' />
-        <Link href='/'>
-          <div className='link  text-sm'>
-            &larr; All actions
-          </div>
-        </Link>
+      <div className='bg-gwOrangeLight'>
+        <div className='max-w-4xl mx-auto py-5 px-4'>
+          <SolidarityActionCard
+            data={action}
+            withContext
+          />
+          <div className='my-4' />
+          <Link href='/'>
+            <div className='link  text-sm'>
+              &larr; All actions
+            </div>
+          </Link>
+        </div>
       </div>
     </PageLayout>
   )

@@ -42,7 +42,7 @@ export function SolidarityActionsTimeline ({
    * Categories
    */
   const [filteredCategoryNames, setCategories] = useURLState(
-    'categories',
+    'category',
     (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
   const toggleCategory = (category: string) => {
@@ -56,7 +56,7 @@ export function SolidarityActionsTimeline ({
    * Companies
    */
   const [filteredCompanyNames, setCompanies] = useURLState(
-    'companies',
+    'company',
     (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
   const toggleCompany = (id: string) => {
@@ -70,7 +70,7 @@ export function SolidarityActionsTimeline ({
    * Countries
    */
   const [filteredCountrySlugs, setCountries] = useURLState(
-    'countries',
+    'country',
     (initial) => useState<string[]>(initial ? ensureArray(initial) as string[] : [])
   )
   const toggleCountry = (id: string) => {
@@ -186,18 +186,18 @@ export function SolidarityActionsTimeline ({
                 <div>
                   <Listbox value={filteredCountrySlugs[0]} onChange={v => setCountries([v])}>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
                         {"Country"}
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-lg bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
                         {countries.map((country) => (
                           <Listbox.Option
                             key={country.id}
                             value={country.fields.Slug}
                           >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer text-left flex justify-start w-full'>
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
                               <span><Emoji symbol={country.emoji.emoji} /></span>
                               <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
                               <span className='inline-block align-baseline text-xs ml-auto text-gray-500 pl-2'>
@@ -213,18 +213,18 @@ export function SolidarityActionsTimeline ({
                 <div>
                   <Listbox value={filteredCategoryNames[0]} onChange={v => setCategories([v])}>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
                         {"Category"}
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-lg bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
                         {categories.map((category) => (
                           <Listbox.Option
                             key={category.id}
                             value={category.fields.Name}
                           >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer text-left flex justify-start w-full'>
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
                               <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
                               <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
                               <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
@@ -240,18 +240,18 @@ export function SolidarityActionsTimeline ({
                 <div>
                   <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-lg border border-gray-200 px-3 py-2 text-sm'>
+                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
                         {"Company"}
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-lg bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
                         {companies.map((company) => (
                           <Listbox.Option
                             key={company.id}
                             value={company.fields.Name}
                           >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer text-left flex justify-start w-full'>
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
                               <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
                               <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
                                 {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
@@ -269,7 +269,7 @@ export function SolidarityActionsTimeline ({
                     type='search' 
                     value={filterText}
                     onChange={e => setFilterText(e.target.value.trimStart())}
-                    className='rounded-lg border border-gray-200 px-3 py-2 text-sm'
+                    className='rounded-xl border border-gray-200 px-3 py-2 text-sm'
                   />
                 </div>
               </div>
@@ -298,14 +298,14 @@ export function SolidarityActionsTimeline ({
 
           <div className='flex flex-wrap w-full justify-start p-1 text-sm'>
             {selectedCountries?.map(country => country ? (
-              <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+              <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => toggleCountry(country.fields.Slug)}
               >
                 <Emoji symbol={country.emoji.emoji} /> {country?.emoji.name}
               </div>
             ) : null)}
             {selectedCategories?.map(category => category ? (
-              <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+              <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => toggleCategory(category.fields.Name)}
               >
                 <span className='inline-block'>{category.fields.Emoji}</span>
@@ -313,21 +313,21 @@ export function SolidarityActionsTimeline ({
               </div>
             ) : null)}
             {selectedCompanies?.map(company => company ? (
-              <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+              <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => toggleCompany(company.fields.Name)}
               >
                 {company?.fields.Name}
               </div>
             ) : null)}
             {filterText.trim().length > 0 && [filterText].map(textFragment =>
-              <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg bg-white px-3 py-2 font-semibold inline-block'
+              <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
               >
                 "{textFragment}"
               </div>
             )}
             {hasFilters ? (
-              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-lg border-black border px-3 py-2 font-semibold inline-block'
+              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl border-black border px-3 py-2 font-semibold inline-block'
                 onClick={clearAllFilters}
               >
                 Clear all filters <div className='inline-block transform rotate-45'>+</div>

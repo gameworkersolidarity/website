@@ -1,7 +1,7 @@
 import { format, getMonth, getYear } from 'date-fns';
 import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { SolidarityAction, Country } from '../data/types';
+import { SolidarityAction, Country, Document } from '../data/types';
 import { stringifyArray } from '../utils/string';
 import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
@@ -46,8 +46,10 @@ interface CardProps {
 }
 
 interface ContextProps {
-  countryCode: string,
-  listProps?: Partial<ListProps>
+  url?: string
+  name?: any
+  metadata?: any
+  buttonLabel?: string
 }
 
 export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps }: DialogProps) {
@@ -78,13 +80,13 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
       >
         {selectedAction?.fields && (
           <>
-            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwBlue opacity-75" />
-            <div className='absolute z-20 w-full max-w-xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
+            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwOrange opacity-[80%]" />
+            <div className='absolute z-20 w-full max-w-4xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
               <Dialog.Title className='hidden'>{selectedAction.fields.Name}</Dialog.Title>
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
               <button
                 type="button"
-                className="mb-3 rounded-lg px-2 py-1 border-box"
+                className="mb-3 rounded-xl px-2 py-1 border-box"
                 onClick={onClose}
               >
                 &larr; Back
@@ -212,30 +214,9 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
-    <article className={cx(isHighlighted && 'shadow-glow', 'bg-white rounded-lg p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
+    <article className={cx(isHighlighted && 'shadow-glow', 'bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
+      <ActionMetadata data={data} />
       <div>
-      </div>
-      <div className='space-x-4 flex tracking-tight'>
-        <time className='font-semibold' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
-          {format(new Date(data.fields.Date), 'dd MMM yyyy')}
-        </time>
-        {data.fields?.Category?.map((c, i) => 
-          <span className='capitalize block' key={c}>{data.fields.CategoryEmoji?.[i]} {data.fields.CategoryName?.[i]}</span>
-        )}
-        {data.geography?.country.map(country => (
-          <span className='space-x-1' key={country.iso3166}>
-            <Emoji
-              symbol={country.emoji.emoji}
-              label={`Flag of ${country.name}`}
-            />
-            <span>{country.name}</span>
-          </span>
-        ))}
-        {data.fields.Location ? (
-          <span>{data.fields.Location}</span>
-        ) : null}
-      </div>
-      <div className='col-span-5'>
         <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>
           <Highlighter
             highlightClassName="bg-gwYellow"
@@ -257,21 +238,64 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
         <div className='flex flex-row space-x-4 mt-3'>
           {data.fields.Link && (
             <a href={data.fields.Link} className='block my-1'>
-            <Emoji symbol='🔗' label='Link' />
+            <Emoji symbol='🔗' label='Link' className='align-baseline' />
               &nbsp;
-              <span className='align-middle underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
+              <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
             </a>
           )}
           {data.fields.Document?.map(doc => (
-            <a key={doc.id} href={doc.url} className='block my-1'>
-              <Emoji symbol='📎' label='File' />
-              &nbsp;
-              <span className='align-middle underline text-inherit'>{doc.filename}</span>
-            </a>
+            <DocumentLink doc={doc} key={doc.id} />
           ))}
         </div>
       </div>
     </article>
+  )
+}
+
+export function DocumentLink ({ doc, withPreview }: { doc: Document, withPreview?: boolean }) {
+  return (
+    <a href={doc.url} className='block my-1'>
+      <Emoji symbol='📑' label='File attachment' className='align-baseline' />
+      &nbsp;
+      <span className='align-baseline underline text-inherit'>{doc.filename}</span>
+      &nbsp;
+      <span className='text-gray-500'>{doc.type}</span>
+      {withPreview && (
+        <div className='inline-block overflow-hidden border border-black rounded-xl mt-4'>
+          <Image
+            src={doc.thumbnails.large.url}
+            width={doc.thumbnails.large.width}
+            height={doc.thumbnails.large.height}
+          />
+        </div>
+      )}
+    </a>
+  )
+}
+
+export function ActionMetadata ({ data }: { data: SolidarityAction }) {
+  return (
+    <div className='flex flex-wrap tracking-tight'>
+      <time className='font-semibold pr-3' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
+        {format(new Date(data.fields.Date), 'dd MMM yyyy')}
+      </time>
+      {data.fields.Location ? (
+        <span className='pr-1'>{data.fields.Location}</span>
+      ) : null}
+      {data.geography?.country.map(country => (
+        <span className='pr-3' key={country.iso3166}>
+          <Emoji
+            symbol={country.emoji.emoji}
+            label={`Flag of ${country.name}`}
+            className='pr-1'
+          />
+          <span>{country.name}</span>
+        </span>
+      ))}
+      {data.fields?.Category?.map((c, i) => 
+        <span className='capitalize block pr-3' key={c}>{data.fields.CategoryEmoji?.[i]} {data.fields.CategoryName?.[i]}</span>
+      )}
+    </div>
   )
 }
 
@@ -288,86 +312,74 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
           description: data.summary.plaintext
         }}
       />
-      <article className='bg-gwOrangeLight rounded-lg flex flex-col space-y-4 justify-between'>
-        <div className='space-y-1 px-4 md:px-5 pt-4 md:pt-5'>
-          <div className='text-xs space-x-2 flex w-full flex-row '>
-            {data.fields.Location ? <span>{data.fields.Location}</span> : null}
-            {data.geography?.country.map(country => (
-              <span className='space-x-1' key={country.iso3166}>
-                <Emoji
-                  symbol={country.emoji.emoji}
-                  label={`Flag of ${country.name}`}
-                />
-                <span>{country.name}</span>
-              </span>
-            ))}
-            <time dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")} className=''>{format(new Date(data.fields.Date), 'dd MMM yyyy')}</time>
-            {data.fields.Category?.length ?
-              <span className=' space-x-1'>{data.fields.Category?.map((c, i) =>
-                <div className='capitalize inline-block' key={c}>{data.fields.CategoryEmoji?.[i]} {data.fields.CategoryName?.[i]}</div>
-              )}</span>
-            : null }
+      <article className={cx('space-y-2px rounded-xl overflow-hidden shadow-noglow group-hover:shadow-glow transition duration-100')}>
+        <div className='p-4 md:px-8 bg-white'>
+          <div className='text-sm'>
+            <ActionMetadata data={data} />
           </div>
-          <h3 className='text-2xl font-bold leading-snug'>{data.fields.Name}</h3>
+          <div className='pb-4' />
+          <h3 className={cx('text-3xl leading-tight font-semibold max-w-3xl')}>
+            {data.fields.Name}
+          </h3>
+          {data.fields.Summary && (
+            <div className={'w-full pt-4 text-lg font-light'} dangerouslySetInnerHTML={{ __html: data.summary.html }} />
+          )}
+          <div className='flex flex-row space-x-4 mt-3 text-sm'>
+            {data.fields.Link && (
+              <a href={data.fields.Link} className='block my-1'>
+                <Emoji symbol='🔗' label='Link' className='align-baseline' />
+                &nbsp;
+                <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
+              </a>
+            )}
+          </div>
         </div>
-        {data.fields.Summary && (
-          <div className='w-full  px-4 md:px-5'>
-            <div className='max-w-xl -my-1' dangerouslySetInnerHTML={{ __html: data.summary.html }} />
-          </div>
-        )}
-        {data.fields.Link && (
-          <div className='px-4 md:px-5 pb-1'>
-            <a href={data.fields.Link} className='my-1 text-md  hover:'>
-              <span className='align-middle'>Read more: </span>
-              <ExternalLinkIcon className='h-3 w-3 inline-block text-inherit align-middle' />
-              &nbsp;
-              <span className='align-middle underline text-inherit '>{new URL(data.fields.Link).hostname}</span>
-            </a>
-          </div>
-        )}
         {data.fields.Document?.length && (
-          <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 border-t-2 border-dotted border-gwBlue hover: transition duration-75 pt-3'>
-            <div className='uppercase text-sm  pb-2'>Attachments</div>
+          <div className='p-4 md:px-8 bg-white text-sm'>
+            <div className='font-semibold pb-2'>Attachments</div>
             <div className='grid gap-4'>
               {data.fields.Document.map(doc => (
-                <a key={doc.id} href={doc.url} className='overflow-hidden box-border border-2 border-gwBlue'>
-                  <div className='text-lg mb-1 px-4 pt-3'>{doc.filename}</div>
-                  <div className=' font-mono pb-2 px-4'>{doc.type}</div>
-                  <Image
-                    src={doc.thumbnails.large.url}
-                    width={doc.thumbnails.large.width}
-                    height={doc.thumbnails.large.height}
-                  />
-                </a>
+                <DocumentLink key={doc.id} doc={doc} withPreview />
               ))}
             </div>
           </div>
         )}
-        <div className='text-sm my-4 p-4 md:pb-4 px-4 md:px-5 border-t-2 border-dotted border-gwBlue pt-3'>
-          Have more info about this action? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know</a>.
+        <div className='p-4 md:px-8 bg-white'>
+          Have more info about this action? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know &rarr;</a>
         </div>
-      </article>
-
-      {withContext && (
-        <>
-          <div className='my-4' />
-          {/* <div className='uppercase text-sm pb-2'>Related</div> */}
-          <div className='grid sm:grid-cols-2 gap-4'>
+        {withContext && (
+          <div className='grid gap-[2px] grid-cols-2'>
             {data.fields.countryCode.map(code =>
-              <SolidarityActionCountryRelatedActions
-                key={code}
-                countryCode={code}
-                {...contextProps}
-              />
+              <div className='p-4 md:px-8 bg-white' key={code}>
+                <SolidarityActionCountryRelatedActions
+                  countryCode={code}
+                />
+              </div>
+            )}
+            {data.fields.CategoryName?.map((categoryName, i) =>
+              <div className='p-4 md:px-8 bg-white' key={categoryName}>
+                <SolidarityActionRelatedActions
+                  url={`/?category=${categoryName}`}
+                  name={<span className='capitalize'>{categoryName} <Emoji symbol={data.fields.CategoryEmoji![i]} /></span>}
+                />
+              </div>
+            )}
+            {data.fields.companyName?.map((companyName, i) =>
+              <div className='p-4 md:px-8 bg-white' key={companyName}>
+                <SolidarityActionRelatedActions
+                  url={`/?company=${companyName}`}
+                  name={<span>{companyName}</span>}
+                />
+              </div>
             )}
           </div>
-        </>
-      )}
+        )}
+      </article>
     </>
   )
 }
 
-export function SolidarityActionCountryRelatedActions ({ countryCode, listProps }: ContextProps) {
+export function SolidarityActionCountryRelatedActions ({ countryCode }: { countryCode }) {
   const { data } = useSWR<Country>(qs.stringifyUrl({
     url: `/api/country`,
     query: {
@@ -378,16 +390,26 @@ export function SolidarityActionCountryRelatedActions ({ countryCode, listProps 
   const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
   
   return data?.fields ? (
-    <Link href={`/?countries=${data.fields.Slug}`}>
-      <div className='cursor-pointer bg-gwOrangeLight hover: rounded-lg p-4'>
-        <div className='font-bold text-lg'>
-          {data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' />
+    <SolidarityActionRelatedActions
+      url={`/?country=${data.fields.Slug}`}
+      name={<span>{data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' /></span>}
+      metadata={pluralize('action', actionCount, true)}
+    />
+  ) : null
+}
+
+export function SolidarityActionRelatedActions ({ url, name, metadata, buttonLabel }: ContextProps) {
+  return (
+    <Link href={url || '/'}>
+      <div className='cursor-pointer group'>
+        <div className='font-bold'>
+          {name || 'More actions'}
         </div>
-        <div className='pb-3'>{pluralize('action', actionCount, true)}</div>
-        <div className='link text-sm'>
-          View country dashboard &rarr;
+        {/* {metadata && <div className='pb-3 text-sm'>{metadata}</div>} */}
+        <div className='link'>
+          {buttonLabel || <span>{metadata || 'All actions'} &rarr;</span>}
         </div>
       </div>
     </Link>
-  ) : null
+  )
 }

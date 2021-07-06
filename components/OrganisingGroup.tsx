@@ -39,7 +39,7 @@ export const OrganisingGroupDialog = (
               <Dialog.Description className='hidden'>{data.fields.IsUnion ? "Union" : "Organising group"} in {stringifyArray(...data.fields?.countryName || [])}</Dialog.Description>
               <button
                 type="button"
-                className="mb-3 rounded-lg px-2 py-1 border-box"
+                className="mb-3 rounded-xl px-2 py-1 border-box"
                 onClick={onClose}
               >
                 &larr; Back
@@ -55,7 +55,7 @@ export const OrganisingGroupDialog = (
 
 const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
   return (
-    <div className='bg-gwOrangeLight rounded-lg p-4 space-y-2'>
+    <div className='bg-gwOrangeLight rounded-xl p-4 space-y-2'>
       <div className='font-bold text-lg'>
         {data.fields.Name}
       </div>

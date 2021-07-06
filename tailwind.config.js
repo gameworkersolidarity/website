@@ -29,9 +29,14 @@ module.exports = {
       5: '40px',
       6: '60px',
       7: '80px',
+      8: '100px',
     },
     space: {
       0: '0px',
+      '1px': "1px",
+      '2px': "2px",
+      '3px': "3px",
+      '4px': "4px",
       1: '5px',
       2: '10px',
       3: '15px',
@@ -39,6 +44,7 @@ module.exports = {
       5: '40px',
       6: '60px',
       7: '80px',
+      8: '100px',
     },
     extend: {
       fontFamily: {

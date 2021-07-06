@@ -217,7 +217,7 @@ export function CumulativeChart ({
         style={{}}
         renderTooltip={({ tooltipData, colorScale }) => {
           return (
-            <div className='bg-white px-2 py-1 text-sm rounded-lg font-mono z-10'>
+            <div className='bg-white px-2 py-1 text-sm rounded-xl font-mono z-10'>
               {tooltipData?.nearestDatum ? <>
                 {/* <div className='text-md text-opacity-50'>
                   <span className='text-gwOrange font-bold'>

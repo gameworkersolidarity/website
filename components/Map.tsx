@@ -34,7 +34,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
 
   return (
     <MapContext.Provider value={viewport}>
-      <div className='relative overflow-hidden rounded-lg' style={{
+      <div className='relative overflow-hidden rounded-xl' style={{
         height: '100%',
         width: '100%'
       }}>
@@ -47,7 +47,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           accessToken={env.get('NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN').default('pk.eyJ1IjoiY29tbW9ua25vd2xlZGdlIiwiYSI6ImNrcHB2cnBoMDByNnUydm1uMm5qenB5bGoifQ.8ioYIcBD6YJaNvczuhLtEQ').asString()}
           mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckpzergl604py17s2jrpjp8eu').asString()}
           onViewportChange={updateViewport}
-          className="rounded-lg"
+          className="rounded-xl"
           ref={ref}
         >
           <MapLayer data={data} onSelectCountry={onSelectCountry} withHeatmap={false} />
@@ -257,7 +257,7 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
         {!!data.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>}
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        <div style={{ opacity: context.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-lg pointer-events-none'>
+        <div style={{ opacity: context.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
           {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
         </div>
       </div>
