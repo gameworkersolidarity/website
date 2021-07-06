@@ -103,7 +103,9 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
   )
 }
 
-export function useSelectedAction(solidarityActions: SolidarityAction[], key = 'dialogActionId') {
+export const DEFAULT_ACTION_DIALOG_KEY = 'dialogActionId'
+
+export function useSelectedAction(solidarityActions: SolidarityAction[], key = DEFAULT_ACTION_DIALOG_KEY) {
   const router = useRouter();
   const dialogActionId = router.query[key]
   const selectedAction = solidarityActions.find(a => a.id === dialogActionId)

@@ -4,6 +4,7 @@ import ReactMapGL, { Layer, MapRef, Marker, Source } from '@urbica/react-map-gl'
 import env from 'env-var';
 // import { stringifyArray } from '../utils/string';
 import Emoji from 'a11y-react-emoji';
+import Cluster from '@urbica/react-map-gl-cluster';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
@@ -12,6 +13,9 @@ import { scrollToId } from '../utils/router';
 import { FilterContext } from './Timeline';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { max, median, min } from 'd3-array';
+import { DEFAULT_ACTION_DIALOG_KEY } from './SolidarityActions';
+import { useContextualRouting } from 'next-use-contextual-routing';
+import pluralize from 'pluralize';
 
 const defaultViewport = {
   latitude: 15,
@@ -86,9 +90,23 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
             countryCounts={countryCounts}
             onSelectCountry={onSelectCountry}
           />
-          {displayStyle === 'detail' && data.map(d => (
+          {/* {data.map(d => (
             <MapMarker key={d.id} data={d} />
-          ))}
+          ))} */}
+          <Cluster radius={20} extent={512} nodeSize={64} component={ClusterMarker}>
+            {data.map(datum => (
+              <Marker {...getCoordinatesForAction(datum)}>
+                <div className='space-x-1 text-center transform'>
+                  {!!datum.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={datum.fields.CategoryEmoji?.[0]} /></span>}
+                  <br />
+                  {/* <div className='inline capitalize-first'>{stringifyArray(datum.fields.Category)}</div> */}
+                  <div style={{ opacity: viewport.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+                    {datum.geography.location?.display_name?.split(',')?.[0] || datum.fields['countryName']}
+                  </div>
+                </div>
+              </Marker>
+            ))}
+          </Cluster>
         </ReactMapGL>
       </div>
     </MapContext.Provider>
@@ -126,7 +144,7 @@ const CountryLayer = memo(({
   countryCounts: CountryCounts
   onSelectCountry: any
 }) => {
-  const [hoverCountry, setHoverCountry] = useState<string>('XX')
+  // const [hoverCountry, setHoverCountry] = useState<string>('XX')
 
   return (
     <>
@@ -153,7 +171,7 @@ const CountryLayer = memo(({
         }
       }}
     />
-    <Layer
+    {/* <Layer
       onClick={event => {
         const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
         if (Object.keys(countryCounts).includes(countryIso2)) {
@@ -185,7 +203,7 @@ const CountryLayer = memo(({
           ],
         }
       }}
-    />
+    /> */}
     </>
   )
 })
@@ -207,10 +225,13 @@ function getCoordinatesForAction(data: SolidarityAction) {
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
   const context = useContext(MapContext)
   const router = useRouter()
+  const { makeContextualHref } = useContextualRouting();
 
   return (
     <Marker {...getCoordinatesForAction(data)}>
-      <div className='space-x-1 text-center transform' onClick={() => scrollToId(router, data.id)}>
+      <div className='space-x-1 text-center transform' onClick={() =>
+        router.push(makeContextualHref({ [DEFAULT_ACTION_DIALOG_KEY]: data.id }), undefined, { shallow: true })
+      }>
         {!!data.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>}
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
@@ -221,3 +242,13 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
     </Marker>
   )
 })
+
+const ClusterMarker = ({ longitude, latitude, pointCount }) => {
+  return (
+    <Marker longitude={longitude} latitude={latitude}>
+      <div className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+        {pluralize('action', pointCount, true)}
+      </div>
+    </Marker>
+  )
+}
