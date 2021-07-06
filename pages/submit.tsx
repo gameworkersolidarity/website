@@ -3,6 +3,7 @@ import qs from 'query-string'
 import { NextSeo } from 'next-seo';
 import { GetStaticProps } from 'next';
 import PageLayout from '../components/PageLayout';
+import Script from 'next/script';
 
 export default function Page() {
   return (
@@ -35,7 +36,7 @@ const EMBED_URL = qs.stringifyUrl({
 function AirtableEmbed ({ url }) {
   return (
     <>
-      <script src="https://static.airtable.com/js/embed/embed_snippet_v1.js"></script>
+      <Script src="https://static.airtable.com/js/embed/embed_snippet_v1.js" strategy='beforeInteractive' />
       <iframe
         className="airtable-embed airtable-dynamic-height"
         src={EMBED_URL}
