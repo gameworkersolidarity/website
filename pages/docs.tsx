@@ -79,9 +79,7 @@ Serves country data.
 
 Example output:
       `),
-      exampleOutputJSON: {
-        solidarityActions: (await getCountryByCode('GB'))
-      }
+      exampleOutputJSON: (await getCountryByCode('GB'))
     }
   ]
 
