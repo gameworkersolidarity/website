@@ -180,9 +180,9 @@ export function SolidarityActionsTimeline ({
     <>
       <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true }) }} />
       <div className='grid md:grid-cols-2'>
-        <section className='p-4 lg:p-5'>
-          <div className='sticky top-4 lg:top-5 space-y-4 overflow-y-auto'>
-            <section>
+        <section className='relative'>
+          <div className='p-4 lg:p-5 flex flex-col flex-nowrap h-screen sticky top-0 space-y-4 overflow-y-hidden'>
+            <section className='flex-grow-0'>
               <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
                 Filter by
               </h3>
@@ -278,7 +278,7 @@ export function SolidarityActionsTimeline ({
                 </div>
               </div>
             </section>
-            <section className='w-full' style={{ maxHeight: '40vh', height: 500 }}>
+            <section className='w-full flex-grow h-screen'>
               <Map data={filteredActions} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
                 if (countrySlug) {
@@ -286,8 +286,8 @@ export function SolidarityActionsTimeline ({
                 }
               }} />
             </section>
-            <section className='pt-1'>
-              <h3 className='text-xs text-left w-full font-mono uppercase pt-4'>
+            <section className='pt-1 flex-grow-0'>
+              <h3 className='text-xs text-left w-full font-mono uppercase'>
                 Select year
               </h3>
               <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
