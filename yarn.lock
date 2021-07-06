@@ -789,6 +789,11 @@
   dependencies:
     debug "^4.1.1"
 
+"@urbica/react-map-gl-cluster@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl-cluster/-/react-map-gl-cluster-0.2.0.tgz#0999e09b37be6182a7ba39668468c2e374de897c"
+  integrity sha512-/ibJS+ZiQd9Cc2MeeIfXXUh/husiVqDLFU1rT9dKWNyoo3+srX8TMWbnF58oN1XpxpYLBa764PH9cbOoROT6Cw==
+
 "@urbica/react-map-gl@^1.14.3":
   version "1.14.3"
   resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.14.3.tgz#78566daec541cbceee6f2e3f038f5eba7223082f"
@@ -3431,10 +3436,10 @@ make-dir@^3.0.2:
   dependencies:
     semver "^6.0.0"
 
-mapbox-gl@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-2.3.0.tgz#2f8243da89ff639497963d7f865d12523d9b96de"
-  integrity sha512-0ssKvbxNnvkenzmJCS0kbXGTYtFtlaX/UdOFGnGdR0nBW3cB2sXwx3yCK8b+SmvsTt6qumpkxeZy7ahspSCA8A==
+mapbox-gl@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-2.3.1.tgz#970fbb91b7c21e81c726d547b3153b6f90a09c29"
+  integrity sha512-xGohzbxxdN3UhHMHy0aweaueYwSoOspSg90gi1T7DIl8Ev0YLjl+ApV6VYtNnR1B9lmwDn8jITfG6Y2JiSEuwg==
   dependencies:
     "@mapbox/geojson-rewind" "^0.5.0"
     "@mapbox/geojson-types" "^1.0.2"

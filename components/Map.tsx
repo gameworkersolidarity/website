@@ -4,6 +4,7 @@ import ReactMapGL, { Layer, MapRef, Marker, Source } from '@urbica/react-map-gl'
 import env from 'env-var';
 // import { stringifyArray } from '../utils/string';
 import Emoji from 'a11y-react-emoji';
+import Cluster from '@urbica/react-map-gl-cluster';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
@@ -90,9 +91,23 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
             countryCounts={countryCounts}
             onSelectCountry={onSelectCountry}
           />
-          {displayStyle === 'detail' && data.map(d => (
+          {/* {data.map(d => (
             <MapMarker key={d.id} data={d} />
-          ))}
+          ))} */}
+          <Cluster radius={20} extent={512} nodeSize={64} component={ClusterMarker}>
+            {data.map(datum => (
+              <Marker {...getCoordinatesForAction(datum)}>
+                <div className='space-x-1 text-center transform'>
+                  {!!datum.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={datum.fields.CategoryEmoji?.[0]} /></span>}
+                  <br />
+                  {/* <div className='inline capitalize-first'>{stringifyArray(datum.fields.Category)}</div> */}
+                  <div style={{ opacity: viewport.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+                    {datum.geography.location?.display_name?.split(',')?.[0] || datum.fields['countryName']}
+                  </div>
+                </div>
+              </Marker>
+            ))}
+          </Cluster>
         </ReactMapGL>
       </div>
     </MapContext.Provider>
@@ -130,7 +145,7 @@ const CountryLayer = memo(({
   countryCounts: CountryCounts
   onSelectCountry: any
 }) => {
-  const [hoverCountry, setHoverCountry] = useState<string>('XX')
+  // const [hoverCountry, setHoverCountry] = useState<string>('XX')
 
   return (
     <>
@@ -158,7 +173,7 @@ const CountryLayer = memo(({
         }
       }}
     />
-    <Layer
+    {/* <Layer
       onClick={event => {
         const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
         if (Object.keys(countryCounts).includes(countryIso2)) {
@@ -190,7 +205,7 @@ const CountryLayer = memo(({
           ],
         }
       }}
-    />
+    /> */}
     </>
   )
 })
@@ -237,3 +252,13 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
     </Marker>
   )
 })
+
+const ClusterMarker = ({ longitude, latitude, pointCount }) => {
+  return (
+    <Marker longitude={longitude} latitude={latitude}>
+      <div className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+        {pluralize('action', pointCount, true)}
+      </div>
+    </Marker>
+  )
+}
