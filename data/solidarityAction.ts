@@ -81,7 +81,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
     solidarityActionBase().select({
       filterByFormula,
       sort: [
-        { field: "Date", direction: "asc", },
+        { field: "Date", direction: "desc", },
         // { field: "Country", direction: "asc", }
       ],
       fields: fields,

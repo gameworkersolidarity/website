@@ -114,12 +114,16 @@ export function SolidarityActionsList ({
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
 
-  const actionsByYear = solidarityActions?.reduce((bins, action) => {
-    const key = `${getYear(new Date(action.fields.Date))}`
-    bins[key] ??= []
-    bins[key].push(action)
-    return bins
-  }, {} as { [key: string]: SolidarityAction[] })
+  const actionsByYear = useMemo(() => {
+    const group = (solidarityActions || []).reduce((bins, action) => {
+      const key = `${getYear(new Date(action.fields.Date))}`
+      bins[key] ??= []
+      bins[key].push(action)
+      return bins
+    }, {} as { [key: string]: SolidarityAction[] })
+
+    return Object.entries(group).sort(([year1, d], [year2, D]) => parseInt(year2) - parseInt(year1))
+  }, [solidarityActions])
 
   const router = useRouter()
   const returnHref = useMemo(() => typeof window !== 'undefined' ? window.location.pathname : router.pathname, [])
@@ -134,8 +138,7 @@ export function SolidarityActionsList ({
         />
       )}
       <div className={`grid gap-4 ${gridStyle}`}>
-        {actionsByYear && Object.values(actionsByYear).map((actions, i) => {
-          const yearString = format(new Date(actions[0].fields.Date), 'yyyy')
+        {actionsByYear.map(([yearString, actions], i) => {
           return (
             <div key={i}>
               <div className='flex flex-row justify-between items-center pb-3'>
