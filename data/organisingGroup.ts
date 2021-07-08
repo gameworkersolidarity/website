@@ -4,9 +4,21 @@ import env from 'env-var';
 import { organisingGroupSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
 import { getSolidarityActionsByOrganisingGroupId } from './solidarityAction';
+import { countryDataForCode } from './country';
 
 export const formatOrganisingGroup = (organisingGroup: OrganisingGroup) => {
   organisingGroup.fields.Name.trim()
+  organisingGroup.geography = { country: [] }
+
+  let i = 0
+  for (const countryCode of (organisingGroup.fields.countryCode || [])) {
+    try {
+      organisingGroup.geography.country.push(countryDataForCode(countryCode))
+    } catch (e) {
+      console.error(JSON.stringify(organisingGroup), e)
+    }
+    i++;
+  }
 
   try {
     // Remove any keys not expected by the parser
@@ -17,13 +29,13 @@ export const formatOrganisingGroup = (organisingGroup: OrganisingGroup) => {
   return organisingGroup
 }
 
-const fields: Array<keyof OrganisingGroup['fields']> = ['Name', 'Full Name', 'Country', 'Solidarity Actions', 'IsUnion', 'Website', 'Twitter']
+const fields: Array<keyof OrganisingGroup['fields']> = ['Name', 'Full Name', 'Country', 'countryCode', 'countryName', 'Solidarity Actions', 'IsUnion', 'Website', 'Twitter']
 
 export const organisingGroupBase = () => airtableBase()<OrganisingGroup['fields']>(
   env.get('AIRTABLE_TABLE_NAME_GROUPS').default('Organising Groups').asString()
 )
 
-export async function getGroups (selectArgs: QueryParams<OrganisingGroup['fields']> = {}): Promise<Array<OrganisingGroup>> {
+export async function getOrganisingGroups (selectArgs: QueryParams<OrganisingGroup['fields']> = {}): Promise<Array<OrganisingGroup>> {
   return new Promise((resolve, reject) => {
     const groups: OrganisingGroup[] = []
 
@@ -41,8 +53,7 @@ export async function getGroups (selectArgs: QueryParams<OrganisingGroup['fields
 
     organisingGroupBase().select({
       sort: [
-        { field: "IsUnion", direction: "desc", },
-        { field: "Name", direction: "asc", },
+        { field: "Name", direction: "asc", }
       ],
       fields: fields,
       maxRecords: 1000,
@@ -89,12 +100,12 @@ export async function getOrganisingGroupBy (selectArgs: QueryParams<OrganisingGr
 
 export async function getOrganisingGroupsByCountryCode (iso2: string) {
   const filterByFormula = `FIND("${iso2}", ARRAYJOIN({countryCode})) > 0`
-  return getGroups({ filterByFormula })
+  return getOrganisingGroups({ filterByFormula })
 }
 
 export async function getOrganisingGroupsByCountryId (id: string) {
   const filterByFormula = `FIND("${id}", ARRAYJOIN({Country})) > 0`
-  return getGroups({ filterByFormula })
+  return getOrganisingGroups({ filterByFormula })
 }
 
 export async function getOrganisingGroupByName (name: string) {
@@ -121,4 +132,16 @@ export const getOrganisingGroupDataByName = async (name: string): Promise<Organi
       solidarityActions
     }
   }
+}
+
+export async function getSingleOrganisingGroup (recordId: string) {
+  return new Promise<OrganisingGroup>((resolve, reject) => {
+    organisingGroupBase().find(recordId, async (error, record) => {
+      if (error) console.error(error)
+      if (error || !record) {
+        return reject(`No organising group was found for with the ID '${recordId}'`)
+      }
+      return resolve(await formatOrganisingGroup(record._rawJson))
+    })
+  })
 }

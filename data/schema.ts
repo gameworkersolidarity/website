@@ -99,7 +99,6 @@ export const staticPageSchema = baseRecordSchema.extend({
     Title: z.string(),
     Summary: z.string().optional(),
     Body: z.string(),
-    Link: z.string().optional(),
     Public: z.literal(true),
   }),
   body: copyTypeSchema,
@@ -137,6 +136,19 @@ export const openStreetMapReverseGeocodeResponseSchema = z.object({
   boundingbox: z.array(z.string()),
 });
 
+export const geographySchema = z.object({
+  country: z.array(
+    z.object({
+      name: z.string(),
+      emoji: countryEmojiSchema,
+      iso3166: z.string(),
+      latitude: z.number(),
+      longitude: z.number(),
+    })
+  ),
+  location: openStreetMapReverseGeocodeResponseSchema.optional(),
+});
+
 export const documentSchema = z.object({
   id: z.string(),
   url: z.string(),
@@ -147,18 +159,7 @@ export const documentSchema = z.object({
 });
 
 export const solidarityActionSchema = baseRecordSchema.extend({
-  geography: z.object({
-    country: z.array(
-      z.object({
-        name: z.string(),
-        emoji: countryEmojiSchema,
-        iso3166: z.string(),
-        latitude: z.number(),
-        longitude: z.number(),
-      })
-    ),
-    location: openStreetMapReverseGeocodeResponseSchema.optional(),
-  }),
+  geography: geographySchema,
   fields: z.object({
     Name: z.string(),
     Location: z.string().optional(),
@@ -169,6 +170,8 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     LocationData: z.string().optional(),
     Country: z.array(z.string()).optional(),
     countryName: z.array(z.string()),
+    companyName: z.array(z.string()).optional(),
+    organisingGroupName: z.array(z.string()).optional(),
     countryCode: z.array(z.string()),
     countrySlug: z.array(z.string()),
     Company: z.array(z.string()).optional(),
@@ -184,6 +187,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
 });
 
 export const organisingGroupSchema = baseRecordSchema.extend({
+  geography: geographySchema.pick({ country: true }),
   fields: z.object({
     Name: z.string(),
     "Full Name": z.string().optional(),

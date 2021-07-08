@@ -5,10 +5,9 @@ import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema } fro
 import { QueryParams } from 'airtable/lib/query_params';
 import coords from 'country-coords'
 import { airtableFilterAND } from '../utils/airtable';
-import countryFlagEmoji from 'country-flag-emoji';
-const coordsByCountry = coords.byCountry()
 import { parseMarkdown } from './markdown';
 import { geocodeOpenStreetMap } from './geo';
+import { countryDataForCode } from './country';
 
 export const formatSolidarityAction = async (action: SolidarityAction) => {
   action.summary = parseMarkdown(action.fields.Summary || '')
@@ -16,16 +15,8 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
 
   let i = 0
   for (const countryCode of action.fields.countryCode) {
-    // Add country data
-    const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
-    const emoji = countryFlagEmoji.get(countryCode)
     try {
-      action.geography.country.push({
-        name: action.fields['countryName'][i],
-        emoji,
-        iso3166,
-        ...countryCoordData
-      })
+      action.geography.country.push(countryDataForCode(countryCode))
     } catch (e) {
       console.error(JSON.stringify(action), e)
     }

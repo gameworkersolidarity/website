@@ -4,11 +4,15 @@ import { stringifyArray } from '../utils/string';
 import Emoji from 'a11y-react-emoji';
 import pluralize from 'pluralize';
 import { useRouter } from 'next/dist/client/router';
+import { NextSeo } from "next-seo";
+import cx from 'classnames';
+import { SolidarityActionCountryRelatedActions, SolidarityActionRelatedActions } from "./SolidarityActions";
+import { projectStrings } from "../data/site";
 
-export function useSelectedOrganisingGroup(solidarityOrganisingGroups: OrganisingGroup[], key = 'dialogOrganisingGroupId') {
+export function useSelectedOrganisingGroup(groups: OrganisingGroup[], key = 'dialogOrganisingGroupId') {
   const router = useRouter();
   const dialogOrganisingGroupId = router.query[key]
-  const selectedOrganisingGroup = solidarityOrganisingGroups.find(a => a.id === dialogOrganisingGroupId)
+  const selectedOrganisingGroup = groups.find(a => a.id === dialogOrganisingGroupId)
   return [selectedOrganisingGroup, key] as const
 }
 
@@ -16,6 +20,7 @@ export const OrganisingGroupDialog = (
   { onClose, data }:
   { onClose: () => void, data?: OrganisingGroup }
 ) => {
+  console.log(data)
   return (
     <Transition
       show={!!data}
@@ -33,8 +38,8 @@ export const OrganisingGroupDialog = (
       >
         {!!data && (
           <>
-            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwBlue opacity-75" />
-            <div className='absolute z-20 w-full max-w-xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
+            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwBlue opacity-80" />
+            <div className='absolute z-20 w-full max-w-4xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
               <Dialog.Title className='hidden'>{data.fields.Name}</Dialog.Title>
               <Dialog.Description className='hidden'>{data.fields.IsUnion ? "Union" : "Organising group"} in {stringifyArray(...data.fields?.countryName || [])}</Dialog.Description>
               <button
@@ -53,26 +58,108 @@ export const OrganisingGroupDialog = (
   )
 }
 
-const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
+export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
   return (
-    <div className='bg-gwOrangeLight rounded-xl p-4 space-y-2'>
-      <div className='font-bold text-lg'>
-        {data.fields.Name}
-      </div>
-      {/* <div>{data.fields.IsUnion ? "Union" : "Organising group"} in {stringifyArray(...data.fields?.countryName || [])}</div> */}
-      <div className=''>{pluralize('action', data.fields["Solidarity Actions"]?.length || 0, true)}</div>
-      {data.fields.Website && (
-        <a href={data.fields.Website} className='block'>
-        <Emoji symbol='🔗' label='Link' />
-          &nbsp;
-          <span className='align-middle underline text-inherit'>{new URL(data.fields.Website).hostname}</span>
-        </a>
-      )}
-      {data.fields.Twitter && (
-        <a href={data.fields.Twitter} className='block'>
-          <span className='align-middle underline text-inherit'>{data.fields.Twitter}</span>
-        </a>
-      )}
-    </div>
+    <>
+      <NextSeo
+        title={data.fields.Name}
+        openGraph={{
+          title: data.fields.Name
+        }}
+      />
+      <article className={cx('space-y-2px rounded-xl overflow-hidden shadow-noglow group-hover:shadow-glow transition duration-100')}>
+        <div className='p-4 md:px-8 bg-white'>
+          <div className='text-sm'>
+            <div className='flex flex-wrap tracking-tight'>
+              <span className='pr-3'>{data.fields.IsUnion ? "Union" : "Organising group"}</span>
+              {data.geography?.country.map(country => (
+                <span className='pr-3' key={country.iso3166}>
+                  <Emoji
+                    symbol={country.emoji.emoji}
+                    label={`Flag of ${country.name}`}
+                    className='pr-1'
+                  />
+                  <span>{country.name}</span>
+                </span>
+              ))}
+            </div>
+            <div className='pb-4' />
+            <h3 className={cx('text-3xl leading-tight font-semibold max-w-3xl')}>
+              {data.fields.Name}
+            </h3>
+            {data.fields["Full Name"] && (
+              <div className={'w-full pt-4 text-lg font-light space-y-2'}>
+                {data.fields["Full Name"] && (data.fields["Name"].trim() !== data.fields["Full Name"].trim()) && (
+                  <p className='font-semibold text-xl leading-tight'>
+                    {data.fields["Full Name"].trimEnd()}
+                  </p>
+                )}
+                <p>{data.fields.IsUnion ? "A union" : "An organising group"} active {
+                data.fields.countryCode?.length
+                  ? <span>in {pluralize('country', data.fields.countryCode?.length, true)}</span>
+                  : <span>internationally</span>
+}. We know of {pluralize('action', data.fields["Solidarity Actions"]?.length, true)} associated with them.</p>
+              </div>
+            )}
+            <div className='flex flex-row space-x-4 mt-1 text-sm'>
+              {data.fields.Website && (
+                <a href={data.fields.Website} className='block my-1'>
+                  <Emoji symbol='🔗' label='Website' className='align-baseline' />
+                  &nbsp;
+                  <span className='align-baseline underline text-inherit'>{new URL(data.fields.Website).hostname}</span>
+                </a>
+              )}
+            </div>
+            <div className='flex flex-row space-x-4 mt-1 text-sm'>
+              {data.fields.Twitter && (
+                <a href={data.fields.Twitter} className='block my-1'>
+                  <span className='align-baseline underline text-inherit'>
+                    @{new URL(data.fields.Twitter).pathname.replace(/\//gmi, '')}
+                  </span>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className='p-4 md:px-8 bg-white'>
+          Have more info about this union? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know &rarr;</a>
+        </div>
+        <div className='grid gap-[2px] grid-cols-2'>
+          <div className='p-4 md:px-8 bg-white'>
+            <SolidarityActionRelatedActions
+              name={data.fields.Name}
+              metadata={pluralize('related action', data.fields["Solidarity Actions"]?.length, true)}
+              url={`/?group=${data.fields.Name}`}
+            />
+          </div>
+          {data.fields.countryCode?.map(code =>
+            <div className='p-4 md:px-8 bg-white' key={code}>
+              <SolidarityActionCountryRelatedActions
+                countryCode={code}
+              />
+            </div>
+          )}
+        </div>
+      </article>
+    </>
+    // <div className='bg-gwOrangeLight rounded-xl p-4 space-y-2'>
+    //   <div className='font-bold text-lg'>
+    //     {data.fields.Name}
+    //   </div>
+    //   <div>{data.fields.IsUnion ? "Union" : "Organising group"} in {stringifyArray(...data.fields?.countryName || [])}</div>
+    //   <div className=''>{pluralize('action', data.fields["Solidarity Actions"]?.length || 0, true)}</div>
+    //   {data.fields.Website && (
+    //     <a href={data.fields.Website} className='block'>
+    //     <Emoji symbol='🔗' label='Link' />
+    //       &nbsp;
+    //       <span className='align-middle underline text-inherit'>{new URL(data.fields.Website).hostname}</span>
+    //     </a>
+    //   )}
+    //   {data.fields.Twitter && (
+    //     <a href={data.fields.Twitter} className='block'>
+    //       <span className='align-middle underline text-inherit'>{data.fields.Twitter}</span>
+    //     </a>
+    //   )}
+    // </div>
   )
 }

@@ -1,12 +1,26 @@
-import { Country, SolidarityAction, CountryEmoji } from './types';
+import { Country, SolidarityAction, CountryEmoji, Geography } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { countrySchema, solidarityActionSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
 import { getSolidarityActionsByCountryCode } from './solidarityAction';
-import countryFlagEmoji from "country-flag-emoji";
 import { parseMarkdown } from './markdown';
 import { getOrganisingGroupsByCountryId } from './organisingGroup';
+import coords from 'country-coords'
+import countryFlagEmoji from 'country-flag-emoji';
+const coordsByCountry = coords.byCountry()
+
+export function countryDataForCode (countryCode: string): Geography['country'][0] {
+  // Add country data
+  const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
+  const emoji = countryFlagEmoji.get(countryCode) as CountryEmoji
+  return {
+    name: emoji.name,
+    emoji,
+    iso3166,
+    ...countryCoordData
+  }
+}
 
 export const formatCountry = (country: Country) => {
   country.emoji = countryFlagEmoji.get(country.fields.countryCode) as CountryEmoji

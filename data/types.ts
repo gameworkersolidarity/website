@@ -132,17 +132,19 @@ export type CopyType = {
   plaintext: string
 }
 
+export type Geography = {
+  country: Array<{
+    name: string
+    emoji: CountryEmoji
+    iso3166: string
+    latitude: number,
+    longitude: number
+  }>,
+  location?: OpenStreetMapReverseGeocodeResponse
+}
+
 export interface SolidarityAction extends BaseRecord {
-  geography: {
-    country: Array<{
-      name: string
-      emoji: CountryEmoji
-      iso3166: string
-      latitude: number,
-      longitude: number
-    }>,
-    location?: OpenStreetMapReverseGeocodeResponse
-  },
+  geography: Geography,
   fields: {
     Name:       string;
     Location?:  string;
@@ -217,6 +219,7 @@ export interface Country extends BaseRecord {
 }
 
 export interface OrganisingGroup extends BaseRecord {
+  geography: Pick<Geography, 'country'>
   fields: {
     Name: string
     'Full Name'?: string
