@@ -50,7 +50,7 @@ interface ContextProps {
   url?: string
   name?: any
   metadata?: any
-  buttonLabel?: string
+  buttonLabel?: any
 }
 
 export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps }: DialogProps) {
