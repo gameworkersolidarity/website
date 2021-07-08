@@ -62,6 +62,7 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
     <>
       <NextSeo
         title={data.fields.Name}
+        canonical={`/group/${data.slug}`}
         openGraph={{
           title: data.fields.Name
         }}

@@ -6,12 +6,22 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import ErrorPage from '../404'
 import PageLayout from '../../components/PageLayout';
 import { OrganisingGroupCard } from '../../components/OrganisingGroup';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 type PageProps = { group: OrganisingGroup | null, errorMessage?: string }
 type PageParams = { groupId: string }
 
 export default function Page({ group, errorMessage }: PageProps) {
+  const router = useRouter()
   if (!group) return <ErrorPage message={errorMessage} />
+  useEffect(() => {
+    // The user may have landed on the Airtable ID url rather than the canonical slugified URL
+    const prettyURL = `/group/${group.slug}`
+    if (!router.asPath.includes(prettyURL)) {
+      router.replace(prettyURL, undefined, { shallow: true })
+    }
+  }, [group, router])
 
   return (
     <PageLayout>
@@ -31,7 +41,7 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
   return {
     paths: links.map(page => ({
       params: {
-        groupId: page.id
+        groupId: page.slug
       }
     })),
     fallback: true

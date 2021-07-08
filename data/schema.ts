@@ -160,7 +160,10 @@ export const documentSchema = z.object({
 
 export const solidarityActionSchema = baseRecordSchema.extend({
   geography: geographySchema,
+  summary: copyTypeSchema,
+  slug: z.string(),
   fields: z.object({
+    slug: z.string().optional(),
     Name: z.string(),
     Location: z.string().optional(),
     Summary: z.string().optional(),
@@ -183,12 +186,14 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     Public: z.literal(true),
   }),
-  summary: copyTypeSchema,
 });
 
 export const organisingGroupSchema = baseRecordSchema.extend({
   geography: geographySchema.pick({ country: true }),
+  slug: z.string(),
+  solidarityActions: z.array(solidarityActionSchema).optional(),
   fields: z.object({
+    slug: z.string().optional(),
     Name: z.string(),
     "Full Name": z.string().optional(),
     Country: z.array(z.string()).optional(),
@@ -199,7 +204,6 @@ export const organisingGroupSchema = baseRecordSchema.extend({
     Twitter: z.string().optional(),
     "Solidarity Actions": z.array(z.string()).optional(),
   }),
-  solidarityActions: z.array(solidarityActionSchema).optional(),
 });
 
 export const companySchema = baseRecordSchema.extend({

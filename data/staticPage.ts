@@ -62,7 +62,7 @@ export async function getSingleStaticPage (slug: string) {
       try {
         if (error) console.error(error)
         if (error || !records?.length) {
-          return reject(`No page was found at '${slug}'`)
+          return reject(`There's no page here`)
         }
         return resolve(formatStaticPage(records[0]._rawJson))
       } catch (e) {

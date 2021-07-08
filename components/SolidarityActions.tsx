@@ -107,7 +107,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
 export function useSelectedAction(solidarityActions: SolidarityAction[], key = 'dialogActionId') {
   const router = useRouter();
   const dialogActionId = router.query[key]
-  const selectedAction = solidarityActions.find(a => a.id === dialogActionId)
+  const selectedAction = solidarityActions.find(a => a.slug === dialogActionId)
   return [selectedAction, key] as const
 }
 
@@ -158,11 +158,11 @@ export function SolidarityActionsList ({
                 {actions.map(action =>
                   <Link
                     key={action.id}
-                    href={makeContextualHref({ [dialogKey]: action.id })}
-                    as={`/action/${action.id}`}
+                    href={makeContextualHref({ [dialogKey]: action.slug })}
+                    as={`/action/${action.slug}`}
                     shallow
                   >
-                    <div className='transition cursor-pointer group' id={action.id}>
+                    <div className='transition cursor-pointer group' id={action.slug}>
                       <SolidarityActionItem data={action} />
                     </div>
                   </Link>
@@ -308,6 +308,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
       <NextSeo
         title={seoTitle}
         description={data.summary.plaintext}
+        canonical={`/action/${data.slug}`}
         openGraph={{
           title: seoTitle,
           description: data.summary.plaintext

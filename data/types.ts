@@ -145,7 +145,10 @@ export type Geography = {
 
 export interface SolidarityAction extends BaseRecord {
   geography: Geography,
+  summary: CopyType
+  slug: string
   fields: {
+    slug?: string
     Name:       string;
     Location?:  string;
     Summary?:   string;
@@ -170,7 +173,6 @@ export interface SolidarityAction extends BaseRecord {
     // Notes?:     string; // These are private — Zod will parse these out
     Public:     true; // We can't accept records that haven't been marked for publication
   },
-  summary: CopyType
 }
 
 export interface BlogPost extends BaseRecord {
@@ -220,7 +222,10 @@ export interface Country extends BaseRecord {
 
 export interface OrganisingGroup extends BaseRecord {
   geography: Pick<Geography, 'country'>
+  slug: string
+  solidarityActions?: SolidarityAction[]
   fields: {
+    slug?: string
     Name: string
     'Full Name'?: string
     Country?: string[]
@@ -237,7 +242,6 @@ export interface OrganisingGroup extends BaseRecord {
     // 'Date (from Solidarity Actions)': string[]
     // 'Name (from Solidarity Actions)': string[]
   }
-  solidarityActions?: SolidarityAction[]
 }
 
 export interface Company extends BaseRecord {

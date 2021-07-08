@@ -12,6 +12,7 @@ import { countryDataForCode } from './country';
 export const formatSolidarityAction = async (action: SolidarityAction) => {
   action.summary = parseMarkdown(action.fields.Summary || '')
   action.geography = { country: [] }
+  action.slug = action.fields.slug || action.id
 
   let i = 0
   for (const countryCode of action.fields.countryCode) {
@@ -51,7 +52,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
-const fields: Array<keyof SolidarityAction['fields']> = ['companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
+const fields: Array<keyof SolidarityAction['fields']> = ['slug', 'companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityAction['fields']>(
@@ -126,14 +127,8 @@ export async function getSolidarityActionsByOrganisingGroupId (id: string) {
   return getSolidarityActions({ filterByFormula })
 }
 
-export async function getSingleSolidarityAction (recordId: string) {
-  return new Promise<SolidarityAction>((resolve, reject) => {
-    solidarityActionBase().find(recordId, async (error, record) => {
-      if (error) console.error(error)
-      if (error || !record) {
-        return reject(`No solidarity action was found for with the ID '${recordId}'`)
-      }
-      return resolve(await formatSolidarityAction(record._rawJson))
-    })
-  })
+export async function getSingleSolidarityAction (id: string) {
+  const filterByFormula = `OR({slug}="${id}", RECORD_ID()="${id}")`
+  const actions = await getSolidarityActions({ filterByFormula, maxRecords: 1 })
+  return actions[0]
 }

@@ -9,7 +9,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   const fields = actions.map(action => (
     {
-      loc: `${projectStrings.baseUrl}/action/${action.id}`,
+      loc: `${projectStrings.baseUrl}/action/${action.slug}`,
       lastmod: new Date(action.fields.LastModified).toISOString(),
     }
   ))

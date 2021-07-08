@@ -427,7 +427,7 @@ export function SolidarityActionsTimeline ({
                       {relevantGroups.slice(0, open ? 1000 : UNION_DISPLAY_LIMIT).map(union =>
                         <Link
                           href={makeContextualHref({ [unionDialogKey]: union.id })}
-                          as={`/group/${union.id}`}
+                          as={`/group/${union.slug}`}
                           shallow
                           key={union.id}
                         >

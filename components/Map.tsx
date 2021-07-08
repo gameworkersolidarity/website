@@ -210,7 +210,7 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
 
   return (
     <Marker {...getCoordinatesForAction(data)}>
-      <div className='space-x-1 text-center transform' onClick={() => scrollToId(router, data.id)}>
+      <div className='space-x-1 text-center transform' onClick={() => scrollToId(router, data.slug)}>
         {!!data.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>}
         <br />
         {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}

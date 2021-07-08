@@ -9,6 +9,7 @@ import { countryDataForCode } from './country';
 export const formatOrganisingGroup = (organisingGroup: OrganisingGroup) => {
   organisingGroup.fields.Name.trim()
   organisingGroup.geography = { country: [] }
+  organisingGroup.slug = organisingGroup.fields.slug || organisingGroup.id
 
   let i = 0
   for (const countryCode of (organisingGroup.fields.countryCode || [])) {
@@ -29,7 +30,7 @@ export const formatOrganisingGroup = (organisingGroup: OrganisingGroup) => {
   return organisingGroup
 }
 
-const fields: Array<keyof OrganisingGroup['fields']> = ['Name', 'Full Name', 'Country', 'countryCode', 'countryName', 'Solidarity Actions', 'IsUnion', 'Website', 'Twitter']
+const fields: Array<keyof OrganisingGroup['fields']> = ['slug', 'Name', 'Full Name', 'Country', 'countryCode', 'countryName', 'Solidarity Actions', 'IsUnion', 'Website', 'Twitter']
 
 export const organisingGroupBase = () => airtableBase()<OrganisingGroup['fields']>(
   env.get('AIRTABLE_TABLE_NAME_GROUPS').default('Organising Groups').asString()
@@ -134,14 +135,7 @@ export const getOrganisingGroupDataByName = async (name: string): Promise<Organi
   }
 }
 
-export async function getSingleOrganisingGroup (recordId: string) {
-  return new Promise<OrganisingGroup>((resolve, reject) => {
-    organisingGroupBase().find(recordId, async (error, record) => {
-      if (error) console.error(error)
-      if (error || !record) {
-        return reject(`No organising group was found for with the ID '${recordId}'`)
-      }
-      return resolve(await formatOrganisingGroup(record._rawJson))
-    })
-  })
+export async function getSingleOrganisingGroup (id: string) {
+  const filterByFormula = `OR({slug}="${id}", RECORD_ID()="${id}")`
+  return getOrganisingGroupBy({ filterByFormula })
 }
