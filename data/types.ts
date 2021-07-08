@@ -236,6 +236,7 @@ export interface OrganisingGroup extends BaseRecord {
     Twitter?: string
     // 'Official Name':   string;
     'Solidarity Actions'?: string[]
+    LastModified: string
     // 'DisplayStyle (from Solidarity Actions)': string[]
     // 'Category (from Solidarity Actions)': string[]
     // 'Document (from Solidarity Actions)': Document[]

@@ -203,6 +203,7 @@ export const organisingGroupSchema = baseRecordSchema.extend({
     Website: z.string().optional(),
     Twitter: z.string().optional(),
     "Solidarity Actions": z.array(z.string()).optional(),
+    LastModified: z.string(),
   }),
 });
 
