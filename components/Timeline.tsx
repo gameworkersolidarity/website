@@ -25,6 +25,7 @@ export const FilterContext = createContext<{
   categories?: string[]
   countries?: string[]
   companies?: string[]
+  groups?: string[]
   hasFilters: boolean
 }>({ matches: [], hasFilters: false })
 
@@ -32,12 +33,14 @@ export function SolidarityActionsTimeline ({
   actions,
   companies,
   categories,
-  countries
+  countries,
+  groups
 }: {
   actions: SolidarityAction[],
   companies: Company[],
   categories: Category[],
-  countries: Country[]
+  countries: Country[],
+  groups: OrganisingGroup[]
 }) {
   const router = useRouter()
   const useURLState = useURLStateFactory()
@@ -88,6 +91,21 @@ export function SolidarityActionsTimeline ({
   [filteredCountrySlugs])
 
   /**
+   * OrganisingGroups
+   */
+  const [filteredOrganisingGroupNames, setOrganisingGroups, organisingGroupMetadata] = useURLState({
+    key: 'group',
+    emptyValue: [],
+    serialiseObjectToState: (key, urlData) => urlData ? ensureArray(urlData) as string[] : [],
+  })
+  const toggleOrganisingGroup = (id: string) => {
+    setOrganisingGroups(groups => toggleInArray(groups, id))
+  }
+  const selectedOrganisingGroups = useMemo(() =>
+    filteredOrganisingGroupNames.map(name => groups.find(c => c.fields.Name === name)),
+  [filteredOrganisingGroupNames])
+
+  /**
    * Full text search
    */
   const [filterText, setFilterText, filterTextMetadata] = useURLState<string>({
@@ -99,13 +117,14 @@ export function SolidarityActionsTimeline ({
   /**
    * Filter metadata
    */
-  const hasFilters = !!(filterText.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
+  const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
 
   const clearAllFilters = () => {
     setFilterText(filterTextMetadata.emptyValue)
     setCountries(countriesMetadata.emptyValue)
     setCategories(categoryMetadata.emptyValue)
     setCompanies(companiesMetadata.emptyValue)
+    setOrganisingGroups(organisingGroupMetadata.emptyValue)
   }
 
   /**
@@ -123,7 +142,8 @@ export function SolidarityActionsTimeline ({
       'fields.CategoryName',
       'fields.countryName',
       'fields.companyName',
-      'fields.organisingGroupName',
+      ["fields", "Organising Groups"],
+      'fields.organisingGroupName'
     ],
     threshold: 0.01,
     ignoreLocation: true,
@@ -146,16 +166,19 @@ export function SolidarityActionsTimeline ({
     if (selectedCountries.length) {
       expression.$and!.push({ $or: selectedCountries.map(c => ({ 'fields.Country': `'${c?.id}` })) })
     }
+    if (selectedOrganisingGroups.length) {
+      expression.$and!.push({ $or: selectedOrganisingGroups.map(c => ({ $path: ['fields', "Organising Groups"], $val: `'${c?.id}` })) })
+    }
     if (filterText.trim().length > 0) {
       expression.$and!.push({
         $or: [
-          { 'fields.Name': `'${filterText}` },
-          { 'summary.plaintext': `'${filterText}` },
-          { 'fields.Location': `'${filterText}` },
-          { 'fields.CategoryName': `'${filterText}` },
-          { 'fields.countryName': `'${filterText}` },
-          { 'fields.companyName': `'${filterText}` },
-          { 'fields.organisingGroupName': `'${filterText}` },
+          { 'fields.Name': `'"${filterText}"` },
+          { 'summary.plaintext': `'"${filterText}"` },
+          { 'fields.Location': `'"${filterText}"` },
+          { 'fields.CategoryName': `'"${filterText}"` },
+          { 'fields.countryName': `'"${filterText}"` },
+          { 'fields.companyName': `'"${filterText}"` },
+          { 'fields.organisingGroupName': `'"${filterText}"` },
         ]
       })
     }
@@ -166,16 +189,13 @@ export function SolidarityActionsTimeline ({
 
   //
 
-  const unions = useSWR<UnionsByCountryData>(
-    selectedCountries.length ? `/api/organisingGroupsByCountry?iso2=${selectedCountries[0]?.emoji.code}` : null,
-    {
-      initialData: { unionsByCountry: [], iso2: '' },
-      revalidateOnMount: true
-    }
-  )
+  const relevantGroups = groups.filter(g =>
+    g.geography.country.some(c =>
+      selectedCountries.some(C =>
+          C?.emoji.code ===  c.iso3166)))
   const UNION_DISPLAY_LIMIT = 5
   const { makeContextualHref, returnHref } = useContextualRouting();
-  const [selectedUnion, unionDialogKey] = useSelectedOrganisingGroup(unions.data?.unionsByCountry || [])
+  const [selectedUnion, unionDialogKey] = useSelectedOrganisingGroup(groups || [])
 
   /**
    * Render
@@ -272,6 +292,32 @@ export function SolidarityActionsTimeline ({
                   </Listbox>
                 </div>
                 <div>
+                  <Listbox value={filteredOrganisingGroupNames[0]} onChange={v => setOrganisingGroups([v])}>
+                    <Listbox.Button>
+                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
+                        {"Unions"}
+                      </div>
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                        {groups.map((group) => (
+                          <Listbox.Option
+                            key={group.id}
+                            value={group.fields.Name}
+                          >
+                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
+                              <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
+                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
+                                {pluralize('action', group.fields['Solidarity Actions']?.length || 0, true)}
+                              </span>
+                            </div>
+                          </Listbox.Option>
+                        ))}
+                      </div>
+                    </Listbox.Options>
+                  </Listbox>
+                </div>
+                <div>
                   <input
                     placeholder='Full text search'
                     type='search' 
@@ -327,6 +373,13 @@ export function SolidarityActionsTimeline ({
                 {company?.fields.Name}
               </div>
             ) : null)}
+            {selectedOrganisingGroups?.map(group => group ? (
+              <div key={group?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
+                onClick={() => toggleOrganisingGroup(group.fields.Name)}
+              >
+                {group?.fields.Name}
+              </div>
+            ) : null)}
             {filterText.trim().length > 0 && [filterText].map(textFragment =>
               <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
                 onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
@@ -364,15 +417,20 @@ export function SolidarityActionsTimeline ({
             </article>
           )}
 
-          {!!selectedCountries[0]?.fields.Name && !!unions?.data?.unionsByCountry?.length && (
+          {!!selectedCountries[0]?.fields.Name && !!relevantGroups.length && (
             <article>
               <h3 className='text-3xl font-light'>Active organising groups in {selectedCountries[0].fields.Name}</h3>
               <ul className='list space-y-1 my-3'>
                 <Disclosure>
                   {({ open }) => (
                     <>
-                      {unions?.data?.unionsByCountry?.slice(0, open ? 1000 : UNION_DISPLAY_LIMIT).map(union =>
-                        <Link href={makeContextualHref({ [unionDialogKey]: union.id })} key={union.id}>
+                      {relevantGroups.slice(0, open ? 1000 : UNION_DISPLAY_LIMIT).map(union =>
+                        <Link
+                          href={makeContextualHref({ [unionDialogKey]: union.id })}
+                          as={`/group/${union.id}`}
+                          shallow
+                          key={union.id}
+                        >
                           <li className='space-x-1'>
                             <Emoji
                               symbol={categories.find(c => c.fields.Name === 'union')?.fields.Emoji || '🤝'}
@@ -385,12 +443,12 @@ export function SolidarityActionsTimeline ({
                           </li>
                         </Link>
                       )}
-                      {(unions?.data?.unionsByCountry?.length || 0) > UNION_DISPLAY_LIMIT && (
+                      {(relevantGroups?.length || 0) > UNION_DISPLAY_LIMIT && (
                         <Disclosure.Button>
                           <div className='text-sm link px-2 my-2'>
                             <span>{open
                               ? "Show fewer organising groups"
-                              : `Show all ${unions?.data?.unionsByCountry?.length} organising groups`
+                              : `Show all ${relevantGroups?.length} organising groups`
                             }</span>
                             <ChevronRightIcon
                               className={`${open ? "rotate-270" : "rotate-90"} transform w-3 inline-block`}
