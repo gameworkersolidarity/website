@@ -20,7 +20,6 @@ export const OrganisingGroupDialog = (
   { onClose, data }:
   { onClose: () => void, data?: OrganisingGroup }
 ) => {
-  console.log(data)
   return (
     <Transition
       show={!!data}
