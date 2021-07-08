@@ -402,14 +402,16 @@ export function SolidarityActionCountryRelatedActions ({ countryCode }: { countr
 
   const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
   
-  return data?.fields ? (
+  return (
     <SolidarityActionRelatedActions
       subtitle={'Country'}
-      url={`/?country=${data.fields.Slug}`}
-      name={<span><Emoji symbol={data.emoji.emoji} label='flag' /> {data.fields.Name}</span>}
-      metadata={pluralize('action', actionCount, true)}
+      url={`/?country=${data?.fields?.Slug}`}
+      name={data?.fields ? (
+        <span><Emoji symbol={data?.emoji?.emoji} label='flag' /> {data?.fields.Name}</span>
+      ) : countryCode}
+      metadata={actionCount ? pluralize('action', actionCount, true) : undefined}
     />
-  ) : null
+  )
 }
 
 export function SolidarityActionRelatedActions ({ subtitle, url, name, metadata, buttonLabel }: ContextProps) {

@@ -295,7 +295,7 @@ export function SolidarityActionsTimeline ({
                   <Listbox value={filteredOrganisingGroupNames[0]} onChange={v => setOrganisingGroups([v])}>
                     <Listbox.Button>
                       <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Unions"}
+                        {"Union"}
                       </div>
                     </Listbox.Button>
                     <Listbox.Options>
