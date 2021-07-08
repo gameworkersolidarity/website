@@ -201,7 +201,14 @@ export function SolidarityActionsTimeline ({
    * Render
    */
   return (
-    <>
+    <FilterContext.Provider value={{
+      matches,
+      search: filterText,
+      categories: filteredCategoryNames,
+      countries: filteredCountrySlugs,
+      companies: filteredCompanyNames,
+      hasFilters
+    }}>
       <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true }) }} />
       <div className='grid md:grid-cols-2'>
         <section className='relative'>
@@ -332,7 +339,7 @@ export function SolidarityActionsTimeline ({
               <Map data={filteredActions} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
                 if (countrySlug) {
-                  setCountries([countrySlug])
+                  toggleCountry(countrySlug)
                 }
               }} />
             </section>
@@ -465,14 +472,6 @@ export function SolidarityActionsTimeline ({
 
           <div className='pb-1' />
 
-          <FilterContext.Provider value={{
-            matches,
-            search: filterText,
-            categories: filteredCategoryNames,
-            countries: filteredCountrySlugs,
-            companies: filteredCompanyNames,
-            hasFilters
-          }}>
             <SolidarityActionsList
               data={filteredActions}
               withDialog
@@ -482,7 +481,6 @@ export function SolidarityActionsTimeline ({
                 },
               }}
             />
-          </FilterContext.Provider>
 
           <article>
             <p>Can you contribute more info about worker organising?</p>
@@ -500,6 +498,6 @@ export function SolidarityActionsTimeline ({
           </article>
         </section>
       </div>
-    </>
+    </FilterContext.Provider>
   )
 }

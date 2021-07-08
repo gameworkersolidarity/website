@@ -7,11 +7,15 @@ import Emoji from 'a11y-react-emoji';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
-import { useRouter } from 'next/dist/client/router';
+import router, { useRouter } from 'next/dist/client/router';
 import { scrollToId } from '../utils/router';
 import { FilterContext } from './Timeline';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { max, median, min } from 'd3-array';
+import { useContextualRouting } from 'next-use-contextual-routing';
+import Link from 'next/link';
+import { actionUrl } from '../data/solidarityAction';
+import { DEFAULT_ACTION_DIALOG_KEY } from './SolidarityActions';
 
 const defaultViewport = {
   latitude: 15,
@@ -35,8 +39,8 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
 
   const ref = useRef<MapRef>(null)
 
-  const filterContext = useContext(FilterContext)
-  const displayStyle = !filterContext.countries?.length ? 'summary' : 'detail'
+  const { countries, hasFilters } = useContext(FilterContext)
+  const displayStyle = !hasFilters ? 'summary' : 'detail'
 
   const countryCounts = useMemo(() => {
     const counts = data.reduce((countries, action) => {
@@ -135,6 +139,7 @@ const CountryLayer = memo(({
       "url": "mapbox://mapbox.country-boundaries-v1"
     }} />
     <Layer
+      before='settlement-subdivision-label'
       {...{
         "id": "undisputed country boundary fill",
         "source": "country-boundaries",
@@ -180,7 +185,7 @@ const CountryLayer = memo(({
           "fill-color": [
             'case',
             ['==', ['get', 'iso_3166_1'], hoverCountry],
-            theme`colors.white`,
+            polished.rgba(theme`colors.white`, 0.1),
             'rgba(0,0,0,0)'
           ],
         }
