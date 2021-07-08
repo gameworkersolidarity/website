@@ -46,6 +46,7 @@ interface CardProps {
 }
 
 interface ContextProps {
+  subtitle?: string
   url?: string
   name?: any
   metadata?: any
@@ -359,14 +360,26 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
             {data.fields.CategoryName?.map((categoryName, i) =>
               <div className='p-4 md:px-8 bg-white' key={categoryName}>
                 <SolidarityActionRelatedActions
+                  subtitle='Category'
                   url={`/?category=${categoryName}`}
-                  name={<span className='capitalize'>{categoryName} <Emoji symbol={data.fields.CategoryEmoji![i]} /></span>}
+                  name={<span className='capitalize'><Emoji symbol={data.fields.CategoryEmoji![i]} /> {categoryName}</span>}
+                />
+              </div>
+            )}
+            {data.fields['Organising Groups']?.map((organisingGroupId, i) =>
+              <div className='p-4 md:px-8 bg-white' key={organisingGroupId}>
+                <SolidarityActionRelatedActions
+                  subtitle='Organising group'
+                  url={`/group/${organisingGroupId}`}
+                  name={data.fields.organisingGroupName![i]}
+                  buttonLabel={<span>Learn more &rarr;</span>}
                 />
               </div>
             )}
             {data.fields.companyName?.map((companyName, i) =>
               <div className='p-4 md:px-8 bg-white' key={companyName}>
                 <SolidarityActionRelatedActions
+                  subtitle='Company'
                   url={`/?company=${companyName}`}
                   name={<span>{companyName}</span>}
                 />
@@ -391,22 +404,26 @@ export function SolidarityActionCountryRelatedActions ({ countryCode }: { countr
   
   return data?.fields ? (
     <SolidarityActionRelatedActions
+      subtitle={'Country'}
       url={`/?country=${data.fields.Slug}`}
-      name={<span>{data.fields.Name} <Emoji symbol={data.emoji.emoji} label='flag' /></span>}
+      name={<span><Emoji symbol={data.emoji.emoji} label='flag' /> {data.fields.Name}</span>}
       metadata={pluralize('action', actionCount, true)}
     />
   ) : null
 }
 
-export function SolidarityActionRelatedActions ({ url, name, metadata, buttonLabel }: ContextProps) {
+export function SolidarityActionRelatedActions ({ subtitle, url, name, metadata, buttonLabel }: ContextProps) {
   return (
     <Link href={url || '/'} shallow={false}>
       <div className='cursor-pointer group'>
         <div className='font-bold'>
           {name || 'More actions'}
         </div>
+        {subtitle && <div className='text-xs text-gray-500'>
+          {subtitle}
+        </div>}
         {/* {metadata && <div className='pb-3 text-sm'>{metadata}</div>} */}
-        <div className='link'>
+        <div className='link mt-1'>
           {buttonLabel || <span>{metadata || 'All actions'} &rarr;</span>}
         </div>
       </div>

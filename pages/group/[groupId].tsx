@@ -1,25 +1,24 @@
-import { getSingleSolidarityAction, getSolidarityActions } from '../../data/solidarityAction';
-import { SolidarityAction } from '../../data/types';
-import { SolidarityActionCard } from '../../components/SolidarityActions';
+import { getSingleOrganisingGroup, getOrganisingGroups } from '../../data/organisingGroup';
+import { OrganisingGroup } from '../../data/types';
 import Link from 'next/link';
 import env from 'env-var';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import ErrorPage from '../404'
 import PageLayout from '../../components/PageLayout';
+import { OrganisingGroupCard } from '../../components/OrganisingGroup';
 
-type PageProps = { action: SolidarityAction | null, errorMessage?: string }
-type PageParams = { actionId: string }
+type PageProps = { group: OrganisingGroup | null, errorMessage?: string }
+type PageParams = { groupId: string }
 
-export default function Page({ action, errorMessage }: PageProps) {
-  if (!action) return <ErrorPage message={errorMessage} />
+export default function Page({ group, errorMessage }: PageProps) {
+  if (!group) return <ErrorPage message={errorMessage} />
 
   return (
     <PageLayout>
       <div className='bg-gwOrangeLight'>
         <div className='max-w-4xl mx-auto py-5 px-4'>
-          <SolidarityActionCard
-            data={action}
-            withContext
+          <OrganisingGroupCard
+            data={group}
           />
         </div>
       </div>
@@ -28,11 +27,11 @@ export default function Page({ action, errorMessage }: PageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const links = await getSolidarityActions()
+  const links = await getOrganisingGroups()
   return {
     paths: links.map(page => ({
       params: {
-        actionId: page.id
+        groupId: page.id
       }
     })),
     fallback: true
@@ -42,21 +41,21 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 export const getStaticProps: GetStaticProps<
   PageProps, PageParams
 > = async (context) => {
-  if (!context?.params?.actionId) throw new Error()
+  if (!context?.params?.groupId) throw new Error()
 
-  let action
+  let group
   let errorMessage = ''
   try {
-    action = await getSingleSolidarityAction(context.params.actionId) || null
+    group = await getSingleOrganisingGroup(context.params.groupId) || null
   } catch (e) {
-    console.error("No action was found", e)
+    console.error("No group was found", e)
     errorMessage = e.toString()
-    action = null
+    group = null
   }
 
   return {
     props: {
-      action,
+      group,
       errorMessage
     },
     revalidate: env.get('PAGE_TTL').default(
