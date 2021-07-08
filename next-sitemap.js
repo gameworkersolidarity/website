@@ -6,7 +6,8 @@ module.exports = {
   generateRobotsTxt: true,
   exclude: [
     '/api/*',
-    '/actions/*',
+    '/action/*',
+    '/group/*',
     '/server-sitemap.xml'
   ],
   robotsTxtOptions: {

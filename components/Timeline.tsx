@@ -18,6 +18,7 @@ import { OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components
 import { UnionsByCountryData } from '../pages/api/organisingGroupsByCountry';
 import { ChevronRightIcon } from '@heroicons/react/outline';
 import { scrollToId } from '../utils/router';
+import { groupUrl } from '../data/organisingGroup';
 
 export const FilterContext = createContext<{
   search?: string
@@ -434,7 +435,7 @@ export function SolidarityActionsTimeline ({
                       {relevantGroups.slice(0, open ? 1000 : UNION_DISPLAY_LIMIT).map(union =>
                         <Link
                           href={makeContextualHref({ [unionDialogKey]: union.id })}
-                          as={`/group/${union.slug}`}
+                          as={groupUrl(union)}
                           shallow
                           key={union.id}
                         >

@@ -212,15 +212,26 @@ function getCoordinatesForAction(data: SolidarityAction) {
 const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
   const context = useContext(MapContext)
   const router = useRouter()
+  const { makeContextualHref, returnHref }= useContextualRouting()
 
   return (
     <Marker {...getCoordinatesForAction(data)}>
-      <div className='space-x-1 text-center transform' onClick={() => scrollToId(router, data.slug)}>
-        {!!data.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>}
-        <br />
-        {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-        <div style={{ opacity: context.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
-          {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
+      <div onClick={e => {
+        e.preventDefault()
+        router.push(
+          makeContextualHref({ [DEFAULT_ACTION_DIALOG_KEY]: data.slug }),
+          actionUrl(data),
+          { shallow: true }
+        )
+      }}>
+        <div className='space-x-1 text-center'>
+          {!!data.fields?.CategoryEmoji?.length && (
+            <div className='text-lg -mb-2'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></div>
+          )}
+          {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
+          <div style={{ opacity: context.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gwYellow text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+            {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
+          </div>
         </div>
       </div>
     </Marker>

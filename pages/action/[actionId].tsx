@@ -1,4 +1,4 @@
-import { getSingleSolidarityAction, getSolidarityActions } from '../../data/solidarityAction';
+import { actionUrl, getSingleSolidarityAction, getSolidarityActions } from '../../data/solidarityAction';
 import { SolidarityAction } from '../../data/types';
 import { SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ export default function Page({ action, errorMessage }: PageProps) {
   if (!action) return <ErrorPage message={errorMessage} />
   useEffect(() => {
     // The user may have landed on the Airtable ID url rather than the canonical slugified URL
-    const prettyURL = `/action/${action.slug}`
+    const prettyURL = actionUrl(action)
     if (!router.asPath.includes(prettyURL)) {
       router.replace(prettyURL, undefined, { shallow: true })
     }

@@ -139,3 +139,7 @@ export async function getSingleOrganisingGroup (id: string) {
   const filterByFormula = `OR({slug}="${id}", RECORD_ID()="${id}")`
   return getOrganisingGroupBy({ filterByFormula })
 }
+
+export function groupUrl(group: OrganisingGroup): string {
+  return `/group/${group.slug}`
+}

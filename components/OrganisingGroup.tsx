@@ -8,6 +8,7 @@ import { NextSeo } from "next-seo";
 import cx from 'classnames';
 import { SolidarityActionCountryRelatedActions, SolidarityActionRelatedActions } from "./SolidarityActions";
 import { projectStrings } from "../data/site";
+import { groupUrl } from "../data/organisingGroup";
 
 export function useSelectedOrganisingGroup(groups: OrganisingGroup[], key = 'dialogOrganisingGroupId') {
   const router = useRouter();
@@ -62,7 +63,7 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
     <>
       <NextSeo
         title={data.fields.Name}
-        canonical={`/group/${data.slug}`}
+        canonical={groupUrl(data)}
         openGraph={{
           title: data.fields.Name
         }}

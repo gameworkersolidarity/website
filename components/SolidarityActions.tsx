@@ -23,6 +23,7 @@ import { CumulativeMovementChart } from './ActionChart';
 import { doNotFetch } from '../utils/swr';
 import { FilterContext } from '../components/Timeline';
 import Highlighter, { Chunk } from "react-highlight-words";
+import { actionUrl } from '../data/solidarityAction';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -58,7 +59,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
 
   function onClose () {
     if (returnHref) {
-      return router.replace(returnHref, returnHref, { shallow: true })
+      return router.push(returnHref, returnHref, { shallow: false })
     }
   }
 
@@ -104,7 +105,9 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
   )
 }
 
-export function useSelectedAction(solidarityActions: SolidarityAction[], key = 'dialogActionId') {
+export const DEFAULT_ACTION_DIALOG_KEY = 'dialogActionId'
+
+export function useSelectedAction(solidarityActions: SolidarityAction[], key = DEFAULT_ACTION_DIALOG_KEY) {
   const router = useRouter();
   const dialogActionId = router.query[key]
   const selectedAction = solidarityActions.find(a => a.slug === dialogActionId)
@@ -129,7 +132,7 @@ export function SolidarityActionsList ({
   }, [solidarityActions])
 
   const router = useRouter()
-  const returnHref = useMemo(() => typeof window !== 'undefined' ? window.location.pathname : router.pathname, [])
+  const returnHref = useMemo(() => router.asPath, [])
 
   return (
     <>
@@ -159,7 +162,7 @@ export function SolidarityActionsList ({
                   <Link
                     key={action.id}
                     href={makeContextualHref({ [dialogKey]: action.slug })}
-                    as={`/action/${action.slug}`}
+                    as={actionUrl(action)}
                     shallow
                   >
                     <div className='transition cursor-pointer group' id={action.slug}>
@@ -193,12 +196,7 @@ function getChunks (array: Fuse.FuseResultMatch[]) {
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const router = useRouter()
   const [isHighlighted, setIsHighlighted] = useState(false)
-  const { search, matches } = useContext(FilterContext)
-  const match = matches?.find(m => m.item.id === data.id)
-  const matchesByKey = groupBy(
-    JSON.parse(JSON.stringify(match?.matches || [])) as Fuse.FuseResultMatch[],
-    (match) => String(match.key)
-  )
+  const { search } = useContext(FilterContext)
 
   useEffect(() => {
     const handleHashChangeComplete = (url, obj) => {
@@ -308,7 +306,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
       <NextSeo
         title={seoTitle}
         description={data.summary.plaintext}
-        canonical={`/action/${data.slug}`}
+        canonical={actionUrl(data)}
         openGraph={{
           title: seoTitle,
           description: data.summary.plaintext

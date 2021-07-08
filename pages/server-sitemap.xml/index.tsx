@@ -1,7 +1,7 @@
 
 import { getServerSideSitemap } from 'next-sitemap'
 import { GetServerSideProps } from 'next'
-import { getSolidarityActions } from '../../data/solidarityAction'
+import { actionUrl, getSolidarityActions } from '../../data/solidarityAction'
 import { projectStrings } from '../../data/site'
 import { getOrganisingGroups } from '../../data/organisingGroup'
 
@@ -18,7 +18,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     )),
     ...actions.map(action => (
     {
-      loc: `${projectStrings.baseUrl}/action/${action.slug}`,
+      loc: `${projectStrings.baseUrl}${actionUrl(action)}`,
       lastmod: new Date(action.fields.LastModified).toISOString(),
     }
     ))

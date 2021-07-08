@@ -66,6 +66,7 @@ export function useURLStateFactory () {
     // When the URL changes, sync it to state
     useEffect(function deserialiseURLToState() {
       const handleRouteChange = (url, { shallow }) => {
+        if (shallow) return
         const params = qs.parseUrl(url)
         const nextState = serialiseObjectToState(key, params.query[key])
         if (isEqual(state, nextState)) return

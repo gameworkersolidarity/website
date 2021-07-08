@@ -1,4 +1,4 @@
-import { getSingleOrganisingGroup, getOrganisingGroups } from '../../data/organisingGroup';
+import { getSingleOrganisingGroup, getOrganisingGroups, groupUrl } from '../../data/organisingGroup';
 import { OrganisingGroup } from '../../data/types';
 import Link from 'next/link';
 import env from 'env-var';
@@ -17,7 +17,7 @@ export default function Page({ group, errorMessage }: PageProps) {
   if (!group) return <ErrorPage message={errorMessage} />
   useEffect(() => {
     // The user may have landed on the Airtable ID url rather than the canonical slugified URL
-    const prettyURL = `/group/${group.slug}`
+    const prettyURL = groupUrl(group)
     if (!router.asPath.includes(prettyURL)) {
       router.replace(prettyURL, undefined, { shallow: true })
     }

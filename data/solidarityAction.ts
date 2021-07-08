@@ -132,3 +132,7 @@ export async function getSingleSolidarityAction (id: string) {
   const actions = await getSolidarityActions({ filterByFormula, maxRecords: 1 })
   return actions[0]
 }
+
+export function actionUrl(action: SolidarityAction): string {
+  return `/action/${action.slug}`
+}
