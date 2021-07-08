@@ -108,10 +108,12 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
                   <span className='align-baseline underline text-inherit'>{new URL(data.fields.Website).hostname}</span>
                 </a>
               )}
-            </div>
-            <div className='flex flex-row space-x-4 mt-1 text-sm'>
               {data.fields.Twitter && (
                 <a href={data.fields.Twitter} className='block my-1'>
+                  <svg width="20" height="20" fill="currentColor" className='inline-block text-[#1da1f2]'>
+                    <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
+                  </svg>
+                  &nbsp;
                   <span className='align-baseline underline text-inherit'>
                     @{new URL(data.fields.Twitter).pathname.replace(/\//gmi, '')}
                   </span>
@@ -121,7 +123,7 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
           </div>
         </div>
         <div className='p-4 md:px-8 bg-white'>
-          Have more info about this union? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know &rarr;</a>
+          Have more info about this {data.fields.IsUnion ? "union" : "organising group"}? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know &rarr;</a>
         </div>
         <div className='grid gap-[2px] grid-cols-2'>
           <div className='p-4 md:px-8 bg-white'>
@@ -129,6 +131,7 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
               name={data.fields.Name}
               metadata={pluralize('related action', data.fields["Solidarity Actions"]?.length, true)}
               url={`/?group=${data.fields.Name}`}
+              subtitle={`This ${data.fields.IsUnion ? "union" : "organising group"}`}
             />
           </div>
           {data.fields.countryCode?.map(code =>
@@ -141,24 +144,5 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
         </div>
       </article>
     </>
-    // <div className='bg-gwOrangeLight rounded-xl p-4 space-y-2'>
-    //   <div className='font-bold text-lg'>
-    //     {data.fields.Name}
-    //   </div>
-    //   <div>{data.fields.IsUnion ? "Union" : "Organising group"} in {stringifyArray(...data.fields?.countryName || [])}</div>
-    //   <div className=''>{pluralize('action', data.fields["Solidarity Actions"]?.length || 0, true)}</div>
-    //   {data.fields.Website && (
-    //     <a href={data.fields.Website} className='block'>
-    //     <Emoji symbol='🔗' label='Link' />
-    //       &nbsp;
-    //       <span className='align-middle underline text-inherit'>{new URL(data.fields.Website).hostname}</span>
-    //     </a>
-    //   )}
-    //   {data.fields.Twitter && (
-    //     <a href={data.fields.Twitter} className='block'>
-    //       <span className='align-middle underline text-inherit'>{data.fields.Twitter}</span>
-    //     </a>
-    //   )}
-    // </div>
   )
 }
