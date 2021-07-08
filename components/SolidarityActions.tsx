@@ -400,7 +400,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode }: { countr
 
 export function SolidarityActionRelatedActions ({ url, name, metadata, buttonLabel }: ContextProps) {
   return (
-    <Link href={url || '/'}>
+    <Link href={url || '/'} shallow={false}>
       <div className='cursor-pointer group'>
         <div className='font-bold'>
           {name || 'More actions'}
