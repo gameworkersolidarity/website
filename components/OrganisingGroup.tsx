@@ -38,6 +38,7 @@ export const OrganisingGroupDialog = (
       >
         {!!data && (
           <>
+            <OrganisingGroupSEO data={data} />
             <Dialog.Overlay className="fixed z-10 inset-0 bg-gwOrange opacity-[80%]" />
             <div className='absolute z-20 w-full max-w-4xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
               <Dialog.Title className='hidden'>{data.fields.Name}</Dialog.Title>
@@ -58,18 +59,21 @@ export const OrganisingGroupDialog = (
   )
 }
 
-export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
+export const OrganisingGroupSEO = ({ data }: { data: OrganisingGroup }) => (
+  <NextSeo
+    title={data.fields.Name}
+    canonical={groupUrl(data)}
+    openGraph={{
+      title: data.fields.Name
+    }}
+  />
+)
+
+export const OrganisingGroupCard = ({ data, withPadding = true, withContext = true }: { data: OrganisingGroup, withPadding: boolean, withContext: boolean }) => {
   return (
     <>
-      <NextSeo
-        title={data.fields.Name}
-        canonical={groupUrl(data)}
-        openGraph={{
-          title: data.fields.Name
-        }}
-      />
       <article className={cx('space-y-2px rounded-xl overflow-hidden shadow-noglow group-hover:shadow-glow transition duration-100')}>
-        <div className='p-4 md:px-8 bg-white'>
+        <div className={cx(withPadding && 'md:px-8', 'p-4 bg-white')}>
           <div className='text-sm'>
             <div className='flex flex-wrap tracking-tight'>
               <span className='pr-3'>{data.fields.IsUnion ? "Union" : "Organising group"}</span>
@@ -124,26 +128,28 @@ export const OrganisingGroupCard = ({ data }: { data: OrganisingGroup }) => {
             </div>
           </div>
         </div>
-        <div className='p-4 md:px-8 bg-white'>
+        <div className={cx(withPadding && 'md:px-8', 'p-4 bg-white')}>
           Have more info about this {data.fields.IsUnion ? "union" : "organising group"}? <a className='link' href={`mailto:${projectStrings.email}`}>Let us know &rarr;</a>
         </div>
-        <div className='grid gap-[2px] grid-cols-2'>
-          <div className='p-4 md:px-8 bg-white'>
-            <SolidarityActionRelatedActions
-              name={data.fields.Name}
-              metadata={pluralize('related action', data.fields["Solidarity Actions"]?.length, true)}
-              url={`/?group=${data.fields.Name}`}
-              subtitle={`This ${data.fields.IsUnion ? "union" : "organising group"}`}
-            />
-          </div>
-          {data.fields.countryCode?.map(code =>
-            <div className='p-4 md:px-8 bg-white' key={code}>
-              <SolidarityActionCountryRelatedActions
-                countryCode={code}
+        {withContext && (
+          <div className='grid gap-[2px] grid-cols-2'>
+            <div className={cx(withPadding && 'md:px-8', 'p-4 bg-white')}>
+              <SolidarityActionRelatedActions
+                name={data.fields.Name}
+                metadata={pluralize('related action', data.fields["Solidarity Actions"]?.length, true)}
+                url={`/?group=${data.fields.Name}`}
+                subtitle={`This ${data.fields.IsUnion ? "union" : "organising group"}`}
               />
             </div>
-          )}
-        </div>
+            {data.fields.countryCode?.map(code =>
+              <div className={cx(withPadding && 'md:px-8', 'p-4 bg-white')} key={code}>
+                <SolidarityActionCountryRelatedActions
+                  countryCode={code}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </article>
     </>
   )

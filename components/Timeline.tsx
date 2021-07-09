@@ -14,7 +14,7 @@ import { Listbox, Disclosure } from '@headlessui/react'
 import { useRouter } from 'next/dist/client/router';
 import useSWR from 'swr';
 import { useContextualRouting } from 'next-use-contextual-routing';
-import { OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components/OrganisingGroup';
+import { OrganisingGroupCard, OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components/OrganisingGroup';
 import { UnionsByCountryData } from '../pages/api/organisingGroupsByCountry';
 import { ChevronRightIcon } from '@heroicons/react/outline';
 import { scrollToId } from '../utils/router';
@@ -403,6 +403,10 @@ export function SolidarityActionsTimeline ({
               </div>
             ) : null}
           </div>
+
+          {selectedOrganisingGroups?.map(group => 
+            <OrganisingGroupCard data={group!} withPadding={false} withContext={false} key={group!.id} />
+          )}
 
           {!!selectedCategories[0]?.summary?.html && (
             <article>
