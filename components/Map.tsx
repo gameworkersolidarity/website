@@ -16,7 +16,7 @@ import { scaleLinear, scalePow } from 'd3-scale';
 import { max, median, min } from 'd3-array';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import Link from 'next/link';
-import { actionUrl } from '../data/solidarityAction';
+import { actionToFeature, actionUrl } from '../data/solidarityAction';
 import { ActionMetadata, DEFAULT_ACTION_DIALOG_KEY, SolidarityActionCountryRelatedActions, SolidarityActionRelatedActions } from './SolidarityActions';
 import pluralize from 'pluralize';
 import Supercluster from 'supercluster';
@@ -24,6 +24,9 @@ import { stringifyArray } from '../utils/string';
 import { ActionsContext } from '../pages';
 import { Map as MapboxMap } from 'mapbox-gl'
 import { Dictionary, groupBy, merge } from 'lodash';
+import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
+import combine from '@turf/combine'
+import bbox from '@turf/bbox';
 
 const defaultViewport = {
   latitude: 15,
@@ -45,7 +48,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
 
   const updateViewport = useCallback(nextViewport => setViewport(nextViewport), [])
 
-  const ref = useRef<MapRef>(null)
+  const mapRef = useRef<{ _map: MapboxMap }>(null)
 
   const { countries, hasFilters } = useContext(FilterContext)
   const displayStyle = !hasFilters ? 'summary' : 'detail'
@@ -105,6 +108,48 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     return groupActionsByCountry(data)
   }, [data])
 
+  const allActionsSingleCountry = useMemo(() => {
+    return Object.values(nationalActionsByCountry).reduce((arr, a) => arr.concat(a), [])
+  }, [nationalActionsByCountry])
+
+  useEffect(() => {
+    const setOfCountryBBOXes = Array.from(new Set(allActionsSingleCountry.map(d => d.geography.country[0].bbox)))
+    
+    const FeatureCollection: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
+      type: 'FeatureCollection',
+      features: setOfCountryBBOXes.map(bbox => {
+        return {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Polygon',
+            "coordinates": [bboxToBounds(bbox)]
+          }
+        }
+      })
+    }
+
+    const nextViewport = getViewportForFeatures(
+      {
+        ...viewport,
+        width: mapRef.current?._map.getCanvas().clientWidth || 0,
+        height: mapRef.current?._map.getCanvas().clientHeight || 0
+      },
+      // data.map(d => d.geography.country[0].bbox),
+      bbox(combine(FeatureCollection)) as any,
+      { padding: 50 }
+    )
+    if (nextViewport) {
+      setViewport({
+        ...nextViewport,
+        zoom: Math.min(10, nextViewport.zoom)
+      })
+    }
+    // width: mapRef.current?._map.clientWidth,
+    // height: mapRef.current?._map.clientHeight
+    // { type: "FeatureCollection", features: addresses || [] }
+  }, [allActionsSingleCountry, nationalActionsByCountry, data, viewport])
+
   return (
     <ViewportContext.Provider value={viewport}>
       <div className='relative overflow-hidden rounded-xl' style={{
@@ -121,7 +166,8 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           mapStyle={env.get('NEXT_PUBLIC_MAPBOX_STYLE_URL').default('mapbox://styles/commonknowledge/ckqsa4g09145h17p84g69t7ns').asString()}
           onViewportChange={updateViewport}
           className="rounded-xl"
-          ref={ref}
+          ref={mapRef}
+          viewportChangeMethod='flyTo'
         >
           <ActionSource data={data} />
           <CountryLayer
@@ -142,6 +188,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           ).map(([countryCode, actionsUnlocated]) => {
             return (
               <ClusterMarker
+                key={countryCode}
                 longitude={actionsUnlocated[0].geography.country[0].longitude}
                 latitude={actionsUnlocated[0].geography.country[0].latitude}
                 actions={actionsUnlocated}

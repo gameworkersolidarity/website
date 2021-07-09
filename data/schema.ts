@@ -144,6 +144,7 @@ export const geographySchema = z.object({
       iso3166: z.string(),
       latitude: z.number(),
       longitude: z.number(),
+      bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]),
     })
   ),
   location: openStreetMapReverseGeocodeResponseSchema.optional(),

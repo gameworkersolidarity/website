@@ -139,6 +139,7 @@ export type Geography = {
     iso3166: string
     latitude: number,
     longitude: number
+    bbox: [number, number, number, number]
   }>,
   location?: OpenStreetMapReverseGeocodeResponse
 }

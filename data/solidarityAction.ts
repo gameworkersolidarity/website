@@ -52,6 +52,21 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   return action
 }
 
+export function actionToFeature(action: SolidarityAction): GeoJSON.Feature<GeoJSON.Point, SolidarityAction> {
+  // 
+  return {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        action.geography.country[0].longitude,
+        action.geography.country[0].latitude
+      ]
+    },
+    "properties": action
+  }
+}
+
 const fields: Array<keyof SolidarityAction['fields']> = ['slug', 'companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
 
 // @ts-ignore

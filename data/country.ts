@@ -9,15 +9,18 @@ import { getOrganisingGroupsByCountryId } from './organisingGroup';
 import coords from 'country-coords'
 import countryFlagEmoji from 'country-flag-emoji';
 const coordsByCountry = coords.byCountry()
+import { toBBOX } from 'country-to-bbox'
 
 export function countryDataForCode (countryCode: string): Geography['country'][0] {
   // Add country data
   const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
   const emoji = countryFlagEmoji.get(countryCode) as CountryEmoji
+  const bbox = toBBOX(emoji.name === 'South Korea' ? 'S. Korea' : emoji.name)
   return {
     name: emoji.name,
     emoji,
     iso3166,
+    bbox,
     ...countryCoordData
   }
 }
