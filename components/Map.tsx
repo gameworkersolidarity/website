@@ -112,9 +112,9 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     return Object.values(nationalActionsByCountry).reduce((arr, a) => arr.concat(a), [])
   }, [nationalActionsByCountry])
 
-  useEffect(() => {
+  function calculateViewportForActions () {
     const setOfCountryBBOXes = Array.from(new Set(allActionsSingleCountry.map(d => d.geography.country[0].bbox)))
-    
+  
     const FeatureCollection: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
       type: 'FeatureCollection',
       features: setOfCountryBBOXes.map(bbox => {
@@ -145,10 +145,11 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         zoom: Math.min(10, nextViewport.zoom)
       })
     }
-    // width: mapRef.current?._map.clientWidth,
-    // height: mapRef.current?._map.clientHeight
-    // { type: "FeatureCollection", features: addresses || [] }
-  }, [allActionsSingleCountry, nationalActionsByCountry, data, viewport])
+  }
+
+  useEffect(() => {
+    calculateViewportForActions()
+  }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
   return (
     <ViewportContext.Provider value={viewport}>
