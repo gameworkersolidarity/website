@@ -24,6 +24,7 @@ import { doNotFetch } from '../utils/swr';
 import { FilterContext } from '../components/Timeline';
 import Highlighter, { Chunk } from "react-highlight-words";
 import { actionUrl } from '../data/solidarityAction';
+import { usePrevious } from '../utils/state';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -82,7 +83,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
       >
         {selectedAction?.fields && (
           <>
-            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwOrange opacity-[80%]" />
+            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwOrange opacity-80" />
             <div className='absolute z-20 w-full max-w-4xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
               <Dialog.Title className='hidden'>{selectedAction.fields.Name}</Dialog.Title>
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
@@ -132,14 +133,25 @@ export function SolidarityActionsList ({
   }, [solidarityActions])
 
   const router = useRouter()
-  const returnHref = useMemo(() => router.asPath, [])
+  // when the router changes, update the current route
+  const [currentHref, setCurrentHref] = useState(router.asPath)
+  // store the past route and use it as the currentHref
+  const lastHref = usePrevious(currentHref)
+  //
+  useEffect(() => {
+    const handleRouteChangeComplete = (url, obj) => {
+      setCurrentHref(url)
+    }
+    router.events.on('routeChangeComplete', handleRouteChangeComplete)
+    return () => router.events.off('routeChangeComplete', handleRouteChangeComplete)
+  }, [router])
 
   return (
     <>
       {withDialog && (
         <SolidarityActionDialog
           selectedAction={selectedAction}
-          returnHref={returnHref}
+          returnHref={lastHref || '/'}
           {...dialogProps}
         />
       )}
@@ -194,26 +206,11 @@ function getChunks (array: Fuse.FuseResultMatch[]) {
 }
 
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
-  const router = useRouter()
-  const [isHighlighted, setIsHighlighted] = useState(false)
   const { search } = useContext(FilterContext)
-
-  useEffect(() => {
-    const handleHashChangeComplete = (url, obj) => {
-      const { hash } = new URL(url, window.location.toString())
-      setIsHighlighted(() => hash.replace('#', '') === data.id)
-    }
-
-    router.events.on('hashChangeComplete', handleHashChangeComplete)
-
-    return () => {
-      router.events.off('hashChangeComplete', handleHashChangeComplete)
-    }
-  }, [])
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   return (
-    <article className={cx(isHighlighted && 'shadow-glow', 'bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
+    <article className={cx('bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <ActionMetadata data={data} />
       <div>
         <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>

@@ -5,7 +5,7 @@ import env from 'env-var';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import ErrorPage from '../404'
 import PageLayout from '../../components/PageLayout';
-import { OrganisingGroupCard } from '../../components/OrganisingGroup';
+import { OrganisingGroupCard, OrganisingGroupSEO } from '../../components/OrganisingGroup';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
@@ -25,11 +25,10 @@ export default function Page({ group, errorMessage }: PageProps) {
 
   return (
     <PageLayout>
+      <OrganisingGroupSEO data={group} />
       <div className='bg-gwOrangeLight' style={{ minHeight: '66vh' }}>
         <div className='max-w-4xl mx-auto py-5 px-4'>
-          <OrganisingGroupCard
-            data={group}
-          />
+          <OrganisingGroupCard data={group} />
         </div>
       </div>
     </PageLayout>

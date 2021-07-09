@@ -55,7 +55,7 @@ export function useURLStateFactory () {
 
     const updateURL = useDebouncedCallback(() => {
       const { query } = qs.parseUrl(router.asPath)
-      const nextQuery = params.current
+      const nextQuery = { ...query, ...params.current }
       if (isEqual(query, nextQuery)) {
         // console.info("Update URL called, but URL was the same as before", query, nextQuery)
       } else {
@@ -93,4 +93,18 @@ export function useURLStateFactory () {
     // Pass through state
     return [state, setState, options] as const
   }
+}
+
+export function usePrevious<T>(value: T) {
+  // The ref object is a generic container whose current property is mutable ...
+  // ... and can hold any value, similar to an instance property on a class
+  const ref = useRef<T>();
+
+  // Store current value in ref
+  useEffect(() => {
+    ref.current = value;
+  }, [value]); // Only re-run if value changes
+
+  // Return previous value (happens before update in useEffect above)
+  return ref.current;
 }
