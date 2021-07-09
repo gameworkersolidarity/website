@@ -1,8 +1,9 @@
-import { SolidarityAction } from '../data/types';
+import { SolidarityAction, Category } from '../data/types';
 import { memo, useCallback, useState, useRef, createContext, useContext, useMemo } from 'react';
-import ReactMapGL, { Layer, MapRef, Marker, Source } from '@urbica/react-map-gl';
+import ReactMapGL, { Layer, MapRef, Marker, Popup, Source, MapContext } from '@urbica/react-map-gl';
 import env from 'env-var';
 // import { stringifyArray } from '../utils/string';
+import { format } from 'date-fns';
 import Emoji from 'a11y-react-emoji';
 import Cluster from '@urbica/react-map-gl-cluster';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -16,7 +17,13 @@ import { max, median, min } from 'd3-array';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import Link from 'next/link';
 import { actionUrl } from '../data/solidarityAction';
-import { DEFAULT_ACTION_DIALOG_KEY } from './SolidarityActions';
+import { ActionMetadata, DEFAULT_ACTION_DIALOG_KEY, SolidarityActionCountryRelatedActions } from './SolidarityActions';
+import pluralize from 'pluralize';
+import Supercluster from 'supercluster';
+import { stringifyArray } from '../utils/string';
+import { ActionsContext } from '../pages';
+import { Map as MapboxMap } from 'mapbox-gl'
+import { groupBy, merge } from 'lodash';
 
 const defaultViewport = {
   latitude: 15,
@@ -24,7 +31,7 @@ const defaultViewport = {
   zoom: 0.7,
 }
 
-const MapContext = createContext(defaultViewport)
+const ViewportContext = createContext(defaultViewport)
 
 export function Map({ data, onSelectCountry, ...initialViewport }: {
   data: SolidarityAction[], width?: any, height?: any, onSelectCountry?: (iso2id: string | null) => void
@@ -67,8 +74,23 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     return counts
   }, [data])
 
+  const _cluster = useRef<{ _cluster: Supercluster<{ props: Parameters<typeof MapMarker>[0] }>}>(null)
+
+  const nationalActionsByCountry = useMemo(() => {
+    const actions = data //.filter(d => !d.geography.location)
+
+    const actionsWithSingleCountry = actions.reduce((actions, action) => {
+      action.geography.country.forEach((c, i) => {
+        actions.push(merge(action, { geography: { country: action.geography.country[i] }}))
+      })
+      return actions
+    }, [] as SolidarityAction[])
+
+    return groupBy(actionsWithSingleCountry, d => d.geography.country[0].iso3166)
+  }, [data])
+
   return (
-    <MapContext.Provider value={viewport}>
+    <ViewportContext.Provider value={viewport}>
       <div className='relative overflow-hidden rounded-xl' style={{
         height: '100%',
         width: '100%'
@@ -91,26 +113,34 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
             countryCounts={countryCounts}
             onSelectCountry={onSelectCountry}
           />
-          {/* {data.map(d => (
-            <MapMarker key={d.id} data={d} />
-          ))} */}
-          <Cluster radius={20} extent={512} nodeSize={64} component={ClusterMarker}>
-            {data.map(datum => (
-              <Marker {...getCoordinatesForAction(datum)}>
-                <div className='space-x-1 text-center transform'>
-                  {!!datum.fields?.CategoryEmoji?.length && <span className='text-lg'><Emoji symbol={datum.fields.CategoryEmoji?.[0]} /></span>}
-                  <br />
-                  {/* <div className='inline capitalize-first'>{stringifyArray(datum.fields.Category)}</div> */}
-                  <div style={{ opacity: viewport.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
-                    {datum.geography.location?.display_name?.split(',')?.[0] || datum.fields['countryName']}
-                  </div>
-                </div>
-              </Marker>
+          {/* National events */}
+          {Object.entries(nationalActionsByCountry).map(([countryCode, actionsUnlocated]) => {
+            return (
+              <ClusterMarker
+                longitude={actionsUnlocated[0].geography.country[0].longitude}
+                latitude={actionsUnlocated[0].geography.country[0].latitude}
+                actions={actionsUnlocated}
+                label={<Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />}
+              />
+            )
+          })}
+          {/* Location-specific markers */}
+          {displayStyle === 'detail' && <Cluster ref={_cluster} radius={50} extent={512} nodeSize={64} component={cluster => (
+            <ClusterMarker
+              key={cluster.clusterId}
+              {...cluster}
+              actions={_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => {
+                return p.properties.props.data
+              })}
+            />
+          )}>
+            {data.filter(d => !!d.geography.location).map(d => (
+              <MapMarker {...getCoordinatesForAction(d)} data={d} key={d.id} />
             ))}
-          </Cluster>
+          </Cluster>}
         </ReactMapGL>
       </div>
-    </MapContext.Provider>
+    </ViewportContext.Provider>
   );
 }
 
@@ -145,7 +175,20 @@ const CountryLayer = memo(({
   countryCounts: CountryCounts
   onSelectCountry: any
 }) => {
-  // const [hoverCountry, setHoverCountry] = useState<string>('XX')
+  const [event, setEvent] = useState<{ lng: number, lat: number }>()
+  const [hoverCountry, setHoverCountry] = useState<{
+    color_group: number
+    disputed: string
+    iso_3166_1: string
+    iso_3166_1_alpha_3: string
+    name: string
+    name_en: string
+    region: string
+    subregion: string
+    wikidata_id: string
+    worldview: string
+  }>()
+  const map = useContext<MapboxMap>(MapContext)
 
   return (
     <>
@@ -173,22 +216,28 @@ const CountryLayer = memo(({
         }
       }}
     />
-    {/* <Layer
+    <Layer
       onClick={event => {
-        const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-        if (Object.keys(countryCounts).includes(countryIso2)) {
-          onSelectCountry?.(countryIso2)
+        const country = event.features?.[0]?.properties
+        if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
+          if (country.iso_3166_1 === hoverCountry?.iso_3166_1) {
+            setEvent(undefined)
+            setHoverCountry(undefined)
+          } else {
+            setEvent(event.lngLat)
+            setHoverCountry(event.features?.[0]?.properties)
+          }
         }
       }}
+      // onSelectCountry?.(countryIso2)
       onHover={event => {
-        const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-        if (Object.keys(countryCounts).includes(countryIso2)) {
-          setHoverCountry(countryIso2)
+        const country = event.features?.[0]?.properties
+        if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
+          map.getCanvas().style.cursor = 'pointer'
         }
       }}
       onLeave={event => {
-        // const countryIso2 = event.features?.[0]?.properties?.iso_3166_1
-        setHoverCountry('XX')
+        map.getCanvas().style.cursor = ''
       }}
       {...{
         "id": "undisputed country boundary fill hoverable",
@@ -197,16 +246,24 @@ const CountryLayer = memo(({
         "type": "fill",
         "filter": [ "==", [ "get", "disputed" ], "false" ],
         "paint": {
-          "fill-color": [
-            'case',
-            ['==', ['get', 'iso_3166_1'], hoverCountry],
-            polished.rgba(theme`colors.white`, 0.1),
-            'rgba(0,0,0,0)'
-          ],
+          "fill-color": 'rgba(0,0,0,0)',
         }
       }}
-    /> */}
+    />
+    {event && event.lat && event.lng && hoverCountry && (
+      <Popup latitude={event.lat} longitude={event.lng} closeButton={false} closeOnClick={false} className='w-[150px]'>
+        <CountryPopup code={hoverCountry.iso_3166_1} />
+      </Popup>
+    )}
     </>
+  )
+})
+
+const CountryPopup = memo(({ code }: { code: string }) => {
+  return (
+    <div className='text-base'>
+      <SolidarityActionCountryRelatedActions countryCode={code} />
+    </div>
   )
 })
 
@@ -224,13 +281,13 @@ function getCoordinatesForAction(data: SolidarityAction) {
   return geoData
 }
 
-const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
-  const context = useContext(MapContext)
+const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: number, longitude: number }) => {
+  const context = useContext(ViewportContext)
   const router = useRouter()
   const { makeContextualHref, returnHref }= useContextualRouting()
 
   return (
-    <Marker {...getCoordinatesForAction(data)}>
+    <Marker {...coords}>
       <div onClick={e => {
         e.preventDefault()
         router.push(
@@ -240,24 +297,73 @@ const MapMarker = memo(({ data }: { data: SolidarityAction }) => {
         )
       }}>
         <div className='space-x-1 text-center'>
-          {!!data.fields?.CategoryEmoji?.length && (
-            <div className='text-lg -mb-2'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></div>
-          )}
           {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-          <div style={{ opacity: context.zoom > 3 ? 1 : 0 }} className='transition duration-250 text-xs bg-gwYellow text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
-            {data.geography.location?.display_name?.split(',')?.[0] || data.fields['countryName']}
+          <div style={{ opacity: context.zoom > 1 ? 1 : 0 }} className='transition duration-250 text-xs bg-gwYellow text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+            {!!data.fields?.CategoryEmoji?.length && (
+              <span className='text-sm pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
+            )}
+            {format(new Date(data.fields.Date), "MMM ''yy")}
           </div>
         </div>
       </div>
     </Marker>
   )
-})
+}
 
-const ClusterMarker = ({ longitude, latitude, pointCount }) => {
+const ClusterMarker = ({ longitude, latitude, actions, label }: {
+  longitude: number
+  latitude: number
+  actions: SolidarityAction[],
+  label?: any
+}) => {
+  const [isSelected, setSelected] = useState(false)
+  const toggleSelected = () => setSelected(s => !s)
+  const router = useRouter()
+  const { makeContextualHref, returnHref }= useContextualRouting()
+
   return (
-    <Marker longitude={longitude} latitude={latitude}>
-      <div className='transition duration-250 text-xs bg-gray-800 text-white inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
-        {pluralize('action', pointCount, true)}
+    <Marker longitude={longitude} latitude={latitude} anchor='bottom'>
+      <div
+        onMouseOver={() => setSelected(true)}
+        onMouseOut={() => setSelected(false)}
+        // onClick={toggleSelected}
+        className='relative'
+      >
+        <div className='text-center items-center inline-flex flex-row transition duration-250 text-xs bg-gwYellow text-black font-bold tracking-tight px-1 rounded-xl'>
+          <span className='text-base align-middle pr-1'>
+            {label || actions
+              .reduce((categories, action) => {
+                return Array.from(new Set(categories.concat(action.fields?.CategoryEmoji || [])))
+              }, [] as string[])
+              .map(emoji =>
+                <Emoji symbol={emoji} key={emoji} />
+              )
+            }
+          </span>
+          <span className='align-middle'>
+            {actions.length}
+          </span>
+        </div>
+        {isSelected && (
+          <div className='z-50 bg-white p-1 rounded-xl max-w-lg overflow-hidden truncate divide-y absolute top-100 left-0'>
+            {actions.filter(Boolean).map(action => (
+              <div
+                key={action.slug}
+                onClick={e => {
+                  router.push(
+                    makeContextualHref({ [DEFAULT_ACTION_DIALOG_KEY]: action.slug }),
+                    actionUrl(action),
+                    { shallow: true }
+                  )
+                }}
+                className='hover:bg-gwOrangeLight transition duration-75 p-2 rounded-lg'
+              >
+                <ActionMetadata data={action} />
+                <div className='text-lg font-semibold'>{action.fields.Name}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </Marker>
   )

@@ -24,6 +24,7 @@ import { doNotFetch } from '../utils/swr';
 import { FilterContext } from '../components/Timeline';
 import Highlighter, { Chunk } from "react-highlight-words";
 import { actionUrl } from '../data/solidarityAction';
+import { usePrevious } from '../utils/state';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -132,14 +133,25 @@ export function SolidarityActionsList ({
   }, [solidarityActions])
 
   const router = useRouter()
-  const returnHref = useMemo(() => router.asPath, [])
+  // when the router changes, update the current route
+  const [currentHref, setCurrentHref] = useState(router.asPath)
+  // store the past route and use it as the currentHref
+  const lastHref = usePrevious(currentHref)
+  //
+  useEffect(() => {
+    const handleHashChangeComplete = (url, obj) => {
+      setCurrentHref(router.asPath)
+    }
+    router.events.on('hashChangeComplete', handleHashChangeComplete)
+    return () => router.events.off('hashChangeComplete', handleHashChangeComplete)
+  }, [router])
 
   return (
     <>
       {withDialog && (
         <SolidarityActionDialog
           selectedAction={selectedAction}
-          returnHref={returnHref}
+          returnHref={lastHref || '/'}
           {...dialogProps}
         />
       )}
