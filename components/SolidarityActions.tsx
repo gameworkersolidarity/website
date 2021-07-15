@@ -224,7 +224,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
             />
           </h2>
           {data.fields.Summary && (
-          <div className={'w-full pt-4'}>
+          <div className='w-full pt-4'>
             <Highlighter
               highlightClassName="bg-gwYellow"
               searchWords={[search || '']}
