@@ -214,14 +214,22 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
     <article className={cx('bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <ActionMetadata data={data} />
       <div>
-        <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>
+        {isFeatured ? <h2 className='text-3xl leading-tight font-semibold max-w-3xl mt-3'>
           <Highlighter
             highlightClassName="bg-gwYellow"
             searchWords={[search || '']}
             autoEscape={true}
             textToHighlight={data.fields.Name}          
           />
-        </h3>
+        </h2> : 
+        <h3 className='text-2xl leading-tight font-semibold max-w-3xl mt-3'>
+          <Highlighter
+            highlightClassName="bg-gwYellow"
+            searchWords={[search || '']}
+            autoEscape={true}
+            textToHighlight={data.fields.Name}          
+          />
+        </h3>}
         {isFeatured && data.fields.Summary && (
           <div className={'w-full pt-4'}>
             <Highlighter
