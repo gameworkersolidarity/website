@@ -209,6 +209,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
+  
   return (
     <article className={cx('bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <ActionMetadata data={data} />
@@ -221,7 +222,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
             textToHighlight={data.fields.Name}          
           />
         </h3>
-        {data.fields.Summary && (
+        {isFeatured && data.fields.Summary && (
           <div className={'w-full pt-4'}>
             <Highlighter
               highlightClassName="bg-gwYellow"
