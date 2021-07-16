@@ -2,7 +2,8 @@
 /** @typedef { import('tailwindcss/defaultTheme') } DefaultTheme */
 /** @typedef { DefaultConfig & { theme: { extend: DefaultTheme } } } TailwindConfig */
 
-const defaultTheme = require ('tailwindcss/defaultTheme')
+const defaultTheme = require('tailwindcss/defaultTheme')
+const polished = require('polished')
 
 /** @type {TailwindConfig} */
 module.exports = {
@@ -60,14 +61,16 @@ module.exports = {
         gwBlue: '#3B97EC',
         gwBlueLight: '#E8EFF5',
         gwPink: '#DD96FF',
+        gwPink50: polished.rgba('#DD96FF', 0.5),
         gwPinkLight: '#FFCAD9'  ,
         gwOrange: '#FF8038',
         gwOrangeLight: '#FFC58E'      ,
       },
-      boxShadow: {
+      boxShadow: theme => ({
         'noglow': 'inset 0 0 0 0 #FF8038',
-        'glow': 'inset 4px 4px 20px 6px #FF8038'
-      },
+        'glow': 'inset 4px 4px 20px 6px #FF8038',
+        'gwPink': `0px 1px 10px 5px ${theme('colors.gwPink50')}`
+      }),
       maxWidth: {
         full: "100%"
       },

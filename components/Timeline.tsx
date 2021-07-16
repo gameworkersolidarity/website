@@ -9,7 +9,7 @@ import Fuse from 'fuse.js';
 import Emoji from 'a11y-react-emoji';
 import pluralize from 'pluralize';
 import { useURLStateFactory } from '../utils/state';
-import { ensureArray, toggleInArray } from '../utils/string';
+import { ensureArray, toggleInArray, stringifyArray } from '../utils/string';
 import { Listbox, Disclosure } from '@headlessui/react'
 import { useRouter } from 'next/dist/client/router';
 import useSWR from 'swr';
@@ -19,6 +19,9 @@ import { UnionsByCountryData } from '../pages/api/organisingGroupsByCountry';
 import { ChevronRightIcon } from '@heroicons/react/outline';
 import { scrollToId } from '../utils/router';
 import { groupUrl } from '../data/organisingGroup';
+import cx from 'classnames';
+import { groupBy } from 'lodash';
+import { FilterButton, FilterOption } from './Filter';
 
 export const FilterContext = createContext<{
   search?: string
@@ -196,6 +199,7 @@ export function SolidarityActionsTimeline ({
     g.geography.country.some(c =>
       selectedCountries.some(C =>
           C?.emoji.code ===  c.iso3166)))
+
   const UNION_DISPLAY_LIMIT = 5
   const { makeContextualHref, returnHref } = useContextualRouting();
   const [selectedUnion, unionDialogKey] = useSelectedOrganisingGroup(groups || [])
@@ -217,123 +221,200 @@ export function SolidarityActionsTimeline ({
         <section className='relative'>
           <div className='p-4 lg:p-5 flex flex-col flex-nowrap h-screen sticky top-0 space-y-4 overflow-y-hidden'>
             <section className='flex-grow-0'>
-              <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
-                Filter by
-              </h3>
-              <div className='relative space-x-2 flex'>
-                <div>
-                  <Listbox value={filteredCountrySlugs[0]} onChange={v => setCountries([v])}>
+              <div className='flex flex-wrap w-full justify-between text-sm'>
+                <h3 className='text-base text-left left-0 font-semibold mb-2'>
+                  Filter by
+                </h3>
+                {hasFilters ? (
+                  <div className='cursor-pointer hover:bg-gwPinkLight inline-block'
+                    onClick={clearAllFilters}
+                  >
+                    <span className='underline'>Clear all filters</span>
+                    &nbsp;
+                    <span className='inline-block transform rotate-45 text-base'>+</span>
+                  </div>
+                ) : null}
+              </div>
+              {/* <div className='flex flex-wrap w-full justify-end text-sm'>
+                {selectedCountries?.map(country => country ? (
+                  <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
+                    onClick={() => toggleCountry(country.fields.Slug)}
+                  >
+                    <Emoji symbol={country.emoji.emoji} /> {country?.emoji.name}
+                  </div>
+                ) : null)}
+                {selectedCategories?.map(category => category ? (
+                  <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
+                    onClick={() => toggleCategory(category.fields.Name)}
+                  >
+                    <span className='filter-item'>{category.fields.Emoji}</span>
+                    <span className='inline-block capitalize ml-1'>{category.fields.Name}</span>
+                  </div>
+                ) : null)}
+                {selectedCompanies?.map(company => company ? (
+                  <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
+                    onClick={() => toggleCompany(company.fields.Name)}
+                  >
+                    {company?.fields.Name}
+                  </div>
+                ) : null)}
+                {selectedOrganisingGroups?.map(group => group ? (
+                  <div key={group?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
+                    onClick={() => toggleOrganisingGroup(group.fields.Name)}
+                  >
+                    {group?.fields.Name}
+                  </div>
+                ) : null)}
+                {filterText.trim().length > 0 && [filterText].map(textFragment =>
+                  <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
+                    onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
+                  >
+                    "{textFragment}"
+                  </div>
+                )}
+              </div> */}
+              <div className='relative flex flex-wrap w-full'>
+                <div className='filter-item'>
+                  <Listbox value={filteredCountrySlugs} onChange={v => toggleCountry(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Country"}
-                      </div>
+                      <FilterButton label='Country' selectionCount={selectedCountries.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                        {countries.map((country) => (
-                          <Listbox.Option
-                            key={country.id}
-                            value={country.fields.Slug}
-                          >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span><Emoji symbol={country.emoji.emoji} /></span>
-                              <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
-                              <span className='inline-block align-baseline text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', country.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
-                          </Listbox.Option>
-                        ))}
+                      <div className='border-2 border-gray-300 listbox-dropdown'>
+                        {countries.map((country) => {
+                          const isSelected = !!selectedCountries.find(c => c?.id === country.id)
+                          return (
+                            <Listbox.Option
+                              key={country.id}
+                              value={country.fields.Slug}
+                            >
+                              {({ active, selected }) => (
+                                <FilterOption isActive={active} isSelected={isSelected}>
+                                  <span><Emoji symbol={country.emoji.emoji} /></span>
+                                  <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
+                                  <span className='inline-block align-baseline text-xs ml-auto text-black pl-2'>
+                                    {pluralize('action', country.fields['Solidarity Actions']?.length || 0, true)}
+                                  </span>
+                                </FilterOption>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
-                  <Listbox value={filteredCategoryNames[0]} onChange={v => setCategories([v])}>
+                <div className='filter-item'>
+                  <Listbox value={filteredCategoryNames} onChange={v => toggleCategory(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Category"}
-                      </div>
+                      <FilterButton label='Category' selectionCount={selectedCategories.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='listbox-dropdown'>
                         {categories.map((category) => (
                           <Listbox.Option
                             key={category.id}
                             value={category.fields.Name}
                           >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
-                              <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
-                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
+                            {({ active, selected }) =>  {
+                              const isSelected = !!selectedCategories.find(c => c?.id === category.id)
+                              return (
+                                <FilterOption isActive={active} isSelected={isSelected}>
+                                  <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
+                                  <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
+                                  <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
+                                    {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
+                                  </span>
+                                </FilterOption>
+                              )
+                            }}
                           </Listbox.Option>
                         ))}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
-                  <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
+                <div className='filter-item'>
+                  <Listbox value={filteredCompanyNames} onChange={v => toggleCompany(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Company"}
-                      </div>
+                      <FilterButton label='Company' selectionCount={selectedCompanies.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                        {companies.map((company) => (
-                          <Listbox.Option
-                            key={company.id}
-                            value={company.fields.Name}
-                          >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
-                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
-                          </Listbox.Option>
-                        ))}
+                      <div className='listbox-dropdown'>
+                        {companies.map((company) =>  {
+                          const isSelected = !!selectedCompanies.find(c => c?.id === company.id)
+                          return (
+                            <Listbox.Option
+                              key={company.id}
+                              value={company.fields.Name}
+                            >
+                              {({ active, selected }) => (
+                                <FilterOption isActive={active} isSelected={isSelected}>
+                                  <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
+                                  <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
+                                    {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
+                                  </span>
+                                </FilterOption>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
-                  <Listbox value={filteredOrganisingGroupNames[0]} onChange={v => setOrganisingGroups([v])}>
+                <div className='filter-item'>
+                  <Listbox value={filteredOrganisingGroupNames} onChange={v => toggleOrganisingGroup(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Union"}
-                      </div>
+                      <FilterButton label='Union' selectionCount={selectedOrganisingGroups.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
+                      <div className='listbox-dropdown'>
                         {groups.map((group) => (
                           <Listbox.Option
                             key={group.id}
                             value={group.fields.Name}
                           >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
-                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', group.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
+                            {({ active, selected }) => {
+                              const isSelected = !!selectedOrganisingGroups.find(c => c?.id === group.id)
+                              return (
+                                <FilterOption isActive={active} isSelected={isSelected}>
+                                  <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
+                                  <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
+                                    {pluralize('action', group.fields['Solidarity Actions']?.length || 0, true)}
+                                  </span>
+                                </FilterOption>
+                              )
+                            }}
                           </Listbox.Option>
                         ))}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
+                <div className='filter-item flex-grow'>
                   <input
-                    placeholder='Full text search'
+                    placeholder='Search'
                     type='search' 
                     value={filterText}
                     onChange={e => setFilterText(e.target.value.trimStart())}
-                    className='rounded-xl border border-gray-200 px-3 py-2 text-sm'
+                    className='rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full'
                   />
                 </div>
               </div>
@@ -347,7 +428,7 @@ export function SolidarityActionsTimeline ({
               }} />
             </section>
             <section className='pt-1 flex-grow-0'>
-              <h3 className='text-xs text-left w-full font-mono uppercase'>
+              <h3 className='text-base text-left w-full font-semibold'>
                 Select year
               </h3>
               <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
@@ -359,52 +440,6 @@ export function SolidarityActionsTimeline ({
           <h2 className='text-6xl font-identity'>
             {pluralize('action', filteredActions.length, true)}
           </h2>
-
-          <div className='flex flex-wrap w-full justify-start p-1 text-sm'>
-            {selectedCountries?.map(country => country ? (
-              <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCountry(country.fields.Slug)}
-              >
-                <Emoji symbol={country.emoji.emoji} /> {country?.emoji.name}
-              </div>
-            ) : null)}
-            {selectedCategories?.map(category => category ? (
-              <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCategory(category.fields.Name)}
-              >
-                <span className='inline-block'>{category.fields.Emoji}</span>
-                <span className='inline-block capitalize ml-1'>{category.fields.Name}</span>
-              </div>
-            ) : null)}
-            {selectedCompanies?.map(company => company ? (
-              <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCompany(company.fields.Name)}
-              >
-                {company?.fields.Name}
-              </div>
-            ) : null)}
-            {selectedOrganisingGroups?.map(group => group ? (
-              <div key={group?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleOrganisingGroup(group.fields.Name)}
-              >
-                {group?.fields.Name}
-              </div>
-            ) : null)}
-            {filterText.trim().length > 0 && [filterText].map(textFragment =>
-              <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
-              >
-                "{textFragment}"
-              </div>
-            )}
-            {hasFilters ? (
-              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl border-black border px-3 py-2 font-semibold inline-block'
-                onClick={clearAllFilters}
-              >
-                Clear all filters <div className='inline-block transform rotate-45'>+</div>
-              </div>
-            ) : null}
-          </div>
 
           {selectedOrganisingGroups?.map(group => 
             <OrganisingGroupCard data={group!} withPadding={false} withContext={false} key={group!.id} />
@@ -431,9 +466,9 @@ export function SolidarityActionsTimeline ({
             </article>
           )}
 
-          {!!selectedCountries[0]?.fields.Name && !!relevantGroups.length && (
+          {!!relevantGroups.length && !!selectedCountries.length && (
             <article>
-              <h3 className='text-3xl font-light'>Active organising groups in {selectedCountries[0].fields.Name}</h3>
+              <h3 className='text-3xl font-light'>Active organising groups</h3>
               <ul className='list space-y-1 my-3'>
                 <Disclosure>
                   {({ open }) => (
@@ -451,18 +486,21 @@ export function SolidarityActionsTimeline ({
                               label={union.fields.IsUnion ? 'Union' : 'Organising Group'}
                             />
                             <span className='link'>{union.fields.Name}</span>
-                            {union.fields.IsUnion && <span className='inline-block ml-2 text-gray-400 rounded-full text-xs ml-auto'>
-                              ({union.fields.IsUnion ? 'Union' : 'Organising Group'})
+                            <span className='inline-block ml-2 text-gray-400 rounded-full text-xs'>
+                              {stringifyArray(union.geography.country.map(g => g.name))}
+                            </span>
+                            {<span className='inline-block ml-2 text-gray-400 rounded-full text-xs'>
+                              ({union.fields.IsUnion ? 'union' : 'organising group'})
                             </span>}
                           </li>
                         </Link>
                       )}
-                      {(relevantGroups?.length || 0) > UNION_DISPLAY_LIMIT && (
+                      {(relevantGroups.length || 0) > UNION_DISPLAY_LIMIT && (
                         <Disclosure.Button>
                           <div className='text-sm link px-2 my-2'>
                             <span>{open
                               ? "Show fewer organising groups"
-                              : `Show all ${relevantGroups?.length} organising groups`
+                              : `Show all ${relevantGroups.length} organising groups`
                             }</span>
                             <ChevronRightIcon
                               className={`${open ? "rotate-270" : "rotate-90"} transform w-3 inline-block`}
@@ -479,15 +517,15 @@ export function SolidarityActionsTimeline ({
 
           <div className='pb-1' />
 
-            <SolidarityActionsList
-              data={filteredActions}
-              withDialog
-              dialogProps={{
-                cardProps: {
-                  withContext: true
-                },
-              }}
-            />
+          <SolidarityActionsList
+            data={filteredActions}
+            withDialog
+            dialogProps={{
+              cardProps: {
+                withContext: true
+              },
+            }}
+          />
 
           <article>
             <p>Can you contribute more info about worker organising?</p>
