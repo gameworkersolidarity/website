@@ -289,13 +289,14 @@ export function SolidarityActionsTimeline ({
                             <Listbox.Option
                               key={country.id}
                               value={country.fields.Slug}
+                              // disabled={!filteredActions.filter(a => a.fields.Country?.includes(country.id)).length}
                             >
-                              {({ active, selected }) => (
-                                <FilterOption isActive={active} isSelected={isSelected}>
+                              {(args) => (
+                                <FilterOption {...args} selected={isSelected}>
                                   <span><Emoji symbol={country.emoji.emoji} /></span>
                                   <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
-                                  <span className='inline-block align-baseline text-xs ml-auto text-black pl-2'>
-                                    {pluralize('action', country.fields['Solidarity Actions']?.length || 0, true)}
+                                  <span className='inline-block align-baseline text-xs ml-auto pl-2'>
+                                    {pluralize('action', filteredActions.filter(a => a.fields.Country?.includes(country.id)).length || 0, true)}
                                   </span>
                                 </FilterOption>
                               )}
@@ -321,15 +322,16 @@ export function SolidarityActionsTimeline ({
                           <Listbox.Option
                             key={category.id}
                             value={category.fields.Name}
+                            // disabled={!filteredActions.filter(a => a.fields.Category?.includes(category.id)).length}
                           >
-                            {({ active, selected }) =>  {
+                            {(args) =>  {
                               const isSelected = !!selectedCategories.find(c => c?.id === category.id)
                               return (
-                                <FilterOption isActive={active} isSelected={isSelected}>
+                                <FilterOption {...args} selected={isSelected}>
                                   <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
                                   <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
-                                  <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                    {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
+                                  <span className='align-baseline inline-block text-xs ml-auto pl-2'>
+                                    {pluralize('action', filteredActions.filter(a => a.fields.Category?.includes(category.id)).length || 0, true)}
                                   </span>
                                 </FilterOption>
                               )
@@ -357,12 +359,13 @@ export function SolidarityActionsTimeline ({
                             <Listbox.Option
                               key={company.id}
                               value={company.fields.Name}
+                              // disabled={!filteredActions.filter(a => a.fields.Company?.includes(company.id)).length}
                             >
-                              {({ active, selected }) => (
-                                <FilterOption isActive={active} isSelected={isSelected}>
+                              {(args) => (
+                                <FilterOption {...args} selected={isSelected}>
                                   <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
-                                  <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                    {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
+                                  <span className='align-baseline inline-block text-xs ml-auto pl-2'>
+                                    {pluralize('action', filteredActions.filter(a => a.fields.Company?.includes(company.id)).length || 0, true)}
                                   </span>
                                 </FilterOption>
                               )}
@@ -388,14 +391,15 @@ export function SolidarityActionsTimeline ({
                           <Listbox.Option
                             key={group.id}
                             value={group.fields.Name}
+                            // disabled={!filteredActions.filter(a => a.fields['Organising Groups']?.includes(group.id)).length}
                           >
-                            {({ active, selected }) => {
+                            {(args) => {
                               const isSelected = !!selectedOrganisingGroups.find(c => c?.id === group.id)
                               return (
-                                <FilterOption isActive={active} isSelected={isSelected}>
+                                <FilterOption {...args} selected={isSelected}>
                                   <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
-                                  <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                    {pluralize('action', group.fields['Solidarity Actions']?.length || 0, true)}
+                                  <span className='align-baseline inline-block text-xs ml-auto pl-2'>
+                                    {pluralize('action', filteredActions.filter(a => a.fields['Organising Groups']?.includes(group.id)).length || 0, true)}
                                   </span>
                                 </FilterOption>
                               )
