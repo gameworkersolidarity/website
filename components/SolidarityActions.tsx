@@ -278,8 +278,8 @@ export function ActionMetadata ({ data }: { data: SolidarityAction }) {
       {data.fields.Location ? (
         <span className='pr-1'>{data.fields.Location}</span>
       ) : null}
-      {data.geography?.country.map(country => (
-        <span className='pr-3' key={country.iso3166}>
+      {data.geography?.country.map((country, i) => (
+        <span className='pr-3' key={`${country.iso3166}-${i}`}>
           <Emoji
             symbol={country.emoji.emoji}
             label={`Flag of ${country.name}`}

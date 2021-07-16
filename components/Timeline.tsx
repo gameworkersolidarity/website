@@ -339,7 +339,7 @@ export function SolidarityActionsTimeline ({
               </div>
             </section>
             <section className='w-full flex-grow'>
-              <Map data={filteredActions} onSelectCountry={iso2 => {
+              <Map data={JSON.parse(JSON.stringify(filteredActions))} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
                 if (countrySlug) {
                   toggleCountry(countrySlug)
