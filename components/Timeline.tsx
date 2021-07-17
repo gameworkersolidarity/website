@@ -225,12 +225,14 @@ export function SolidarityActionsTimeline ({
 
   //
 
-  const relevantGroups = groups.filter(g =>
-    g.geography.country.some(c =>
-      selectedCountries.some(C =>
-          C?.emoji.code ===  c.iso3166)))
+  const relevantGroups = Array.from(new Set(
+    filteredActions
+      .reduce((gs, a) => gs.concat(a.fields['Organising Groups'] || []), [] as string[])
+    ))
+    .map(gid => groups.find(G => G.id === gid)!)
+    .filter(Boolean)
 
-  const UNION_DISPLAY_LIMIT = 5
+  const UNION_DISPLAY_LIMIT = 3
   const { makeContextualHref, returnHref } = useContextualRouting();
   const [selectedUnion, unionDialogKey] = useSelectedOrganisingGroup(groups || [])
 
@@ -507,9 +509,9 @@ export function SolidarityActionsTimeline ({
             {pluralize('action', filteredActions.length, true)}
           </h2>
 
-          {!!relevantGroups.length && !!selectedCountries.length && (
+          {!!relevantGroups.length && hasFilters && (
             <article>
-              <h3 className='text-3xl font-light font-identity'>Active groups</h3>
+              <h3 className='text-3xl font-light font-identity'>Related unions and groups</h3>
               <ul className='list space-y-1 my-3'>
                 <Disclosure>
                   {({ open }) => (
@@ -527,12 +529,15 @@ export function SolidarityActionsTimeline ({
                               label={union.fields.IsUnion ? 'Union' : 'Organising Group'}
                             />
                             <span className='link'>{union.fields.Name}</span>
-                            <span className='inline-block ml-2 text-gray-400 rounded-full text-xs'>
-                              {stringifyArray(union.geography.country.map(g => g.name))}
+                            <span>
+                              <span className='inline-block ml-2 text-gray-400 rounded-full text-xs'>
+                                {union.fields.IsUnion ? 'Union' : 'Organising group'} in
+                              </span>
+                              &nbsp;
+                              <span className='inline-block text-gray-400 rounded-full text-xs'>
+                                {stringifyArray(union.geography.country.map(g => g.name))}
+                              </span>
                             </span>
-                            {<span className='inline-block ml-2 text-gray-400 rounded-full text-xs'>
-                              ({union.fields.IsUnion ? 'union' : 'organising group'})
-                            </span>}
                           </li>
                         </Link>
                       )}
@@ -540,11 +545,11 @@ export function SolidarityActionsTimeline ({
                         <Disclosure.Button>
                           <div className='text-sm link px-2 my-2'>
                             <span>{open
-                              ? "Show fewer organising groups"
-                              : `Show all ${relevantGroups.length} organising groups`
+                              ? "Show fewer"
+                              : `Show ${relevantGroups.length - UNION_DISPLAY_LIMIT} more`
                             }</span>
                             <ChevronRightIcon
-                              className={`${open ? "rotate-270" : "rotate-90"} transform w-3 inline-block`}
+                              className={`${open ? "-rotate-90" : "rotate-90"} transform w-3 inline-block`}
                             />
                           </div>
                         </Disclosure.Button>
@@ -554,17 +559,6 @@ export function SolidarityActionsTimeline ({
                 </Disclosure>
               </ul>
             </article>
-          )}
-
-          {!!selectedOrganisingGroups.length && (
-            <>
-              <h3 className='text-3xl font-identity'>
-                Selected {pluralize('group', selectedOrganisingGroups, false)}
-              </h3>
-              {selectedOrganisingGroups.map(group => <>
-                <OrganisingGroupCard data={group!} withPadding={false} withContext={false} key={group!.id} />
-              </>)}
-            </>
           )}
 
           {selectedCategories.filter(c => c?.summary?.html).map(c => (
