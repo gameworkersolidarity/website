@@ -15,7 +15,7 @@ export function countryDataForCode (countryCode: string): Geography['country'][0
   // Add country data
   const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
   const emoji = countryFlagEmoji.get(countryCode) as CountryEmoji
-  const bbox = toBBOX(emoji.name === 'South Korea' ? 'S. Korea' : emoji.name)
+  const bbox = emoji.name === 'France' ? [-5.4534286, 41.2632185, 9.8678344, 51.268318] : toBBOX(emoji.name === 'South Korea' ? 'S. Korea' : emoji.name)
   return {
     name: emoji.name,
     emoji,
