@@ -5,7 +5,7 @@ import PageLayout from '../components/PageLayout';
 
 export default function Page({ embedUrl }) {
   return (
-    <PageLayout fullWidth>
+    <PageLayout>
       <NextSeo
         title={'All data'}
         openGraph={{
@@ -14,7 +14,7 @@ export default function Page({ embedUrl }) {
       />
 
       <div>
-        <h1 className='font-identity text-4xl mb-4 px-4 md:px-5 py-4'>
+        <h1 className='font-identity text-4xl mb-4 px-4 lg:px-5 xl:px-7 py-4'>
           All solidarity action data
         </h1>
 

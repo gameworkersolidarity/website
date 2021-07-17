@@ -28,7 +28,7 @@ export const ActionsContext = createContext<PageProps>({
 
 export default function Page({ actions, companies, categories, countries, groups }: PageProps) {
   return (
-    <PageLayout fullWidth>
+    <PageLayout>
       {/* <ActionsContext.Provider value={{
         actions,
         companies,

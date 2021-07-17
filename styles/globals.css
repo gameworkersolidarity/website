@@ -33,7 +33,8 @@ body {
   }
 
   .content-wrapper {
-    @apply max-w-7xl mx-auto px-4 md:px-7;
+    @apply mx-auto px-4 lg:px-5 xl:px-7;
+    /* max-width: 1600px; */
   }
 
   .filter-item {

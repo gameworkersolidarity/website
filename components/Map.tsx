@@ -434,15 +434,15 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
   useEffect(() => {
     if (marker.current._el) {
       if (isSelected) {
-        (marker.current._el as HTMLDivElement).classList.add('z-50')
+        (marker.current._el as HTMLDivElement).classList.add('z-30')
       } else {
-        (marker.current._el as HTMLDivElement).classList.remove('z-50')
+        (marker.current._el as HTMLDivElement).classList.remove('z-30')
       }
     }
   }, [isSelected])
 
   return (
-    <Marker ref={marker} longitude={longitude} latitude={latitude} anchor='bottom' className={isSelected ? 'z-50' : 'z-10'}>
+    <Marker ref={marker} longitude={longitude} latitude={latitude} anchor='bottom' className={isSelected ? 'z-30' : 'z-10'}>
       <div
         onClick={toggleSelected}
         className='relative'
