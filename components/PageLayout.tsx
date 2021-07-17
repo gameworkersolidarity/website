@@ -35,7 +35,7 @@ function Header ({  }: {  }) {
 
   return (
     <>
-    <header className='py-5 bg-gwPink space-y-2' ref={headerRef}>
+    <header className='py-5 bg-gwPink space-y-2' ref={headerRef} id='static-header'>
       <div className='content-wrapper'>
         <div className='sm:flex sm:space-x-4 space-y-2 sm:space-y-0 items-top'>
           <div className='leading-none text-4xl lg:text-[4vw] sm:w-1/2 font-identity cursor-pointer hover:text-gwPinkLight flex-shrink-0'>
@@ -47,7 +47,7 @@ function Header ({  }: {  }) {
         </div>
       </div>
     </header>
-    <nav className='top-0 sticky z-40 py-3 bg-gwPink'>
+    <nav className='top-0 sticky z-40 py-3 bg-gwPink' id='sticky-header'>
       <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start space-x-4 md:space-x-5 items-center'>
         {data?.headerLinks?.map?.((link, i) => (
           <a

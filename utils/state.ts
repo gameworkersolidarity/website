@@ -35,7 +35,7 @@ export function useURLStateFactory () {
   if (isEqual(query, nextQuery)) {
     // console.info("Update URL called, but URL was the same as before", { query, nextQuery })
   } else {
-    router.push({ query: nextQuery }, undefined, { shallow: true })
+    router.push({ query: nextQuery }, undefined, { shallow: true, scroll: false })
   }
 }, 500)
 

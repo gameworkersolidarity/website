@@ -223,6 +223,13 @@ export function SolidarityActionsTimeline ({
     return updateFilteredActions()
   }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
 
+  useEffect(() => {
+    window.scroll({
+      top: document.getElementById('static-header')?.offsetHeight || 100,
+      behavior: 'smooth'
+    })
+  }, [filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
+
   //
 
   const relevantGroups = Array.from(new Set(
