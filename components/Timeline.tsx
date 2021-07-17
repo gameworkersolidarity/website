@@ -331,6 +331,10 @@ export function SolidarityActionsTimeline ({
                             >
                               {(args) => (
                                 <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                  <span aria-role='hidden' className='hidden'>
+                                    {/* This allows type-ahead on the keyboard for the dropdown */}
+                                    {country.fields.Name}
+                                  </span>
                                   <span><Emoji symbol={country.emoji.emoji} /></span>
                                   <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
                                   <span className='inline-block align-baseline text-xs ml-auto pl-3'>
@@ -374,6 +378,10 @@ export function SolidarityActionsTimeline ({
                               {(args) =>  {
                                 return (
                                   <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span aria-role='hidden' className='hidden'>
+                                      {/* This allows type-ahead on the keyboard for the dropdown */}
+                                      {category.fields.Name}
+                                    </span>
                                     <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
                                     <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
                                     <span className='align-baseline inline-block text-xs ml-auto pl-3'>
