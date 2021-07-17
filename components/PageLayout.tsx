@@ -47,7 +47,7 @@ function Header ({  }: {  }) {
         </div>
       </div>
     </header>
-    <nav className='top-0 sticky z-50 py-3 bg-gwPink'>
+    <nav className='top-0 sticky z-40 py-3 bg-gwPink'>
       <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start space-x-4 md:space-x-5 items-center'>
         {data?.headerLinks?.map?.((link, i) => (
           <a
