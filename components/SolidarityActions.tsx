@@ -205,6 +205,13 @@ function getChunks (array: Fuse.FuseResultMatch[]) {
   }, [] as Chunk[])
 }
 
+function highlightHTML (html: string, search: string, className: string) {
+  return html.replace(
+    new RegExp(`(${search})` || '', 'gim'),
+    `<mark class='${className}'>$1</mark>`
+  )
+}
+
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
@@ -224,13 +231,10 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
             />
           </h2>
           {data.fields.Summary && (
-          <div className='w-full pt-4'>
-            <Highlighter
-              highlightClassName="bg-gwYellow"
-              searchWords={[search || '']}
-              autoEscape={true}
-              textToHighlight={data.summary.plaintext}          
-            />
+          <div className='w-full pt-4 text-base'>
+            <div dangerouslySetInnerHTML={{
+              __html: !search ? data.summary.html : highlightHTML(data.summary.html, search, 'bg-gwYellow')
+            }} />
           </div>
         )}
         </>: 
