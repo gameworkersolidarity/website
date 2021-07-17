@@ -60,7 +60,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
 
   function onClose () {
     if (returnHref) {
-      return router.push(returnHref, returnHref, { shallow: false })
+      return router.push(returnHref, returnHref, { shallow: false, scroll: false })
     }
   }
 

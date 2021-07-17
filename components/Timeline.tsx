@@ -246,7 +246,7 @@ export function SolidarityActionsTimeline ({
       companies: filteredCompanyNames,
       hasFilters
     }}>
-      <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true }) }} />
+      <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true, scroll: false }) }} />
       <div className='grid md:grid-cols-2'>
         <section className='relative'>
           <div className='p-4 lg:p-5 xl:pl-7 flex flex-col flex-nowrap md:h-screen sticky top-5 space-y-4'>
