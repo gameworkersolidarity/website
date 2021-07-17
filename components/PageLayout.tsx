@@ -77,7 +77,7 @@ function Footer ({ }: { }) {
   })
 
   return (
-    <footer className='mt-auto bg-gwPink'>
+    <footer className='mt-auto bg-gwPink text-sm'>
       <div className={cx('content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top')}>
         <div className='space-y-4 flex-grow'>
           <nav className='grid gap-4 grid-flow-col grid-rows-2 auto-cols-auto'>
@@ -90,12 +90,17 @@ function Footer ({ }: { }) {
               </a>
             ))}
           </nav>
-          <div className='text-sm'>
-            Site by <a className='link' href='https://commonknowledge.coop'>
-              Common Knowledge Co-operative
-            </a> and <a className='link' href='http://shaunabuckley.com/'>
-              Shauna Buckley
-            </a>
+          <div className='md:flex space-y-4 md:space-y-0 md:space-x-5'>
+            <div>
+              Site by <a className='link' href='https://commonknowledge.coop'>
+                Common Knowledge Co-operative
+              </a> and <a className='link' href='http://shaunabuckley.com/'>
+                Shauna Buckley
+              </a>
+            </div>
+            <div>
+              Funded by <a className='link' href='https://open.ac.uk'>The Open University</a>
+            </div>
           </div>
         </div>
         <div className='text-7xl'>
