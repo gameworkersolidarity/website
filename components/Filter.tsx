@@ -13,8 +13,8 @@ export function FilterButton ({
   return (
     <div className={cx(
       !!selectionCount ? 'bg-gwYellow border-black' : '',
-      isOpen && 'shadow-gwPink z-50',
-      'hover:bg-gray-100 active:bg-gwYellow relative text-black rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full'
+      isOpen ? 'rounded-t-lg border-b-0 z-50' : 'hover:bg-gray-100 rounded-lg',
+      'active:bg-gwYellow text-black border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full relative bg-white'
     )}>
       {!selectionCount ? label : pluralize(label, selectionCount, true)}
       &nbsp;
@@ -41,11 +41,11 @@ export function FilterOption ({
 } & HeadlessUiListBoxOptionArgs) {
   return (
     <div className={cx(
-      disabled ? 'text-gray-400 cursor-not-allowed'
+      selected ? 'bg-gwYellow'
+      : disabled ? 'text-gray-400 cursor-not-allowed'
       : active ? 'bg-gwPinkLight'
-      : selected ? 'bg-gwYellow'
       : 'bg-white',
-      'px-3 py-2 rounded-lg cursor-pointer text-left flex justify-start w-full'
+      'px-3 py-2 cursor-pointer text-left flex justify-start items-baseline w-full'
     )}>{children}</div>
   )
 }

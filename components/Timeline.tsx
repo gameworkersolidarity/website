@@ -22,6 +22,7 @@ import { groupUrl } from '../data/organisingGroup';
 import cx from 'classnames';
 import { groupBy } from 'lodash';
 import { FilterButton, FilterOption } from './Filter';
+import {memoize} from 'lodash'
 
 export const FilterContext = createContext<{
   search?: string
@@ -61,7 +62,7 @@ export function SolidarityActionsTimeline ({
     setCategories(categories => toggleInArray(categories, category))
   }
   const selectedCategories = useMemo(() =>
-    filteredCategoryNames.map(name => categories.find(c => c.fields.Name === name)),
+    filteredCategoryNames.map(name => categories.find(c => c.fields.Name === name)!).filter(Boolean),
   [filteredCategoryNames])
 
   /**
@@ -76,7 +77,7 @@ export function SolidarityActionsTimeline ({
     setCompanies(companies => toggleInArray(companies, id))
   }
   const selectedCompanies = useMemo(() =>
-    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)),
+    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)!).filter(Boolean),
   [filteredCompanyNames])
 
   /**
@@ -91,7 +92,7 @@ export function SolidarityActionsTimeline ({
     setCountries(countries => toggleInArray(countries, id))
   }
   const selectedCountries = useMemo(() =>
-    filteredCountrySlugs.map(slug => countries.find(c => c.fields.Slug === slug)),
+    filteredCountrySlugs.map(slug => countries.find(c => c.fields.Slug === slug)!).filter(Boolean),
   [filteredCountrySlugs])
 
   /**
@@ -106,7 +107,7 @@ export function SolidarityActionsTimeline ({
     setOrganisingGroups(groups => toggleInArray(groups, id))
   }
   const selectedOrganisingGroups = useMemo(() =>
-    filteredOrganisingGroupNames.map(name => groups.find(c => c.fields.Name === name)),
+    filteredOrganisingGroupNames.map(name => groups.find(c => c.fields.Name === name)!).filter(Boolean),
   [filteredOrganisingGroupNames])
 
   /**
@@ -159,28 +160,43 @@ export function SolidarityActionsTimeline ({
     useExtendedSearch: true
   }), [actions])
 
-  const filteredActions = useMemo(() => {
-    if (!hasFilters) return actions
+  const defaults = {
+    updateMatches: false,
+    selectedCategories,
+    selectedCompanies,
+    selectedCountries,
+    selectedOrganisingGroups,
+    filterText,
+  }
+
+  function filterActions (params: Partial<typeof defaults> = defaults) {
+    const {
+      selectedCategories,
+      selectedCompanies,
+      selectedCountries,
+      selectedOrganisingGroups,
+      filterText,
+    } = params
     const expression: Fuse.Expression = { $and: [] }
-    if (selectedCategories.length) {
+    if (selectedCategories?.length) {
       expression.$and!.push({ $or: selectedCategories.map(c => ({ 'fields.Category': `'${c?.id}` })) })
     }
-    if (selectedCompanies.length) {
+    if (selectedCompanies?.length) {
       expression.$and!.push({ $or: selectedCompanies.map(c => ({ 'fields.Company': `'${c?.id}` })) })
     }
-    if (selectedCountries.length) {
+    if (selectedCountries?.length) {
       expression.$and!.push({ $or: selectedCountries.map(c => ({ 'fields.Country': `'${c?.id}` })) })
     }
-    if (selectedOrganisingGroups.length) {
+    if (selectedOrganisingGroups?.length) {
       expression.$and!.push({ $or: selectedOrganisingGroups.map(c => ({ $path: ['fields', "Organising Groups"], $val: `'${c?.id}` })) })
     }
-    if (filterText.trim().length > 0) {
+    if (filterText?.trim().length) {
       expression.$and!.push({
         $or: [
           { 'fields.Name': `'"${filterText}"` },
           { 'summary.plaintext': `'"${filterText}"` },
           { 'fields.Location': `'"${filterText}"` },
-          { 'fields.geography.location.display_name': `'"${filterText}"` },
+          { 'fields.geography.location.displayname': `'"${filterText}"` },
           { 'fields.CategoryName': `'"${filterText}"` },
           { 'fields.countryName': `'"${filterText}"` },
           { 'fields.companyName': `'"${filterText}"` },
@@ -188,10 +204,24 @@ export function SolidarityActionsTimeline ({
         ]
       })
     }
-    const results = search.search(expression)
+    return search.search(expression)
+  }
+
+  const filterActionCount = memoize((params: Partial<typeof defaults> = defaults): number => {
+    return filterActions(params).length
+  }, (arg) => JSON.stringify(arg))
+
+  function updateFilteredActions () {
+    const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
+    if (!hasFilters) return actions
+    const results = filterActions()
     setMatches(results)
     return results.map(s => s.item)
-  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedCountries])
+  }
+
+  const filteredActions = useMemo(() => {
+    return updateFilteredActions()
+  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
 
   //
 
@@ -219,7 +249,7 @@ export function SolidarityActionsTimeline ({
       <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true }) }} />
       <div className='grid md:grid-cols-2'>
         <section className='relative'>
-          <div className='p-4 lg:p-5 flex flex-col flex-nowrap h-screen sticky top-0 space-y-4 overflow-y-hidden'>
+          <div className='p-4 lg:p-5 flex flex-col flex-nowrap h-screen sticky top-0 space-y-4'>
             <section className='flex-grow-0'>
               <div className='flex flex-wrap w-full justify-between text-sm'>
                 <h3 className='text-base text-left left-0 font-semibold mb-2'>
@@ -282,21 +312,28 @@ export function SolidarityActionsTimeline ({
                       <FilterButton label='Country' selectionCount={selectedCountries.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='border-2 border-gray-300 listbox-dropdown'>
+                      <div className='listbox-dropdown'>
                         {countries.map((country) => {
                           const isSelected = !!selectedCountries.find(c => c?.id === country.id)
+                          const countIfYouIncludeThis = !hasFilters
+                            ? country.fields['Solidarity Actions']?.length || 0
+                            : filterActionCount({
+                              ...defaults,
+                              selectedCountries: [...selectedCountries, country]
+                            })
                           return (
                             <Listbox.Option
                               key={country.id}
                               value={country.fields.Slug}
-                              // disabled={!filteredActions.filter(a => a.fields.Country?.includes(country.id)).length}
+                              disabled={!countIfYouIncludeThis && !isSelected}
                             >
                               {(args) => (
-                                <FilterOption {...args} selected={isSelected}>
+                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
                                   <span><Emoji symbol={country.emoji.emoji} /></span>
                                   <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
-                                  <span className='inline-block align-baseline text-xs ml-auto pl-2'>
-                                    {pluralize('action', filteredActions.filter(a => a.fields.Country?.includes(country.id)).length || 0, true)}
+                                  <span className='inline-block align-baseline text-xs ml-auto pl-3'>
+                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                  {countIfYouIncludeThis}
                                   </span>
                                 </FilterOption>
                               )}
@@ -318,26 +355,35 @@ export function SolidarityActionsTimeline ({
                     </Listbox.Button>
                     <Listbox.Options>
                       <div className='listbox-dropdown'>
-                        {categories.map((category) => (
-                          <Listbox.Option
-                            key={category.id}
-                            value={category.fields.Name}
-                            // disabled={!filteredActions.filter(a => a.fields.Category?.includes(category.id)).length}
-                          >
-                            {(args) =>  {
-                              const isSelected = !!selectedCategories.find(c => c?.id === category.id)
-                              return (
-                                <FilterOption {...args} selected={isSelected}>
-                                  <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
-                                  <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
-                                  <span className='align-baseline inline-block text-xs ml-auto pl-2'>
-                                    {pluralize('action', filteredActions.filter(a => a.fields.Category?.includes(category.id)).length || 0, true)}
-                                  </span>
-                                </FilterOption>
-                              )
-                            }}
-                          </Listbox.Option>
-                        ))}
+                        {categories.map((category) => {
+                          const countIfYouIncludeThis = !hasFilters
+                          ? category.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedCategories: [...selectedCategories, category]
+                          })
+                          const isSelected = !!selectedCategories.find(c => c?.id === category.id)
+                          return (
+                            <Listbox.Option
+                              key={category.id}
+                              value={category.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) =>  {
+                                return (
+                                  <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
+                                    <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
+                                    <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                    {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                    {countIfYouIncludeThis}
+                                    </span>
+                                  </FilterOption>
+                                )
+                              }}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
                     </>
@@ -355,17 +401,24 @@ export function SolidarityActionsTimeline ({
                       <div className='listbox-dropdown'>
                         {companies.map((company) =>  {
                           const isSelected = !!selectedCompanies.find(c => c?.id === company.id)
+                          const countIfYouIncludeThis = !hasFilters
+                          ? company.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedCompanies: [...selectedCompanies, company]
+                          })
                           return (
                             <Listbox.Option
                               key={company.id}
                               value={company.fields.Name}
-                              // disabled={!filteredActions.filter(a => a.fields.Company?.includes(company.id)).length}
+                              disabled={!countIfYouIncludeThis && !isSelected}
                             >
                               {(args) => (
-                                <FilterOption {...args} selected={isSelected}>
+                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
                                   <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
-                                  <span className='align-baseline inline-block text-xs ml-auto pl-2'>
-                                    {pluralize('action', filteredActions.filter(a => a.fields.Company?.includes(company.id)).length || 0, true)}
+                                  <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                  {countIfYouIncludeThis}
                                   </span>
                                 </FilterOption>
                               )}
@@ -387,25 +440,34 @@ export function SolidarityActionsTimeline ({
                     </Listbox.Button>
                     <Listbox.Options>
                       <div className='listbox-dropdown'>
-                        {groups.map((group) => (
-                          <Listbox.Option
-                            key={group.id}
-                            value={group.fields.Name}
-                            // disabled={!filteredActions.filter(a => a.fields['Organising Groups']?.includes(group.id)).length}
-                          >
-                            {(args) => {
-                              const isSelected = !!selectedOrganisingGroups.find(c => c?.id === group.id)
-                              return (
-                                <FilterOption {...args} selected={isSelected}>
-                                  <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
-                                  <span className='align-baseline inline-block text-xs ml-auto pl-2'>
-                                    {pluralize('action', filteredActions.filter(a => a.fields['Organising Groups']?.includes(group.id)).length || 0, true)}
-                                  </span>
-                                </FilterOption>
-                              )
-                            }}
-                          </Listbox.Option>
-                        ))}
+                        {groups.map((group) => {
+                          const isSelected = !!selectedOrganisingGroups.find(c => c?.id === group.id)
+                          const countIfYouIncludeThis = !hasFilters
+                          ? group.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedOrganisingGroups: [...selectedOrganisingGroups, group]
+                          })
+                          return (
+                            <Listbox.Option
+                              key={group.id}
+                              value={group.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => {
+                                return (
+                                  <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
+                                    <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                      {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                      {countIfYouIncludeThis}
+                                    </span>
+                                  </FilterOption>
+                                )
+                              }}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
                     </>
@@ -445,34 +507,9 @@ export function SolidarityActionsTimeline ({
             {pluralize('action', filteredActions.length, true)}
           </h2>
 
-          {selectedOrganisingGroups?.map(group => 
-            <OrganisingGroupCard data={group!} withPadding={false} withContext={false} key={group!.id} />
-          )}
-
-          {!!selectedCategories[0]?.summary?.html && (
-            <article>
-              <h3 className='text-3xl font-identity'>More info on {selectedCategories[0].fields.Name}</h3>
-              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCategories[0]?.summary.html }} />
-            </article>
-          )}
-
-          {!!selectedCompanies[0]?.summary?.html && (
-            <article>
-              <h3 className='text-3xl font-identity'>More info on {selectedCompanies[0].fields.Name}</h3>
-              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCompanies[0]?.summary.html }} />
-            </article>
-          )}
-
-          {!!selectedCountries[0]?.summary?.html && (
-            <article>
-              <h3 className='text-3xl font-identity'>More info on {selectedCountries[0].fields.Name}</h3>
-              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCountries[0]?.summary.html }} />
-            </article>
-          )}
-
           {!!relevantGroups.length && !!selectedCountries.length && (
             <article>
-              <h3 className='text-3xl font-light'>Active organising groups</h3>
+              <h3 className='text-3xl font-light font-identity'>Active groups</h3>
               <ul className='list space-y-1 my-3'>
                 <Disclosure>
                   {({ open }) => (
@@ -516,6 +553,38 @@ export function SolidarityActionsTimeline ({
                   )}
                 </Disclosure>
               </ul>
+            </article>
+          )}
+
+          {!!selectedOrganisingGroups.length && (
+            <>
+              <h3 className='text-3xl font-identity'>
+                Selected {pluralize('group', selectedOrganisingGroups, false)}
+              </h3>
+              {selectedOrganisingGroups.map(group => <>
+                <OrganisingGroupCard data={group!} withPadding={false} withContext={false} key={group!.id} />
+              </>)}
+            </>
+          )}
+
+          {selectedCategories.filter(c => c?.summary?.html).map(c => (
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {c.fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: c?.summary.html }} />
+            </article>
+          ))}
+
+          {!!selectedCompanies.filter(c => c?.summary?.html).map(c =>
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {c.fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: c.summary.html }} />
+            </article>
+          )}
+
+          {!!selectedCountries.filter(c => c?.summary?.html).map(c =>
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {c.fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: c.summary.html }} />
             </article>
           )}
 
