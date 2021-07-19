@@ -23,11 +23,11 @@ export default function Page({ article, errorMessage }: PageProps) {
         }}
       />
 
-      <section className='content-wrapper py-5'>
+      <section className='pt-6 pb-7 content-wrapper max-w-4xl mx-auto'>
         <article className='space-y-2'>
-          <h1 className='font-identity text-4xl'>{article.fields.Title}</h1>
-          <p className='text-2xl font-semibold'>{article.fields.Summary}</p>
-          <div className='prose ' dangerouslySetInnerHTML={{ __html: article.body.html }} />
+          <h1 className='font-identity text-6xl mb-5'>{article.fields.Title}</h1>
+          <p className='text-4xl font-semibold mb-5'>{article.fields.Summary}</p>
+          <div className='prose text-lg' dangerouslySetInnerHTML={{ __html: article.body.html }} />
         </article>
       </section>
     </PageLayout>

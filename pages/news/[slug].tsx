@@ -51,8 +51,8 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
           ) : (
             <>
               <div className='flex flex-col justify-center space-y-4 pb-4'>
-                <h1 className='font-identity text-5xl md:text-6xl'>{article.fields.Title}</h1>
-                <p className='text-2xl'>{article.fields.Summary}</p>
+                <h1 className='font-identity text-5xl md:text-6xl mb-4'>{article.fields.Title}</h1>
+                <p className='text-2xl my-4'>{article.fields.Summary}</p>
                 {article.fields.ByLine && <p className='text-xl link font-light'>{article.fields.ByLine}</p>}
               </div>
             </>

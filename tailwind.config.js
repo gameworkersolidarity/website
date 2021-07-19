@@ -91,8 +91,8 @@ module.exports = {
               },
             },
             p: {
-              marginTop: theme('space.5'),
-              marginBottom: theme('space.5')
+              marginTop: theme('space.4'),
+              marginBottom: theme('space.4')
             },
             blockquote: {
               marginTop: theme('space.5'),
