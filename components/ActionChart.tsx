@@ -205,39 +205,6 @@ export function CumulativeChart ({
         orientation="bottom"
         tickFormat={timeFormat(isSmallScreen ? "%y" : "%Y")}
       />
-      <Tooltip<Datum>
-        snapTooltipToDatumX
-        snapTooltipToDatumY
-        showVerticalCrosshair
-        showSeriesGlyphs
-        glyphStyle={{
-          fill: theme`colors.gwOrange`
-        }}
-        className='absolute'
-        style={{}}
-        renderTooltip={({ tooltipData, colorScale }) => {
-          return (
-            <div className='bg-white px-2 py-1 text-sm rounded-xl font-mono z-10'>
-              {tooltipData?.nearestDatum ? <>
-                {/* <div className='text-base text-opacity-50'>
-                  <span className='text-gwOrange font-bold'>
-                    {pluralize('action', accessors.yAccessor(tooltipData.datumByKey['Cumulative'].datum), true)}
-                  </span> since {timeFormat('%Y')(minDate)}
-                </div> */}
-                <div className='text-base'>
-                  <span className='text-gwPink font-bold'>
-                    +{accessors.yAccessor(tooltipData.datumByKey['Frequency'].datum)}
-                  </span> in {timeFormat('%Y')(accessors.xAccessor(tooltipData.datumByKey['Frequency'].datum))}
-                </div>
-                {/* <div>
-                  <span>between {timeFormat('%Y')(minDate)} — {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-                  <span>in {timeFormat('%Y')(new Date(accessors.xAccessor(tooltipData.nearestDatum.datum)))}</span>
-                </div> */}
-              </> : null}
-            </div>
-          )
-        }}
-      />
       </XYChart>
     </ThemeContext.Provider>
   )
