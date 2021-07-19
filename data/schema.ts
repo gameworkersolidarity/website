@@ -103,7 +103,7 @@ export const menuItemSchema = baseRecordSchema.extend({
 export const thumbnailsSchema = z.object({
   small: thumbnailSchema,
   large: thumbnailSchema,
-  full: thumbnailSchema,
+  full: thumbnailSchema.optional(),
 });
 
 export const openStreetMapReverseGeocodeResponseSchema = z.object({

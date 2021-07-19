@@ -18,7 +18,10 @@ export const formatBlogPost = (blog: BlogPost): BlogPost => {
 
 const blogPostFields = ['Title', 'ByLine', 'Image', 'Body', 'Public', 'Summary', 'Date', 'Slug'] as Array<keyof BlogPost['fields']>
 
-export const blogPostBase = () => airtableBase()<BlogPost['fields']>(
+export const blogPostBase = () => airtableBase()<
+  // @ts-ignore
+  BlogPost['fields']
+>(
   env.get('AIRTABLE_TABLE_NAME_BLOG_POSTS').default('Blog Posts').asString()
 )
 

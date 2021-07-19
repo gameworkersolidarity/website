@@ -1,7 +1,7 @@
 import { format, getMonth, getYear } from 'date-fns';
 import useSWR from 'swr'
 import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { SolidarityAction, Country, Document } from '../data/types';
+import { SolidarityAction, Country, Attachment } from '../data/types';
 import { stringifyArray } from '../utils/string';
 import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
@@ -264,7 +264,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   )
 }
 
-export function DocumentLink ({ doc, withPreview }: { doc: Document, withPreview?: boolean }) {
+export function DocumentLink ({ doc, withPreview }: { doc: Attachment, withPreview?: boolean }) {
   return (
     <a href={doc.url} className='block my-1'>
       <Emoji symbol='📑' label='File attachment' className='align-baseline' />

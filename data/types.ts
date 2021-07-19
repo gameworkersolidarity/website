@@ -18,7 +18,7 @@ export interface Attachment {
 export interface Thumbnails {
   small: Thumbnail;
   large: Thumbnail;
-  full: Thumbnail;
+  full?: Thumbnail;
 }
 
 export interface Thumbnail {
@@ -181,7 +181,7 @@ export interface BlogPost extends BaseRecord {
     Slug?: string;
     ByLine?: string
     Title:       string;
-    Image?: Attachment[];
+    readonly Image?: Attachment[];
     Summary?:   string;
     Body:   string;
     Date:       string;

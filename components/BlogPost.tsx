@@ -12,7 +12,7 @@ export function BlogPostThumbnail ({ blog: b }: { blog: BlogPost }) {
           <div className='rounded-lg shadow-gwPink'>
             <Image
               layout='responsive'
-              src={b.fields.Image[0].thumbnails.full.url}
+              src={b.fields.Image[0].thumbnails.full?.url || b.fields.Image[0].url}
               width={b.fields.Image[0].thumbnails.large.width}
               height={b.fields.Image[0].thumbnails.large.height}
             />
