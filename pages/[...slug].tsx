@@ -35,7 +35,10 @@ export default function Page({ article, errorMessage }: PageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const links = (await getStaticPages()).filter(page => typeof page.fields.Slug === 'string')
+  const links = (await getStaticPages()).filter(page =>
+    typeof page.fields.Slug === 'string'
+    && page.fields.Slug !== 'about'
+  )
   return {
     paths: links.map(page => ({
       params: {
