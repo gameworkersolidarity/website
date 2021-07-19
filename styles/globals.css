@@ -55,4 +55,8 @@ body {
   .glowable {
     @apply shadow-noglow hover:shadow-glow transition duration-100;
   }
+
+  .action-chart svg {
+    @apply overflow-visible;
+  }
 }

@@ -28,7 +28,7 @@ export function CumulativeMovementChart ({ data, onSelectYear }: { data: Solidar
   const maxDate = new Date()
 
   return (
-    <div className='relative cursor-pointer' style={{ height: 120, maxHeight: '25vh' }}>
+    <div className='relative cursor-pointer action-chart' style={{ height: 120, maxHeight: '25vh' }}>
       <ParentSize>{(parent) => (
         <>
           {/* <h3 className='text-xs text-left absolute top-0 left-0 w-full font-mono uppercase'>
@@ -123,7 +123,7 @@ export function CumulativeChart ({
   //   return d
   // }, [data])
 
-  const isSmallScreen = !useMediaQuery(up('sm'))
+  const isSmallScreen = !useMediaQuery(up('xl'))
 
   return (
     <ThemeContext.Provider value={{
