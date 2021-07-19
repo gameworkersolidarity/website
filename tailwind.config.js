@@ -74,7 +74,7 @@ module.exports = {
       maxWidth: {
         full: "100%"
       },
-      typography: {
+      typography: theme => ({
         DEFAULT: {
           css: {
             color: 'inherit',
@@ -89,9 +89,32 @@ module.exports = {
                 color: '#2c5282',
               },
             },
+            p: {
+              marginTop: theme('space.5'),
+              marginBottom: theme('space.5')
+            },
+            blockquote: {
+              marginTop: theme('space.5'),
+              marginBottom: theme('space.5'),
+              fontFamily: theme('fontFamily.identity').slice().reverse(),
+              fontSize: theme('fontSize.3xl'),
+              lineHeight: '1.25em',
+              fontStyle: 'normal',
+              border: 'none',
+              margin: 'none',
+              // background: `0% 0% url(/images/spaceinvader.png) no-repeat`,
+              // backgroundSize: '32px 38px',
+              paddingLeft: 40,
+              ' p:first-of-type::before': {
+                content: '"👾" !important',
+                float: 'left',
+                marginLeft: -40
+              },
+              ':after': { display: 'none' },
+            }
           },
         },
-      }
+      })
     },
   },
   variants: {

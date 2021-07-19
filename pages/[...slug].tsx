@@ -1,5 +1,5 @@
 import { getSingleStaticPage, getStaticPages } from '../data/staticPage';
-import { BlogPost, StaticPage } from '../data/types';
+import { StaticPage } from '../data/types';
 import { NextSeo } from 'next-seo';
 import env from 'env-var';
 import { GetStaticPaths, GetStaticProps } from 'next';
