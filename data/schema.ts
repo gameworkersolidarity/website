@@ -6,7 +6,7 @@ export const baseRecordSchema = z.object({
   createdTime: z.string(),
 });
 
-export const fullSchema = z.object({
+export const thumbnailSchema = z.object({
   url: z.string(),
   width: z.number(),
   height: z.number(),
@@ -81,18 +81,6 @@ export const copyTypeSchema = z.object({
   plaintext: z.string(),
 });
 
-export const blogPostSchema = baseRecordSchema.extend({
-  fields: z.object({
-    Slug: z.string().optional(),
-    Title: z.string(),
-    Summary: z.string().optional(),
-    Body: z.string(),
-    Date: z.string(),
-    Public: z.literal(true),
-  }),
-  body: copyTypeSchema,
-});
-
 export const staticPageSchema = baseRecordSchema.extend({
   fields: z.object({
     Slug: z.string().optional(),
@@ -113,9 +101,9 @@ export const menuItemSchema = baseRecordSchema.extend({
 });
 
 export const thumbnailsSchema = z.object({
-  small: fullSchema,
-  large: fullSchema,
-  full: fullSchema.optional(),
+  small: thumbnailSchema,
+  large: thumbnailSchema,
+  full: thumbnailSchema,
 });
 
 export const openStreetMapReverseGeocodeResponseSchema = z.object({
@@ -150,7 +138,7 @@ export const geographySchema = z.object({
   location: openStreetMapReverseGeocodeResponseSchema.optional(),
 });
 
-export const documentSchema = z.object({
+export const attachmentSchema = z.object({
   id: z.string(),
   url: z.string(),
   filename: z.string(),
@@ -183,10 +171,24 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Category: z.array(z.string()).optional(),
     CategoryName: z.array(z.string()).optional(),
     CategoryEmoji: z.array(z.string()).optional(),
-    Document: z.array(documentSchema).optional(),
+    Document: z.array(attachmentSchema).optional(),
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     Public: z.literal(true),
   }),
+});
+
+export const blogPostSchema = baseRecordSchema.extend({
+  fields: z.object({
+    Slug: z.string().optional(),
+    ByLine: z.string().optional(),
+    Title: z.string(),
+    Image: z.array(attachmentSchema).optional(),
+    Summary: z.string().optional(),
+    Body: z.string(),
+    Date: z.string(),
+    Public: z.literal(true),
+  }),
+  body: copyTypeSchema,
 });
 
 export const organisingGroupSchema = baseRecordSchema.extend({

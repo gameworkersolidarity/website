@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply min-h-screen bg-white max-w-full;
+  @apply min-h-screen bg-gwBackground max-w-full;
 }
 
 @font-face {
@@ -50,5 +50,9 @@ body {
     margin-top: -2px;
     max-height: 33vh;
     height: 400;
+  }
+
+  .glowable {
+    @apply shadow-noglow hover:shadow-glow transition duration-100;
   }
 }

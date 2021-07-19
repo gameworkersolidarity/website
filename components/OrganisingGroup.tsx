@@ -72,7 +72,7 @@ export const OrganisingGroupSEO = ({ data }: { data: OrganisingGroup }) => (
 export const OrganisingGroupCard = ({ data, withPadding = true, withContext = true }: { data: OrganisingGroup, withPadding?: boolean, withContext?: boolean }) => {
   return (
     <>
-      <article className={cx('space-y-2px rounded-xl overflow-hidden shadow-noglow group-hover:shadow-glow transition duration-100')}>
+      <article className={cx('space-y-2px rounded-xl overflow-hidden glowable')}>
         <div className={cx(withPadding && 'md:px-8', 'p-4 bg-white')}>
           <div className='text-sm'>
             <div className='flex flex-wrap tracking-tight'>

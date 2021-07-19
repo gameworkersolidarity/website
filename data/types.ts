@@ -6,24 +6,24 @@ export interface BaseRecord {
   createdTime: string;
 }
 
-export interface Document {
-  id:         string;
-  url:        string;
-  filename:   string;
-  size:       number;
-  type:       string;
+export interface Attachment {
+  id: string;
+  url: string;
+  filename: string;
+  size: number;
+  type: string;
   thumbnails: Thumbnails;
 }
 
 export interface Thumbnails {
-  small: Full;
-  large: Full;
-  full?: Full;
+  small: Thumbnail;
+  large: Thumbnail;
+  full: Thumbnail;
 }
 
-export interface Full {
-  url:    string;
-  width:  number;
+export interface Thumbnail {
+  url: string;
+  width: number;
   height: number;
 }
 
@@ -169,7 +169,7 @@ export interface SolidarityAction extends BaseRecord {
     Category?:  string[],
     CategoryName?: string[],
     CategoryEmoji?: string[],
-    Document?:  Document[];
+    Document?:  Attachment[];
     DisplayStyle?: "Featured" | null
     // Notes?:     string; // These are private — Zod will parse these out
     Public:     true; // We can't accept records that haven't been marked for publication
@@ -179,7 +179,9 @@ export interface SolidarityAction extends BaseRecord {
 export interface BlogPost extends BaseRecord {
   fields: {
     Slug?: string;
+    ByLine?: string
     Title:       string;
+    Image?: Attachment[];
     Summary?:   string;
     Body:   string;
     Date:       string;
@@ -212,7 +214,7 @@ export interface Country extends BaseRecord {
     'Solidarity Actions'?: string[]
     // 'DisplayStyle (from Solidarity Actions)': string[]
     // 'Category (from Solidarity Actions)': string[]
-    // 'Document (from Solidarity Actions)': Document[]
+    // 'Document (from Solidarity Actions)': Attachment[]
     // 'Date (from Solidarity Actions)': string[]
     // 'Name (from Solidarity Actions)': string[]
   }
@@ -240,7 +242,7 @@ export interface OrganisingGroup extends BaseRecord {
     LastModified: string
     // 'DisplayStyle (from Solidarity Actions)': string[]
     // 'Category (from Solidarity Actions)': string[]
-    // 'Document (from Solidarity Actions)': Document[]
+    // 'Document (from Solidarity Actions)': Attachment[]
     // 'Date (from Solidarity Actions)': string[]
     // 'Name (from Solidarity Actions)': string[]
   }
@@ -254,7 +256,7 @@ export interface Company extends BaseRecord {
     'Solidarity Actions'?: string[]
     // 'DisplayStyle (from Solidarity Actions)': string[]
     // 'Category (from Solidarity Actions)': string[]
-    // 'Document (from Solidarity Actions)': Document[]
+    // 'Document (from Solidarity Actions)': Attachment[]
     // 'Date (from Solidarity Actions)': string[]
     // 'Name (from Solidarity Actions)': string[]
   }
@@ -271,7 +273,7 @@ export interface Category extends BaseRecord {
     'Solidarity Actions'?: string[]
     // 'DisplayStyle (from Solidarity Actions)': string[]
     // 'Category (from Solidarity Actions)': string[]
-    // 'Document (from Solidarity Actions)': Document[]
+    // 'Document (from Solidarity Actions)': Attachment[]
     // 'Date (from Solidarity Actions)': string[]
     // 'Name (from Solidarity Actions)': string[]
   }

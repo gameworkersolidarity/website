@@ -25,6 +25,7 @@ import { FilterContext } from '../components/Timeline';
 import Highlighter, { Chunk } from "react-highlight-words";
 import { actionUrl } from '../data/solidarityAction';
 import { usePrevious } from '../utils/state';
+import { DateTime } from './Date';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -218,7 +219,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   
   return (
-    <article className={cx('bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
+    <article className={cx('bg-white rounded-xl p-4 text-sm glowable')}>
       <ActionMetadata data={data} />
       <div>
         {isFeatured ? <>
@@ -287,9 +288,9 @@ export function DocumentLink ({ doc, withPreview }: { doc: Document, withPreview
 export function ActionMetadata ({ data }: { data: SolidarityAction }) {
   return (
     <div className='flex flex-wrap tracking-tight'>
-      <time className='font-semibold pr-3' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
-        {format(new Date(data.fields.Date), 'dd MMM yyyy')}
-      </time>
+      <span className='font-semibold pr-3'>
+        <DateTime date={data.fields.Date} />
+      </span>
       {data.fields.Location ? (
         <span className='pr-1'>{data.fields.Location}</span>
       ) : null}
@@ -324,7 +325,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
           description: data.summary.plaintext
         }}
       />
-      <article className={cx('space-y-2px rounded-xl overflow-hidden shadow-noglow group-hover:shadow-glow transition duration-100')}>
+      <article className={cx('space-y-2px rounded-xl overflow-hidden glowable')}>
         <div className='p-4 md:px-8 bg-white'>
           <div className='text-sm'>
             <ActionMetadata data={data} />
