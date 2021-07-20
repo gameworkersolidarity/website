@@ -55,7 +55,7 @@ function Header ({  }: {  }) {
             key={link.fields.url}
             className='order-last md:order-1'
           >
-            <span className='font-semibold underline transition-all duration-75 bg-transparent hover:bg-white hover:shadow-innerGwPink rounded-lg inline-block px-3 -mx-2 md:-mx-1 py-2'>
+            <span className='nav-link'>
               {link.fields.label}
             </span>
           </a>
@@ -82,13 +82,13 @@ function Footer ({ }: { }) {
     <footer className='mt-auto bg-gwPink text-sm'>
       <div className={cx('content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top')}>
         <div className='space-y-4 flex-grow'>
-          <nav className='grid gap-4 grid-flow-col grid-rows-2 auto-cols-auto'>
+          <nav className='grid gap-4 grid-flow-col grid-rows-2 auto-cols-auto -mx-1 md:-mx-2'>
             {data?.footerLinks?.map?.((link, i) => (
               <a
                 href={link.fields.url}
                 key={link.fields.url}
               >
-                <span className='link'>{link.fields.label}</span>
+                <span className='nav-link'>{link.fields.label}</span>
               </a>
             ))}
           </nav>
