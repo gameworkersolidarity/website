@@ -65,12 +65,14 @@ module.exports = {
         gwPink50: polished.rgba('#DD96FF', 0.5),
         gwPinkLight: '#FFCAD9'  ,
         gwOrange: '#FF8038',
-        gwOrangeLight: '#FFC58E'      ,
+        gwOrange50: polished.rgba('#FF8038', 0.5),
+        gwOrangeLight: '#FFC58E',
       },
       boxShadow: theme => ({
         'noglow': 'inset 0 0 0 0 #FF8038',
         'glow': 'inset 4px 4px 20px 6px #FF8038',
-        'gwPink': `0px 1px 10px 5px ${theme('colors.gwPink50')}`
+        'gwPink': `0px 1px 10px 5px ${theme('colors.gwPink50')}`,
+        'gwOrange': `0px 1px 10px 5px ${theme('colors.gwOrange50')}`
       }),
       maxWidth: {
         full: "100%"

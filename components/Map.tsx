@@ -178,26 +178,16 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
             onSelectCountry={onSelectCountry}
           />
           {/* National events */}
-          {Object.entries(
-            displayStyle === 'summary'
-            // In summary view, no other icons are on the map
-            // So summarise all events in country-by-country clusters
-            ? nationalActionsByCountry
-            // When in detail view, display all locations
-            // In which case, only continue to show national events which don't have a location
-            : nationalActionsByCountryNoLocation
-          ).map(([countryCode, actionsUnlocated]) => {
+          {displayStyle === 'detail' && Object.entries(nationalActionsByCountryNoLocation).map(([countryCode, actionsUnlocated]) => {
             return (
               <ClusterMarker
                 key={countryCode}
                 longitude={actionsUnlocated[0].geography.country[0].longitude}
                 latitude={actionsUnlocated[0].geography.country[0].latitude}
                 actions={actionsUnlocated}
-                label={displayStyle === 'summary'
-                  // In summary view, act as the container for all national events
-                  ? <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
-                  // In detail view, mimic the other clusters
-                  : undefined}
+                label={
+                <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
+                }
               />
             )
           })}
@@ -357,20 +347,29 @@ const CountryPopup = memo(({ lat, lng, actions }: {
   lng: number
   actions: SolidarityAction[]
 }) => {
+  const router = useRouter()
   const exampleAction = actions[0]
   return (
-    <Popup latitude={lat} longitude={lng} closeButton={false} closeOnClick={false} className='w-[150px]'>
-      <div className='text-base'>
-        <SolidarityActionRelatedActions
-          subtitle={'Country'}
-          url={`/?country=${exampleAction.fields.countrySlug[0]}`}
-          name={<span>
-            <Emoji symbol={exampleAction.geography.country[0].emoji?.emoji} label='flag' />
-            &nbsp;
-            {exampleAction.geography.country[0].name}
-          </span>}
-          metadata={pluralize('action', actions.length, true)}
-        />
+    <Popup latitude={lat} longitude={lng} closeButton={false} closeOnClick={false} className='min-w-[170px] country-popup'>
+      <div
+        className='px-2 py-2'
+        onClick={() => router.push(
+          `/?country=${exampleAction.fields.countrySlug[0]}`,
+          undefined,
+          { shallow: false, scroll: false }
+        )}
+      >
+        <div className='text-base'>
+          <Emoji symbol={exampleAction.geography.country[0].emoji?.emoji} label='flag' />
+          &nbsp;
+          {exampleAction.geography.country[0].name}
+        </div>
+        <div className='text-xl'>
+          {pluralize('action', actions.length, true)}
+        </div>
+        <div className='underline text-base'>
+          View
+        </div>
       </div>
     </Popup>
   )
@@ -407,11 +406,13 @@ const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: numb
       }}>
         <div className='space-x-1 text-center'>
           {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-          <div className='transition duration-250 text-xs bg-white text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
-            {!!data.fields?.CategoryEmoji?.length && (
-              <span className='text-sm pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
-            )}
-            {format(new Date(data.fields.Date), "MMM ''yy")}
+          <div className='transition duration-250 text-xs bg-white text-black inline capitalize tracking-tight  px-1 rounded-xl pointer-events-none'>
+            {/* {!!data.fields?.CategoryEmoji?.length && (
+              <span className='text-xs pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
+            )} */}
+            <span className='text-xs'>
+              {format(new Date(data.fields.Date), "MMM ''yy")}
+            </span>
           </div>
         </div>
       </div>
@@ -447,8 +448,8 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
         onClick={toggleSelected}
         className='relative'
       >
-        <div className='text-center items-center inline-flex flex-row transition duration-250 bg-gwYellow text-black font-bold tracking-tight px-1 rounded-xl leading-none'>
-          <span className='text-sm align-middle pr-1 leading-none'>
+        <div className='text-center items-center inline-flex flex-row transition duration-250 bg-white opacity-90 text-black tracking-tight px-1 rounded-xl leading-none w-4 h-4 justify-center items-center rounded-full'>
+          {/* <span className='text-sm align-middle pr-1 leading-none'>
             {label || actions
               .reduce((categories, action) => {
                 return Array.from(new Set(categories.concat(action.fields?.CategoryEmoji || [])))
@@ -457,8 +458,8 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
                 <Emoji symbol={emoji} key={emoji} className='leading-none' />
               )
             }
-          </span>
-          <span className='align-middle text-sm'>
+          </span> */}
+          <span className='align-middle font-semibold'>
             {actions.length}
           </span>
         </div>

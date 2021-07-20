@@ -59,4 +59,8 @@ body {
   .action-chart svg {
     @apply overflow-visible;
   }
+
+  .country-popup .mapboxgl-popup-content{
+    @apply shadow-gwOrange rounded-lg p-0;
+  }
 }
