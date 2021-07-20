@@ -348,8 +348,8 @@ const CountryPopup = memo(({ lat, lng, actions }: {
   actions: SolidarityAction[]
 }) => {
   const router = useRouter()
-  const exampleAction = actions[0]
-  return (
+  const exampleAction = actions?.[0]
+  return !exampleAction ? null : (
     <Popup latitude={lat} longitude={lng} closeButton={false} closeOnClick={false} className='min-w-[170px] country-popup'>
       <div
         className='px-2 py-2'
@@ -406,13 +406,11 @@ const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: numb
       }}>
         <div className='space-x-1 text-center'>
           {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
-          <div className='transition duration-250 text-xs bg-white text-black inline capitalize tracking-tight  px-1 rounded-xl pointer-events-none'>
-            {/* {!!data.fields?.CategoryEmoji?.length && (
-              <span className='text-xs pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
-            )} */}
-            <span className='text-xs'>
-              {format(new Date(data.fields.Date), "MMM ''yy")}
-            </span>
+          <div className='transition duration-250 text-xs bg-white text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
+            {!!data.fields?.CategoryEmoji?.length && (
+              <span className='text-sm pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
+            )}
+            {format(new Date(data.fields.Date), "MMM ''yy")}
           </div>
         </div>
       </div>
@@ -448,8 +446,8 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
         onClick={toggleSelected}
         className='relative'
       >
-        <div className='text-center items-center inline-flex flex-row transition duration-250 bg-white opacity-90 text-black tracking-tight px-1 rounded-xl leading-none w-4 h-4 justify-center items-center rounded-full'>
-          {/* <span className='text-sm align-middle pr-1 leading-none'>
+        <div className='text-center items-center inline-flex flex-row transition duration-250 bg-gwYellow text-black font-bold tracking-tight px-1 rounded-xl leading-none'>
+          <span className='text-sm align-middle pr-1 leading-none'>
             {label || actions
               .reduce((categories, action) => {
                 return Array.from(new Set(categories.concat(action.fields?.CategoryEmoji || [])))
@@ -458,8 +456,8 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
                 <Emoji symbol={emoji} key={emoji} className='leading-none' />
               )
             }
-          </span> */}
-          <span className='align-middle font-semibold'>
+          </span>
+          <span className='align-middle text-sm'>
             {actions.length}
           </span>
         </div>
