@@ -48,14 +48,16 @@ function Header ({  }: {  }) {
       </div>
     </header>
     <nav className='top-0 sticky z-40 py-3 bg-gwPink' id='sticky-header'>
-      <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start space-x-4 md:space-x-5 items-center'>
+      <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start -mx-1 space-x-1 md:-mx-2 md:space-x-3 items-center'>
         {data?.headerLinks?.map?.((link, i) => (
           <a
             href={link.fields.url}
             key={link.fields.url}
             className='order-last md:order-1'
           >
-            <span className='link'>{link.fields.label}</span>
+            <span className='font-semibold underline transition-all duration-75 bg-transparent hover:bg-white hover:shadow-innerGwPink rounded-lg inline-block px-3 -mx-2 md:-mx-1 py-2'>
+              {link.fields.label}
+            </span>
           </a>
         ))}
         <div className={cx(

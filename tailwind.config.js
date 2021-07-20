@@ -71,6 +71,7 @@ module.exports = {
       boxShadow: theme => ({
         'noglow': 'inset 0 0 0 0 #FF8038',
         'glow': 'inset 4px 4px 20px 6px #FF8038',
+        'innerGwPink': `inset 0px 0px 10px 6px ${polished.rgba('#DD96FF', 0.5)}`,
         'gwPink': `0px 1px 10px 5px ${theme('colors.gwPink50')}`,
         'gwOrange': `0px 1px 10px 5px ${theme('colors.gwOrange50')}`
       }),
