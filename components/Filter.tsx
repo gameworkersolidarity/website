@@ -10,11 +10,19 @@ export function FilterButton ({
   selectionCount?: number
   isOpen?: boolean
 }) {
+  const hasSelections = !!selectionCount
   return (
     <div className={cx(
-      !!selectionCount ? 'bg-gwYellow border-black' : '',
-      isOpen ? 'rounded-t-lg border-b-0 z-50' : 'hover:bg-gray-100 rounded-lg',
-      'active:bg-gwYellow text-black border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full relative bg-white'
+      !isOpen && !hasSelections ? 'border-gray-300' : '',
+      isOpen ? 'border-b-0 rounded-b-none bg-white z-50 border-gwPink' : 'hover:shadow-innerGwPink',
+      hasSelections ? 'border-gwPink' : '',
+      (
+        !isOpen && hasSelections ? 'shadow-innerGwPink' :
+        isOpen && hasSelections ? 'border-gwPink' : 
+        // Untouched state
+        'hover:border-gwPink active:bg-gwPink'
+      ),
+      'rounded-lg text-black border-2 px-3 py-2 text-sm font-semibold w-full relative'
     )}>
       {!selectionCount ? label : pluralize(label, selectionCount, true)}
       &nbsp;
@@ -41,9 +49,9 @@ export function FilterOption ({
 } & HeadlessUiListBoxOptionArgs) {
   return (
     <div className={cx(
-      selected ? 'bg-gwYellow'
+      selected ? 'bg-gwPink'
       : disabled ? 'text-gray-400 cursor-not-allowed'
-      : active ? 'bg-gwPinkLight'
+      : active ? 'bg-gray-100'
       : 'bg-white',
       'px-3 py-2 cursor-pointer text-left flex justify-start items-baseline w-full'
     )}>{children}</div>

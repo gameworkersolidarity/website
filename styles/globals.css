@@ -46,7 +46,7 @@ body {
   }
 
   .listbox-dropdown {
-    @apply border-2 border-gray-300 overflow-y-auto rounded-lg rounded-tl-none bg-white absolute z-40 shadow-gwPink;
+    @apply border-2 border-gwPink overflow-y-auto rounded-lg rounded-tl-none bg-white absolute z-40 shadow-gwPink;
     margin-top: -2px;
     max-height: 33vh;
     height: 400;

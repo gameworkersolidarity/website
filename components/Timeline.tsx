@@ -265,7 +265,7 @@ export function SolidarityActionsTimeline ({
                   Filter by
                 </h3>
                 {hasFilters ? (
-                  <div className='cursor-pointer hover:bg-gwPinkLight inline-block'
+                  <div className='cursor-pointer rounded-lg inline-block hover:text-gwPink'
                     onClick={clearAllFilters}
                   >
                     <span className='underline'>Clear all filters</span>
@@ -497,7 +497,7 @@ export function SolidarityActionsTimeline ({
                     type='search' 
                     value={filterText}
                     onChange={e => setFilterText(e.target.value.trimStart())}
-                    className='rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full'
+                    className='rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full hover:shadow-innerGwPink hover:border-2 hover:border-gwPink focus:border-gwPink transition duration-75'
                   />
                 </div>
               </div>
