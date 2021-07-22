@@ -186,20 +186,6 @@ export function SolidarityActionsList ({
   )
 }
 
-function groupBy<T>(arr: T[], getGroupKey: (i: T) => string) {
-  return arr.reduce((groups, i) => {
-    groups[getGroupKey(i)] ??= []
-    groups[getGroupKey(i)].push(i)
-    return groups
-  }, {} as { [key: string]: T[] })
-}
-
-function getChunks (array: Fuse.FuseResultMatch[]) {
-  return array.reduce((indicies, d) => {
-    return indicies.concat(d.indices.map(([start, end]) => ({ start, end: end + 1 })))
-  }, [] as Chunk[])
-}
-
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
