@@ -154,12 +154,14 @@ export function SolidarityActionsList ({
       )}
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear.map(([yearString, actions], i) => {
-          const shownActions = (actions.length > 3) ? slice(actions, 0, 3) : actions
-
-          let hiddenActions = []
+          let hiddenActions = [] as SolidarityAction[]
+          let shownActions = [] as SolidarityAction[]  
           
           if (actions.length > 3) {
+            shownActions = slice(actions, 0, 3)
             hiddenActions = slice(actions, 3)
+          } else {
+            shownActions = actions
           }
           
           const hiddenActionsOpen = openYears.includes(yearString);
