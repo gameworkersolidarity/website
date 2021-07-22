@@ -163,6 +163,8 @@ export function SolidarityActionsList ({
           if (actions.length > 3) {
             hiddenActions = slice(actions, 3)
           }
+          
+          const hiddenActionsOpen = openYears.includes(yearString);
             
           return (
             <div key={i}>
@@ -189,7 +191,7 @@ export function SolidarityActionsList ({
                     </div>
                   </Link>
                 )}
-                <div className={cx(openYears.includes(yearString) ? "show" : "hidden")}>
+                <div className={cx(hiddenActionsOpen ? "show" : "hidden")}>
                   {hiddenActions.map(action =>
                     <Link
                       key={action.id}
@@ -204,7 +206,7 @@ export function SolidarityActionsList ({
                   )}
                 </div>
               </div>
-              {(hiddenActions.length > 0 && !openYears.includes(yearString)) && (
+              {(hiddenActions.length > 0 && ! hiddenActionsOpen) && (
                   <button onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>Load {hiddenActions.length} more {pluralize('action', hiddenActions.length)}</button>
                 )}
             </div>
