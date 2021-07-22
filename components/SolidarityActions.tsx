@@ -402,7 +402,6 @@ export function SolidarityActionRelatedActions ({ subtitle, url, name, metadata,
         {subtitle && <div className='text-xs text-gray-500'>
           {subtitle}
         </div>}
-        {/* {metadata && <div className='pb-3 text-sm'>{metadata}</div>} */}
         <div className='link mt-1'>
           {buttonLabel || <span>{metadata || 'All actions'} &rarr;</span>}
         </div>
