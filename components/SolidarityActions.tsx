@@ -107,6 +107,12 @@ export function useSelectedAction(solidarityActions: SolidarityAction[], key = D
   return [selectedAction, key] as const
 }
 
+const DownArrow = (
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 5L9.11875 4.11875L5.625 7.60625V0H4.375V7.60625L0.8875 4.1125L0 5L5 10L10 5Z" fill="#010101"/>
+  </svg>
+)
+
 export function SolidarityActionsList ({
   data: solidarityActions, withDialog, gridStyle = 'grid-cols-1', dialogProps, mini
 }: ListProps) {
@@ -205,7 +211,10 @@ export function SolidarityActionsList ({
                 </div>
               </div>
               {(hiddenActions.length > 0 && ! hiddenActionsOpen) && (
-                  <button onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>Load {hiddenActions.length} more {pluralize('action', hiddenActions.length)}</button>
+                  <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
+                    <span className="pr-1">Load {hiddenActions.length} more {pluralize('action', hiddenActions.length)}</span>
+                    {DownArrow}
+                  </button>
                 )}
             </div>
           )
