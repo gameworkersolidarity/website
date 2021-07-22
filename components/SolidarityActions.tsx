@@ -189,7 +189,7 @@ export function SolidarityActionsList ({
                     </div>
                   </Link>
                 )}
-                <div className={cx(hiddenActionsOpen ? "show" : "hidden")}>
+                <div className={cx(hiddenActionsOpen ? "space-y-4" : "hidden")}>
                   {hiddenActions.map(action =>
                     <Link
                       key={action.id}
