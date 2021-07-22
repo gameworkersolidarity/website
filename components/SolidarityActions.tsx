@@ -118,7 +118,7 @@ export function SolidarityActionsList ({
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
-  const [openYears, setOpenYears] = useState<[ string ] | []>([]);
+  const [openYears, setOpenYears] = useState<[ string ] || []>([]);
 
   const actionsByYear = useMemo(() => {
     const group = (solidarityActions || []).reduce((bins, action) => {
