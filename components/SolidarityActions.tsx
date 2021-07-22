@@ -167,7 +167,10 @@ export function SolidarityActionsList ({
           let hiddenActions = [] as SolidarityAction[]
           let shownActions = [] as SolidarityAction[]  
           
+          let hasHiddenActions = false;
+          
           if (actions.length > 3) {
+            hasHiddenActions = true;
             shownActions = actions.slice(0, 3)
             hiddenActions = actions.slice(3, actions.length)
           } else {
@@ -175,9 +178,8 @@ export function SolidarityActionsList ({
           }
           
           const hiddenActionsOpen = openYears.includes(yearString);
-          const pluralActionsCopy = pluralize('action', hiddenActions.length)
           
-          const hasHiddenActions = (hiddenActions.length > 0)
+          const pluralActionsCopy = pluralize('action', hiddenActions.length)
             
           return (
             <div key={i}>
@@ -204,7 +206,7 @@ export function SolidarityActionsList ({
                     </div>
                   </Link>
                 )}
-                <div className={cx(hiddenActionsOpen ? "space-y-4" : "hidden")}>
+                <div className={cx(hiddenActionsOpen ? 'space-y-4' : 'hidden')}>
                   {hiddenActions.map(action =>
                     <Link
                       key={action.id}
@@ -219,7 +221,7 @@ export function SolidarityActionsList ({
                   )}
                 </div>
               </div>
-              {(hasHiddenActions && ! hiddenActionsOpen) && (
+              {(hasHiddenActions && hiddenActionsOpen === false) && (
                   <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
                     <>
                       <span className="pr-1">Load {hiddenActions.length} more {pluralActionsCopy}</span>
