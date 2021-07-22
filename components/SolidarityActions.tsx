@@ -113,12 +113,18 @@ const DownArrow = (
   </svg>
 )
 
+const UpArrow = (
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: "rotate(180deg)"}}>
+    <path d="M10 5L9.11875 4.11875L5.625 7.60625V0H4.375V7.60625L0.8875 4.1125L0 5L5 10L10 5Z" fill="#010101"/>
+  </svg>
+)
+
 export function SolidarityActionsList ({
   data: solidarityActions, withDialog, gridStyle = 'grid-cols-1', dialogProps, mini
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
-  const [openYears, setOpenYears] = useState<[ string ] || []>([]);
+  const [openYears, setOpenYears] = useState<string[]>([]);
 
   const actionsByYear = useMemo(() => {
     const group = (solidarityActions || []).reduce((bins, action) => {
@@ -169,6 +175,9 @@ export function SolidarityActionsList ({
           }
           
           const hiddenActionsOpen = openYears.includes(yearString);
+          const pluralActionsCopy = pluralize('action', hiddenActions.length)
+          
+          const hasHiddenActions = (hiddenActions.length > 0)
             
           return (
             <div key={i}>
@@ -210,10 +219,20 @@ export function SolidarityActionsList ({
                   )}
                 </div>
               </div>
-              {(hiddenActions.length > 0 && ! hiddenActionsOpen) && (
+              {(hasHiddenActions && ! hiddenActionsOpen) && (
                   <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
-                    <span className="pr-1">Load {hiddenActions.length} more {pluralize('action', hiddenActions.length)}</span>
-                    {DownArrow}
+                    <>
+                      <span className="pr-1">Load {hiddenActions.length} more {pluralActionsCopy}</span>
+                      {DownArrow}
+                    </>
+                  </button>
+               )}
+               {(hasHiddenActions && hiddenActionsOpen) && (
+                  <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.filter(openYear => openYear !== yearString))}>
+                    <>
+                      <span className="pr-1">Hide {hiddenActions.length} {pluralActionsCopy}</span>
+                      {UpArrow}
+                    </>
                   </button>
                 )}
             </div>
