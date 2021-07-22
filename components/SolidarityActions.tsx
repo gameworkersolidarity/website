@@ -2,7 +2,6 @@ import { Dialog, Transition } from '@headlessui/react';
 import Emoji from 'a11y-react-emoji';
 import cx from 'classnames';
 import { format, getYear } from 'date-fns';
-import Fuse from 'fuse.js';
 import { NextSeo } from 'next-seo';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
