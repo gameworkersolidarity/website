@@ -1,22 +1,22 @@
-import { Dialog, Transition } from '@headlessui/react';
-import Emoji from 'a11y-react-emoji';
-import cx from 'classnames';
-import { format, getYear } from 'date-fns';
-import { NextSeo } from 'next-seo';
-import { useContextualRouting } from 'next-use-contextual-routing';
-import { useRouter } from 'next/dist/client/router';
-import Image from 'next/image';
-import Link from 'next/link';
-import pluralize from 'pluralize';
-import qs from 'query-string';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import Highlighter, { Chunk } from "react-highlight-words";
-import useSWR from 'swr';
-import { FilterContext } from '../components/Timeline';
-import { projectStrings } from '../data/site';
-import { actionUrl } from '../data/solidarityAction';
-import { Country, Document, SolidarityAction } from '../data/types';
-import { usePrevious } from '../utils/state';
+import { Dialog, Transition } from '@headlessui/react'
+import Emoji from 'a11y-react-emoji'
+import cx from 'classnames'
+import { format, getYear } from 'date-fns'
+import { NextSeo } from 'next-seo'
+import { useContextualRouting } from 'next-use-contextual-routing'
+import { useRouter } from 'next/dist/client/router'
+import Image from 'next/image'
+import Link from 'next/link'
+import pluralize from 'pluralize'
+import qs from 'query-string'
+import { useContext, useEffect, useMemo, useState } from 'react'
+import Highlighter from 'react-highlight-words'
+import useSWR from 'swr'
+import { FilterContext } from '../components/Timeline'
+import { projectStrings } from '../data/site'
+import { actionUrl } from '../data/solidarityAction'
+import { Country, Document, SolidarityAction } from '../data/types'
+import { usePrevious } from '../utils/state'
 
 interface ListProps {
   data: SolidarityAction[],
