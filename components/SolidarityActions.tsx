@@ -163,7 +163,7 @@ export function SolidarityActionsList ({
           
           if (actions.length > 3) {
             shownActions = actions.slice(0, 3)
-            hiddenActions = actions.slice(3)
+            hiddenActions = actions.slice(3, actions.length)
           } else {
             shownActions = actions
           }
