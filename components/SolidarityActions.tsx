@@ -1,29 +1,22 @@
-import { format, getMonth, getYear } from 'date-fns';
-import useSWR from 'swr'
-import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { SolidarityAction, Country, Document } from '../data/types';
-import { stringifyArray } from '../utils/string';
-import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
+import { Dialog, Transition } from '@headlessui/react';
+import Emoji from 'a11y-react-emoji';
+import cx from 'classnames';
+import { format, getYear } from 'date-fns';
+import Fuse from 'fuse.js';
+import { NextSeo } from 'next-seo';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
-import { Dialog, Transition } from '@headlessui/react'
-import { useMediaQuery } from '../utils/mediaQuery';
-import { up } from '../utils/screens';
-import cx from 'classnames'
-import { NextSeo } from 'next-seo';
+import Image from 'next/image';
+import Link from 'next/link';
+import pluralize from 'pluralize';
 import qs from 'query-string';
-import { useMemo, useRef, useState, useEffect, useContext } from 'react';
-import pluralize from 'pluralize'
-import Emoji from 'a11y-react-emoji';
-import { projectStrings } from '../data/site';
-import Image from 'next/image'
-import Fuse from 'fuse.js';
-import { CumulativeMovementChart } from './ActionChart';
-import { doNotFetch } from '../utils/swr';
-import { FilterContext } from '../components/Timeline';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Highlighter, { Chunk } from "react-highlight-words";
+import useSWR from 'swr';
+import { FilterContext } from '../components/Timeline';
+import { projectStrings } from '../data/site';
 import { actionUrl } from '../data/solidarityAction';
+import { Country, Document, SolidarityAction } from '../data/types';
 import { usePrevious } from '../utils/state';
 
 interface ListProps {
@@ -133,11 +126,13 @@ export function SolidarityActionsList ({
   }, [solidarityActions])
 
   const router = useRouter()
+  
   // when the router changes, update the current route
   const [currentHref, setCurrentHref] = useState(router.asPath)
+  
   // store the past route and use it as the currentHref
   const lastHref = usePrevious(currentHref)
-  //
+
   useEffect(() => {
     const handleRouteChangeComplete = (url, obj) => {
       setCurrentHref(url)
@@ -209,6 +204,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
+  
   return (
     <article className={cx('bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
       <ActionMetadata data={data} />
