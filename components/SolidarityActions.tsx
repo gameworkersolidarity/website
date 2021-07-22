@@ -18,6 +18,8 @@ import { actionUrl } from '../data/solidarityAction'
 import { Country, Document, SolidarityAction } from '../data/types'
 import { usePrevious } from '../utils/state'
 
+import slice from "lodash.slice"
+
 interface ListProps {
   data: SolidarityAction[],
   withDialog?: boolean,
@@ -112,6 +114,7 @@ export function SolidarityActionsList ({
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
+  const [openYears, setOpenYears] = useState([]);
 
   const actionsByYear = useMemo(() => {
     const group = (solidarityActions || []).reduce((bins, action) => {
@@ -139,6 +142,8 @@ export function SolidarityActionsList ({
     router.events.on('routeChangeComplete', handleRouteChangeComplete)
     return () => router.events.off('routeChangeComplete', handleRouteChangeComplete)
   }, [router])
+  
+  console.log(openYears)
 
   return (
     <>
@@ -151,6 +156,14 @@ export function SolidarityActionsList ({
       )}
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear.map(([yearString, actions], i) => {
+          const shownActions = (actions.length > 3) ? slice(actions, 0, 3) : actions
+
+          let hiddenActions = []
+          
+          if (actions.length > 3) {
+            hiddenActions = slice(actions, 3)
+          }
+            
           return (
             <div key={i}>
               <div className='flex flex-row justify-between items-center pb-3'>
@@ -164,7 +177,7 @@ export function SolidarityActionsList ({
                 </div>
               </div>
               <div className='space-y-4'>
-                {actions.map(action =>
+                {shownActions.map(action =>
                   <Link
                     key={action.id}
                     href={makeContextualHref({ [dialogKey]: action.slug })}
@@ -176,7 +189,24 @@ export function SolidarityActionsList ({
                     </div>
                   </Link>
                 )}
+                <div className={cx(openYears.includes(yearString) ? "show" : "hidden")}>
+                  {hiddenActions.map(action =>
+                    <Link
+                      key={action.id}
+                      href={makeContextualHref({ [dialogKey]: action.slug })}
+                      as={actionUrl(action)}
+                      shallow
+                    >
+                      <div className='transition cursor-pointer group' id={action.slug}>
+                        <SolidarityActionItem data={action} />
+                      </div>
+                    </Link>
+                  )}
+                </div>
               </div>
+              {(hiddenActions.length > 0 && !openYears.includes(yearString)) && (
+                  <button onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>Load {hiddenActions.length} more {pluralize('action', hiddenActions.length)}</button>
+                )}
             </div>
           )
         })}
