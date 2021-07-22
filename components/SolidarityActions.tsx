@@ -18,8 +18,6 @@ import { actionUrl } from '../data/solidarityAction'
 import { Country, Document, SolidarityAction } from '../data/types'
 import { usePrevious } from '../utils/state'
 
-import slice from "lodash.slice"
-
 interface ListProps {
   data: SolidarityAction[],
   withDialog?: boolean,
@@ -158,8 +156,8 @@ export function SolidarityActionsList ({
           let shownActions = [] as SolidarityAction[]  
           
           if (actions.length > 3) {
-            shownActions = slice(actions, 0, 3)
-            hiddenActions = slice(actions, 3)
+            shownActions = actions.slice(0, 3)
+            hiddenActions = actions.slice(3)
           } else {
             shownActions = actions
           }
