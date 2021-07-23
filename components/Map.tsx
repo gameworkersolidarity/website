@@ -228,7 +228,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     </ViewportContext.Provider>
   );
 
-  const fullScreenNode = document.getElementById('portal-node')
+  const fullScreenNode = typeof document !== 'undefined' ? document.getElementById('portal-node') : null
   return isFullPage && !!fullScreenNode ? createPortal(el, fullScreenNode) : el
 }
 

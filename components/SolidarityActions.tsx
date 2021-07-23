@@ -325,7 +325,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
           description: data.summary.plaintext
         }}
       />
-      <article className={cx('space-y-2px rounded-xl overflow-hidden glowable')}>
+      <article className={cx('space-y-2px rounded-xl overflow-hidden')}>
         <div className='p-4 md:px-8 bg-white'>
           <div className='text-sm'>
             <ActionMetadata data={data} />
