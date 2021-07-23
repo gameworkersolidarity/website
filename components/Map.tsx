@@ -27,6 +27,8 @@ import { Dictionary, groupBy, merge } from 'lodash';
 import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
 import combine from '@turf/combine'
 import bbox from '@turf/bbox';
+import cx from 'classnames';
+import { createPortal } from 'react-dom';
 
 const defaultViewport = {
   latitude: 15,
@@ -151,12 +153,28 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     calculateViewportForActions()
   }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
-  return (
+  const [isFullPage, setFullPage] = useState(false)
+  const toggleFullPage = () => setFullPage(t => !t)
+
+  const el = (
     <ViewportContext.Provider value={viewport}>
-      <div className='relative overflow-hidden rounded-xl' style={{
-        height: '100%',
-        width: '100%'
-      }}>
+      <div
+        className={cx(
+          isFullPage ? 'transform top-1/2 -translate-y-1/2  left-1/2 -translate-x-1/2 w-screen h-screen fixed z-50 shadow-gwPink'
+          : 'w-full h-full relative',
+          'rounded-xl overflow-hidden'
+        )}
+        style={{
+          height: isFullPage ? '95vh' : '100%',
+          width: isFullPage ? '95vw' : '100%'
+        }}
+      >
+        <div
+          className='absolute top-0 right-0 m-4 rounded-lg bg-white text-sm p-2 z-40 cursor-pointer button'
+          onClick={toggleFullPage}
+        >
+          {isFullPage ? 'Smaller' : 'Bigger'}
+        </div>
         <ReactMapGL
           style={{
             width: '100%',
@@ -209,6 +227,9 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
       </div>
     </ViewportContext.Provider>
   );
+
+  const fullScreenNode = document.getElementById('portal-node')
+  return isFullPage && !!fullScreenNode ? createPortal(el, fullScreenNode) : el
 }
 
 function ActionSource ({ data }: { data: SolidarityAction[] }) {

@@ -68,6 +68,7 @@ function Header ({  }: {  }) {
         </div>
       </div>
     </nav>
+    <div id='portal-node' />
     </>
   )
 }
