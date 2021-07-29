@@ -220,7 +220,7 @@ export function SolidarityActionsTimeline ({
               <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
                 Filter by
               </h3>
-              <div className='relative space-x-2 flex flex-wrap'>
+              <div className='relative flex flex-wrap gap-2'>
                 <div>
                   <Listbox value={filteredCountrySlugs[0]} onChange={v => setCountries([v])}>
                     <Listbox.Button>
