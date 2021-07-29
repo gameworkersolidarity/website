@@ -274,44 +274,6 @@ export function SolidarityActionsTimeline ({
                   </div>
                 ) : null}
               </div>
-              {/* <div className='flex flex-wrap w-full justify-end text-sm'>
-                {selectedCountries?.map(country => country ? (
-                  <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                    onClick={() => toggleCountry(country.fields.Slug)}
-                  >
-                    <Emoji symbol={country.emoji.emoji} /> {country?.emoji.name}
-                  </div>
-                ) : null)}
-                {selectedCategories?.map(category => category ? (
-                  <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                    onClick={() => toggleCategory(category.fields.Name)}
-                  >
-                    <span className='filter-item'>{category.fields.Emoji}</span>
-                    <span className='inline-block capitalize ml-1'>{category.fields.Name}</span>
-                  </div>
-                ) : null)}
-                {selectedCompanies?.map(company => company ? (
-                  <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                    onClick={() => toggleCompany(company.fields.Name)}
-                  >
-                    {company?.fields.Name}
-                  </div>
-                ) : null)}
-                {selectedOrganisingGroups?.map(group => group ? (
-                  <div key={group?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                    onClick={() => toggleOrganisingGroup(group.fields.Name)}
-                  >
-                    {group?.fields.Name}
-                  </div>
-                ) : null)}
-                {filterText.trim().length > 0 && [filterText].map(textFragment =>
-                  <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                    onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
-                  >
-                    "{textFragment}"
-                  </div>
-                )}
-              </div> */}
               <div className='relative flex flex-wrap w-full'>
                 <div className='filter-item'>
                   <Listbox value={filteredCountrySlugs} onChange={v => toggleCountry(v as any)}>
