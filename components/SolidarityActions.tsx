@@ -247,6 +247,18 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
             textToHighlight={data.fields.Name} 
           />
         </h3>}
+        <div className='flex flex-row space-x-4 mt-3 flex-wrap'>
+          {data.fields.Link && (
+            <a href={data.fields.Link} className='block my-1'>
+            <Emoji symbol='🔗' label='Link' className='align-baseline' />
+              &nbsp;
+              <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
+            </a>
+          )}
+          {data.fields.Document?.map(doc => (
+            <DocumentLink doc={doc} key={doc.id} />
+          ))}
+        </div>
       </div>
     </article>
   )
