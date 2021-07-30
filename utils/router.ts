@@ -7,7 +7,15 @@ export function scrollToId(router: NextRouter, year: string) {
 
   if (!element) return
   
-  scrollIntoView(element)
+  const headerHeight = 74
+  const headerScrollPadding = 20
+  
+  scrollIntoView(element, {
+    align:{
+      top: 0,
+      topOffset: headerHeight + headerScrollPadding
+    }
+  })
   
   // TODO: Re-add this functionality to update the hash
   // router.push({ hash: year }, undefined, { shallow: true, scroll: false })
