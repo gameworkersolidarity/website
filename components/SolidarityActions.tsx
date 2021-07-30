@@ -244,12 +244,12 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
             highlightClassName="bg-gwYellow"
             searchWords={[search || '']}
             autoEscape={true}
-            textToHighlight={data.fields.Name}          
+            textToHighlight={data.fields.Name} 
           />
         </h3>}
-        <div className='flex flex-row space-x-4 mt-3'>
+        <div className='flex flex-row mt-3 flex-wrap'>
           {data.fields.Link && (
-            <a href={data.fields.Link} className='block my-1'>
+            <a href={data.fields.Link} className='block my-1 mr-2'>
             <Emoji symbol='🔗' label='Link' className='align-baseline' />
               &nbsp;
               <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
@@ -266,7 +266,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
 
 export function DocumentLink ({ doc, withPreview }: { doc: Attachment, withPreview?: boolean }) {
   return (
-    <a href={doc.url} className='block my-1'>
+    <a href={doc.url} className='block my-1 mr-2'>
       <Emoji symbol='📑' label='File attachment' className='align-baseline' />
       &nbsp;
       <span className='align-baseline underline text-inherit'>{doc.filename}</span>
