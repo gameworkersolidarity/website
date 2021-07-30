@@ -476,7 +476,7 @@ export function SolidarityActionsTimeline ({
               <h3 className='text-base text-left w-full font-semibold'>
                 Select year
               </h3>
-              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
+              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToYear(router, year)} />
             </section>
           </div>
         </section>
