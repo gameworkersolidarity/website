@@ -257,6 +257,230 @@ export function SolidarityActionsTimeline ({
     }}>
       <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true, scroll: false }) }} />
       <div className='grid md:grid-cols-2'>
+        <section className='relative bg-white'>
+          <div className='p-4 lg:p-5 xl:pl-7 flex flex-col flex-nowrap md:h-screen sticky top-5 space-y-4'>
+            <section className='flex-grow-0'>
+              <div className='flex flex-wrap w-full justify-between text-sm'>
+                <h3 className='text-base text-left left-0 font-semibold mb-2'>
+                  Filter by
+                </h3>
+                {hasFilters ? (
+                  <div className='cursor-pointer rounded-lg inline-block hover:text-gwPink'
+                    onClick={clearAllFilters}
+                  >
+                    <span className='underline'>Clear all filters</span>
+                    &nbsp;
+                    <span className='inline-block transform rotate-45 text-base'>+</span>
+                  </div>
+                ) : null}
+              </div>
+              <div className='relative flex flex-wrap w-full'>
+                <div className='filter-item'>
+                  <Listbox value={filteredCountrySlugs} onChange={v => toggleCountry(v as any)}>
+                  {({ open }) => (
+                    <>
+                    <Listbox.Button>
+                      <FilterButton label='Country' selectionCount={selectedCountries.length} isOpen={open} />
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='listbox-dropdown'>
+                        {countries.map((country) => {
+                          const isSelected = !!selectedCountries.find(c => c?.id === country.id)
+                          const countIfYouIncludeThis = !hasFilters
+                            ? country.fields['Solidarity Actions']?.length || 0
+                            : filterActionCount({
+                              ...defaults,
+                              selectedCountries: [...selectedCountries, country]
+                            })
+                          return (
+                            <Listbox.Option
+                              key={country.id}
+                              value={country.fields.Slug}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => (
+                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                  <span aria-role='hidden' className='hidden'>
+                                    {/* This allows type-ahead on the keyboard for the dropdown */}
+                                    {country.fields.Name}
+                                  </span>
+                                  <span><Emoji symbol={country.emoji.emoji} /></span>
+                                  <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
+                                  <span className='inline-block align-baseline text-xs ml-auto pl-3'>
+                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                  {countIfYouIncludeThis}
+                                  </span>
+                                </FilterOption>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
+                      </div>
+                    </Listbox.Options>
+                    </>
+                  )}
+                  </Listbox>
+                </div>
+                <div className='filter-item'>
+                  <Listbox value={filteredCategoryNames} onChange={v => toggleCategory(v as any)}>
+                  {({ open }) => (
+                    <>
+                    <Listbox.Button>
+                      <FilterButton label='Category' selectionCount={selectedCategories.length} isOpen={open} />
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='listbox-dropdown'>
+                        {categories.map((category) => {
+                          const countIfYouIncludeThis = !hasFilters
+                          ? category.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedCategories: [...selectedCategories, category]
+                          })
+                          const isSelected = !!selectedCategories.find(c => c?.id === category.id)
+                          return (
+                            <Listbox.Option
+                              key={category.id}
+                              value={category.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) =>  {
+                                return (
+                                  <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span aria-role='hidden' className='hidden'>
+                                      {/* This allows type-ahead on the keyboard for the dropdown */}
+                                      {category.fields.Name}
+                                    </span>
+                                    <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
+                                    <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
+                                    <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                    {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                    {countIfYouIncludeThis}
+                                    </span>
+                                  </FilterOption>
+                                )
+                              }}
+                            </Listbox.Option>
+                          )
+                        })}
+                      </div>
+                    </Listbox.Options>
+                    </>
+                  )}
+                  </Listbox>
+                </div>
+                <div className='filter-item'>
+                  <Listbox value={filteredCompanyNames} onChange={v => toggleCompany(v as any)}>
+                  {({ open }) => (
+                    <>
+                    <Listbox.Button>
+                      <FilterButton label='Company' selectionCount={selectedCompanies.length} isOpen={open} />
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='listbox-dropdown'>
+                        {companies.map((company) =>  {
+                          const isSelected = !!selectedCompanies.find(c => c?.id === company.id)
+                          const countIfYouIncludeThis = !hasFilters
+                          ? company.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedCompanies: [...selectedCompanies, company]
+                          })
+                          return (
+                            <Listbox.Option
+                              key={company.id}
+                              value={company.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => (
+                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                  <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
+                                  <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                  {countIfYouIncludeThis}
+                                  </span>
+                                </FilterOption>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
+                      </div>
+                    </Listbox.Options>
+                    </>
+                  )}
+                  </Listbox>
+                </div>
+                <div className='filter-item'>
+                  <Listbox value={filteredOrganisingGroupNames} onChange={v => toggleOrganisingGroup(v as any)}>
+                  {({ open }) => (
+                    <>
+                    <Listbox.Button>
+                      <FilterButton label='Union' selectionCount={selectedOrganisingGroups.length} isOpen={open} />
+                    </Listbox.Button>
+                    <Listbox.Options>
+                      <div className='listbox-dropdown'>
+                        {groups.map((group) => {
+                          const isSelected = !!selectedOrganisingGroups.find(c => c?.id === group.id)
+                          const countIfYouIncludeThis = !hasFilters
+                          ? group.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedOrganisingGroups: [...selectedOrganisingGroups, group]
+                          })
+                          return (
+                            <Listbox.Option
+                              key={group.id}
+                              value={group.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => {
+                                return (
+                                  <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
+                                    <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                      {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                      {countIfYouIncludeThis}
+                                    </span>
+                                  </FilterOption>
+                                )
+                              }}
+                            </Listbox.Option>
+                          )
+                        })}
+                      </div>
+                    </Listbox.Options>
+                    </>
+                  )}
+                  </Listbox>
+                </div>
+                <div className='filter-item flex-grow'>
+                  <input
+                    placeholder='Search'
+                    type='search' 
+                    value={filterText}
+                    onChange={e => setFilterText(e.target.value.trimStart())}
+                    className='rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full hover:shadow-innerGwPink hover:border-2 hover:border-gwPink focus:border-gwPink transition duration-75'
+                  />
+                </div>
+              </div>
+            </section>
+            <section className='w-full flex-grow h-[40vh] md:h-auto'>
+              <Map data={JSON.parse(JSON.stringify(filteredActions))} onSelectCountry={iso2 => {
+                const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
+                if (countrySlug) {
+                  toggleCountry(countrySlug)
+                }
+              }} />
+            </section>
+            <section className='pt-1 flex-grow-0'>
+              <h3 className='text-base text-left w-full font-semibold'>
+                Select year
+              </h3>
+              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
+            </section>
+          </div>
+        </section>
+
         <section className='p-4 lg:p-5 xl:pr-7 space-y-4'>
           <h2 className='text-6xl font-identity'>
             {pluralize('action', filteredActions.length, true)}
