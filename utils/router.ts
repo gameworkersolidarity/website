@@ -4,10 +4,12 @@ import scrollIntoView from 'scroll-into-view';
 
 export function scrollToId(router: NextRouter, year: string) {
   const element = document.getElementById(year)
+  const header = document.getElementById('sticky-header')
 
   if (!element) return
-  
-  const headerHeight = 74
+  if (!header) return
+
+  const headerHeight = header.offsetHeight
   const headerScrollPadding = 8
   
   scrollIntoView(element, {
