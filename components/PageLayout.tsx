@@ -83,7 +83,7 @@ function Footer ({ }: { }) {
     <footer className='mt-auto bg-gwPink text-sm'>
       <div className={cx('content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top')}>
         <div className='space-y-4 flex-grow'>
-          <nav className='grid gap-4 grid-flow-col grid-rows-2 auto-cols-auto -mx-1 md:-mx-2'>
+          <nav className='flex flex-wrap -mx-1 md:-mx-2'>
             {data?.footerLinks?.map?.((link, i) => (
               <a
                 href={link.fields.url}
