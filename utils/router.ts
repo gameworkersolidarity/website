@@ -1,6 +1,6 @@
 import { NextRouter } from "next/dist/client/router"
 
-import scrollIntoView from 'scroll-into-view';
+import scrollIntoView from 'scroll-into-view'
 
 export function scrollToYear(router: NextRouter, year: string) {
   const element = document.getElementById(year)
