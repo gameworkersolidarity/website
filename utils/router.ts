@@ -18,7 +18,4 @@ export function scrollToId(router: NextRouter, year: string) {
       topOffset: headerHeight + headerScrollPadding
     }
   })
-  
-  // TODO: Re-add this functionality to update the hash
-  // router.push({ hash: year }, undefined, { shallow: true, scroll: false })
 }
