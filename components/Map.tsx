@@ -10,7 +10,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
 import router, { useRouter } from 'next/dist/client/router';
-import { scrollToId } from '../utils/router';
 import { FilterContext } from './Timeline';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { max, median, min } from 'd3-array';

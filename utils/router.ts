@@ -2,7 +2,7 @@ import { NextRouter } from "next/dist/client/router"
 
 import scrollIntoView from 'scroll-into-view';
 
-export function scrollToId(router: NextRouter, year: string) {
+export function scrollToYear(router: NextRouter, year: string) {
   const element = document.getElementById(year)
   const header = document.getElementById('sticky-header')
 
