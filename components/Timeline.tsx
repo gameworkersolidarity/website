@@ -256,8 +256,8 @@ export function SolidarityActionsTimeline ({
       hasFilters
     }}>
       <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true, scroll: false }) }} />
-      <div>
-        <section className='relative bg-white'>
+      <div className="flex flex-col lg:flex-row">
+        <section className='relative bg-white flex-1'>
           <div className='p-4 lg:p-5 xl:pl-7 flex flex-col flex-nowrap md:h-screen sticky top-5 space-y-4'>
             <section className='flex-grow-0'>
               <div className='flex flex-wrap w-full justify-between text-sm'>
@@ -481,7 +481,7 @@ export function SolidarityActionsTimeline ({
           </div>
         </section>
 
-        <section className='p-4 lg:p-5 xl:pr-7 space-y-4'>
+        <section className='p-4 lg:p-5 xl:pr-7 space-y-4 flex-1'>
           <h2 className='text-6xl font-identity'>
             {pluralize('action', filteredActions.length, true)}
           </h2>
