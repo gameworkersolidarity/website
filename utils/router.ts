@@ -1,20 +1,21 @@
-import { NextRouter } from "next/dist/client/router";
+import { NextRouter } from "next/dist/client/router"
 
-export function scrollToId(router: NextRouter, year: string) {
-  const element = document.getElementById(year);
+import scrollIntoView from 'scroll-into-view'
+
+export function scrollToYear(router: NextRouter, year: string) {
+  const element = document.getElementById(year)
+  const header = document.getElementById('sticky-header')
+
   if (!element) return
+  if (!header) return
 
-  if (!!element.scrollIntoView) {
-    // Smooth scroll to that elment
-    element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-      inline: 'nearest',
-    });
-    setTimeout(() => {
-      router.push({ hash: year }, undefined, { shallow: true, scroll: false })
-    }, 450)
-  } else {
-    router.push({ hash: year }, undefined, { shallow: true, scroll: false })
-  }
+  const headerHeight = header.offsetHeight
+  const headerScrollPadding = 8
+  
+  scrollIntoView(element, {
+    align:{
+      top: 0,
+      topOffset: headerHeight + headerScrollPadding
+    }
+  })
 }

@@ -17,7 +17,7 @@ import { useContextualRouting } from 'next-use-contextual-routing';
 import { OrganisingGroupCard, OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components/OrganisingGroup';
 import { UnionsByCountryData } from '../pages/api/organisingGroupsByCountry';
 import { ChevronRightIcon } from '@heroicons/react/outline';
-import { scrollToId } from '../utils/router';
+import { scrollToYear } from '../utils/router';
 import { groupUrl } from '../data/organisingGroup';
 import cx from 'classnames';
 import { groupBy } from 'lodash';
