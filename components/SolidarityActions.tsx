@@ -244,7 +244,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
             highlightClassName="bg-gwYellow"
             searchWords={[search || '']}
             autoEscape={true}
-            textToHighlight={data.fields.Name}          
+            textToHighlight={data.fields.Name} 
           />
         </h3>}
         <div>
