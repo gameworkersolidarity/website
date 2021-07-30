@@ -66,7 +66,6 @@ export function CumulativeChart ({
   onSelectYear?: (year: string) => void
 }) {
   var yearBins = timeYears(timeMonth.offset(minDate, -1), timeMonth.offset(maxDate, 1));
-  var monthBins = timeMonths(timeMonth.offset(minDate, -1), timeMonth.offset(maxDate, 1));
 
   const createBinFn = (dateBins: Date[]) => {
     return  bin<SolidarityAction, Date>()
