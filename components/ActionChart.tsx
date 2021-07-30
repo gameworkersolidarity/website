@@ -1,26 +1,17 @@
+import { ParentSize } from '@visx/responsive';
 import {
   Axis,
-  AreaSeries,
-  BarSeries,
-  XYChart,
-  Tooltip,
-  GlyphSeries,
-  ThemeContext
+  BarSeries, ThemeContext, XYChart
 } from '@visx/xychart';
-import { ParentSize } from '@visx/responsive';
-import { SolidarityAction } from '../data/types';
-import { bin, extent, HistogramGeneratorNumber } from "d3-array"
-import { scaleTime } from "d3-scale"
-import useSWR from 'swr';
-import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { min, max, format } from 'date-fns';
+import { bin, HistogramGeneratorNumber } from "d3-array";
 import { timeMonth, timeMonths, timeYears } from 'd3-time';
-import pluralize from 'pluralize';
-import tw, { theme } from 'twin.macro'
 import { timeFormat } from 'd3-time-format';
+import { min } from 'date-fns';
+import { useMemo } from 'react';
+import { theme } from 'twin.macro';
+import { SolidarityAction } from '../data/types';
 import { useMediaQuery } from '../utils/mediaQuery';
 import { up } from '../utils/screens';
-import { useMemo } from 'react';
 
 export function CumulativeMovementChart ({ data, onSelectYear }: { data: SolidarityAction[], cumulative?: boolean, onSelectYear?: (year: string) => void }) {
   const actionDates = data.map(d => new Date(d.fields.Date))
