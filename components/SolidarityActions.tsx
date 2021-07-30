@@ -255,9 +255,6 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
               <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
             </a>
           )}
-          {data.fields.Document?.map(doc => (
-            <DocumentLink doc={doc} key={doc.id} />
-          ))}
         </div>
       </div>
     </article>
