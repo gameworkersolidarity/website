@@ -8,7 +8,7 @@ export function scrollToId(router: NextRouter, year: string) {
   if (!element) return
   
   const headerHeight = 74
-  const headerScrollPadding = 20
+  const headerScrollPadding = 8
   
   scrollIntoView(element, {
     align:{
