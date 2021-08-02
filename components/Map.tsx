@@ -169,7 +169,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         }}
       >
         <div
-          className='absolute top-0 right-0 m-4 rounded-lg bg-white text-sm p-2 z-40 cursor-pointer button'
+          className='absolute top-0 right-0 m-4 rounded-lg bg-white text-sm p-2 z-30 cursor-pointer button'
           onClick={toggleFullPage}
         >
           {isFullPage ? 'Smaller' : 'Bigger'}
