@@ -9,7 +9,7 @@ import Fuse from 'fuse.js';
 import Emoji from 'a11y-react-emoji';
 import pluralize from 'pluralize';
 import { useURLStateFactory } from '../utils/state';
-import { ensureArray, toggleInArray } from '../utils/string';
+import { ensureArray, toggleInArray, stringifyArray } from '../utils/string';
 import { Listbox, Disclosure } from '@headlessui/react'
 import { useRouter } from 'next/dist/client/router';
 import useSWR from 'swr';
@@ -17,8 +17,12 @@ import { useContextualRouting } from 'next-use-contextual-routing';
 import { OrganisingGroupCard, OrganisingGroupDialog, useSelectedOrganisingGroup } from '../components/OrganisingGroup';
 import { UnionsByCountryData } from '../pages/api/organisingGroupsByCountry';
 import { ChevronRightIcon } from '@heroicons/react/outline';
-import { scrollToId } from '../utils/router';
+import { scrollToYear } from '../utils/router';
 import { groupUrl } from '../data/organisingGroup';
+import cx from 'classnames';
+import { groupBy } from 'lodash';
+import { FilterButton, FilterOption } from './Filter';
+import {memoize} from 'lodash'
 
 export const FilterContext = createContext<{
   search?: string
@@ -58,7 +62,7 @@ export function SolidarityActionsTimeline ({
     setCategories(categories => toggleInArray(categories, category))
   }
   const selectedCategories = useMemo(() =>
-    filteredCategoryNames.map(name => categories.find(c => c.fields.Name === name)),
+    filteredCategoryNames.map(name => categories.find(c => c.fields.Name === name)!).filter(Boolean),
   [filteredCategoryNames])
 
   /**
@@ -73,7 +77,7 @@ export function SolidarityActionsTimeline ({
     setCompanies(companies => toggleInArray(companies, id))
   }
   const selectedCompanies = useMemo(() =>
-    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)),
+    filteredCompanyNames.map(name => companies.find(c => c.fields.Name === name)!).filter(Boolean),
   [filteredCompanyNames])
 
   /**
@@ -88,7 +92,7 @@ export function SolidarityActionsTimeline ({
     setCountries(countries => toggleInArray(countries, id))
   }
   const selectedCountries = useMemo(() =>
-    filteredCountrySlugs.map(slug => countries.find(c => c.fields.Slug === slug)),
+    filteredCountrySlugs.map(slug => countries.find(c => c.fields.Slug === slug)!).filter(Boolean),
   [filteredCountrySlugs])
 
   /**
@@ -103,7 +107,7 @@ export function SolidarityActionsTimeline ({
     setOrganisingGroups(groups => toggleInArray(groups, id))
   }
   const selectedOrganisingGroups = useMemo(() =>
-    filteredOrganisingGroupNames.map(name => groups.find(c => c.fields.Name === name)),
+    filteredOrganisingGroupNames.map(name => groups.find(c => c.fields.Name === name)!).filter(Boolean),
   [filteredOrganisingGroupNames])
 
   /**
@@ -156,28 +160,43 @@ export function SolidarityActionsTimeline ({
     useExtendedSearch: true
   }), [actions])
 
-  const filteredActions = useMemo(() => {
-    if (!hasFilters) return actions
+  const defaults = {
+    updateMatches: false,
+    selectedCategories,
+    selectedCompanies,
+    selectedCountries,
+    selectedOrganisingGroups,
+    filterText,
+  }
+
+  function filterActions (params: Partial<typeof defaults> = defaults) {
+    const {
+      selectedCategories,
+      selectedCompanies,
+      selectedCountries,
+      selectedOrganisingGroups,
+      filterText,
+    } = params
     const expression: Fuse.Expression = { $and: [] }
-    if (selectedCategories.length) {
+    if (selectedCategories?.length) {
       expression.$and!.push({ $or: selectedCategories.map(c => ({ 'fields.Category': `'${c?.id}` })) })
     }
-    if (selectedCompanies.length) {
+    if (selectedCompanies?.length) {
       expression.$and!.push({ $or: selectedCompanies.map(c => ({ 'fields.Company': `'${c?.id}` })) })
     }
-    if (selectedCountries.length) {
+    if (selectedCountries?.length) {
       expression.$and!.push({ $or: selectedCountries.map(c => ({ 'fields.Country': `'${c?.id}` })) })
     }
-    if (selectedOrganisingGroups.length) {
+    if (selectedOrganisingGroups?.length) {
       expression.$and!.push({ $or: selectedOrganisingGroups.map(c => ({ $path: ['fields', "Organising Groups"], $val: `'${c?.id}` })) })
     }
-    if (filterText.trim().length > 0) {
+    if (filterText?.trim().length) {
       expression.$and!.push({
         $or: [
           { 'fields.Name': `'"${filterText}"` },
           { 'summary.plaintext': `'"${filterText}"` },
           { 'fields.Location': `'"${filterText}"` },
-          { 'fields.geography.location.display_name': `'"${filterText}"` },
+          { 'fields.geography.location.displayname': `'"${filterText}"` },
           { 'fields.CategoryName': `'"${filterText}"` },
           { 'fields.countryName': `'"${filterText}"` },
           { 'fields.companyName': `'"${filterText}"` },
@@ -185,18 +204,42 @@ export function SolidarityActionsTimeline ({
         ]
       })
     }
-    const results = search.search(expression)
+    return search.search(expression)
+  }
+
+  const filterActionCount = memoize((params: Partial<typeof defaults> = defaults): number => {
+    return filterActions(params).length
+  }, (arg) => JSON.stringify(arg))
+
+  function updateFilteredActions () {
+    const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
+    if (!hasFilters) return actions
+    const results = filterActions()
     setMatches(results)
     return results.map(s => s.item)
-  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedCountries])
+  }
+
+  const filteredActions = useMemo(() => {
+    return updateFilteredActions()
+  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
+
+  useEffect(() => {
+    window.scroll({
+      top: document.getElementById('static-header')?.offsetHeight || 100,
+      behavior: 'smooth'
+    })
+  }, [filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
 
   //
 
-  const relevantGroups = groups.filter(g =>
-    g.geography.country.some(c =>
-      selectedCountries.some(C =>
-          C?.emoji.code ===  c.iso3166)))
-  const UNION_DISPLAY_LIMIT = 5
+  const relevantGroups = Array.from(new Set(
+    filteredActions
+      .reduce((gs, a) => gs.concat(a.fields['Organising Groups'] || []), [] as string[])
+    ))
+    .map(gid => groups.find(G => G.id === gid)!)
+    .filter(Boolean)
+
+  const UNION_DISPLAY_LIMIT = 3
   const { makeContextualHref, returnHref } = useContextualRouting();
   const [selectedUnion, unionDialogKey] = useSelectedOrganisingGroup(groups || [])
 
@@ -212,134 +255,217 @@ export function SolidarityActionsTimeline ({
       companies: filteredCompanyNames,
       hasFilters
     }}>
-      <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true }) }} />
-      <div className='grid md:grid-cols-2'>
-        <section className='relative'>
-          <div className='p-4 lg:p-5 flex flex-col flex-nowrap h-screen sticky top-0 space-y-4 overflow-y-hidden'>
+      <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true, scroll: false }) }} />
+      <div className="flex flex-col lg:flex-row">
+        <section className='relative bg-white flex-1'>
+          <div className='p-4 lg:p-5 xl:pl-7 flex flex-col flex-nowrap md:h-screen sticky top-5 space-y-4'>
             <section className='flex-grow-0'>
-              <h3 className='text-xs text-left left-0 w-full font-mono uppercase mb-2'>
-                Filter by
-              </h3>
-              <div className='relative space-x-2 flex'>
-                <div>
-                  <Listbox value={filteredCountrySlugs[0]} onChange={v => setCountries([v])}>
+              <div className='flex flex-wrap w-full justify-between text-sm'>
+                <h3 className='text-base text-left left-0 font-semibold mb-2'>
+                  Filter by
+                </h3>
+                {hasFilters ? (
+                  <div className='cursor-pointer rounded-lg inline-block hover:text-gwPink'
+                    onClick={clearAllFilters}
+                  >
+                    <span className='underline'>Clear all filters</span>
+                    &nbsp;
+                    <span className='inline-block transform rotate-45 text-base'>+</span>
+                  </div>
+                ) : null}
+              </div>
+              <div className='relative flex flex-wrap w-full'>
+                <div className='filter-item'>
+                  <Listbox value={filteredCountrySlugs} onChange={v => toggleCountry(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Country"}
-                      </div>
+                      <FilterButton label='Country' selectionCount={selectedCountries.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                        {countries.map((country) => (
-                          <Listbox.Option
-                            key={country.id}
-                            value={country.fields.Slug}
-                          >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span><Emoji symbol={country.emoji.emoji} /></span>
-                              <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
-                              <span className='inline-block align-baseline text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', country.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
-                          </Listbox.Option>
-                        ))}
+                      <div className='listbox-dropdown'>
+                        {countries.map((country) => {
+                          const isSelected = !!selectedCountries.find(c => c?.id === country.id)
+                          const countIfYouIncludeThis = !hasFilters
+                            ? country.fields['Solidarity Actions']?.length || 0
+                            : filterActionCount({
+                              ...defaults,
+                              selectedCountries: [...selectedCountries, country]
+                            })
+                          return (
+                            <Listbox.Option
+                              key={country.id}
+                              value={country.fields.Slug}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => (
+                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                  <span aria-role='hidden' className='hidden'>
+                                    {/* This allows type-ahead on the keyboard for the dropdown */}
+                                    {country.fields.Name}
+                                  </span>
+                                  <span><Emoji symbol={country.emoji.emoji} /></span>
+                                  <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
+                                  <span className='inline-block align-baseline text-xs ml-auto pl-3'>
+                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                  {countIfYouIncludeThis}
+                                  </span>
+                                </FilterOption>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
-                  <Listbox value={filteredCategoryNames[0]} onChange={v => setCategories([v])}>
+                <div className='filter-item'>
+                  <Listbox value={filteredCategoryNames} onChange={v => toggleCategory(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Category"}
-                      </div>
+                      <FilterButton label='Category' selectionCount={selectedCategories.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                        {categories.map((category) => (
-                          <Listbox.Option
-                            key={category.id}
-                            value={category.fields.Name}
-                          >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
-                              <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
-                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', category.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
-                          </Listbox.Option>
-                        ))}
+                      <div className='listbox-dropdown'>
+                        {categories.map((category) => {
+                          const countIfYouIncludeThis = !hasFilters
+                          ? category.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedCategories: [...selectedCategories, category]
+                          })
+                          const isSelected = !!selectedCategories.find(c => c?.id === category.id)
+                          return (
+                            <Listbox.Option
+                              key={category.id}
+                              value={category.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) =>  {
+                                return (
+                                  <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span aria-role='hidden' className='hidden'>
+                                      {/* This allows type-ahead on the keyboard for the dropdown */}
+                                      {category.fields.Name}
+                                    </span>
+                                    <span className='text-sm inline-block align-baseline'>{category.fields.Emoji}</span>
+                                    <span className='text-sm inline-block align-baseline capitalize ml-1'>{category.fields.Name}</span>
+                                    <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                    {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                    {countIfYouIncludeThis}
+                                    </span>
+                                  </FilterOption>
+                                )
+                              }}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
-                  <Listbox value={filteredCompanyNames[0]} onChange={v => setCompanies([v])}>
+                <div className='filter-item'>
+                  <Listbox value={filteredCompanyNames} onChange={v => toggleCompany(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Company"}
-                      </div>
+                      <FilterButton label='Company' selectionCount={selectedCompanies.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                        {companies.map((company) => (
-                          <Listbox.Option
-                            key={company.id}
-                            value={company.fields.Name}
-                          >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
-                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', company.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
-                          </Listbox.Option>
-                        ))}
+                      <div className='listbox-dropdown'>
+                        {companies.map((company) =>  {
+                          const isSelected = !!selectedCompanies.find(c => c?.id === company.id)
+                          const countIfYouIncludeThis = !hasFilters
+                          ? company.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedCompanies: [...selectedCompanies, company]
+                          })
+                          return (
+                            <Listbox.Option
+                              key={company.id}
+                              value={company.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => (
+                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                  <span className='text-sm inline-block align-baseline'>{company.fields.Name}</span>
+                                  <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                  {countIfYouIncludeThis}
+                                  </span>
+                                </FilterOption>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
-                  <Listbox value={filteredOrganisingGroupNames[0]} onChange={v => setOrganisingGroups([v])}>
+                <div className='filter-item'>
+                  <Listbox value={filteredOrganisingGroupNames} onChange={v => toggleOrganisingGroup(v as any)}>
+                  {({ open }) => (
+                    <>
                     <Listbox.Button>
-                      <div className='text-gray-400 rounded-xl border border-gray-200 px-3 py-2 text-sm'>
-                        {"Union"}
-                      </div>
+                      <FilterButton label='Union' selectionCount={selectedOrganisingGroups.length} isOpen={open} />
                     </Listbox.Button>
                     <Listbox.Options>
-                      <div className='overflow-y-auto p-1 rounded-xl bg-white absolute top-100 z-50' style={{ maxHeight: '33vh', height: 400 }}>
-                        {groups.map((group) => (
-                          <Listbox.Option
-                            key={group.id}
-                            value={group.fields.Name}
-                          >
-                            <div className='px-3 py-2 hover:bg-gray-100 rounded-xl cursor-pointer text-left flex justify-start w-full'>
-                              <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
-                              <span className='align-baseline inline-block text-xs ml-auto text-gray-500 pl-2'>
-                                {pluralize('action', group.fields['Solidarity Actions']?.length || 0, true)}
-                              </span>
-                            </div>
-                          </Listbox.Option>
-                        ))}
+                      <div className='listbox-dropdown'>
+                        {groups.map((group) => {
+                          const isSelected = !!selectedOrganisingGroups.find(c => c?.id === group.id)
+                          const countIfYouIncludeThis = !hasFilters
+                          ? group.fields['Solidarity Actions']?.length || 0
+                          : filterActionCount({
+                            ...defaults,
+                            selectedOrganisingGroups: [...selectedOrganisingGroups, group]
+                          })
+                          return (
+                            <Listbox.Option
+                              key={group.id}
+                              value={group.fields.Name}
+                              disabled={!countIfYouIncludeThis && !isSelected}
+                            >
+                              {(args) => {
+                                return (
+                                  <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                    <span className='text-sm inline-block align-baseline'>{group.fields.Name}</span>
+                                    <span className='align-baseline inline-block text-xs ml-auto pl-3'>
+                                      {/* {pluralize('action', countIfYouIncludeThis, true)} */}
+                                      {countIfYouIncludeThis}
+                                    </span>
+                                  </FilterOption>
+                                )
+                              }}
+                            </Listbox.Option>
+                          )
+                        })}
                       </div>
                     </Listbox.Options>
+                    </>
+                  )}
                   </Listbox>
                 </div>
-                <div>
+                <div className='filter-item flex-grow'>
                   <input
-                    placeholder='Full text search'
+                    placeholder='Search'
                     type='search' 
                     value={filterText}
                     onChange={e => setFilterText(e.target.value.trimStart())}
-                    className='rounded-xl border border-gray-200 px-3 py-2 text-sm'
+                    className='rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold w-full hover:shadow-innerGwPink hover:border-2 hover:border-gwPink focus:border-gwPink transition duration-75'
                   />
                 </div>
               </div>
             </section>
-            <section className='w-full flex-grow'>
-              <Map data={filteredActions} onSelectCountry={iso2 => {
+            <section className='w-full flex-grow h-[40vh] md:h-auto'>
+              <Map data={JSON.parse(JSON.stringify(filteredActions))} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
                 if (countrySlug) {
                   toggleCountry(countrySlug)
@@ -347,93 +473,22 @@ export function SolidarityActionsTimeline ({
               }} />
             </section>
             <section className='pt-1 flex-grow-0'>
-              <h3 className='text-xs text-left w-full font-mono uppercase'>
+              <h3 className='text-base text-left w-full font-semibold'>
                 Select year
               </h3>
-              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToId(router, year)} />
+              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToYear(router, year)} />
             </section>
           </div>
         </section>
 
-        <section className='bg-gray-100 p-4 lg:p-5 space-y-4'>
+        <section className='p-4 lg:p-5 xl:pr-7 space-y-4 flex-1'>
           <h2 className='text-6xl font-identity'>
             {pluralize('action', filteredActions.length, true)}
           </h2>
 
-          <div className='flex flex-wrap w-full justify-start p-1 text-sm'>
-            {selectedCountries?.map(country => country ? (
-              <div key={country.id} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCountry(country.fields.Slug)}
-              >
-                <Emoji symbol={country.emoji.emoji} /> {country?.emoji.name}
-              </div>
-            ) : null)}
-            {selectedCategories?.map(category => category ? (
-              <div key={category?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCategory(category.fields.Name)}
-              >
-                <span className='inline-block'>{category.fields.Emoji}</span>
-                <span className='inline-block capitalize ml-1'>{category.fields.Name}</span>
-              </div>
-            ) : null)}
-            {selectedCompanies?.map(company => company ? (
-              <div key={company?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleCompany(company.fields.Name)}
-              >
-                {company?.fields.Name}
-              </div>
-            ) : null)}
-            {selectedOrganisingGroups?.map(group => group ? (
-              <div key={group?.id} className='m-2 -ml-1 -mt-1 capitalize cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => toggleOrganisingGroup(group.fields.Name)}
-              >
-                {group?.fields.Name}
-              </div>
-            ) : null)}
-            {filterText.trim().length > 0 && [filterText].map(textFragment =>
-              <div key={textFragment} className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl bg-white px-3 py-2 font-semibold inline-block'
-                onClick={() => setFilterText(t => t.replace(textFragment, '').trim())}
-              >
-                "{textFragment}"
-              </div>
-            )}
-            {hasFilters ? (
-              <div className='m-2 -ml-1 -mt-1 cursor-pointer hover:bg-gwPinkLight rounded-xl border-black border px-3 py-2 font-semibold inline-block'
-                onClick={clearAllFilters}
-              >
-                Clear all filters <div className='inline-block transform rotate-45'>+</div>
-              </div>
-            ) : null}
-          </div>
-
-          {selectedOrganisingGroups?.map(group => 
-            <OrganisingGroupCard data={group!} withPadding={false} withContext={false} key={group!.id} />
-          )}
-
-          {!!selectedCategories[0]?.summary?.html && (
+          {!!relevantGroups.length && hasFilters && (
             <article>
-              <h3 className='text-3xl font-identity'>More info on {selectedCategories[0].fields.Name}</h3>
-              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCategories[0]?.summary.html }} />
-            </article>
-          )}
-
-          {!!selectedCompanies[0]?.summary?.html && (
-            <article>
-              <h3 className='text-3xl font-identity'>More info on {selectedCompanies[0].fields.Name}</h3>
-              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCompanies[0]?.summary.html }} />
-            </article>
-          )}
-
-          {!!selectedCountries[0]?.summary?.html && (
-            <article>
-              <h3 className='text-3xl font-identity'>More info on {selectedCountries[0].fields.Name}</h3>
-              <div className='prose' dangerouslySetInnerHTML={{ __html: selectedCountries[0]?.summary.html }} />
-            </article>
-          )}
-
-          {!!selectedCountries[0]?.fields.Name && !!relevantGroups.length && (
-            <article>
-              <h3 className='text-3xl font-light'>Active organising groups in {selectedCountries[0].fields.Name}</h3>
+              <h3 className='text-3xl font-light font-identity'>Related unions and groups</h3>
               <ul className='list space-y-1 my-3'>
                 <Disclosure>
                   {({ open }) => (
@@ -451,21 +506,27 @@ export function SolidarityActionsTimeline ({
                               label={union.fields.IsUnion ? 'Union' : 'Organising Group'}
                             />
                             <span className='link'>{union.fields.Name}</span>
-                            {union.fields.IsUnion && <span className='inline-block ml-2 text-gray-400 rounded-full text-xs ml-auto'>
-                              ({union.fields.IsUnion ? 'Union' : 'Organising Group'})
-                            </span>}
+                            <span>
+                              <span className='inline-block ml-2 text-gray-400 rounded-full text-xs'>
+                                {union.fields.IsUnion ? 'Union' : 'Organising group'} in
+                              </span>
+                              &nbsp;
+                              <span className='inline-block text-gray-400 rounded-full text-xs'>
+                                {stringifyArray(union.geography.country.map(g => g.name))}
+                              </span>
+                            </span>
                           </li>
                         </Link>
                       )}
-                      {(relevantGroups?.length || 0) > UNION_DISPLAY_LIMIT && (
+                      {(relevantGroups.length || 0) > UNION_DISPLAY_LIMIT && (
                         <Disclosure.Button>
                           <div className='text-sm link px-2 my-2'>
                             <span>{open
-                              ? "Show fewer organising groups"
-                              : `Show all ${relevantGroups?.length} organising groups`
+                              ? "Show fewer"
+                              : `Show ${relevantGroups.length - UNION_DISPLAY_LIMIT} more`
                             }</span>
                             <ChevronRightIcon
-                              className={`${open ? "rotate-270" : "rotate-90"} transform w-3 inline-block`}
+                              className={`${open ? "-rotate-90" : "rotate-90"} transform w-3 inline-block`}
                             />
                           </div>
                         </Disclosure.Button>
@@ -477,17 +538,38 @@ export function SolidarityActionsTimeline ({
             </article>
           )}
 
+          {selectedCategories.filter(c => c?.summary?.html).map(c => (
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {c.fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: c?.summary.html }} />
+            </article>
+          ))}
+
+          {!!selectedCompanies.filter(c => c?.summary?.html).map(c =>
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {c.fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: c.summary.html }} />
+            </article>
+          )}
+
+          {!!selectedCountries.filter(c => c?.summary?.html).map(c =>
+            <article>
+              <h3 className='text-3xl font-identity'>More info on {c.fields.Name}</h3>
+              <div className='prose' dangerouslySetInnerHTML={{ __html: c.summary.html }} />
+            </article>
+          )}
+
           <div className='pb-1' />
 
-            <SolidarityActionsList
-              data={filteredActions}
-              withDialog
-              dialogProps={{
-                cardProps: {
-                  withContext: true
-                },
-              }}
-            />
+          <SolidarityActionsList
+            data={filteredActions}
+            withDialog
+            dialogProps={{
+              cardProps: {
+                withContext: true
+              },
+            }}
+          />
 
           <article>
             <p>Can you contribute more info about worker organising?</p>

@@ -1,36 +1,36 @@
+import MarkdownIt from 'markdown-it'
+import { CodeBlock } from '../components/CodeBlock';
+import { getSolidarityActions } from '../data/solidarityAction';
+import { NextSeo } from 'next-seo';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
-import { NextSeo } from 'next-seo';
+import { getCountryByCode } from '../data/country';
 import PageLayout from '../components/PageLayout';
+import { projectStrings } from '../data/site';
+export const markdown = new MarkdownIt();
 
-export default function Page({ embedUrl }) {
+export default function Page({ introHTML }: { introHTML: string }) {
   return (
-    <PageLayout fullWidth>
+    <PageLayout>
       <NextSeo
-        title={'All data'}
+        title={'Get the Data'}
         openGraph={{
-          title: 'All data'
+          title: 'Get the Data'
         }}
       />
 
-      <div>
-        <h1 className='font-identity text-4xl mb-4 px-4 md:px-5 py-4'>
-          All solidarity action data
+      <div className='py-5 content-wrapper'>
+        <h1 className='font-identity text-4xl mb-2'>
+          Get the Data
         </h1>
-
-        <AirtableDataEmbed url={EMBED_URL} />
+        <div
+          className='max-w-2xl prose'
+          dangerouslySetInnerHTML={{ __html: introHTML }}
+        />
       </div>
+      <AirtableDataEmbed url={EMBED_URL} />
     </PageLayout>
   )
-}
-
-export const getStaticProps: GetStaticProps = async (context) => {
-  return {
-    props: {},
-    revalidate: env.get('PAGE_TTL').default(
-      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
-    ).asInt() // In seconds
-  }
 }
 
 const EMBED_URL = `https://airtable.com/embed/${env.get('AIRTABLE_DATA_EMBED_ID').default('shrxKvrGsmARoz6eY').asString()}?backgroundColor=red&viewControls=on`
@@ -44,4 +44,24 @@ function AirtableDataEmbed ({ url }) {
       style={{ height: '66vh' }}
     />
   )
+}
+
+const introHTML = markdown.render(`
+We provide the full dataset of actions as:
+
+- a CSV file via Airtable (see below)
+- a public API at [GET /api/solidarityActions](/api/solidarityActions)
+
+There are no limitations on the use of this data at present. Please use this data for your solidarity projects and [let us know](mailto:${projectStrings.email}), we're curious to hear!
+`)
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  return {
+    props: {
+      introHTML
+    },
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt() // In seconds
+  }
 }

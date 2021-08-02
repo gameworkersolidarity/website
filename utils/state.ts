@@ -3,6 +3,8 @@ import qs from 'query-string';
 import { useRouter } from 'next/dist/client/router';
 import { useDebouncedCallback } from 'use-debounce'
 import isEqual from 'lodash.isequal'
+import { diff as jsondiff, jsonPatchPathConverter, Operation } from 'just-diff';
+import jsonpatch, { JSONPatch } from 'jsonpatch';
 
 type URLStateOptions<RawValue> = {
   key: string
@@ -18,6 +20,24 @@ type URLStateOptions<RawValue> = {
 export function useURLStateFactory () {
   const router = useRouter()
   const params = useRef({})
+  const paramDiffs = useRef<ReturnType<typeof jsondiff>>([])
+
+  const updateURL = useDebouncedCallback(() => {
+  const { query } = qs.parseUrl(router.asPath)
+  const nextQuery = { ...query, ...jsonpatch.apply_patch(params.current, paramDiffs.current) }
+  for (const key in nextQuery) {
+    if (!nextQuery[key]) {
+      delete nextQuery[key]
+    }
+  }
+  // console.log(query, nextQuery, paramDiffs.current)
+  paramDiffs.current = []
+  if (isEqual(query, nextQuery)) {
+    // console.info("Update URL called, but URL was the same as before", { query, nextQuery })
+  } else {
+    router.push({ query: nextQuery }, undefined, { shallow: true, scroll: false })
+  }
+}, 500)
 
   return function <
     RawValue = any
@@ -53,16 +73,6 @@ export function useURLStateFactory () {
     // Initialise state
     const [state, setState] = useState(initialStateValue || initialValue || emptyValue)
 
-    const updateURL = useDebouncedCallback(() => {
-      const { query } = qs.parseUrl(router.asPath)
-      const nextQuery = { ...query, ...params.current }
-      if (isEqual(query, nextQuery)) {
-        // console.info("Update URL called, but URL was the same as before", query, nextQuery)
-      } else {
-        router.push({ query: nextQuery }, undefined, { shallow: true })
-      }
-    }, 500)
-
     // When the URL changes, sync it to state
     useEffect(function deserialiseURLToState() {
       const handleRouteChange = (url, { shallow }) => {
@@ -79,9 +89,12 @@ export function useURLStateFactory () {
       }
     }, [state])
 
-    // Update URL object when state changes
+    // When state changes, update the params which will eventually be synced to the URL
     useEffect(function serialiseStateToURL() {
-      params.current = ({ ...params.current, ...serialiseStateToObject(key, state) })
+      const nextParams = ({ ...params.current, ...serialiseStateToObject(key, state) })
+      const diff = jsondiff(params.current, nextParams, jsonPatchPathConverter)
+      paramDiffs.current = paramDiffs.current.concat(diff)
+      // console.log('State changed, new params calculated', params.current, nextParams)
       for (const key in params.current) {
         if (!params.current[key]) {
           delete params.current[key]

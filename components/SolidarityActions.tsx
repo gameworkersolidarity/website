@@ -1,22 +1,31 @@
-import { Dialog, Transition } from '@headlessui/react'
-import Emoji from 'a11y-react-emoji'
-import cx from 'classnames'
-import { format, getYear } from 'date-fns'
-import { NextSeo } from 'next-seo'
-import { useContextualRouting } from 'next-use-contextual-routing'
-import { useRouter } from 'next/dist/client/router'
-import Image from 'next/image'
-import Link from 'next/link'
-import pluralize from 'pluralize'
-import qs from 'query-string'
-import { useContext, useEffect, useMemo, useState } from 'react'
-import Highlighter from 'react-highlight-words'
+import { format, getMonth, getYear } from 'date-fns';
 import useSWR from 'swr'
-import { FilterContext } from '../components/Timeline'
-import { projectStrings } from '../data/site'
-import { actionUrl } from '../data/solidarityAction'
-import { Country, Document, SolidarityAction } from '../data/types'
-import { usePrevious } from '../utils/state'
+import { SolidarityActionsData } from '../pages/api/solidarityActions';
+import { SolidarityAction, Country, Attachment } from '../data/types';
+import { stringifyArray } from '../utils/string';
+import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
+import Link from 'next/link';
+import { useContextualRouting } from 'next-use-contextual-routing';
+import { useRouter } from 'next/dist/client/router';
+import { Dialog, Transition } from '@headlessui/react'
+import { useMediaQuery } from '../utils/mediaQuery';
+import { up } from '../utils/screens';
+import cx from 'classnames'
+import { NextSeo } from 'next-seo';
+import qs from 'query-string';
+import { useMemo, useRef, useState, useEffect, useContext } from 'react';
+import pluralize from 'pluralize'
+import Emoji from 'a11y-react-emoji';
+import { projectStrings } from '../data/site';
+import Image from 'next/image'
+import Fuse from 'fuse.js';
+import { CumulativeMovementChart } from './ActionChart';
+import { doNotFetch } from '../utils/swr';
+import { FilterContext } from '../components/Timeline';
+import Highlighter, { Chunk } from "react-highlight-words";
+import { actionUrl } from '../data/solidarityAction';
+import { usePrevious } from '../utils/state';
+import { DateTime } from './Date';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -52,7 +61,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
 
   function onClose () {
     if (returnHref) {
-      return router.push(returnHref, returnHref, { shallow: false })
+      return router.push(returnHref, returnHref, { shallow: false, scroll: false })
     }
   }
 
@@ -245,36 +254,64 @@ export function SolidarityActionsList ({
   )
 }
 
+function groupBy<T>(arr: T[], getGroupKey: (i: T) => string) {
+  return arr.reduce((groups, i) => {
+    groups[getGroupKey(i)] ??= []
+    groups[getGroupKey(i)].push(i)
+    return groups
+  }, {} as { [key: string]: T[] })
+}
+
+function getChunks (array: Fuse.FuseResultMatch[]) {
+  return array.reduce((indicies, d) => {
+    return indicies.concat(d.indices.map(([start, end]) => ({ start, end: end + 1 })))
+  }, [] as Chunk[])
+}
+
+function highlightHTML (html: string, search: string, className: string) {
+  return html.replace(
+    new RegExp(`(${search})` || '', 'gim'),
+    `<mark class='${className}'>$1</mark>`
+  )
+}
+
 export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
   
   return (
-    <article className={cx('bg-white rounded-xl p-4 text-sm shadow-noglow group-hover:shadow-glow transition duration-100')}>
+    <article className={cx('bg-white rounded-xl p-4 text-sm glowable')}>
       <ActionMetadata data={data} />
       <div>
-        <h3 className={cx(isFeatured ? 'text-3xl leading-tight' : 'text-2xl leading-tight', 'font-semibold max-w-3xl mt-3')}>
-          <Highlighter
-            highlightClassName="bg-gwYellow"
-            searchWords={[search || '']}
-            autoEscape={true}
-            textToHighlight={data.fields.Name}          
-          />
-        </h3>
-        {data.fields.Summary && (
-          <div className={'w-full pt-4'}>
+        {isFeatured ? <>
+          <h2 className='text-3xl leading-tight font-semibold max-w-3xl mt-3'>
             <Highlighter
               highlightClassName="bg-gwYellow"
               searchWords={[search || '']}
               autoEscape={true}
-              textToHighlight={data.summary.plaintext}          
+              textToHighlight={data.fields.Name}          
             />
+          </h2>
+          {data.fields.Summary && (
+          <div className='w-full pt-4 text-base'>
+            <div dangerouslySetInnerHTML={{
+              __html: !search ? data.summary.html : highlightHTML(data.summary.html, search, 'bg-gwYellow')
+            }} />
           </div>
         )}
-        <div className='flex flex-row space-x-4 mt-3'>
+        </>: 
+        <h3 className='text-2xl leading-tight font-semibold max-w-3xl mt-3'>
+          <Highlighter
+            highlightClassName="bg-gwYellow"
+            searchWords={[search || '']}
+            autoEscape={true}
+            textToHighlight={data.fields.Name} 
+          />
+        </h3>}
+        <div className='flex flex-row mt-3 flex-wrap'>
           {data.fields.Link && (
-            <a href={data.fields.Link} className='block my-1'>
+            <a href={data.fields.Link} className='block my-1 mr-2'>
             <Emoji symbol='🔗' label='Link' className='align-baseline' />
               &nbsp;
               <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
@@ -289,9 +326,9 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   )
 }
 
-export function DocumentLink ({ doc, withPreview }: { doc: Document, withPreview?: boolean }) {
+export function DocumentLink ({ doc, withPreview }: { doc: Attachment, withPreview?: boolean }) {
   return (
-    <a href={doc.url} className='block my-1'>
+    <a href={doc.url} className='block my-1 mr-2'>
       <Emoji symbol='📑' label='File attachment' className='align-baseline' />
       &nbsp;
       <span className='align-baseline underline text-inherit'>{doc.filename}</span>
@@ -313,14 +350,14 @@ export function DocumentLink ({ doc, withPreview }: { doc: Document, withPreview
 export function ActionMetadata ({ data }: { data: SolidarityAction }) {
   return (
     <div className='flex flex-wrap tracking-tight'>
-      <time className='font-semibold pr-3' dateTime={format(new Date(data.fields.Date), "yyyy-MM-dd")}>
-        {format(new Date(data.fields.Date), 'dd MMM yyyy')}
-      </time>
+      <span className='font-semibold pr-3'>
+        <DateTime date={data.fields.Date} />
+      </span>
       {data.fields.Location ? (
         <span className='pr-1'>{data.fields.Location}</span>
       ) : null}
-      {data.geography?.country.map(country => (
-        <span className='pr-3' key={country.iso3166}>
+      {data.geography?.country.map((country, i) => (
+        <span className='pr-3' key={`${country.iso3166}-${i}`}>
           <Emoji
             symbol={country.emoji.emoji}
             label={`Flag of ${country.name}`}
@@ -350,7 +387,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
           description: data.summary.plaintext
         }}
       />
-      <article className={cx('space-y-2px rounded-xl overflow-hidden shadow-noglow group-hover:shadow-glow transition duration-100')}>
+      <article className={cx('space-y-2px rounded-xl overflow-hidden')}>
         <div className='p-4 md:px-8 bg-white'>
           <div className='text-sm'>
             <ActionMetadata data={data} />

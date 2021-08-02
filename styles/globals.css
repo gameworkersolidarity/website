@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply min-h-screen bg-white max-w-full;
+  @apply min-h-screen bg-gwBackground max-w-full;
 }
 
 @font-face {
@@ -33,6 +33,38 @@ body {
   }
 
   .content-wrapper {
-    @apply max-w-7xl mx-auto px-4 md:px-7;
+    @apply mx-auto px-4 lg:px-5 xl:px-7;
+    /* max-width: 1600px; */
+  }
+
+  .filter-item {
+    @apply inline-block mr-2 mb-2;
+
+    &:last-child {
+      @apply mr-0 mb-0;
+    }
+  }
+
+  .listbox-dropdown {
+    @apply border-2 border-gwPink overflow-y-auto rounded-lg rounded-tl-none bg-white absolute z-40 shadow-gwPink;
+    margin-top: -2px;
+    max-height: 33vh;
+    height: 400;
+  }
+
+  .glowable {
+    @apply shadow-noglow hover:shadow-glow transition duration-100;
+  }
+
+  .action-chart svg {
+    @apply overflow-visible;
+  }
+
+  .country-popup .mapboxgl-popup-content{
+    @apply shadow-gwOrange rounded-lg p-0;
+  }
+
+  .nav-link {
+    @apply font-semibold underline transition-all duration-75 bg-transparent hover:bg-white hover:shadow-innerGwPink rounded-lg inline-block px-3 -mx-2 md:-mx-1 py-2;
   }
 }

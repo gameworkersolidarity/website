@@ -15,7 +15,7 @@ export const generateJSONFeed = async () => {
       "title": article.fields.Title,
       "summary": article.fields.Summary,
       "date_published": formatRFC3339(new Date(article.fields.Date)),
-      "content_html": article.fields.Body,
+      "content_html": article.body.html,
       "url": `https://gameworkersolidarity.com/news/${article.fields.Slug}`,
       "id": `https://gameworkersolidarity.com/news/${article.fields.Slug}`,
     }))

@@ -10,7 +10,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { theme } from 'twin.macro';
 import * as polished from 'polished'
 import router, { useRouter } from 'next/dist/client/router';
-import { scrollToId } from '../utils/router';
 import { FilterContext } from './Timeline';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { max, median, min } from 'd3-array';
@@ -27,6 +26,8 @@ import { Dictionary, groupBy, merge } from 'lodash';
 import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
 import combine from '@turf/combine'
 import bbox from '@turf/bbox';
+import cx from 'classnames';
+import { createPortal } from 'react-dom';
 
 const defaultViewport = {
   latitude: 15,
@@ -151,12 +152,28 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     calculateViewportForActions()
   }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
-  return (
+  const [isFullPage, setFullPage] = useState(false)
+  const toggleFullPage = () => setFullPage(t => !t)
+
+  const el = (
     <ViewportContext.Provider value={viewport}>
-      <div className='relative overflow-hidden rounded-xl' style={{
-        height: '100%',
-        width: '100%'
-      }}>
+      <div
+        className={cx(
+          isFullPage ? 'transform top-1/2 -translate-y-1/2  left-1/2 -translate-x-1/2 w-screen h-screen fixed z-50 shadow-gwPink'
+          : 'w-full h-full relative',
+          'rounded-xl overflow-hidden'
+        )}
+        style={{
+          height: isFullPage ? '95vh' : '100%',
+          width: isFullPage ? '95vw' : '100%'
+        }}
+      >
+        <div
+          className='absolute top-0 right-0 m-4 rounded-lg bg-white text-sm p-2 z-40 cursor-pointer button'
+          onClick={toggleFullPage}
+        >
+          {isFullPage ? 'Smaller' : 'Bigger'}
+        </div>
         <ReactMapGL
           style={{
             width: '100%',
@@ -178,26 +195,16 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
             onSelectCountry={onSelectCountry}
           />
           {/* National events */}
-          {Object.entries(
-            displayStyle === 'summary'
-            // In summary view, no other icons are on the map
-            // So summarise all events in country-by-country clusters
-            ? nationalActionsByCountry
-            // When in detail view, display all locations
-            // In which case, only continue to show national events which don't have a location
-            : nationalActionsByCountryNoLocation
-          ).map(([countryCode, actionsUnlocated]) => {
+          {displayStyle === 'detail' && Object.entries(nationalActionsByCountryNoLocation).map(([countryCode, actionsUnlocated]) => {
             return (
               <ClusterMarker
                 key={countryCode}
                 longitude={actionsUnlocated[0].geography.country[0].longitude}
                 latitude={actionsUnlocated[0].geography.country[0].latitude}
                 actions={actionsUnlocated}
-                label={displayStyle === 'summary'
-                  // In summary view, act as the container for all national events
-                  ? <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
-                  // In detail view, mimic the other clusters
-                  : undefined}
+                label={
+                <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
+                }
               />
             )
           })}
@@ -219,6 +226,9 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
       </div>
     </ViewportContext.Provider>
   );
+
+  const fullScreenNode = typeof document !== 'undefined' ? document.getElementById('portal-node') : null
+  return isFullPage && !!fullScreenNode ? createPortal(el, fullScreenNode) : el
 }
 
 function ActionSource ({ data }: { data: SolidarityAction[] }) {
@@ -357,20 +367,29 @@ const CountryPopup = memo(({ lat, lng, actions }: {
   lng: number
   actions: SolidarityAction[]
 }) => {
-  const exampleAction = actions[0]
-  return (
-    <Popup latitude={lat} longitude={lng} closeButton={false} closeOnClick={false} className='w-[150px]'>
-      <div className='text-base'>
-        <SolidarityActionRelatedActions
-          subtitle={'Country'}
-          url={`/?country=${exampleAction.fields.countrySlug[0]}`}
-          name={<span>
-            <Emoji symbol={exampleAction.geography.country[0].emoji?.emoji} label='flag' />
-            &nbsp;
-            {exampleAction.geography.country[0].name}
-          </span>}
-          metadata={pluralize('action', actions.length, true)}
-        />
+  const router = useRouter()
+  const exampleAction = actions?.[0]
+  return !exampleAction ? null : (
+    <Popup latitude={lat} longitude={lng} closeButton={false} closeOnClick={false} className='min-w-[170px] country-popup'>
+      <div
+        className='px-2 py-2'
+        onClick={() => router.push(
+          `/?country=${exampleAction.fields.countrySlug[0]}`,
+          undefined,
+          { shallow: false, scroll: false }
+        )}
+      >
+        <div className='text-base'>
+          <Emoji symbol={exampleAction.geography.country[0].emoji?.emoji} label='flag' />
+          &nbsp;
+          {exampleAction.geography.country[0].name}
+        </div>
+        <div className='text-xl'>
+          {pluralize('action', actions.length, true)}
+        </div>
+        <div className='underline text-base'>
+          View
+        </div>
       </div>
     </Popup>
   )
@@ -434,15 +453,15 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
   useEffect(() => {
     if (marker.current._el) {
       if (isSelected) {
-        (marker.current._el as HTMLDivElement).classList.add('z-50')
+        (marker.current._el as HTMLDivElement).classList.add('z-30')
       } else {
-        (marker.current._el as HTMLDivElement).classList.remove('z-50')
+        (marker.current._el as HTMLDivElement).classList.remove('z-30')
       }
     }
   }, [isSelected])
 
   return (
-    <Marker ref={marker} longitude={longitude} latitude={latitude} anchor='bottom' className={isSelected ? 'z-50' : 'z-10'}>
+    <Marker ref={marker} longitude={longitude} latitude={latitude} anchor='bottom' className={isSelected ? 'z-30' : 'z-10'}>
       <div
         onClick={toggleSelected}
         className='relative'
