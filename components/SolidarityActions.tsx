@@ -83,7 +83,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
               <button
                 type="button"
-                className="mb-3 rounded-xl px-2 py-1 border-box"
+                className="mb-3 rounded-xl px-2 py-1 border-box bg-white"
                 onClick={onClose}
               >
                 &larr; Back
