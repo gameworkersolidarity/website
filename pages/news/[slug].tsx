@@ -36,7 +36,7 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
               <div className='flex flex-col justify-center space-y-4'>
                 <h1 className='font-identity text-5xl md:text-6xl'>{article.fields.Title}</h1>
                 <p className='text-xl font-light'>{article.fields.Summary}</p>
-                {article.fields.ByLine && <p className='text-xl link font-light'>{article.fields.ByLine}</p>}
+                {article.fields.ByLine && <p className='text-xl font-light'>{article.fields.ByLine}</p>}
               </div>
               <div className='rounded-lg shadow-gwPink overflow-hidden'>
                 <Image
