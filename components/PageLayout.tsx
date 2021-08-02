@@ -95,14 +95,14 @@ function Footer ({ }: { }) {
           </nav>
           <div className='md:flex space-y-4 md:space-y-0 md:space-x-5'>
             <div>
-              Site by <a className='link' href='https://commonknowledge.coop'>
-                Common Knowledge Co-operative
+              Site developed by <a className='link' href='https://commonknowledge.coop'>
+                Common Knowledge
               </a> and <a className='link' href='http://shaunabuckley.com/'>
                 Shauna Buckley
               </a>
             </div>
             <div>
-              Funded by <a className='link' href='https://open.ac.uk'>The Open University</a>
+              Funded by <a className='link' href='https://www.open.ac.uk'>The Open University</a>
             </div>
           </div>
         </div>
