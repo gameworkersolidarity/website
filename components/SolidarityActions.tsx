@@ -1,29 +1,22 @@
-import { format, getMonth, getYear } from 'date-fns';
-import useSWR from 'swr'
-import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { SolidarityAction, Country, Attachment } from '../data/types';
-import { stringifyArray } from '../utils/string';
-import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
+import { Dialog, Transition } from '@headlessui/react';
+import Emoji from 'a11y-react-emoji';
+import cx from 'classnames';
+import { format, getYear } from 'date-fns';
+import Fuse from 'fuse.js';
+import { NextSeo } from 'next-seo';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
-import { Dialog, Transition } from '@headlessui/react'
-import { useMediaQuery } from '../utils/mediaQuery';
-import { up } from '../utils/screens';
-import cx from 'classnames'
-import { NextSeo } from 'next-seo';
+import Image from 'next/image';
+import Link from 'next/link';
+import pluralize from 'pluralize';
 import qs from 'query-string';
-import { useMemo, useRef, useState, useEffect, useContext } from 'react';
-import pluralize from 'pluralize'
-import Emoji from 'a11y-react-emoji';
-import { projectStrings } from '../data/site';
-import Image from 'next/image'
-import Fuse from 'fuse.js';
-import { CumulativeMovementChart } from './ActionChart';
-import { doNotFetch } from '../utils/swr';
-import { FilterContext } from '../components/Timeline';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Highlighter, { Chunk } from "react-highlight-words";
+import useSWR from 'swr';
+import { FilterContext } from '../components/Timeline';
+import { projectStrings } from '../data/site';
 import { actionUrl } from '../data/solidarityAction';
+import { Attachment, Country, SolidarityAction } from '../data/types';
 import { usePrevious } from '../utils/state';
 import { DateTime } from './Date';
 
