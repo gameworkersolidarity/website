@@ -78,7 +78,7 @@ export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps 
         {selectedAction?.fields && (
           <>
             <Dialog.Overlay className="fixed z-10 inset-0 bg-gwOrange opacity-80" />
-            <div className='absolute z-20 w-full max-w-4xl top-[15%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
+            <div className='absolute z-20 w-full max-w-4xl top-[1%] left-1/2 transform -translate-x-1/2 py-5 p-4'>
               <Dialog.Title className='hidden'>{selectedAction.fields.Name}</Dialog.Title>
               <Dialog.Description className='hidden'>{selectedAction.fields.Summary}</Dialog.Description>
               <button
