@@ -1,13 +1,10 @@
+import env from 'env-var'
 import MarkdownIt from 'markdown-it'
-import { CodeBlock } from '../components/CodeBlock';
-import { getSolidarityActions } from '../data/solidarityAction';
-import { NextSeo } from 'next-seo';
-import env from 'env-var';
-import { GetStaticProps } from 'next';
-import { getCountryByCode } from '../data/country';
-import PageLayout from '../components/PageLayout';
-import { projectStrings } from '../data/site';
-export const markdown = new MarkdownIt();
+import { GetStaticProps } from 'next'
+import { NextSeo } from 'next-seo'
+import PageLayout from '../components/PageLayout'
+import { projectStrings } from '../data/site'
+export const markdown = new MarkdownIt()
 
 export default function Page({ introHTML }: { introHTML: string }) {
   return (
