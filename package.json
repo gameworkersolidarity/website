@@ -62,7 +62,6 @@
     "react-highlight-words": "^0.17.0",
     "react-konami-code": "^2.2.2",
     "react-spring": "^9.2.3",
-    "react-syntax-highlighter": "^15.4.3",
     "remove-markdown": "^0.3.0",
     "scroll-into-view": "^1.16.0",
     "supercluster": "^7.1.3",
