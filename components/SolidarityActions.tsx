@@ -1,29 +1,22 @@
-import { format, getMonth, getYear } from 'date-fns';
-import useSWR from 'swr'
-import { SolidarityActionsData } from '../pages/api/solidarityActions';
-import { SolidarityAction, Country, Attachment } from '../data/types';
-import { stringifyArray } from '../utils/string';
-import { ExternalLinkIcon, PaperClipIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
+import { Dialog, Transition } from '@headlessui/react';
+import Emoji from 'a11y-react-emoji';
+import cx from 'classnames';
+import { format, getYear } from 'date-fns';
+import Fuse from 'fuse.js';
+import { NextSeo } from 'next-seo';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
-import { Dialog, Transition } from '@headlessui/react'
-import { useMediaQuery } from '../utils/mediaQuery';
-import { up } from '../utils/screens';
-import cx from 'classnames'
-import { NextSeo } from 'next-seo';
+import Image from 'next/image';
+import Link from 'next/link';
+import pluralize from 'pluralize';
 import qs from 'query-string';
-import { useMemo, useRef, useState, useEffect, useContext } from 'react';
-import pluralize from 'pluralize'
-import Emoji from 'a11y-react-emoji';
-import { projectStrings } from '../data/site';
-import Image from 'next/image'
-import Fuse from 'fuse.js';
-import { CumulativeMovementChart } from './ActionChart';
-import { doNotFetch } from '../utils/swr';
-import { FilterContext } from '../components/Timeline';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Highlighter, { Chunk } from "react-highlight-words";
+import useSWR from 'swr';
+import { FilterContext } from '../components/Timeline';
+import { projectStrings } from '../data/site';
 import { actionUrl } from '../data/solidarityAction';
+import { Attachment, Country, SolidarityAction } from '../data/types';
 import { usePrevious } from '../utils/state';
 import { DateTime } from './Date';
 
@@ -116,11 +109,24 @@ export function useSelectedAction(solidarityActions: SolidarityAction[], key = D
   return [selectedAction, key] as const
 }
 
+const DownArrow = (
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 5L9.11875 4.11875L5.625 7.60625V0H4.375V7.60625L0.8875 4.1125L0 5L5 10L10 5Z" fill="#010101"/>
+  </svg>
+)
+
+const UpArrow = (
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 5L0.88125 5.88125L4.375 2.39375L4.375 10H5.625L5.625 2.39375L9.1125 5.8875L10 5L5 0L0 5Z" fill="#010101"/>
+  </svg>
+)
+
 export function SolidarityActionsList ({
   data: solidarityActions, withDialog, gridStyle = 'grid-cols-1', dialogProps, mini
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
   const [selectedAction, dialogKey] = useSelectedAction(solidarityActions || [], dialogProps?.key)
+  const [openYears, setOpenYears] = useState<string[]>([]);
 
   const actionsByYear = useMemo(() => {
     const group = (solidarityActions || []).reduce((bins, action) => {
@@ -134,11 +140,13 @@ export function SolidarityActionsList ({
   }, [solidarityActions])
 
   const router = useRouter()
+  
   // when the router changes, update the current route
   const [currentHref, setCurrentHref] = useState(router.asPath)
+  
   // store the past route and use it as the currentHref
   const lastHref = usePrevious(currentHref)
-  //
+
   useEffect(() => {
     const handleRouteChangeComplete = (url, obj) => {
       setCurrentHref(url)
@@ -158,6 +166,23 @@ export function SolidarityActionsList ({
       )}
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear.map(([yearString, actions], i) => {
+          let hiddenActions = [] as SolidarityAction[]
+          let shownActions = [] as SolidarityAction[]  
+          
+          let hasHiddenActions = false;
+          
+          if (actions.length > 3) {
+            hasHiddenActions = true;
+            shownActions = actions.slice(0, 3)
+            hiddenActions = actions.slice(3, actions.length)
+          } else {
+            shownActions = actions
+          }
+          
+          const hiddenActionsOpen = openYears.includes(yearString);
+          
+          const pluralActionsCopy = pluralize('action', hiddenActions.length)
+            
           return (
             <div key={i}>
               <div className='flex flex-row justify-between items-center pb-3'>
@@ -171,7 +196,7 @@ export function SolidarityActionsList ({
                 </div>
               </div>
               <div className='space-y-4'>
-                {actions.map(action =>
+                {shownActions.map(action =>
                   <Link
                     key={action.id}
                     href={makeContextualHref({ [dialogKey]: action.slug })}
@@ -183,7 +208,37 @@ export function SolidarityActionsList ({
                     </div>
                   </Link>
                 )}
+                <div className={cx(hiddenActionsOpen ? 'space-y-4' : 'hidden')}>
+                  {hiddenActions.map(action =>
+                    <Link
+                      key={action.id}
+                      href={makeContextualHref({ [dialogKey]: action.slug })}
+                      as={actionUrl(action)}
+                      shallow
+                    >
+                      <div className='transition cursor-pointer group' id={action.slug}>
+                        <SolidarityActionItem data={action} />
+                      </div>
+                    </Link>
+                  )}
+                </div>
               </div>
+              {(hasHiddenActions && hiddenActionsOpen === false) && (
+                  <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
+                    <>
+                      <span className="pr-1">Load {hiddenActions.length} more {pluralActionsCopy}</span>
+                      {DownArrow}
+                    </>
+                  </button>
+               )}
+               {(hasHiddenActions && hiddenActionsOpen) && (
+                  <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.filter(openYear => openYear !== yearString))}>
+                    <>
+                      <span className="pr-1">Hide {hiddenActions.length} {pluralActionsCopy}</span>
+                      {UpArrow}
+                    </>
+                  </button>
+                )}
             </div>
           )
         })}
@@ -436,7 +491,6 @@ export function SolidarityActionRelatedActions ({ subtitle, url, name, metadata,
         {subtitle && <div className='text-xs text-gray-500'>
           {subtitle}
         </div>}
-        {/* {metadata && <div className='pb-3 text-sm'>{metadata}</div>} */}
         <div className='link mt-1'>
           {buttonLabel || <span>{metadata || 'All actions'} &rarr;</span>}
         </div>
