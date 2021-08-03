@@ -322,11 +322,13 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
 export function DocumentLink ({ doc, withPreview }: { doc: Attachment, withPreview?: boolean }) {
   return (
     <a href={doc.url} className='block my-1 mr-2'>
-      <Emoji symbol='📑' label='File attachment' className='align-baseline' />
-      &nbsp;
-      <span className='align-baseline underline text-inherit'>{doc.filename}</span>
-      &nbsp;
-      <span className='text-gray-500'>{doc.type}</span>
+      <span className={cx(withPreview && 'block')}>
+        <Emoji symbol='📑' label='File attachment' className='align-baseline' />
+        &nbsp;
+        <span className='align-baseline underline text-inherit'>{doc.filename}</span>
+        &nbsp;
+        <span className='text-gray-500'>{doc.type}</span>
+      </span>
       {withPreview && (
         <div className='inline-block overflow-hidden border border-black rounded-xl mt-4'>
           <Image
