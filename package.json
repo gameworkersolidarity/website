@@ -42,7 +42,7 @@
     "env-var": "^7.0.1",
     "fuse.js": "^6.4.6",
     "highlight-words-core": "^1.2.2",
-    "jsonfeed-to-rss": "^3.0.4",
+    "jsonfeed-to-rss": "^3.0.5",
     "jsonpatch": "^3.0.1",
     "just-diff": "^3.1.1",
     "lodash.groupby": "^4.6.0",
