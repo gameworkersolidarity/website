@@ -287,21 +287,18 @@ export function SolidarityActionsTimeline ({
                         {countries.map((country) => {
                           const isSelected = !!selectedCountries.find(c => c?.id === country.id)
                           
-                          const countIfYouIncludeThis = !hasFilters
-                            ? country.fields['Solidarity Actions']?.length || 0
-                            : filterActionCount({
-                              ...defaults,
-                              selectedCountries: [...selectedCountries, country]
-                            })
+                          const numberOfSolidarityActionsInCountry = country.fields['Solidarity Actions']?.length || 0
+                          
+                          console.log(numberOfSolidarityActionsInCountry)
                           
                           return (
                             <Listbox.Option
                               key={country.id}
                               value={country.fields.Slug}
-                              disabled={!countIfYouIncludeThis && !isSelected}
+                              disabled={!numberOfSolidarityActionsInCountry && !isSelected}
                             >
                               {(args) => (
-                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                <FilterOption {...args} selected={isSelected} disabled={!numberOfSolidarityActionsInCountry}>
                                   <span aria-role='hidden' className='hidden'>
                                     {/* This allows type-ahead on the keyboard for the dropdown */}
                                     {country.fields.Name}
@@ -309,7 +306,7 @@ export function SolidarityActionsTimeline ({
                                   <span><Emoji symbol={country.emoji.emoji} /></span>
                                   <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
                                   <span className='inline-block align-baseline text-xs ml-auto pl-3'>
-                                  {countIfYouIncludeThis}
+                                  {numberOfSolidarityActionsInCountry}
                                   </span>
                                 </FilterOption>
                               )}
