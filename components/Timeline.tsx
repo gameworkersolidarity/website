@@ -286,12 +286,14 @@ export function SolidarityActionsTimeline ({
                       <div className='listbox-dropdown'>
                         {countries.map((country) => {
                           const isSelected = !!selectedCountries.find(c => c?.id === country.id)
+                          
                           const countIfYouIncludeThis = !hasFilters
                             ? country.fields['Solidarity Actions']?.length || 0
                             : filterActionCount({
                               ...defaults,
                               selectedCountries: [...selectedCountries, country]
                             })
+                          
                           return (
                             <Listbox.Option
                               key={country.id}
@@ -307,7 +309,6 @@ export function SolidarityActionsTimeline ({
                                   <span><Emoji symbol={country.emoji.emoji} /></span>
                                   <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
                                   <span className='inline-block align-baseline text-xs ml-auto pl-3'>
-                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
                                   {countIfYouIncludeThis}
                                   </span>
                                 </FilterOption>

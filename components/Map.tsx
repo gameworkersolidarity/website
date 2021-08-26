@@ -46,8 +46,6 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
 }) {
   const [viewport, setViewport] = useState({
     ...defaultViewport,
-    // width: '100%',
-    // height: 700,
     ...initialViewport,
   });
 
@@ -64,6 +62,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         countries[code] ??= 0
         countries[code]++
       }
+
       return countries
     }, {} as CountryCounts)
 
@@ -140,7 +139,6 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         width: mapRef.current?._map.getCanvas().clientWidth || 0,
         height: mapRef.current?._map.getCanvas().clientHeight || 0
       },
-      // data.map(d => d.geography.country[0].bbox),
       bbox(combine(FeatureCollection)) as any,
       { padding: 50 }
     )
@@ -335,7 +333,6 @@ const CountryLayer = memo(({
           }
         }
       }}
-      // onSelectCountry?.(countryIso2)
       onHover={event => {
         const country = event.features?.[0]?.properties
         if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
