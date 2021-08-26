@@ -289,8 +289,6 @@ export function SolidarityActionsTimeline ({
                           
                           const numberOfSolidarityActionsInCountry = country.fields['Solidarity Actions']?.length || 0
                           
-                          console.log(numberOfSolidarityActionsInCountry)
-                          
                           return (
                             <Listbox.Option
                               key={country.id}
