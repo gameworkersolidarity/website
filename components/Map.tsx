@@ -14,7 +14,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useContextualRouting } from 'next-use-contextual-routing';
 import { useRouter } from 'next/dist/client/router';
 import pluralize from 'pluralize';
-import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, Dispatch, memo, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Supercluster from 'supercluster';
 import { theme } from 'twin.macro';
@@ -35,6 +35,10 @@ const ViewportContext = createContext(defaultViewport)
 const OpenFullScreenSVG = (<svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><rect fill="none" height="24" width="24"/><polygon points="21,11 21,3 13,3 16.29,6.29 6.29,16.29 3,13 3,21 11,21 7.71,17.71 17.71,7.71"/></svg>)
 
 const CloseFullScreenSVG = (<svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><rect fill="none" height="24" width="24"/><path d="M22,3.41l-5.29,5.29L20,12h-8V4l3.29,3.29L20.59,2L22,3.41z M3.41,22l5.29-5.29L12,20v-8H4l3.29,3.29L2,20.59L3.41,22z"/></svg>);
+
+function createIdFromActions(actions) {
+  return actions.map(({ id }) => id).join('-')
+}
 
 export function Map({ data, onSelectCountry, ...initialViewport }: {
   data: SolidarityAction[], width?: any, height?: any, onSelectCountry?: (iso2id: string | null) => void
@@ -149,6 +153,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     calculateViewportForActions()
   }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
+  const [selectedPopup, setSelectedPopup] = useState<null | string>(null)
   const [isFullPage, setFullPage] = useState(false)
   const toggleFullPage = () => setFullPage(t => !t)
 
@@ -195,13 +200,16 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           {displayStyle === 'detail' && Object.entries(nationalActionsByCountryNoLocation).map(([countryCode, actionsUnlocated]) => {
             return (
               <ClusterMarker
-                key={countryCode}
+                clusterMarkerId={createIdFromActions(actionsUnlocated)}
+                key={createIdFromActions(actionsUnlocated)}
                 longitude={actionsUnlocated[0].geography.country[0].longitude}
                 latitude={actionsUnlocated[0].geography.country[0].latitude}
                 actions={actionsUnlocated}
                 label={
                 <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
                 }
+                isSelected={createIdFromActions(actionsUnlocated) === selectedPopup}
+                setSelected={setSelectedPopup}
               />
             )
           })}
@@ -209,9 +217,12 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           {displayStyle === 'detail' && (
             <Cluster ref={_cluster} radius={50} extent={512} nodeSize={64} component={cluster => (
               <ClusterMarker
+                clusterMarkerId={createIdFromActions(_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data))}
                 key={cluster.clusterId}
                 {...cluster}
                 actions={_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)}
+                isSelected={createIdFromActions(_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)) === selectedPopup}
+                setSelected={setSelectedPopup}
               />
             )}>
               {data.filter(d => !!d.geography.location).map(d => (
@@ -433,18 +444,22 @@ const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: numb
   )
 }
 
-const ClusterMarker = ({ longitude, latitude, actions, label }: {
+const ClusterMarker = ({ longitude, latitude, actions, label, isSelected, setSelected, clusterMarkerId }: {
+  clusterMarkerId: string
   longitude: number
   latitude: number
   actions: SolidarityAction[],
   label?: any
+  isSelected: boolean
+  setSelected: Dispatch<SetStateAction<string | null>>
 }) => {
-  const [isSelected, setSelected] = useState(false)
-  const toggleSelected = () => setSelected(s => !s)
   const router = useRouter()
   const { makeContextualHref, returnHref }= useContextualRouting()
 
   const marker = useRef<Marker>()
+  
+  console.log(clusterMarkerId)
+
   useEffect(() => {
     if (marker.current._el) {
       if (isSelected) {
@@ -458,7 +473,13 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
   return (
     <Marker ref={marker} longitude={longitude} latitude={latitude} anchor='bottom' className={isSelected ? 'z-30' : 'z-10'}>
       <div
-        onClick={toggleSelected}
+        onClick={() => {
+          if (isSelected) {
+            setSelected(null)
+          } else {
+            setSelected(clusterMarkerId)
+          }
+        }}
         className='relative'
       >
         <div className='text-center items-center inline-flex flex-row transition duration-250 bg-gwYellow text-black font-bold tracking-tight px-1 rounded-xl leading-none'>
