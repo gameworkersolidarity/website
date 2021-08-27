@@ -153,7 +153,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     calculateViewportForActions()
   }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
-  const [selectedPopup, setSelectedPopup] = useState<null | string>(null)
+  const [openPopupId, setSelectedPopup] = useState<null | string>(null)
   const [isFullPage, setFullPage] = useState(false)
   const toggleFullPage = () => setFullPage(t => !t)
 
@@ -198,33 +198,39 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           />
           {/* National events */}
           {displayStyle === 'detail' && Object.entries(nationalActionsByCountryNoLocation).map(([countryCode, actionsUnlocated]) => {
+            const clusterMarkerId = createIdFromActions(actionsUnlocated)
             return (
               <ClusterMarker
-                clusterMarkerId={createIdFromActions(actionsUnlocated)}
-                key={createIdFromActions(actionsUnlocated)}
+                clusterMarkerId={clusterMarkerId}
+                key={clusterMarkerId}
                 longitude={actionsUnlocated[0].geography.country[0].longitude}
                 latitude={actionsUnlocated[0].geography.country[0].latitude}
                 actions={actionsUnlocated}
                 label={
                 <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
                 }
-                isSelected={createIdFromActions(actionsUnlocated) === selectedPopup}
+                isSelected={clusterMarkerId === openPopupId}
                 setSelected={setSelectedPopup}
               />
             )
           })}
           {/* Location-specific markers */}
           {displayStyle === 'detail' && (
-            <Cluster ref={_cluster} radius={50} extent={512} nodeSize={64} component={cluster => (
-              <ClusterMarker
-                clusterMarkerId={createIdFromActions(_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data))}
-                key={cluster.clusterId}
-                {...cluster}
-                actions={_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)}
-                isSelected={createIdFromActions(_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)) === selectedPopup}
-                setSelected={setSelectedPopup}
-              />
-            )}>
+            <Cluster ref={_cluster} radius={50} extent={512} nodeSize={64} component={cluster => {
+              const actions = _cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)
+              const clusterMarkerId = createIdFromActions(actions)
+
+              return (
+                <ClusterMarker
+                  clusterMarkerId={clusterMarkerId}
+                  key={clusterMarkerId}
+                  {...cluster}
+                  actions={actions}
+                  isSelected={clusterMarkerId === openPopupId}
+                  setSelected={setSelectedPopup}
+                />
+              )
+            }}>
               {data.filter(d => !!d.geography.location).map(d => (
                 <MapMarker {...getCoordinatesForAction(d)} data={d} key={d.id} />
               ))}
@@ -457,9 +463,7 @@ const ClusterMarker = ({ longitude, latitude, actions, label, isSelected, setSel
   const { makeContextualHref, returnHref }= useContextualRouting()
 
   const marker = useRef<Marker>()
-  
-  console.log(clusterMarkerId)
-
+ 
   useEffect(() => {
     if (marker.current._el) {
       if (isSelected) {
