@@ -222,15 +222,16 @@ export function SolidarityActionsTimeline ({
   const filteredActions = useMemo(() => {
     return updateFilteredActions()
   }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
+  
 
   useEffect(() => {
-    window.scroll({
-      top: document.getElementById('static-header')?.offsetHeight || 100,
-      behavior: 'smooth'
-    })
-  }, [filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
-
-  //
+    if (hasFilters) {
+      window.scroll({
+        top: document.getElementById('static-header')?.offsetHeight || 100,
+        behavior: 'smooth'
+      })
+    }
+  }, [hasFilters])
 
   const relevantGroups = Array.from(new Set(
     filteredActions
@@ -286,20 +287,17 @@ export function SolidarityActionsTimeline ({
                       <div className='listbox-dropdown'>
                         {countries.map((country) => {
                           const isSelected = !!selectedCountries.find(c => c?.id === country.id)
-                          const countIfYouIncludeThis = !hasFilters
-                            ? country.fields['Solidarity Actions']?.length || 0
-                            : filterActionCount({
-                              ...defaults,
-                              selectedCountries: [...selectedCountries, country]
-                            })
+                          
+                          const numberOfSolidarityActionsInCountry = country.fields['Solidarity Actions']?.length || 0
+                          
                           return (
                             <Listbox.Option
                               key={country.id}
                               value={country.fields.Slug}
-                              disabled={!countIfYouIncludeThis && !isSelected}
+                              disabled={!numberOfSolidarityActionsInCountry && !isSelected}
                             >
                               {(args) => (
-                                <FilterOption {...args} selected={isSelected} disabled={!countIfYouIncludeThis}>
+                                <FilterOption {...args} selected={isSelected} disabled={!numberOfSolidarityActionsInCountry}>
                                   <span aria-role='hidden' className='hidden'>
                                     {/* This allows type-ahead on the keyboard for the dropdown */}
                                     {country.fields.Name}
@@ -307,8 +305,7 @@ export function SolidarityActionsTimeline ({
                                   <span><Emoji symbol={country.emoji.emoji} /></span>
                                   <span className='text-sm ml-1 inline-block'>{country.fields.Name}</span>
                                   <span className='inline-block align-baseline text-xs ml-auto pl-3'>
-                                  {/* {pluralize('action', countIfYouIncludeThis, true)} */}
-                                  {countIfYouIncludeThis}
+                                  {numberOfSolidarityActionsInCountry}
                                   </span>
                                 </FilterOption>
                               )}

@@ -25,7 +25,7 @@ export default function Page({ action, errorMessage }: PageProps) {
 
   return (
     <PageLayout>
-      <div className='bg-gwOrangeLight' style={{ minHeight: '66vh' }}>
+      <div className='bg-gwBackground' style={{ minHeight: '66vh' }}>
         <div className='max-w-4xl mx-auto py-5 px-4'>
           <SolidarityActionCard
             data={action}

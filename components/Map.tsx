@@ -1,33 +1,28 @@
-import { SolidarityAction, Category, Country } from '../data/types';
-import { memo, useCallback, useState, useRef, createContext, useContext, useMemo, useEffect } from 'react';
-import ReactMapGL, { Layer, MapRef, Marker, Popup, Source, MapContext } from '@urbica/react-map-gl';
-import env from 'env-var';
-// import { stringifyArray } from '../utils/string';
-import { format } from 'date-fns';
-import Emoji from 'a11y-react-emoji';
-import Cluster from '@urbica/react-map-gl-cluster';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { theme } from 'twin.macro';
-import * as polished from 'polished'
-import router, { useRouter } from 'next/dist/client/router';
-import { FilterContext } from './Timeline';
-import { scaleLinear, scalePow } from 'd3-scale';
-import { max, median, min } from 'd3-array';
-import { useContextualRouting } from 'next-use-contextual-routing';
-import Link from 'next/link';
-import { actionToFeature, actionUrl } from '../data/solidarityAction';
-import { ActionMetadata, DEFAULT_ACTION_DIALOG_KEY, SolidarityActionCountryRelatedActions, SolidarityActionRelatedActions } from './SolidarityActions';
-import pluralize from 'pluralize';
-import Supercluster from 'supercluster';
-import { stringifyArray } from '../utils/string';
-import { ActionsContext } from '../pages';
-import { Map as MapboxMap } from 'mapbox-gl'
-import { Dictionary, groupBy, merge } from 'lodash';
-import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
-import combine from '@turf/combine'
 import bbox from '@turf/bbox';
+import combine from '@turf/combine';
+import ReactMapGL, { Layer, MapContext, Marker, Popup, Source } from '@urbica/react-map-gl';
+import Cluster from '@urbica/react-map-gl-cluster';
+import Emoji from 'a11y-react-emoji';
 import cx from 'classnames';
+import { max, median, min } from 'd3-array';
+import { scalePow } from 'd3-scale';
+import { format } from 'date-fns';
+import env from 'env-var';
+import { Dictionary, groupBy, merge } from 'lodash';
+import { Map as MapboxMap } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { useContextualRouting } from 'next-use-contextual-routing';
+import { useRouter } from 'next/dist/client/router';
+import pluralize from 'pluralize';
+import { createContext, Dispatch, memo, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Supercluster from 'supercluster';
+import { theme } from 'twin.macro';
+import { actionUrl } from '../data/solidarityAction';
+import { SolidarityAction } from '../data/types';
+import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
+import { ActionMetadata, DEFAULT_ACTION_DIALOG_KEY } from './SolidarityActions';
+import { FilterContext } from './Timeline';
 
 const defaultViewport = {
   latitude: 15,
@@ -41,13 +36,15 @@ const OpenFullScreenSVG = (<svg xmlns="http://www.w3.org/2000/svg" enableBackgro
 
 const CloseFullScreenSVG = (<svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><rect fill="none" height="24" width="24"/><path d="M22,3.41l-5.29,5.29L20,12h-8V4l3.29,3.29L20.59,2L22,3.41z M3.41,22l5.29-5.29L12,20v-8H4l3.29,3.29L2,20.59L3.41,22z"/></svg>);
 
+function createIdFromActions(actions) {
+  return actions.map(({ id }) => id).join('-')
+}
+
 export function Map({ data, onSelectCountry, ...initialViewport }: {
   data: SolidarityAction[], width?: any, height?: any, onSelectCountry?: (iso2id: string | null) => void
 }) {
   const [viewport, setViewport] = useState({
     ...defaultViewport,
-    // width: '100%',
-    // height: 700,
     ...initialViewport,
   });
 
@@ -64,6 +61,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         countries[code] ??= 0
         countries[code]++
       }
+
       return countries
     }, {} as CountryCounts)
 
@@ -140,7 +138,6 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
         width: mapRef.current?._map.getCanvas().clientWidth || 0,
         height: mapRef.current?._map.getCanvas().clientHeight || 0
       },
-      // data.map(d => d.geography.country[0].bbox),
       bbox(combine(FeatureCollection)) as any,
       { padding: 50 }
     )
@@ -156,6 +153,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     calculateViewportForActions()
   }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
+  const [openPopupId, setSelectedPopup] = useState<null | string>(null)
   const [isFullPage, setFullPage] = useState(false)
   const toggleFullPage = () => setFullPage(t => !t)
 
@@ -200,27 +198,39 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           />
           {/* National events */}
           {displayStyle === 'detail' && Object.entries(nationalActionsByCountryNoLocation).map(([countryCode, actionsUnlocated]) => {
+            const clusterMarkerId = createIdFromActions(actionsUnlocated)
             return (
               <ClusterMarker
-                key={countryCode}
+                clusterMarkerId={clusterMarkerId}
+                key={clusterMarkerId}
                 longitude={actionsUnlocated[0].geography.country[0].longitude}
                 latitude={actionsUnlocated[0].geography.country[0].latitude}
                 actions={actionsUnlocated}
                 label={
                 <Emoji symbol={actionsUnlocated[0].geography.country[0].emoji.emoji} label={actionsUnlocated[0].geography.country[0].name} />
                 }
+                isSelected={clusterMarkerId === openPopupId}
+                setSelected={setSelectedPopup}
               />
             )
           })}
           {/* Location-specific markers */}
           {displayStyle === 'detail' && (
-            <Cluster ref={_cluster} radius={50} extent={512} nodeSize={64} component={cluster => (
-              <ClusterMarker
-                key={cluster.clusterId}
-                {...cluster}
-                actions={_cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)}
-              />
-            )}>
+            <Cluster ref={_cluster} radius={50} extent={512} nodeSize={64} component={cluster => {
+              const actions = _cluster.current?._cluster.getLeaves(cluster.clusterId).map(p => p.properties.props.data)
+              const clusterMarkerId = createIdFromActions(actions)
+
+              return (
+                <ClusterMarker
+                  clusterMarkerId={clusterMarkerId}
+                  key={clusterMarkerId}
+                  {...cluster}
+                  actions={actions}
+                  isSelected={clusterMarkerId === openPopupId}
+                  setSelected={setSelectedPopup}
+                />
+              )
+            }}>
               {data.filter(d => !!d.geography.location).map(d => (
                 <MapMarker {...getCoordinatesForAction(d)} data={d} key={d.id} />
               ))}
@@ -335,7 +345,6 @@ const CountryLayer = memo(({
           }
         }
       }}
-      // onSelectCountry?.(countryIso2)
       onHover={event => {
         const country = event.features?.[0]?.properties
         if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
@@ -429,7 +438,6 @@ const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: numb
         )
       }}>
         <div className='space-x-1 text-center'>
-          {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
           <div className='transition duration-250 text-xs bg-white text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
             {!!data.fields?.CategoryEmoji?.length && (
               <span className='text-sm pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
@@ -442,18 +450,20 @@ const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: numb
   )
 }
 
-const ClusterMarker = ({ longitude, latitude, actions, label }: {
+const ClusterMarker = ({ longitude, latitude, actions, label, isSelected, setSelected, clusterMarkerId }: {
+  clusterMarkerId: string
   longitude: number
   latitude: number
   actions: SolidarityAction[],
   label?: any
+  isSelected: boolean
+  setSelected: Dispatch<SetStateAction<string | null>>
 }) => {
-  const [isSelected, setSelected] = useState(false)
-  const toggleSelected = () => setSelected(s => !s)
   const router = useRouter()
   const { makeContextualHref, returnHref }= useContextualRouting()
 
   const marker = useRef<Marker>()
+ 
   useEffect(() => {
     if (marker.current._el) {
       if (isSelected) {
@@ -467,7 +477,13 @@ const ClusterMarker = ({ longitude, latitude, actions, label }: {
   return (
     <Marker ref={marker} longitude={longitude} latitude={latitude} anchor='bottom' className={isSelected ? 'z-30' : 'z-10'}>
       <div
-        onClick={toggleSelected}
+        onClick={() => {
+          if (isSelected) {
+            setSelected(null)
+          } else {
+            setSelected(clusterMarkerId)
+          }
+        }}
         className='relative'
       >
         <div className='text-center items-center inline-flex flex-row transition duration-250 bg-gwYellow text-black font-bold tracking-tight px-1 rounded-xl leading-none'>

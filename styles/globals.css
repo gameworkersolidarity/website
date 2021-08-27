@@ -25,7 +25,15 @@ body {
 
 @layer components {
   .link {
-    @apply underline cursor-pointer hover:text-gwPink group-hover:text-gwPink font-semibold
+    @apply underline cursor-pointer font-semibold
+  }
+  
+  .prose a {
+    color: inherit;
+  }
+  
+  .prose a:hover {
+    color: inherit;
   }
 
   .button {
@@ -34,7 +42,6 @@ body {
 
   .content-wrapper {
     @apply mx-auto px-4 lg:px-5 xl:px-7;
-    /* max-width: 1600px; */
   }
 
   .filter-item {
