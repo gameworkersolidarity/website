@@ -81,7 +81,7 @@ function Footer ({ }: { }) {
 
   return (
     <footer className='mt-auto bg-gwPink text-sm'>
-      <div className={cx('content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top')}>
+      <div className="content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top">
         <div className='space-y-4 flex-grow'>
           <nav className='flex flex-wrap -mx-1 md:-mx-2'>
             {data?.footerLinks?.map?.((link, i) => (
