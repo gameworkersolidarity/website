@@ -106,9 +106,6 @@ function Footer ({ }: { }) {
             </div>
           </div>
         </div>
-        <div className='text-7xl'>
-          <Emoji symbol='✊' label='worker power' /> 
-        </div>
       </div>
     </footer>
   )
