@@ -230,8 +230,6 @@ export function SolidarityActionsTimeline ({
     })
   }, [filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
 
-  //
-
   const relevantGroups = Array.from(new Set(
     filteredActions
       .reduce((gs, a) => gs.concat(a.fields['Organising Groups'] || []), [] as string[])
