@@ -426,7 +426,6 @@ const MapMarker = ({ data, ...coords }: { data: SolidarityAction, latitude: numb
         )
       }}>
         <div className='space-x-1 text-center'>
-          {/* <div className='inline capitalize-first'>{stringifyArray(data.fields.Category)}</div> */}
           <div className='transition duration-250 text-xs bg-white text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none'>
             {!!data.fields?.CategoryEmoji?.length && (
               <span className='text-sm pr-1'><Emoji symbol={data.fields.CategoryEmoji?.[0]} /></span>
