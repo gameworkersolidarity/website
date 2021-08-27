@@ -27,6 +27,14 @@ body {
   .link {
     @apply underline cursor-pointer font-semibold
   }
+  
+  .prose a {
+    color: inherit;
+  }
+  
+  .prose a:hover {
+    color: inherit;
+  }
 
   .button {
     @apply cursor-pointer inline-block px-2 py-1 border-2 border-gwPink rounded-xl hover:bg-gwPink hover:text-white transition duration-75 mt-2
