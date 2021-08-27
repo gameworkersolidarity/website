@@ -222,13 +222,16 @@ export function SolidarityActionsTimeline ({
   const filteredActions = useMemo(() => {
     return updateFilteredActions()
   }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
+  
 
   useEffect(() => {
-    window.scroll({
-      top: document.getElementById('static-header')?.offsetHeight || 100,
-      behavior: 'smooth'
-    })
-  }, [filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
+    if (hasFilters) {
+      window.scroll({
+        top: document.getElementById('static-header')?.offsetHeight || 100,
+        behavior: 'smooth'
+      })
+    }
+  }, [hasFilters])
 
   const relevantGroups = Array.from(new Set(
     filteredActions
