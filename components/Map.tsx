@@ -1,33 +1,28 @@
-import { SolidarityAction, Category, Country } from '../data/types';
-import { memo, useCallback, useState, useRef, createContext, useContext, useMemo, useEffect } from 'react';
-import ReactMapGL, { Layer, MapRef, Marker, Popup, Source, MapContext } from '@urbica/react-map-gl';
-import env from 'env-var';
-// import { stringifyArray } from '../utils/string';
-import { format } from 'date-fns';
-import Emoji from 'a11y-react-emoji';
-import Cluster from '@urbica/react-map-gl-cluster';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { theme } from 'twin.macro';
-import * as polished from 'polished'
-import router, { useRouter } from 'next/dist/client/router';
-import { FilterContext } from './Timeline';
-import { scaleLinear, scalePow } from 'd3-scale';
-import { max, median, min } from 'd3-array';
-import { useContextualRouting } from 'next-use-contextual-routing';
-import Link from 'next/link';
-import { actionToFeature, actionUrl } from '../data/solidarityAction';
-import { ActionMetadata, DEFAULT_ACTION_DIALOG_KEY, SolidarityActionCountryRelatedActions, SolidarityActionRelatedActions } from './SolidarityActions';
-import pluralize from 'pluralize';
-import Supercluster from 'supercluster';
-import { stringifyArray } from '../utils/string';
-import { ActionsContext } from '../pages';
-import { Map as MapboxMap } from 'mapbox-gl'
-import { Dictionary, groupBy, merge } from 'lodash';
-import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
-import combine from '@turf/combine'
 import bbox from '@turf/bbox';
+import combine from '@turf/combine';
+import ReactMapGL, { Layer, MapContext, Marker, Popup, Source } from '@urbica/react-map-gl';
+import Cluster from '@urbica/react-map-gl-cluster';
+import Emoji from 'a11y-react-emoji';
 import cx from 'classnames';
+import { max, median, min } from 'd3-array';
+import { scalePow } from 'd3-scale';
+import { format } from 'date-fns';
+import env from 'env-var';
+import { Dictionary, groupBy, merge } from 'lodash';
+import { Map as MapboxMap } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { useContextualRouting } from 'next-use-contextual-routing';
+import { useRouter } from 'next/dist/client/router';
+import pluralize from 'pluralize';
+import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Supercluster from 'supercluster';
+import { theme } from 'twin.macro';
+import { actionUrl } from '../data/solidarityAction';
+import { SolidarityAction } from '../data/types';
+import { bboxToBounds, getViewportForFeatures } from '../utils/geo';
+import { ActionMetadata, DEFAULT_ACTION_DIALOG_KEY } from './SolidarityActions';
+import { FilterContext } from './Timeline';
 
 const defaultViewport = {
   latitude: 15,
