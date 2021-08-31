@@ -236,6 +236,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
   );
 
   const fullScreenNode = typeof document !== 'undefined' ? document.getElementById('portal-node') : null
+
   return isFullPage && !!fullScreenNode ? createPortal(el, fullScreenNode) : el
 }
 
