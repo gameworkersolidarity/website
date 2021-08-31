@@ -14,24 +14,24 @@ import { doNotFetch } from '../utils/swr';
 function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const canonicalURL = useCanonicalURL()
   
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     Fathom.load('QVHPZXJJ', {
       includedDomains: ['gameworkersolidarity.com'],
-    });
+    })
 
     function onRouteChangeComplete() {
-      Fathom.trackPageview();
+      Fathom.trackPageview()
     }
     
     
-    router.events.on('routeChangeComplete', onRouteChangeComplete);
+    router.events.on('routeChangeComplete', onRouteChangeComplete)
 
     return () => {
-      router.events.off('routeChangeComplete', onRouteChangeComplete);
-    };
-  }, []);
+      router.events.off('routeChangeComplete', onRouteChangeComplete)
+    }
+  }, [])
   
   return (
     <SWRConfig value={{
