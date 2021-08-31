@@ -1,15 +1,38 @@
-import App from 'next/app'
-import { SWRConfig } from 'swr'
-import '../styles/globals.css'
-import { projectStrings } from '../data/site';
-import {DefaultSeo} from 'next-seo';
+import * as Fathom from 'fathom-client';
+import { DefaultSeo } from 'next-seo';
+import App from 'next/app';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { SWRConfig } from 'swr';
 import { KonamiCode } from '../components/KonamiCode';
-import { doNotFetch } from '../utils/swr';
-import { useCanonicalURL } from '../data/seo';
 import { getMenuItems } from '../data/menuItem';
+import { useCanonicalURL } from '../data/seo';
+import { projectStrings } from '../data/site';
+import '../styles/globals.css';
+import { doNotFetch } from '../utils/swr';
 
 function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const canonicalURL = useCanonicalURL()
+  
+  const router = useRouter();
+
+  useEffect(() => {
+    Fathom.load('QVHPZXJJ', {
+      includedDomains: ['gameworkersolidarity.com'],
+    });
+
+    function onRouteChangeComplete() {
+      Fathom.trackPageview();
+    }
+    
+    
+    router.events.on('routeChangeComplete', onRouteChangeComplete);
+
+    return () => {
+      router.events.off('routeChangeComplete', onRouteChangeComplete);
+    };
+  }, []);
+  
   return (
     <SWRConfig value={{
       initialData: { ...pageProps, headerLinks, footerLinks },
