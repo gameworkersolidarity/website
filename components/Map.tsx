@@ -154,20 +154,14 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
   }, [allActionsSingleCountry, nationalActionsByCountry, data])
 
   const [openPopupId, setSelectedPopup] = useState<null | string>(null)
-  const [isFullPage, setFullPage] = useState(false)
-  const toggleFullPage = () => setFullPage(t => !t)
 
   const el = (
     <ViewportContext.Provider value={viewport}>
       <div
-        className={cx(
-          isFullPage ? 'transform top-1/2 -translate-y-1/2  left-1/2 -translate-x-1/2 w-screen h-screen fixed z-50 shadow-gwPink'
-          : 'w-full h-full relative',
-          'rounded-xl overflow-hidden'
-        )}
+        className="w-full h-full relative rounded-xl overflow-hidden"
         style={{
-          height: isFullPage ? '95vh' : '100%',
-          width: isFullPage ? '95vw' : '100%'
+          height: '100%',
+          width: '100%'
         }}
       >
         <ReactMapGL
@@ -235,9 +229,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
     </ViewportContext.Provider>
   );
 
-  const fullScreenNode = typeof document !== 'undefined' ? document.getElementById('portal-node') : null
-
-  return isFullPage && !!fullScreenNode ? createPortal(el, fullScreenNode) : el
+  return el
 }
 
 function ActionSource ({ data }: { data: SolidarityAction[] }) {
