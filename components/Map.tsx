@@ -170,12 +170,6 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
           width: isFullPage ? '95vw' : '100%'
         }}
       >
-        <div
-          className='absolute top-0 right-0 m-4 rounded-lg bg-white text-sm p-2 z-30 cursor-pointer button'
-          onClick={toggleFullPage}
-        >
-          {isFullPage ? CloseFullScreenSVG : OpenFullScreenSVG}
-        </div>
         <ReactMapGL
           style={{
             width: '100%',
