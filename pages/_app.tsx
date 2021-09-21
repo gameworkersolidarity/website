@@ -54,7 +54,13 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
           url: canonicalURL,
           site_name: projectStrings.name,
           title: projectStrings.name,
-          description: projectStrings.description
+          description: projectStrings.description,
+          images: [
+            {
+              url: '/images/game-workers-share-card.png',
+              alt: 'Game Worker Solidarity',
+            }
+          ]
         }}
         twitter={{
           handle: projectStrings.twitterHandle,
