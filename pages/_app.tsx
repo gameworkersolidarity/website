@@ -17,7 +17,7 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const router = useRouter()
 
   useEffect(() => {
-    Fathom.load('QVHPZXJJ', {
+    Fathom.load('OZSKHUQE', {
       includedDomains: ['gameworkersolidarity.com'],
     })
 
