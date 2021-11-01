@@ -19,6 +19,7 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   useEffect(() => {
     Fathom.load('OZSKHUQE', {
       includedDomains: ['gameworkersolidarity.com', 'www.gameworkersolidarity.com'],
+      url: 'https://skunk.gameworkersolidarity.com/script.js',
     })
 
     function onRouteChangeComplete() {
