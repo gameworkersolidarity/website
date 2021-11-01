@@ -4,9 +4,9 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { DateTime } from './Date';
 
-export function BlogPostThumbnail ({ blog: b }: { blog: BlogPost }) {
+export function BlogPostThumbnail({ blog: b }: { blog: BlogPost }) {
   return (
-    <Link href={`/news/${b.fields.Slug}`} key={b.fields.Slug}>
+    <Link href={`/analysis/${b.fields.Slug}`} key={b.fields.Slug}>
       <article key={b.id} className='bg-white rounded-lg p-4 space-y-3 glowable cursor-pointer'>
         {!!b.fields.Image?.[0] && (
           <div className='rounded-lg shadow-gwPink'>

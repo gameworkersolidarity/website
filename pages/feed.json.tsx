@@ -6,9 +6,9 @@ import { formatRFC3339 } from 'date-fns';
 export const generateJSONFeed = async () => {
   const articles = getBlogPosts()
   return {
-    "version":"https://jsonfeed.org/version/1",
-    "title":"Game Worker Solidarity Project",
-    "home_page_url":"https://gameworkersolidarity.com",
+    "version": "https://jsonfeed.org/version/1",
+    "title": "Game Worker Solidarity Project",
+    "home_page_url": "https://gameworkersolidarity.com",
     "description": "Preserving the history of video game worker solidarity",
     "feed_url": "http://gameworkersolidarity.com/feed.json",
     "items": (await articles).map(article => ({
@@ -16,13 +16,13 @@ export const generateJSONFeed = async () => {
       "summary": article.fields.Summary,
       "date_published": formatRFC3339(new Date(article.fields.Date)),
       "content_html": article.body.html,
-      "url": `https://gameworkersolidarity.com/news/${article.fields.Slug}`,
-      "id": `https://gameworkersolidarity.com/news/${article.fields.Slug}`,
+      "url": `https://gameworkersolidarity.com/analysis/${article.fields.Slug}`,
+      "id": `https://gameworkersolidarity.com/analysis/${article.fields.Slug}`,
     }))
   }
 }
 
-export default function Page () {
+export default function Page() {
   return null
 }
 

@@ -17,15 +17,15 @@ export default function Page({ blogPosts }: Props) {
   return (
     <PageLayout>
       <NextSeo
-        title={'News'}
+        title={'Analysis'}
         openGraph={{
-          title: 'News'
+          title: 'Analysis'
         }}
       />
 
       <div className='content-wrapper py-5'>
         <h1 className='font-identity text-6xl'>
-          News
+          Analysis
         </h1>
 
         <div className='py-2' />
