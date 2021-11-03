@@ -7,7 +7,7 @@ export const generateJSONFeed = async () => {
   const articles = getBlogPosts()
   return {
     "version": "https://jsonfeed.org/version/1",
-    "title": "Game Worker Solidarity Project",
+    "title": "Game Worker Solidarity",
     "home_page_url": "https://gameworkersolidarity.com",
     "description": "Preserving the history of video game worker solidarity",
     "feed_url": "http://gameworkersolidarity.com/feed.json",
