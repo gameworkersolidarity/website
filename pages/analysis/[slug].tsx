@@ -35,7 +35,6 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
             <>
               <div className='flex flex-col justify-center space-y-4'>
                 <h1 className='font-identity text-5xl md:text-6xl'>{article.fields.Title}</h1>
-                <p className='text-xl font-light'>{article.fields.Summary}</p>
                 {article.fields.ByLine && <p className='text-xl font-light'>{article.fields.ByLine}</p>}
               </div>
               <div className='rounded-lg shadow-gwPink overflow-hidden'>
@@ -52,8 +51,7 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
             <>
               <div className='flex flex-col justify-center space-y-4 pb-4'>
                 <h1 className='font-identity text-5xl md:text-6xl mb-4'>{article.fields.Title}</h1>
-                <p className='text-2xl my-4'>{article.fields.Summary}</p>
-                {article.fields.ByLine && <p className='text-xl link font-light'>{article.fields.ByLine}</p>}
+                {article.fields.ByLine && <p className='text-xl font-light'>{article.fields.ByLine}</p>}
               </div>
             </>
           )}
@@ -63,14 +61,16 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
         </div>
       </article>
 
-      <aside className='content-wrapper mx-auto space-y-4 border-t border-gwPink pt-5 pb-5'>
-        <h2 className='font-identity text-4xl'>Read more</h2>
-        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {moreArticles.slice(0, 3).map(b => 
-            <BlogPostThumbnail key={b.id} blog={b} />
-          )}
-        </div>
-      </aside>
+      {moreArticles.length != 0 ?
+        <aside className='content-wrapper mx-auto space-y-4 border-t border-gwPink pt-5 pb-5'>
+          <h2 className='font-identity text-4xl'>Read more</h2>
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            {moreArticles.slice(0, 3).map(b =>
+              <BlogPostThumbnail key={b.id} blog={b} />
+            )}
+          </div>
+        </aside>
+        : ""}
     </PageLayout>
   )
 }
