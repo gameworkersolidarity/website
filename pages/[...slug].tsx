@@ -16,10 +16,10 @@ export default function Page({ article, errorMessage }: PageProps) {
     <PageLayout>
       <NextSeo
         title={article.fields.Title}
-        description={article.body.plaintext}
+        description={article.fields.Summary}
         openGraph={{
           title: article.fields.Title,
-          description: article.body.plaintext
+          description: article.fields.Summary
         }}
       />
 
