@@ -32,7 +32,7 @@ export default function Page({ introHTML }: { introHTML: string }) {
 
 const EMBED_URL = `https://airtable.com/embed/${env.get('AIRTABLE_DATA_EMBED_ID').default('shrxKvrGsmARoz6eY').asString()}?backgroundColor=red&viewControls=on`
 
-function AirtableDataEmbed ({ url }) {
+function AirtableDataEmbed({ url }) {
   return (
     <iframe
       className="airtable-embed"
@@ -49,7 +49,7 @@ We provide the full dataset of actions as:
 - a CSV file via Airtable (see below)
 - a public API at [GET /api/solidarityActions](/api/solidarityActions)
 
-There are no limitations on the use of this data at present. Please use this data for your solidarity projects and [let us know](mailto:${projectStrings.email}), we're curious to hear!
+There are no limitations on the use of this data at present. Please use this data for your solidarity projects and [tell us](mailto:${projectStrings.email}), we'd love to hear about them!
 `)
 
 export const getStaticProps: GetStaticProps = async (context) => {
