@@ -1,7 +1,7 @@
 import env from 'env-var';
 export const projectStrings = {
   name: env.get('SITE_TITLE').default("Game Worker Solidarity").asString(),
-  description: env.get('SITE_DESCRIPTION').default("Preserving the history of video game solidarity").asString(),
+  description: env.get('SITE_DESCRIPTION').default("Preserving and analysing the history of game worker solidarity").asString(),
   baseUrl: env.get('SITE_BASE_URL').default("https://gameworkersolidarity.com").asString(),
   twitterHandle: env.get('TWITTER_HANDLE').default('@GWSolidarity').asString(),
   email: env.get('EMAIL_ADDRESS').default('hello@gameworkersolidarity.com').asString(),
