@@ -58,7 +58,7 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
           description: projectStrings.description,
           images: [
             {
-              url: canonicalURL + `images/game-workers-share-card.png`,
+              url: projectStrings.baseUrl + `images/game-workers-share-card.png`,
               alt: 'Game Worker Solidarity',
             }
           ]

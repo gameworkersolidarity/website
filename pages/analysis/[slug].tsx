@@ -20,10 +20,19 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
       <NextSeo
         title={article.fields.Title}
         description={article.fields.Summary}
-        openGraph={{
+        openGraph={!!article.fields.Image?.[0] ? ({
           title: article.fields.Title,
-          description: article.fields.Summary
-        }}
+          description: article.fields.Summary,
+          images: [
+            {
+              url: article.fields.Image[0].url,
+              alt: 'Game Worker Solidarity',
+            }
+          ]
+        }) : ({
+          title: article.fields.Title,
+          description: article.fields.Summary,
+        })}
       />
 
       <article className='pt-6 pb-7 content-wrapper max-w-4xl mx-auto'>
