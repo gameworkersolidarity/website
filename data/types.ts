@@ -37,91 +37,91 @@ export interface CountryEmoji {
   unicode: string
   name: string
   emoji: string
- }
+}
 
 export interface OpenStreetMapReverseGeocodeResponse {
-  place_id:     number;
-  licence:      string;
-  osm_type:     string;
-  osm_id:       number;
-  lat:          string;
-  lon:          string;
-  place_rank:   number;
-  category:     string;
-  type:         string;
-  importance:   number;
-  addresstype?:  string;
-  name?:         string;
+  place_id: number;
+  licence: string;
+  osm_type: string;
+  osm_id: number;
+  lat: string;
+  lon: string;
+  place_rank: number;
+  category: string;
+  type: string;
+  importance: number;
+  addresstype?: string;
+  name?: string;
   display_name: string;
-  address?:      Address;
-  boundingbox:  string[];
+  address?: Address;
+  boundingbox: string[];
 }
 
 export interface Address {
   continent?: string
 
   country?: string
-   country_code?: string
+  country_code?: string
 
   region?: string
-   state?: string
-   state_district?: string
-   county?: string
+  state?: string
+  state_district?: string
+  county?: string
 
   municipality?: string
-   city?: string
-   town?: string
-   village?: string
+  city?: string
+  town?: string
+  village?: string
 
   city_district?: string
-   district?: string
-   borough?: string
-   suburb?: string
-   subdivision?: string
+  district?: string
+  borough?: string
+  suburb?: string
+  subdivision?: string
 
   hamlet?: string
-   croft?: string
-   isolated_dwelling?: string
+  croft?: string
+  isolated_dwelling?: string
 
   neighbourhood?: string
-   allotments?: string
-   quarter?: string
+  allotments?: string
+  quarter?: string
 
   city_block?: string
-   residental?: string
-   farm?: string
-   farmyard?: string
-   industrial?: string
-   commercial?: string
-   retail?: string
+  residental?: string
+  farm?: string
+  farmyard?: string
+  industrial?: string
+  commercial?: string
+  retail?: string
 
   road?: string
 
   house_number?: string
-   house_name?: string
+  house_name?: string
 
   emergency?: string
-   historic?: string
-   military?: string
-   natural?: string
-   landuse?: string
-   place?: string
-   railway?: string
-   man_made?: string
-   aerialway?: string
-   boundary?: string
-   amenity?: string
-   aeroway?: string
-   club?: string
-   craft?: string
-   leisure?: string
-   office?: string
-   mountain_pass?: string
-   shop?: string
-   tourism?: string
-   bridge?: string
-   tunnel?: string
-   waterway?: string
+  historic?: string
+  military?: string
+  natural?: string
+  landuse?: string
+  place?: string
+  railway?: string
+  man_made?: string
+  aerialway?: string
+  boundary?: string
+  amenity?: string
+  aeroway?: string
+  club?: string
+  craft?: string
+  leisure?: string
+  office?: string
+  mountain_pass?: string
+  shop?: string
+  tourism?: string
+  bridge?: string
+  tunnel?: string
+  waterway?: string
 }
 
 //////////////
@@ -150,12 +150,12 @@ export interface SolidarityAction extends BaseRecord {
   slug: string
   fields: {
     slug?: string
-    Name:       string;
-    Location?:  string;
-    Summary?:   string;
-    Date:       string;
+    Name: string;
+    Location?: string;
+    Summary?: string;
+    Date: string;
     LastModified: string;
-    Link?:      string;
+    Link?: string;
     LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
     // 'Country': string[] // Not really useful — Zod will parse these out
     Country?: string[]
@@ -166,13 +166,13 @@ export interface SolidarityAction extends BaseRecord {
     'countrySlug': string[]
     'Company'?: string[],
     'Organising Groups'?: string[]
-    Category?:  string[],
+    Category?: string[],
     CategoryName?: string[],
     CategoryEmoji?: string[],
-    Document?:  Attachment[];
+    Document?: Attachment[];
     DisplayStyle?: "Featured" | null
     // Notes?:     string; // These are private — Zod will parse these out
-    Public:     true; // We can't accept records that haven't been marked for publication
+    Public: true; // We can't accept records that haven't been marked for publication
   },
 }
 
@@ -180,12 +180,12 @@ export interface BlogPost extends BaseRecord {
   fields: {
     Slug?: string;
     ByLine?: string
-    Title:       string;
+    Title: string;
     readonly Image?: Attachment[];
-    Summary?:   string;
-    Body:   string;
-    Date:       string;
-    Public:     true; // We can't accept records that haven't been marked for publication
+    Summary?: string;
+    Body: string;
+    Date: string;
+    Public: true; // We can't accept records that haven't been marked for publication
   },
   body: CopyType
 }
@@ -193,10 +193,10 @@ export interface BlogPost extends BaseRecord {
 export interface StaticPage extends BaseRecord {
   fields: {
     Slug?: string;
-    Title:       string;
-    Summary?:   string;
-    Body:   string;
-    Public:     true; // We can't accept records that haven't been marked for publication
+    Title: string;
+    Summary?: string;
+    Body: string;
+    Public: true; // We can't accept records that haven't been marked for publication
   },
   body: CopyType
 }
@@ -205,8 +205,8 @@ export interface Country extends BaseRecord {
   emoji: CountryEmoji
   fields: {
     Name: string;
-    countryCode:       string;
-    Summary?:   string;
+    countryCode: string;
+    Summary?: string;
     Slug: string
     Unions?: string[]
     unionNames?: string[]
@@ -251,7 +251,7 @@ export interface OrganisingGroup extends BaseRecord {
 export interface Company extends BaseRecord {
   fields: {
     Name: string;
-    Summary?:   string;
+    Summary?: string;
     // 'Official Name':   string;
     'Solidarity Actions'?: string[]
     // 'DisplayStyle (from Solidarity Actions)': string[]
@@ -268,7 +268,7 @@ export interface Category extends BaseRecord {
   fields: {
     Name: string;
     Emoji: string;
-    Summary?:   string;
+    Summary?: string;
     // 'Official Name':   string;
     'Solidarity Actions'?: string[]
     // 'DisplayStyle (from Solidarity Actions)': string[]
