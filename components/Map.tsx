@@ -374,7 +374,7 @@ const CountryPopup = memo(({ lat, lng, actions }: {
       <div
         className='px-2 py-2'
         onClick={() => router.push(
-          `/?country=${exampleAction.fields.countrySlug[0]}`,
+          `/?country=${exampleAction.fields.countrySlug?.[0] || ''}`,
           undefined,
           { shallow: false, scroll: false }
         )}
