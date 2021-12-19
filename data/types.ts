@@ -173,6 +173,7 @@ export interface SolidarityAction extends BaseRecord {
     DisplayStyle?: "Featured" | null
     // Notes?:     string; // These are private — Zod will parse these out
     Public: true; // We can't accept records that haven't been marked for publication
+    hasPassedValidation?: boolean,
   },
 }
 

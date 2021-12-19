@@ -74,26 +74,15 @@ export const solidarityActionBase = () => airtableBase()<SolidarityAction['field
   env.get('AIRTABLE_TABLE_NAME_SOLIDARITY_ACTIONS').default('Solidarity Actions').asString()
 )
 
-export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
+// 
+export async function getAllSolidarityActions ({ filterByFormula, ...selectArgs }: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
   return new Promise((resolve, reject) => {
     const solidarityActions: SolidarityAction[] = []
 
-    filterByFormula = airtableFilterAND(
-      'Public',
-      'Name!=""',
-      'Date!=""',
-      filterByFormula
-    )
-
     solidarityActionBase().select({
       filterByFormula,
-      sort: [
-        { field: "Date", direction: "desc", },
-        // { field: "Country", direction: "asc", }
-      ],
       fields: fields,
-      maxRecords: 1000,
-      view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Live').asString(),
+      maxRecords: 1000000,
       ...selectArgs
     }).eachPage(async function page(records, fetchNextPage) {
       try {
@@ -119,6 +108,22 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
         reject(e)
       }
     })
+  })
+}
+
+export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: QueryParams<SolidarityAction['fields']> = {}): Promise<Array<SolidarityAction>> {
+  return getAllSolidarityActions({
+    filterByFormula: airtableFilterAND(
+      'Public',
+      'Name!=""',
+      'Date!=""',
+      filterByFormula
+    ),
+    sort: [
+      { field: "Date", direction: "desc", },
+    ],
+    view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Live').asString(),
+    ...selectArgs
   })
 }
 

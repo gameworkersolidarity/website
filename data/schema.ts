@@ -174,6 +174,7 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     Document: z.array(attachmentSchema).optional(),
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     Public: z.literal(true),
+    hasPassedValidation: z.boolean().optional(),
   }),
 });
 
