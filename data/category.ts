@@ -3,7 +3,7 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { categorySchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
-import { getSolidarityActionsByCategoryId } from './solidarityAction';
+import { getLiveSolidarityActionsByCategoryId } from './solidarityAction';
 import { parseMarkdown } from './markdown';
 
 export const formatCategory = (category: Category) => {
@@ -108,7 +108,7 @@ export const getCategoryDataByCode = async (name: string): Promise<CategoryData>
     throw new Error("No such category was found for this category code.")
   }
 
-  const solidarityActions = await getSolidarityActionsByCategoryId(category.id)
+  const solidarityActions = await getLiveSolidarityActionsByCategoryId(category.id)
 
   return {
     category: {

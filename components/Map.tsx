@@ -57,7 +57,7 @@ export function Map({ data, onSelectCountry, ...initialViewport }: {
 
   const countryCounts = useMemo(() => {
     const counts = data.reduce((countries, action) => {
-      for (const code of action.fields.countryCode) {
+      for (const code of action.fields.countryCode || []) {
         countries[code] ??= 0
         countries[code]++
       }
@@ -397,8 +397,8 @@ const CountryPopup = memo(({ lat, lng, actions }: {
 
 function getCoordinatesForAction(data: SolidarityAction) {
   let geoData = {
-    latitude: data.geography.country[0].latitude,
-    longitude: data.geography.country[0].longitude
+    latitude: data.geography.country[0]?.latitude,
+    longitude: data.geography.country[0]?.longitude
   }
   if (data?.geography?.location) {
     geoData = {

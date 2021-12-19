@@ -10,7 +10,8 @@
     "dev": "next dev",
     "build": "next build && next-sitemap",
     "start": "next start -H 0.0.0.0 -p ${PORT:-8080}",
-    "generateschema": "ts-to-zod data/types.ts data/schema.ts"
+    "generateschema": "ts-to-zod data/types.ts data/schema.ts",
+    "test": "jest --watch"
   },
   "dependencies": {
     "@headlessui/react": "^1.3.0",
@@ -18,12 +19,11 @@
     "@math.gl/web-mercator": "^3.4.3",
     "@react-hook/window-scroll": "^1.3.0",
     "@tailwindcss/typography": "^0.4.1",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
     "@turf/bbox": "^6.4.0",
     "@turf/combine": "^6.4.0",
     "@turf/helpers": "^6.4.0",
-    "@types/mapbox-gl": "^2.3.3",
-    "@types/react-highlight-words": "^0.16.2",
-    "@types/supercluster": "^5.0.3",
     "@urbica/react-map-gl": "^1.14.3",
     "@urbica/react-map-gl-cluster": "^0.2.0",
     "@visx/visx": "^1.12.0",
@@ -43,6 +43,7 @@
     "fathom-client": "^3.1.0",
     "fuse.js": "^6.4.6",
     "highlight-words-core": "^1.2.2",
+    "jest": "^27.4.5",
     "jsonfeed-to-rss": "^3.0.5",
     "jsonpatch": "^3.0.1",
     "just-diff": "^3.1.1",
@@ -50,7 +51,7 @@
     "lodash.isequal": "^4.5.0",
     "mapbox-gl": "^2.3.1",
     "markdown-it": "^12.0.6",
-    "next": "^11.0.1",
+    "next": "12",
     "next-seo": "^4.24.0",
     "next-sitemap": "^1.6.108",
     "next-use-contextual-routing": "^2.0.0",
@@ -63,6 +64,7 @@
     "react-highlight-words": "^0.17.0",
     "react-konami-code": "^2.2.2",
     "react-spring": "^9.2.3",
+    "react-test-renderer": "^17.0.2",
     "remove-markdown": "^0.3.0",
     "scroll-into-view": "^1.16.0",
     "supercluster": "^7.1.3",
@@ -75,8 +77,11 @@
   },
   "devDependencies": {
     "@types/d3": "^6.7.0",
+    "@types/mapbox-gl": "^2.3.3",
     "@types/markdown-it": "^12.0.1",
     "@types/react": "^17.0.9",
+    "@types/react-highlight-words": "^0.16.2",
+    "@types/supercluster": "^5.0.3",
     "ts-to-zod": "^1.3.0"
   }
 }

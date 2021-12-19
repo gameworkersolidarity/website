@@ -419,7 +419,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
         </div>
         {withContext && (
           <div className='grid gap-[2px] grid-cols-2'>
-            {data.fields.countryCode.map(code =>
+            {data.fields.countryCode?.map(code =>
               <div className='p-4 md:px-8 bg-white' key={code}>
                 <SolidarityActionCountryRelatedActions
                   countryCode={code}

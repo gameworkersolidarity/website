@@ -1,13 +1,13 @@
 
 import { getServerSideSitemap } from 'next-sitemap'
 import { GetServerSideProps } from 'next'
-import { actionUrl, getSolidarityActions } from '../../data/solidarityAction'
+import { actionUrl, getLiveSolidarityActions } from '../../data/solidarityAction'
 import { projectStrings } from '../../data/site'
 import { getOrganisingGroups } from '../../data/organisingGroup'
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const groups = await getOrganisingGroups()
-  const actions = await getSolidarityActions()
+  const actions = await getLiveSolidarityActions()
 
   const fields = [
     ...groups.map(action => (

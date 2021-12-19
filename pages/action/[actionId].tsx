@@ -1,4 +1,4 @@
-import { actionUrl, getSingleSolidarityAction, getSolidarityActions } from '../../data/solidarityAction';
+import { actionUrl, getSingleSolidarityAction, getLiveSolidarityActions } from '../../data/solidarityAction';
 import { SolidarityAction } from '../../data/types';
 import { SolidarityActionCard } from '../../components/SolidarityActions';
 import Link from 'next/link';
@@ -38,7 +38,7 @@ export default function Page({ action, errorMessage }: PageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
-  const links = await getSolidarityActions()
+  const links = await getLiveSolidarityActions()
   return {
     paths: links.map(page => ({
       params: {

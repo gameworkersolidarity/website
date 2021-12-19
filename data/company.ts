@@ -3,7 +3,7 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { companySchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
-import { getSolidarityActionsByCompanyId } from './solidarityAction';
+import { getLiveSolidarityActionsByCompanyId } from './solidarityAction';
 import { parseMarkdown } from './markdown';
 
 export const formatCompany = (company: Company) => {
@@ -108,7 +108,7 @@ export const getCompanyDataByCode = async (name: string): Promise<CompanyData> =
     throw new Error("No such company was found for this company code.")
   }
 
-  const solidarityActions = await getSolidarityActionsByCompanyId(company.id)
+  const solidarityActions = await getLiveSolidarityActionsByCompanyId(company.id)
 
   return {
     company: {
