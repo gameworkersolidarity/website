@@ -93,7 +93,7 @@ export async function getSolidarityActions ({ filterByFormula, ...selectArgs }: 
       ],
       fields: fields,
       maxRecords: 1000,
-      // view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Main view').asString(),
+      view: env.get('AIRTABLE_TABLE_VIEW_SOLIDARITY_ACTIONS').default('Live').asString(),
       ...selectArgs
     }).eachPage(async function page(records, fetchNextPage) {
       try {
