@@ -63,7 +63,7 @@ export function actionToFeature(action: SolidarityAction): GeoJSON.Feature<GeoJS
   }
 }
 
-const fields: Array<keyof SolidarityActionAirtableRecord['fields']> = ['slug', 'companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
+const fields: Array<keyof SolidarityActionAirtableRecord['fields']> = ['hasPassedValidation', 'slug', 'companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityActionAirtableRecord['fields']>(
