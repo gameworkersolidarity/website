@@ -17,6 +17,6 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Webhook
-      uses: distributhor/workflow-webhook
+      uses: distributhor/workflow-webhook@69ec4d54b364f01d0be541be2ca4f826e63878d3
       with:
         url: "https://gameworkersolidarity.com/api/validateAirtableData"
