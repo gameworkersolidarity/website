@@ -19,5 +19,5 @@ jobs:
     - name: Webhook
       uses: distributhor/workflow-webhook@69ec4d54b364f01d0be541be2ca4f826e63878d3
       env:
-        webhook_url: "https://gameworkersolidarity.com/api/validateAirtableData"
-        webhook_secret: ""
+        webhook_url: ${{ secrets.AIRTABLE_VALIDATION_URL }}
+        webhook_secret: ${{ secrets.AIRTABLE_VALIDATION_SECRET }}
