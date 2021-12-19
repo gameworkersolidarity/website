@@ -4,7 +4,7 @@ name: Trigger Airtable Validation
 on:
   schedule:
     # sets the action to run every 5 minutes.
-    - cron: '0/5 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
