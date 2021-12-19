@@ -15,7 +15,7 @@ export const formatSolidarityAction = async (action: SolidarityAction) => {
   action.slug = action.fields.slug || action.id
 
   let i = 0
-  for (const countryCode of action.fields.countryCode) {
+  for (const countryCode of action.fields.countryCode || []) {
     try {
       action.geography.country.push(countryDataForCode(countryCode))
     } catch (e) {

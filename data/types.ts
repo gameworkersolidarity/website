@@ -159,11 +159,11 @@ export interface SolidarityAction extends BaseRecord {
     LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
     // 'Country': string[] // Not really useful — Zod will parse these out
     Country?: string[]
-    'countryName': string[]
+    'countryName'?: string[]
     companyName?: string[]
     organisingGroupName?: string[]
-    'countryCode': string[]
-    'countrySlug': string[]
+    'countryCode'?: string[]
+    'countrySlug'?: string[]
     'Company'?: string[],
     'Organising Groups'?: string[]
     Category?: string[],
