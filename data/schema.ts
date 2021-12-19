@@ -147,17 +147,14 @@ export const attachmentSchema = z.object({
   thumbnails: thumbnailsSchema,
 });
 
-export const solidarityActionSchema = baseRecordSchema.extend({
-  geography: geographySchema,
-  summary: copyTypeSchema,
-  slug: z.string(),
+export const solidarityActionAirtableRecordSchema = baseRecordSchema.extend({
   fields: z.object({
     slug: z.string().optional(),
-    Name: z.string(),
+    Name: z.string().optional(),
     Location: z.string().optional(),
     Summary: z.string().optional(),
-    Date: z.string(),
-    LastModified: z.string(),
+    Date: z.string().optional(),
+    LastModified: z.string().optional(),
     Link: z.string().optional(),
     LocationData: z.string().optional(),
     Country: z.array(z.string()).optional(),
@@ -173,10 +170,27 @@ export const solidarityActionSchema = baseRecordSchema.extend({
     CategoryEmoji: z.array(z.string()).optional(),
     Document: z.array(attachmentSchema).optional(),
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
-    Public: z.literal(true),
     hasPassedValidation: z.boolean().optional(),
+    Public: z.boolean().optional(),
   }),
 });
+
+export const solidarityActionSchema = solidarityActionAirtableRecordSchema.and(
+  z.object({
+    geography: geographySchema,
+    summary: copyTypeSchema,
+    slug: z.string(),
+    fields: z.any().and(
+      z.object({
+        Name: z.string(),
+        Date: z.string(),
+        Public: z.literal(true),
+        LastModified: z.string(),
+        hasPassedValidation: z.literal(true),
+      })
+    ),
+  })
+);
 
 export const blogPostSchema = baseRecordSchema.extend({
   fields: z.object({

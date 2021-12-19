@@ -1,4 +1,4 @@
-import { getSolidarityActions } from '../data/solidarityAction';
+import { getLiveSolidarityActions } from '../data/solidarityAction';
 import { SolidarityAction, Company, Category, Country, OrganisingGroup } from '../data/types';
 import env from 'env-var';
 import { GetStaticProps } from 'next';
@@ -54,7 +54,7 @@ export const getStaticProps: GetStaticProps<
 > = async (context) => {
   return {
     props: {
-      actions: await getSolidarityActions(),
+      actions: await getLiveSolidarityActions(),
       companies: await getCompanies(),
       categories: await getCategories(),
       countries: await getCountries(),

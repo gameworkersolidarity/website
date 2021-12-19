@@ -3,7 +3,7 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { countrySchema, solidarityActionSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
-import { getSolidarityActionsByCountryCode } from './solidarityAction';
+import { getLiveSolidarityActionsByCountryCode } from './solidarityAction';
 import { parseMarkdown } from './markdown';
 import { getOrganisingGroupsByCountryId } from './organisingGroup';
 import coords from 'country-coords'
@@ -139,7 +139,7 @@ export const getCountryDataByCode = async (iso2: string): Promise<CountryData> =
     throw new Error("No such country was found for this country code.")
   }
 
-  const solidarityActions = await getSolidarityActionsByCountryCode(iso2)
+  const solidarityActions = await getLiveSolidarityActionsByCountryCode(iso2)
   const organisingGroups = await getOrganisingGroupsByCountryId(country.id)
 
   return {
@@ -166,7 +166,7 @@ export const getCountryDataBySlug = async (slug: string): Promise<CountryData> =
     throw new Error(`No country was found called '${slug}'`)
   }
 
-  const solidarityActions = await getSolidarityActionsByCountryCode(country.fields.countryCode)
+  const solidarityActions = await getLiveSolidarityActionsByCountryCode(country.fields.countryCode)
 
   return {
     country: {

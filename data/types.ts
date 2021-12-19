@@ -144,20 +144,17 @@ export type Geography = {
   location?: OpenStreetMapReverseGeocodeResponse
 }
 
-export interface SolidarityAction extends BaseRecord {
-  geography: Geography,
-  summary: CopyType
-  slug: string
+
+export interface SolidarityActionAirtableRecord extends BaseRecord {
   fields: {
     slug?: string
-    Name: string;
+    Name?: string;
     Location?: string;
     Summary?: string;
-    Date: string;
-    LastModified: string;
+    Date?: string;
+    LastModified?: string;
     Link?: string;
     LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
-    // 'Country': string[] // Not really useful — Zod will parse these out
     Country?: string[]
     'countryName'?: string[]
     companyName?: string[]
@@ -171,10 +168,50 @@ export interface SolidarityAction extends BaseRecord {
     CategoryEmoji?: string[],
     Document?: Attachment[];
     DisplayStyle?: "Featured" | null
-    // Notes?:     string; // These are private — Zod will parse these out
-    Public: true; // We can't accept records that haven't been marked for publication
     hasPassedValidation?: boolean,
+    Public?: boolean
   },
+}
+
+export interface SolidarityActionAirtableRecord extends BaseRecord {
+  fields: {
+    slug?: string
+    Name?: string;
+    Location?: string;
+    Summary?: string;
+    Date?: string;
+    LastModified?: string;
+    Link?: string;
+    LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
+    Country?: string[]
+    'countryName'?: string[]
+    companyName?: string[]
+    organisingGroupName?: string[]
+    'countryCode'?: string[]
+    'countrySlug'?: string[]
+    'Company'?: string[],
+    'Organising Groups'?: string[]
+    Category?: string[],
+    CategoryName?: string[],
+    CategoryEmoji?: string[],
+    Document?: Attachment[];
+    DisplayStyle?: "Featured" | null
+    hasPassedValidation?: boolean,
+    Public?: boolean
+  },
+}
+
+export type SolidarityAction = SolidarityActionAirtableRecord & {
+  geography: Geography,
+  summary: CopyType
+  slug: string
+  fields: SolidarityActionAirtableRecord['fields'] & {
+    Name: string;
+    Date: string;
+    Public: true;
+    LastModified: string;
+    hasPassedValidation: true,
+  }
 }
 
 export interface BlogPost extends BaseRecord {

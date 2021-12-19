@@ -3,7 +3,7 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { organisingGroupSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
-import { getSolidarityActionsByOrganisingGroupId } from './solidarityAction';
+import { getLiveSolidarityActionsByOrganisingGroupId } from './solidarityAction';
 import { countryDataForCode } from './country';
 
 export const formatOrganisingGroup = (organisingGroup: OrganisingGroup) => {
@@ -125,7 +125,7 @@ export const getOrganisingGroupDataByName = async (name: string): Promise<Organi
     throw new Error("No such organising group was found for this code.")
   }
 
-  const solidarityActions = await getSolidarityActionsByOrganisingGroupId(organisingGroup.id)
+  const solidarityActions = await getLiveSolidarityActionsByOrganisingGroupId(organisingGroup.id)
 
   return {
     organisingGroup: {
