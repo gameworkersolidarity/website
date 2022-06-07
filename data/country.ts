@@ -15,7 +15,7 @@ export function countryDataForCode (countryCode: string): Geography['country'][0
   // Add country data
   const { country: iso3166, ...countryCoordData } = coordsByCountry.get(countryCode)
   const emoji = countryFlagEmoji.get(countryCode) as CountryEmoji
-  const bbox = emoji.name === 'France' ? [-5.4534286, 41.2632185, 9.8678344, 51.268318] : toBBOX(emoji.name === 'South Korea' ? 'S. Korea' : emoji.name)
+  const bbox = emoji.name === 'France' ? [-5.4534286, 41.2632185, 9.8678344, 51.268318] : (emoji.name === 'Malta' ? [14.1803710938, 35.8202148437, 14.5662109375, 36.07578125] : toBBOX(emoji.name === 'South Korea' ? 'S. Korea' : emoji.name))
   return {
     name: emoji.name,
     emoji,
@@ -58,6 +58,7 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
           )
         )
       } catch (e) {
+        console.log("CountryError")
         reject(e)
       }
     }
@@ -78,6 +79,7 @@ export async function getCountries (selectArgs: QueryParams<Country['fields']> =
         });
         fetchNextPage();
       } catch(e) {
+        console.log("Countryerror2")
         finish()
       }
     }, function done(err) {
@@ -107,6 +109,7 @@ export async function getCountryBy (selectArgs: QueryParams<Country['fields']> =
         const country = records?.[0]._rawJson
         resolve(formatCountry(country))
       } catch(e) {
+        console.log("CountryError4")
         reject(e)
       }
     })
