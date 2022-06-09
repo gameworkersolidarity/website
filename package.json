@@ -36,7 +36,7 @@
     "cors": "^2.8.5",
     "country-coords": "^1.0.0",
     "country-flag-emoji": "^1.0.3",
-    "country-to-bbox": "^1.0.0",
+    "country-to-bbox": "github:austinkelmore/country-to-bbox#patch-1",
     "d3": "6",
     "date-fns": "^2.22.1",
     "env-var": "^7.0.1",
