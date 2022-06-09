@@ -2465,8 +2465,9 @@
   "resolved" "https://registry.npmjs.org/country-flag-emoji/-/country-flag-emoji-1.0.3.tgz"
   "version" "1.0.3"
 
-"country-to-bbox@github:austinkelmore/country-to-bbox#patch-1":
-  "resolved" "git+ssh://git@github.com/austinkelmore/country-to-bbox.git#a9af3d92fb73566dbe7e374c447741db1d52ce8e"
+"country-to-bbox@https://github.com/austinkelmore/country-to-bbox/tarball/patch-1":
+  "integrity" "sha512-e/tV8NQA84nRr5ZcfF5IJm/Paw2vXNGBq2hUbZgsRvUnbuwYY+gCOemR9R3QPdJq+Wett1/u098aAJT30fGpyg=="
+  "resolved" "https://github.com/austinkelmore/country-to-bbox/tarball/patch-1"
   "version" "1.0.0"
 
 "cross-spawn@^7.0.3":
