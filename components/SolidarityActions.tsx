@@ -19,6 +19,7 @@ import { actionUrl } from '../data/solidarityAction';
 import { Attachment, Country, SolidarityAction } from '../data/types';
 import { usePrevious } from '../utils/state';
 import { DateTime } from './Date';
+import { defaultOGImageStack } from '../pages/_app';
 
 interface ListProps {
   data: SolidarityAction[],
@@ -379,7 +380,15 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
         canonical={actionUrl(data)}
         openGraph={{
           title: seoTitle,
-          description: data.summary.plaintext
+          description: data.summary.plaintext,
+          images: data.fields.Document?.length
+            ? [
+              {
+                url: data.fields.Document[0].thumbnails.large.url,
+                alt: 'Game Worker Solidarity',
+              },
+              ...defaultOGImageStack
+            ] : defaultOGImageStack
         }}
       />
       <article className={cx('space-y-2px rounded-xl overflow-hidden')}>

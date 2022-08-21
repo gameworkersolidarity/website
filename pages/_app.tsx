@@ -11,6 +11,13 @@ import { projectStrings } from '../data/site';
 import '../styles/globals.css';
 import { doNotFetch } from '../utils/swr';
 
+export const defaultOGImageStack = [
+  {
+    url: projectStrings.baseUrl + `/images/game-workers-share-card.png`,
+    alt: 'Game Worker Solidarity',
+  }
+]
+
 function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const canonicalURL = useCanonicalURL()
 
@@ -56,12 +63,7 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
           site_name: projectStrings.name,
           title: projectStrings.name,
           description: projectStrings.description,
-          images: [
-            {
-              url: projectStrings.baseUrl + `/images/game-workers-share-card.png`,
-              alt: 'Game Worker Solidarity',
-            }
-          ]
+          images: defaultOGImageStack
         }}
         twitter={{
           handle: projectStrings.twitterHandle,
