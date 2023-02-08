@@ -50,10 +50,10 @@ interface ContextProps {
   buttonLabel?: any
 }
 
-export function SolidarityActionDialog ({ selectedAction, returnHref, cardProps }: DialogProps) {
+export function SolidarityActionDialog({ selectedAction, returnHref, cardProps }: DialogProps) {
   const router = useRouter()
 
-  function onClose () {
+  function onClose() {
     if (returnHref) {
       return router.push(returnHref, returnHref, { shallow: false, scroll: false })
     }
@@ -112,17 +112,17 @@ export function useSelectedAction(solidarityActions: SolidarityAction[], key = D
 
 const DownArrow = (
   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 5L9.11875 4.11875L5.625 7.60625V0H4.375V7.60625L0.8875 4.1125L0 5L5 10L10 5Z" fill="#010101"/>
+    <path d="M10 5L9.11875 4.11875L5.625 7.60625V0H4.375V7.60625L0.8875 4.1125L0 5L5 10L10 5Z" fill="#010101" />
   </svg>
 )
 
 const UpArrow = (
   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 5L0.88125 5.88125L4.375 2.39375L4.375 10H5.625L5.625 2.39375L9.1125 5.8875L10 5L5 0L0 5Z" fill="#010101"/>
+    <path d="M0 5L0.88125 5.88125L4.375 2.39375L4.375 10H5.625L5.625 2.39375L9.1125 5.8875L10 5L5 0L0 5Z" fill="#010101" />
   </svg>
 )
 
-export function SolidarityActionsList ({
+export function SolidarityActionsList({
   data: solidarityActions, withDialog, gridStyle = 'grid-cols-1', dialogProps, mini
 }: ListProps) {
   const { makeContextualHref } = useContextualRouting();
@@ -256,20 +256,20 @@ function groupBy<T>(arr: T[], getGroupKey: (i: T) => string) {
   }, {} as { [key: string]: T[] })
 }
 
-function getChunks (array: Fuse.FuseResultMatch[]) {
+function getChunks(array: Fuse.FuseResultMatch[]) {
   return array.reduce((indicies, d) => {
     return indicies.concat(d.indices.map(([start, end]) => ({ start, end: end + 1 })))
   }, [] as Chunk[])
 }
 
-function highlightHTML (html: string, search: string, className: string) {
+function highlightHTML(html: string, search: string, className: string) {
   return html.replace(
     new RegExp(`(${search})` || '', 'gim'),
     `<mark class='${className}'>$1</mark>`
   )
 }
 
-export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
+export function SolidarityActionItem({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
@@ -293,26 +293,26 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
                 __html: !search ? data.summary.html : highlightHTML(data.summary.html, search, 'bg-gwYellow')
               }} />
             </div>
-        )}
-        </>: 
-        <h3 className='text-2xl leading-tight font-semibold max-w-3xl mt-3'>
-          <Highlighter
-            highlightClassName="bg-gwYellow"
-            searchWords={[search || '']}
-            autoEscape={true}
-            textToHighlight={data.fields.Name} 
-          />
-        </h3>}
+          )}
+        </> :
+          <h3 className='text-2xl leading-tight font-semibold max-w-3xl mt-3'>
+            <Highlighter
+              highlightClassName="bg-gwYellow"
+              searchWords={[search || '']}
+              autoEscape={true}
+              textToHighlight={data.fields.Name}
+            />
+          </h3>}
         <div className='flex flex-row mt-3 flex-wrap'>
           {data.fields.Link && (
             <a href={data.fields.Link} className='block my-1 mr-2'>
-            <Emoji symbol='🔗' label='Link' className='align-baseline' />
+              <Emoji symbol='🔗' label='Link' className='align-baseline' />
               &nbsp;
               <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
             </a>
           )}
           {data.cdnMap.map(doc => (
-            <DocumentLink key={doc.airtableDocID} {...doc} withPreview />
+            <DocumentLink key={doc.airtableDocID} {...doc} />
           ))}
         </div>
       </div>
@@ -351,7 +351,7 @@ export function DocumentLink({ filename, filetype, thumbnailURL, thumbnailWidth,
   )
 }
 
-export function ActionMetadata ({ data }: { data: SolidarityAction }) {
+export function ActionMetadata({ data }: { data: SolidarityAction }) {
   return (
     <div className='flex flex-wrap tracking-tight'>
       <span className='font-semibold pr-3'>
@@ -370,14 +370,14 @@ export function ActionMetadata ({ data }: { data: SolidarityAction }) {
           <span>{country.name}</span>
         </span>
       ))}
-      {data.fields?.Category?.map((c, i) => 
+      {data.fields?.Category?.map((c, i) =>
         <span className='capitalize block pr-3' key={c}>{data.fields.CategoryEmoji?.[i]} {data.fields.CategoryName?.[i]}</span>
       )}
     </div>
   )
 }
 
-export function SolidarityActionCard ({ data, withContext, contextProps }: CardProps) {
+export function SolidarityActionCard({ data, withContext, contextProps }: CardProps) {
   const seoTitle = `${format(new Date(data.fields.Date), 'dd MMM yyyy')}: ${data.fields.Name}`
 
   return (
@@ -478,7 +478,7 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
   )
 }
 
-export function SolidarityActionCountryRelatedActions ({ countryCode }: { countryCode }) {
+export function SolidarityActionCountryRelatedActions({ countryCode }: { countryCode }) {
   const { data } = useSWR<Country>(qs.stringifyUrl({
     url: `/api/country`,
     query: {
@@ -487,7 +487,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode }: { countr
   }), { revalidateOnMount: true })
 
   const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
-  
+
   return (
     <SolidarityActionRelatedActions
       subtitle={'Country'}
@@ -500,7 +500,7 @@ export function SolidarityActionCountryRelatedActions ({ countryCode }: { countr
   )
 }
 
-export function SolidarityActionRelatedActions ({ subtitle, url, name, metadata, buttonLabel }: ContextProps) {
+export function SolidarityActionRelatedActions({ subtitle, url, name, metadata, buttonLabel }: ContextProps) {
   return (
     <Link href={url || '/'} shallow={false}>
       <div className='cursor-pointer group'>
