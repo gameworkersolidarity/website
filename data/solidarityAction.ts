@@ -1,22 +1,35 @@
 import { SolidarityAction, SolidarityActionAirtableRecord } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
-import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema } from './schema';
+import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema, airtableCDNMapSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
 import coords from 'country-coords'
 import { airtableFilterAND } from '../utils/airtable';
 import { parseMarkdown } from './markdown';
 import { geocodeOpenStreetMap } from './geo';
 import { countryDataForCode } from './country';
+import { z } from 'zod';
 
 export const formatSolidarityAction = async (record: SolidarityActionAirtableRecord): Promise<SolidarityAction> => {
-  let action = JSON.parse(JSON.stringify(record))
-  action.summary = parseMarkdown(action.fields.Summary || '')
+  let _action: SolidarityActionAirtableRecord = JSON.parse(JSON.stringify(record))
+  let action: any = _action
+  action.summary = parseMarkdown(_action.fields.Summary || '')
   action.geography = { country: [] }
-  action.slug = action.fields.slug || action.id
+  action.slug = _action.fields.slug || action.id
+  action.cdnMap = []
+  try {
+    // Parse and verify the JSON we store in the Airtable
+    const _cdnMap = _action.fields.cdn_urls ? JSON.parse(_action.fields.cdn_urls) : []
+    const validation = z.array(airtableCDNMapSchema).safeParse(_cdnMap)
+    if (validation.success) {
+      action.cdnMap = _cdnMap
+    }
+  } catch (e) {
+    console.error(e)
+  }
 
   let i = 0
-  for (const countryCode of action.fields.countryCode || []) {
+  for (const countryCode of _action.fields.countryCode || []) {
     try {
       action.geography.country.push(countryDataForCode(countryCode))
     } catch (e) {
@@ -25,27 +38,31 @@ export const formatSolidarityAction = async (record: SolidarityActionAirtableRec
     i++;
 
     // Add city
-    if (action.fields.LocationData) {
-      action.geography.location = JSON.parse(action.fields.LocationData)
-    } else if (action.fields.Location) {
-
+    if (_action.fields.LocationData) {
+      action.geography.location = JSON.parse(_action.fields.LocationData)
+    } else if (_action.fields.Location) {
       console.log("Fetching location data from OpenStreetMap")
-      const _data = await geocodeOpenStreetMap(action.fields.Location!, countryCode)
+      const _data = await geocodeOpenStreetMap(_action.fields.Location!, countryCode)
       // @ts-ignore
+      // Parse and verify the JSON we store in the Airtable
       const { data, error } = openStreetMapReverseGeocodeResponseSchema.safeParse(_data)
       if (error) {
         console.error(_data, error)
       } else if (data) {
         action.geography.location = data
-        solidarityActionBase().update(action.id, {
+        solidarityActionBase().update(_action.id, {
           LocationData: JSON.stringify(data)
         })
       }
     }
   }
 
-  action = solidarityActionSchema.parse(action)
-  return action
+  try {
+    return solidarityActionSchema.parse(action)
+  } catch (e) {
+    console.error(action, e)
+    throw e
+  }
 }
 
 export function actionToFeature(action: SolidarityAction): GeoJSON.Feature<GeoJSON.Point, SolidarityAction> {
@@ -63,7 +80,7 @@ export function actionToFeature(action: SolidarityAction): GeoJSON.Feature<GeoJS
   }
 }
 
-const fields: Array<keyof SolidarityActionAirtableRecord['fields']> = ['hasPassedValidation', 'slug', 'companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji']
+const fields: Array<keyof SolidarityActionAirtableRecord['fields']> = ['hasPassedValidation', 'slug', 'companyName', 'organisingGroupName', 'Organising Groups', 'Company', 'Country', 'LocationData', 'Document', 'countryCode', 'countryName', 'countrySlug', 'LastModified', 'DisplayStyle', 'Name', 'Location', 'Summary', 'Date', 'Link', 'Public', 'Category', 'CategoryName', 'CategoryEmoji', 'cdn_urls']
 
 // @ts-ignore
 export const solidarityActionBase = () => airtableBase()<SolidarityActionAirtableRecord['fields']>(

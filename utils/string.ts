@@ -19,7 +19,7 @@ export const firstOf = <T>(obj: T, keys: Array<keyof T>, fallbackToAny?: boolean
   }
 }
 
-export const ensureArray = <T>(x: T): T[] => {
+export const ensureArray = <T>(x: T | T[]): T[] => {
   if (Array.isArray(x)) return x
   return [x]
 }

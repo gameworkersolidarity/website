@@ -33,6 +33,7 @@
     "babel-plugin-macros": "^3.1.0",
     "babel-plugin-polished": "^1.1.0",
     "classnames": "^2.3.1",
+    "cloudinary": "^1.33.0",
     "cors": "^2.8.5",
     "country-coords": "^1.0.0",
     "country-flag-emoji": "^1.0.3",

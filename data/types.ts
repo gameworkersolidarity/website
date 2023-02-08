@@ -169,35 +169,8 @@ export interface SolidarityActionAirtableRecord extends BaseRecord {
     Document?: Attachment[];
     DisplayStyle?: "Featured" | null
     hasPassedValidation?: boolean,
-    Public?: boolean
-  },
-}
-
-export interface SolidarityActionAirtableRecord extends BaseRecord {
-  fields: {
-    slug?: string
-    Name?: string;
-    Location?: string;
-    Summary?: string;
-    Date?: string;
-    LastModified?: string;
-    Link?: string;
-    LocationData?: string; // OpenStreetMapReverseGeocodeResponse;
-    Country?: string[]
-    'countryName'?: string[]
-    companyName?: string[]
-    organisingGroupName?: string[]
-    'countryCode'?: string[]
-    'countrySlug'?: string[]
-    'Company'?: string[],
-    'Organising Groups'?: string[]
-    Category?: string[],
-    CategoryName?: string[],
-    CategoryEmoji?: string[],
-    Document?: Attachment[];
-    DisplayStyle?: "Featured" | null
-    hasPassedValidation?: boolean,
-    Public?: boolean
+    Public?: boolean,
+    cdn_urls?: string
   },
 }
 
@@ -205,6 +178,7 @@ export type SolidarityAction = SolidarityActionAirtableRecord & {
   geography: Geography,
   summary: CopyType
   slug: string
+  cdnMap: Array<AirtableCDNMap>
   fields: SolidarityActionAirtableRecord['fields'] & {
     Name: string;
     Date: string;
@@ -325,4 +299,16 @@ export interface MenuItem extends BaseRecord {
     url: string;
     placement: Array<'Header' | 'Footer'>;
   }
+}
+
+///
+
+export interface AirtableCDNMap {
+  filename: string
+  filetype: string
+  airtableDocID: string
+  downloadURL: string
+  thumbnailURL: string
+  thumbnailWidth: number
+  thumbnailHeight: number
 }

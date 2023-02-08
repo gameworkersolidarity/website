@@ -100,6 +100,16 @@ export const menuItemSchema = baseRecordSchema.extend({
   }),
 });
 
+export const airtableCDNMapSchema = z.object({
+  filename: z.string(),
+  filetype: z.string(),
+  airtableDocID: z.string(),
+  downloadURL: z.string(),
+  thumbnailURL: z.string(),
+  thumbnailWidth: z.number(),
+  thumbnailHeight: z.number(),
+});
+
 export const thumbnailsSchema = z.object({
   small: thumbnailSchema,
   large: thumbnailSchema,
@@ -172,6 +182,7 @@ export const solidarityActionAirtableRecordSchema = baseRecordSchema.extend({
     DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
     hasPassedValidation: z.boolean().optional(),
     Public: z.boolean().optional(),
+    cdn_urls: z.string().optional(),
   }),
 });
 
@@ -180,6 +191,7 @@ export const solidarityActionSchema = solidarityActionAirtableRecordSchema.and(
     geography: geographySchema,
     summary: copyTypeSchema,
     slug: z.string(),
+    cdnMap: z.array(airtableCDNMapSchema),
     fields: z.any().and(
       z.object({
         Name: z.string(),

@@ -141,10 +141,10 @@ export function SolidarityActionsList ({
   }, [solidarityActions])
 
   const router = useRouter()
-  
+
   // when the router changes, update the current route
   const [currentHref, setCurrentHref] = useState(router.asPath)
-  
+
   // store the past route and use it as the currentHref
   const lastHref = usePrevious(currentHref)
 
@@ -168,10 +168,10 @@ export function SolidarityActionsList ({
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear.map(([yearString, actions], i) => {
           let hiddenActions = [] as SolidarityAction[]
-          let shownActions = [] as SolidarityAction[]  
-          
+          let shownActions = [] as SolidarityAction[]
+
           let hasHiddenActions = false;
-          
+
           if (actions.length > 3) {
             hasHiddenActions = true;
             shownActions = actions.slice(0, 3)
@@ -179,11 +179,11 @@ export function SolidarityActionsList ({
           } else {
             shownActions = actions
           }
-          
+
           const hiddenActionsOpen = openYears.includes(yearString);
-          
+
           const pluralActionsCopy = pluralize('action', hiddenActions.length)
-            
+
           return (
             <div key={i}>
               <div className='flex flex-row justify-between items-center pb-3'>
@@ -225,21 +225,21 @@ export function SolidarityActionsList ({
                 </div>
               </div>
               {(hasHiddenActions && hiddenActionsOpen === false) && (
-                  <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
-                    <>
-                      <span className="pr-1">Load {hiddenActions.length} more {pluralActionsCopy}</span>
-                      {DownArrow}
-                    </>
-                  </button>
-               )}
-               {(hasHiddenActions && hiddenActionsOpen) && (
-                  <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.filter(openYear => openYear !== yearString))}>
-                    <>
-                      <span className="pr-1">Hide {hiddenActions.length} {pluralActionsCopy}</span>
-                      {UpArrow}
-                    </>
-                  </button>
-                )}
+                <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
+                  <>
+                    <span className="pr-1">Load {hiddenActions.length} more {pluralActionsCopy}</span>
+                    {DownArrow}
+                  </>
+                </button>
+              )}
+              {(hasHiddenActions && hiddenActionsOpen) && (
+                <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.filter(openYear => openYear !== yearString))}>
+                  <>
+                    <span className="pr-1">Hide {hiddenActions.length} {pluralActionsCopy}</span>
+                    {UpArrow}
+                  </>
+                </button>
+              )}
             </div>
           )
         })}
@@ -273,7 +273,7 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   const { search } = useContext(FilterContext)
 
   const isFeatured = data.fields.DisplayStyle === 'Featured'
-  
+
   return (
     <article className={cx('bg-white rounded-xl p-4 text-sm glowable')}>
       <ActionMetadata data={data} />
@@ -284,15 +284,15 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
               highlightClassName="bg-gwYellow"
               searchWords={[search || '']}
               autoEscape={true}
-              textToHighlight={data.fields.Name}          
+              textToHighlight={data.fields.Name}
             />
           </h2>
           {data.fields.Summary && (
-          <div className='w-full pt-4 text-base'>
-            <div dangerouslySetInnerHTML={{
-              __html: !search ? data.summary.html : highlightHTML(data.summary.html, search, 'bg-gwYellow')
-            }} />
-          </div>
+            <div className='w-full pt-4 text-base'>
+              <div dangerouslySetInnerHTML={{
+                __html: !search ? data.summary.html : highlightHTML(data.summary.html, search, 'bg-gwYellow')
+              }} />
+            </div>
         )}
         </>: 
         <h3 className='text-2xl leading-tight font-semibold max-w-3xl mt-3'>
@@ -311,8 +311,8 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
               <span className='align-baseline underline text-inherit'>{new URL(data.fields.Link).hostname}</span>
             </a>
           )}
-          {data.fields.Document?.map(doc => (
-            <DocumentLink doc={doc} key={doc.id} />
+          {data.cdnMap.map(doc => (
+            <DocumentLink key={doc.airtableDocID} {...doc} withPreview />
           ))}
         </div>
       </div>
@@ -320,22 +320,30 @@ export function SolidarityActionItem ({ data }: { data: SolidarityAction }) {
   )
 }
 
-export function DocumentLink ({ doc, withPreview }: { doc: Attachment, withPreview?: boolean }) {
+export function DocumentLink({ filename, filetype, thumbnailURL, thumbnailWidth, thumbnailHeight, downloadURL, withPreview }: {
+  filename: string
+  filetype: string
+  thumbnailURL: string
+  thumbnailWidth: number
+  thumbnailHeight: number
+  downloadURL: string
+  withPreview?: boolean
+}) {
   return (
-    <a href={doc.url} className='block my-1 mr-2'>
+    <a href={downloadURL} className='block my-1 mr-2'>
       <span className={cx(withPreview && 'block')}>
         <Emoji symbol='📑' label='File attachment' className='align-baseline' />
         &nbsp;
-        <span className='align-baseline underline text-inherit'>{doc.filename}</span>
+        <span className='align-baseline underline text-inherit'>{filename}</span>
         &nbsp;
-        <span className='text-gray-500'>{doc.type}</span>
+        <span className='text-gray-500'>{filetype}</span>
       </span>
       {withPreview && (
         <div className='inline-block overflow-hidden border border-black rounded-xl mt-4'>
           <Image
-            src={doc.thumbnails.large.url}
-            width={doc.thumbnails.large.width}
-            height={doc.thumbnails.large.height}
+            src={thumbnailURL}
+            width={thumbnailWidth}
+            height={thumbnailHeight}
           />
         </div>
       )}
@@ -413,12 +421,12 @@ export function SolidarityActionCard ({ data, withContext, contextProps }: CardP
             )}
           </div>
         </div>
-        {data.fields.Document?.length && (
+        {data.cdnMap?.length > 0 && (
           <div className='p-4 md:px-8 bg-white text-sm'>
             <div className='font-semibold pb-2'>Attachments</div>
             <div className='grid gap-4'>
-              {data.fields.Document.map(doc => (
-                <DocumentLink key={doc.id} doc={doc} withPreview />
+              {data.cdnMap.map(doc => (
+                <DocumentLink key={doc.airtableDocID} {...doc} withPreview />
               ))}
             </div>
           </div>

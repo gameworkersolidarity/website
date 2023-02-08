@@ -6,6 +6,6 @@ module.exports = {
     return config;
   },
   images: {
-    domains: ['dl.airtable.com'],
+    domains: ['res.cloudinary.com'],
   },
 }
