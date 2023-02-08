@@ -74,3 +74,13 @@ yarn generateschema
 ## Deployment
 
 This repo auto-deploys to Digital Ocean.
+
+## CDN for public file hosting
+
+Cloudinary is used as a public CDN for Airtable images. Here's how it works:
+
+- The `/api/syncToCDN` endpoint is responsible for refreshing the `cdn_urls` to sync Airtable's private attachments to the public CDN and then store the public URLs back in Airtable for serving in the frontend.
+- The hidden `cdn_urls` column which stores data about the publicly viewable URLs should not be edited manually.
+- Whenever an Airtable record is updated, a webhook will trigger the re-sync. A [Github action](./.github/workflows/refreshWebhook.yml) regularly triggers [maintenance script](./pages/api/createOrRefreshAirtableWebhook.ts), which will create/refresh the managed webhook to the Airtable.
+- The webhook management script requires an access token in the env (`AIRTABLE_API_KEY`) configured [via this URL](https://airtable.com/create/tokens/new) as follows:
+    ![](./docs/airtable_access_token_config.png)
