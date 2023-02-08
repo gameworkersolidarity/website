@@ -22,18 +22,32 @@ export async function syncSolidarityActionsToCDN(_action: SolidarityAction | Sol
     fields: Partial<SolidarityActionAirtableRecord['fields']>
   }> = []
   for (const action of actions) {
-    // Upload to CDN
     if (action.fields.Document?.length) {
-      const cdnPayload = await uploadSolidarityActionAttachmentsToCDN(action)
-      // Then sync the public URLs to Airtable
-      if (cdnPayload.length > 0) {
-        updateList.push({
-          id: action.id,
-          fields: {
-            cdn_urls: JSON.stringify(cdnPayload)
-          }
-        })
+      // Synchronise Docs and CDN Map column
+      const missingCDNMapEntry = action.fields.Document!.some(doc => !action.cdnMap.find(cdn => cdn.airtableDocID === doc.id))
+      const invalidCDNMapEntry = action.cdnMap.some(cdn => !action.fields.Document!.find(doc => doc.id === cdn.airtableDocID))
+      if (missingCDNMapEntry || invalidCDNMapEntry) {
+        // There's a mismatch between the docs and the CDN map, so we need to re-sync
+        // First upload the docs to the CDN
+        const cdnPayload = await uploadSolidarityActionAttachmentsToCDN(action)
+        // Then sync the public URLs back to Airtable
+        if (cdnPayload.length > 0) {
+          updateList.push({
+            id: action.id,
+            fields: {
+              cdn_urls: JSON.stringify(cdnPayload)
+            }
+          })
+        }
       }
+    } else if (action.fields.cdn_urls) {
+      // Clear CDNs to reflect the fact there are no docs
+      updateList.push({
+        id: action.id,
+        fields: {
+          cdn_urls: "[]"
+        }
+      })
     }
   }
   let recordsUpdated = 0
@@ -75,9 +89,9 @@ export async function uploadToCDN(url: string, filename?: string) {
 
 export async function uploadToCloudinary(url: string, filename?: string) {
   await cloudinary.v2.config({
-    cloud_name: env.get('CLOUDINARY_NAME').asString(),
-    api_key: env.get('CLOUDINARY_API_KEY').asString(),
-    api_secret: env.get('CLOUDINARY_API_SECRET').asString(),
+    cloud_name: env.get('CLOUDINARY_NAME').required().asString(),
+    api_key: env.get('CLOUDINARY_API_KEY').required().asString(),
+    api_secret: env.get('CLOUDINARY_API_SECRET').required().asString(),
     secure: true
   });
 

@@ -1,0 +1,19 @@
+name: Create/Refresh Airtable Webhook for CDN Sync
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI or API.
+on:
+  schedule:
+    # Run every
+    - cron: 0 0 1-30/3 * *
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Stage
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "https://gameworkersolidarity.com/api/createOrRefreshAirtableWebhook"
+          method: "GET"

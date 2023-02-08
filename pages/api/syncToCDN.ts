@@ -7,9 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await runMiddleware(req, res, corsGET)
   // Loop through airtable actions
   // and sync their `Document` property to CDN with uploadToCDN
-  const hasAttachments = `NOT({Document} = "")`
-  const hasNoCDNURLs = `OR(({cdn_urls} = ""),({cdn_urls} = "[]"))`
-  const actions = await getLiveSolidarityActions({ filterByFormula: `AND(${hasAttachments},${hasNoCDNURLs})` })
+  const actions = await getLiveSolidarityActions()
   const updateReport = await syncSolidarityActionsToCDN(actions)
   return res.status(200).json(updateReport)
 }
