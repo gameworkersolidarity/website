@@ -6,6 +6,14 @@ export interface BaseRecord {
   createdTime: string;
 }
 
+export interface BaseRecordWithSyncedCDNMap extends BaseRecord {
+  fields: { cdn_urls?: string }
+}
+
+export interface FormattedRecordWithCDNMap extends BaseRecordWithSyncedCDNMap {
+  cdnMap: Array<AirtableCDNMap>
+}
+
 export interface Attachment {
   id: string;
   url: string;
@@ -145,7 +153,7 @@ export type Geography = {
 }
 
 
-export interface SolidarityActionAirtableRecord extends BaseRecord {
+export interface SolidarityActionAirtableRecord extends BaseRecordWithSyncedCDNMap {
   fields: {
     slug?: string
     Name?: string;
@@ -169,16 +177,14 @@ export interface SolidarityActionAirtableRecord extends BaseRecord {
     Document?: Attachment[];
     DisplayStyle?: "Featured" | null
     hasPassedValidation?: boolean,
-    Public?: boolean,
-    cdn_urls?: string
-  },
+    Public?: boolean
+  } & BaseRecordWithSyncedCDNMap['fields']
 }
 
-export type SolidarityAction = SolidarityActionAirtableRecord & {
+export type SolidarityAction = SolidarityActionAirtableRecord & FormattedRecordWithCDNMap & {
   geography: Geography,
   summary: CopyType
   slug: string
-  cdnMap: Array<AirtableCDNMap>
   fields: SolidarityActionAirtableRecord['fields'] & {
     Name: string;
     Date: string;
@@ -188,7 +194,7 @@ export type SolidarityAction = SolidarityActionAirtableRecord & {
   }
 }
 
-export interface BlogPost extends BaseRecord {
+export interface BlogPostAirtableRecord extends BaseRecordWithSyncedCDNMap {
   fields: {
     Slug?: string;
     ByLine?: string
@@ -198,9 +204,11 @@ export interface BlogPost extends BaseRecord {
     Body: string;
     Date: string;
     Public: true; // We can't accept records that haven't been marked for publication
-  },
+  } & BaseRecordWithSyncedCDNMap['fields'],
   body: CopyType
 }
+
+export type BlogPost = FormattedRecordWithCDNMap & BlogPostAirtableRecord
 
 export interface StaticPage extends BaseRecord {
   fields: {
@@ -307,8 +315,10 @@ export interface AirtableCDNMap {
   filename: string
   filetype: string
   airtableDocID: string
-  downloadURL: string
-  thumbnailURL: string
-  thumbnailWidth: number
-  thumbnailHeight: number
+  originalURL: string
+  originalWidth?: number
+  originalHeight?: number
+  thumbnailURL?: string
+  thumbnailWidth?: number
+  thumbnailHeight?: number
 }

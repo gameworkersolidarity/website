@@ -6,6 +6,12 @@ export const baseRecordSchema = z.object({
   createdTime: z.string(),
 });
 
+export const baseRecordWithSyncedCDNMapSchema = baseRecordSchema.extend({
+  fields: z.object({
+    cdn_urls: z.string().optional(),
+  }),
+});
+
 export const thumbnailSchema = z.object({
   url: z.string(),
   width: z.number(),
@@ -104,11 +110,19 @@ export const airtableCDNMapSchema = z.object({
   filename: z.string(),
   filetype: z.string(),
   airtableDocID: z.string(),
-  downloadURL: z.string(),
-  thumbnailURL: z.string(),
-  thumbnailWidth: z.number(),
-  thumbnailHeight: z.number(),
+  originalURL: z.string(),
+  originalWidth: z.number().optional(),
+  originalHeight: z.number().optional(),
+  thumbnailURL: z.string().optional(),
+  thumbnailWidth: z.number().optional(),
+  thumbnailHeight: z.number().optional(),
 });
+
+export const formattedRecordWithCDNMapSchema = baseRecordWithSyncedCDNMapSchema.extend(
+  {
+    cdnMap: z.array(airtableCDNMapSchema),
+  }
+);
 
 export const thumbnailsSchema = z.object({
   small: thumbnailSchema,
@@ -157,66 +171,78 @@ export const attachmentSchema = z.object({
   thumbnails: thumbnailsSchema,
 });
 
-export const solidarityActionAirtableRecordSchema = baseRecordSchema.extend({
-  fields: z.object({
-    slug: z.string().optional(),
-    Name: z.string().optional(),
-    Location: z.string().optional(),
-    Summary: z.string().optional(),
-    Date: z.string().optional(),
-    LastModified: z.string().optional(),
-    Link: z.string().optional(),
-    LocationData: z.string().optional(),
-    Country: z.array(z.string()).optional(),
-    countryName: z.array(z.string()).optional(),
-    companyName: z.array(z.string()).optional(),
-    organisingGroupName: z.array(z.string()).optional(),
-    countryCode: z.array(z.string()).optional(),
-    countrySlug: z.array(z.string()).optional(),
-    Company: z.array(z.string()).optional(),
-    "Organising Groups": z.array(z.string()).optional(),
-    Category: z.array(z.string()).optional(),
-    CategoryName: z.array(z.string()).optional(),
-    CategoryEmoji: z.array(z.string()).optional(),
-    Document: z.array(attachmentSchema).optional(),
-    DisplayStyle: z.union([z.literal("Featured"), z.null()]).optional(),
-    hasPassedValidation: z.boolean().optional(),
-    Public: z.boolean().optional(),
-    cdn_urls: z.string().optional(),
-  }),
-});
-
-export const solidarityActionSchema = solidarityActionAirtableRecordSchema.and(
-  z.object({
-    geography: geographySchema,
-    summary: copyTypeSchema,
-    slug: z.string(),
-    cdnMap: z.array(airtableCDNMapSchema),
-    fields: z.any().and(
-      z.object({
-        Name: z.string(),
-        Date: z.string(),
-        Public: z.literal(true),
-        LastModified: z.string(),
-        hasPassedValidation: z.literal(true),
+export const solidarityActionAirtableRecordSchema = baseRecordWithSyncedCDNMapSchema.extend(
+  {
+    fields: z
+      .object({
+        slug: z.string().optional(),
+        Name: z.string().optional(),
+        Location: z.string().optional(),
+        Summary: z.string().optional(),
+        Date: z.string().optional(),
+        LastModified: z.string().optional(),
+        Link: z.string().optional(),
+        LocationData: z.string().optional(),
+        Country: z.array(z.string()).optional(),
+        countryName: z.array(z.string()).optional(),
+        companyName: z.array(z.string()).optional(),
+        organisingGroupName: z.array(z.string()).optional(),
+        countryCode: z.array(z.string()).optional(),
+        countrySlug: z.array(z.string()).optional(),
+        Company: z.array(z.string()).optional(),
+        "Organising Groups": z.array(z.string()).optional(),
+        Category: z.array(z.string()).optional(),
+        CategoryName: z.array(z.string()).optional(),
+        CategoryEmoji: z.array(z.string()).optional(),
+        Document: z.array(attachmentSchema).optional(),
+        DisplayStyle: z.literal("Featured").optional().nullable(),
+        hasPassedValidation: z.boolean().optional(),
+        Public: z.boolean().optional(),
       })
-    ),
-  })
+      .and(baseRecordWithSyncedCDNMapSchema.shape.fields),
+  }
 );
 
-export const blogPostSchema = baseRecordSchema.extend({
-  fields: z.object({
-    Slug: z.string().optional(),
-    ByLine: z.string().optional(),
-    Title: z.string(),
-    Image: z.array(attachmentSchema).optional(),
-    Summary: z.string().optional(),
-    Body: z.string(),
-    Date: z.string(),
-    Public: z.literal(true),
-  }),
-  body: copyTypeSchema,
-});
+export const solidarityActionSchema = solidarityActionAirtableRecordSchema
+  .and(formattedRecordWithCDNMapSchema)
+  .and(
+    z.object({
+      geography: geographySchema,
+      summary: copyTypeSchema,
+      slug: z.string(),
+      fields: solidarityActionAirtableRecordSchema.shape.fields.and(
+        z.object({
+          Name: z.string(),
+          Date: z.string(),
+          Public: z.literal(true),
+          LastModified: z.string(),
+          hasPassedValidation: z.literal(true),
+        })
+      ),
+    })
+  );
+
+export const blogPostAirtableRecordSchema = baseRecordWithSyncedCDNMapSchema.extend(
+  {
+    fields: z
+      .object({
+        Slug: z.string().optional(),
+        ByLine: z.string().optional(),
+        Title: z.string(),
+        Image: z.array(attachmentSchema).optional(),
+        Summary: z.string().optional(),
+        Body: z.string(),
+        Date: z.string(),
+        Public: z.literal(true),
+      })
+      .and(baseRecordWithSyncedCDNMapSchema.shape.fields),
+    body: copyTypeSchema,
+  }
+);
+
+export const blogPostSchema = formattedRecordWithCDNMapSchema.and(
+  blogPostAirtableRecordSchema
+);
 
 export const organisingGroupSchema = baseRecordSchema.extend({
   geography: geographySchema.pick({ country: true }),

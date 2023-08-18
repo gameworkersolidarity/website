@@ -5,16 +5,17 @@ import { format } from 'date-fns';
 import { DateTime } from './Date';
 
 export function BlogPostThumbnail({ blog: b }: { blog: BlogPost }) {
+  const image = b.cdnMap?.[0];
   return (
     <Link href={`/analysis/${b.fields.Slug}`} key={b.fields.Slug}>
       <article key={b.id} className='bg-white rounded-lg p-4 space-y-3 glowable cursor-pointer'>
-        {!!b.fields.Image?.[0] && (
+        {!!image && (
           <div className='rounded-lg shadow-gwPink'>
             <Image
               layout='responsive'
-              src={b.fields.Image[0].thumbnails.full?.url || b.fields.Image[0].url}
-              width={b.fields.Image[0].thumbnails.large.width}
-              height={b.fields.Image[0].thumbnails.large.height}
+              src={image.thumbnailURL || image.originalURL}
+              width={image.thumbnailWidth || image.originalWidth || 500}
+              height={image.thumbnailHeight || image.originalHeight || 250}
             />
           </div>
         )}

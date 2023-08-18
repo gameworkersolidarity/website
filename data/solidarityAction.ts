@@ -3,12 +3,12 @@ import { airtableBase } from './airtable';
 import env from 'env-var';
 import { solidarityActionSchema, openStreetMapReverseGeocodeResponseSchema, airtableCDNMapSchema } from './schema';
 import { QueryParams } from 'airtable/lib/query_params';
-import coords from 'country-coords'
 import { airtableFilterAND } from '../utils/airtable';
 import { parseMarkdown } from './markdown';
 import { geocodeOpenStreetMap } from './geo';
 import { countryDataForCode } from './country';
-import { z } from 'zod';
+import { generateCDNMap } from './cloudinary';
+import { RecordData } from 'airtable';
 
 export const formatSolidarityAction = async (record: SolidarityActionAirtableRecord): Promise<SolidarityAction> => {
   let _action: SolidarityActionAirtableRecord = JSON.parse(JSON.stringify(record))
@@ -16,17 +16,7 @@ export const formatSolidarityAction = async (record: SolidarityActionAirtableRec
   action.summary = parseMarkdown(_action.fields.Summary || '')
   action.geography = { country: [] }
   action.slug = _action.fields.slug || action.id
-  action.cdnMap = []
-  try {
-    // Parse and verify the JSON we store in the Airtable
-    const _cdnMap = _action.fields.cdn_urls ? JSON.parse(_action.fields.cdn_urls) : []
-    const validation = z.array(airtableCDNMapSchema).safeParse(_cdnMap)
-    if (validation.success) {
-      action.cdnMap = _cdnMap
-    }
-  } catch (e) {
-    console.error(e)
-  }
+  action.cdnMap = generateCDNMap(_action)
 
   let i = 0
   for (const countryCode of _action.fields.countryCode || []) {
@@ -172,4 +162,13 @@ export async function getSingleSolidarityAction (id: string) {
 
 export function actionUrl(action: SolidarityAction): string {
   return `/action/${action.slug}`
+}
+
+export async function updateSolidarityActions(updates: RecordData<any>[]) {
+  return new Promise<SolidarityActionAirtableRecord[]>((resolve, reject) => {
+    solidarityActionBase().update(updates, function (err, records) {
+      if (err) reject(err)
+      resolve(records)
+    });
+  })
 }

@@ -1,22 +1,27 @@
-import { BlogPost, StaticPage } from './types';
+import { BlogPost, BlogPostAirtableRecord, StaticPage } from './types';
 import { airtableBase } from './airtable';
 import env from 'env-var';
 import { blogPostSchema } from './schema';
 import { parseMarkdown } from './markdown';
+import { generateCDNMap } from './cloudinary';
+import { RecordData } from 'airtable';
 
-export const formatBlogPost = (blog: BlogPost): BlogPost => {
-  blog.body = parseMarkdown(blog.fields.Body || '')
+export const formatBlogPost = (blogRecord: BlogPostAirtableRecord): BlogPost | undefined => {
+  let blog: Omit<Partial<BlogPost>, 'cdnMap'> & { cdnMap?: BlogPost['cdnMap'] } = { ...blogRecord }
+  blog.body = parseMarkdown(blogRecord.fields.Body || '')
+  blog.cdnMap = generateCDNMap(blogRecord)
 
-  try {
-    // Remove any keys not expected by the parser
-    blog = blogPostSchema.parse(blog)
-  } catch(e) {
-    console.error(JSON.stringify(blog), e)
+  // Remove any keys not expected by the parser
+  const validatedBlog = blogPostSchema.safeParse(blog)
+  if (validatedBlog.success) {
+    console.log({ blog, validated: validatedBlog.data })
+    return validatedBlog.data as BlogPost
+  } else {
+    console.error(validatedBlog.error)
   }
-  return blog
 }
 
-const blogPostFields = ['Title', 'ByLine', 'Image', 'Body', 'Public', 'Summary', 'Date', 'Slug'] as Array<keyof BlogPost['fields']>
+const blogPostFields = ['Title', 'ByLine', 'Image', 'Body', 'Public', 'Summary', 'Date', 'Slug', 'cdn_urls'] as Array<keyof BlogPost['fields']>
 
 export const blogPostBase = () => airtableBase()<
   // @ts-ignore
@@ -40,7 +45,10 @@ export async function getBlogPosts (): Promise<Array<BlogPost>> {
     }).eachPage(function page(records, fetchNextPage) {
       try {
         records.forEach(function(record) {
-          blogPosts.push(formatBlogPost(record._rawJson))
+          const blogPost = formatBlogPost(record._rawJson)
+          if (blogPost) {
+            blogPosts.push(blogPost)
+          }
         });
         fetchNextPage();
       } catch (e) {
@@ -50,9 +58,11 @@ export async function getBlogPosts (): Promise<Array<BlogPost>> {
       try {
         if (err) { reject(err); return; }
         resolve(
-          blogPosts.filter(a =>
-            blogPostSchema.safeParse(a).success === true
-          )
+          blogPosts.filter(a => {
+            const validation = blogPostSchema.safeParse(a)
+            console.error(a, validation)
+            return validation.success
+          })
         )
       } catch (e) {
         reject(e)
@@ -73,10 +83,22 @@ export async function getSingleBlogPost (slug: string): Promise<BlogPost> {
         if (error || !records?.length) {
           return reject(error || `No record found for slug ${slug}`)
         }
-        return resolve(formatBlogPost(records[0]._rawJson))
+        const blogPost = formatBlogPost(records[0]._rawJson)
+        if (blogPost) {
+          return resolve(blogPost)
+        }
       } catch(e) {
         reject(e)
       }
     })
+  })
+}
+
+export async function updateBlogPosts(updates: RecordData<any>[]) {
+  return new Promise<BlogPostAirtableRecord[]>((resolve, reject) => {
+    blogPostBase().update(updates, function (err, records) {
+      if (err) reject(err)
+      resolve(records)
+    });
   })
 }

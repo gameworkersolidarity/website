@@ -2,48 +2,59 @@ import cloudinary from 'cloudinary'
 import env from 'env-var';
 import {
   SolidarityAction,
-  SolidarityActionAirtableRecord,
-  AirtableCDNMap
+  AirtableCDNMap,
+  BlogPost,
+  FormattedRecordWithCDNMap
 } from './types';
-import {
-  ensureArray
-} from '../utils/string';
-import {
-  solidarityActionBase
-} from './solidarityAction';
-import {
-  chunk
-} from 'lodash';
+import { ensureArray } from '../utils/string';
+import { updateSolidarityActions } from './solidarityAction';
+import { chunk } from 'lodash';
+import { Attachment, RecordData } from 'airtable';
+import { updateBlogPosts } from './blogPost';
+
+export async function syncBlogPostsToCDN(_blog: BlogPost | BlogPost[]) {
+  return syncAirtableRowToCDN<BlogPost>(_blog, 'Image', updateBlogPosts)
+}
 
 export async function syncSolidarityActionsToCDN(_action: SolidarityAction | SolidarityAction[]) {
-  const actions = ensureArray(_action)
+  return syncAirtableRowToCDN<SolidarityAction>(_action, 'Document', updateSolidarityActions)
+}
+
+//////// Generic-ified
+
+export async function syncAirtableRowToCDN<Record extends FormattedRecordWithCDNMap>(
+  _record: Record | Record[],
+  columnName: string,
+  updateRecords: (updateList: RecordData<any>[]) => Promise<any[]>
+) {
+  const records = ensureArray(_record)
   const updateList: Array<{
     id: string,
-    fields: Partial<SolidarityActionAirtableRecord['fields']>
+    fields: Partial<Record['fields']>
   }> = []
-  for (const action of actions) {
-    if (action.fields.Document?.length) {
+  for (const record of records) {
+    if (record.fields[columnName]?.length) {
       // Synchronise Docs and CDN Map column
-      const missingCDNMapEntry = action.fields.Document!.some(doc => !action.cdnMap.find(cdn => cdn.airtableDocID === doc.id))
-      const invalidCDNMapEntry = action.cdnMap.some(cdn => !action.fields.Document!.find(doc => doc.id === cdn.airtableDocID))
-      if (missingCDNMapEntry || invalidCDNMapEntry) {
+      const missingCDNMapEntry = record.fields[columnName]!.some((doc: Attachment) => !record.cdnMap?.find(cdn => cdn.airtableDocID === doc.id))
+      const invalidCDNMapEntry = record.cdnMap?.some(cdn => !record.fields[columnName]!.find((doc: Attachment) => doc.id === cdn.airtableDocID))
+      if (!missingCDNMapEntry || invalidCDNMapEntry) {
         // There's a mismatch between the docs and the CDN map, so we need to re-sync
         // First upload the docs to the CDN
-        const cdnPayload = await uploadSolidarityActionAttachmentsToCDN(action)
+        const cdnPayload = await uploadAirtableFilesToCDN(record, columnName)
         // Then sync the public URLs back to Airtable
         if (cdnPayload.length > 0) {
           updateList.push({
-            id: action.id,
+            id: record.id,
             fields: {
               cdn_urls: JSON.stringify(cdnPayload)
             }
           })
         }
       }
-    } else if (action.fields.cdn_urls) {
+    } else if (record.fields.cdn_urls) {
       // Clear CDNs to reflect the fact there are no docs
       updateList.push({
-        id: action.id,
+        id: record.id,
         fields: {
           cdn_urls: "[]"
         }
@@ -52,32 +63,34 @@ export async function syncSolidarityActionsToCDN(_action: SolidarityAction | Sol
   }
   let recordsUpdated = 0
   for (const chunkedUpdate of chunk(updateList, 10)) {
-    recordsUpdated += (await updateSolidarityActions(chunkedUpdate)).length
+    recordsUpdated += (await updateRecords(chunkedUpdate)).length
   }
   return recordsUpdated
 }
 
-async function uploadSolidarityActionAttachmentsToCDN(action: SolidarityAction) {
+async function uploadAirtableFilesToCDN(record: FormattedRecordWithCDNMap, columnName: string): Promise<AirtableCDNMap[]> {
   const cdnMap: AirtableCDNMap[] = []
-  for (const doc of (action.fields?.Document || [])) {
+  for (const file of ((record.fields[columnName] || []) as Attachment[])) {
     try {
       const [original, thumbnail] = await Promise.all([
-        uploadToCDN(doc.url, `${doc.id}-${doc.filename}`),
-        uploadToCDN(doc.thumbnails.large.url, `${doc.id}-${doc.filename}-thumbnail`)
+        uploadToCDN(file.url, `${file.id}-${encodeURIComponent(file.filename)}`),
+        file.thumbnails ? uploadToCDN(file.thumbnails.large.url, `${file.id}-${encodeURIComponent(file.filename)}-thumbnail`) : undefined
       ])
       if (!!original && !!thumbnail) {
         cdnMap.push({
-          filename: doc.filename,
-          filetype: doc.type,
-          airtableDocID: doc.id,
-          downloadURL: original.url,
+          filename: file.filename,
+          filetype: file.type,
+          airtableDocID: file.id,
+          originalURL: original.url,
+          originalWidth: original.width,
+          originalHeight: original.height,
           thumbnailURL: thumbnail.url,
           thumbnailWidth: thumbnail.width,
           thumbnailHeight: thumbnail.height,
         })
       }
     } catch (e) {
-      console.error(`Failed to upload ${doc.url} to CDN`, e)
+      console.error(`Failed to upload ${file.url} to CDN`, e)
     }
   }
   return cdnMap
@@ -119,17 +132,6 @@ export async function uploadToCloudinary(url: string, filename?: string) {
         return reject(error)
       }
       return resolve(result)
-    });
-  })
-}
-
-async function updateSolidarityActions(updates: any[]) {
-  return new Promise<SolidarityActionAirtableRecord[]>((resolve, reject) => {
-    solidarityActionBase().update(updates, function (err, records) {
-      if (err) {
-        reject(err)
-      }
-      resolve(records)
     });
   })
 }

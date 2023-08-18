@@ -16,7 +16,7 @@ import useSWR from 'swr';
 import { FilterContext } from '../components/Timeline';
 import { projectStrings } from '../data/site';
 import { actionUrl } from '../data/solidarityAction';
-import { Attachment, Country, SolidarityAction } from '../data/types';
+import { AirtableCDNMap, Attachment, Country, SolidarityAction } from '../data/types';
 import { usePrevious } from '../utils/state';
 import { DateTime } from './Date';
 import { defaultOGImageStack } from '../pages/_app';
@@ -320,17 +320,11 @@ export function SolidarityActionItem({ data }: { data: SolidarityAction }) {
   )
 }
 
-export function DocumentLink({ filename, filetype, thumbnailURL, thumbnailWidth, thumbnailHeight, downloadURL, withPreview }: {
-  filename: string
-  filetype: string
-  thumbnailURL: string
-  thumbnailWidth: number
-  thumbnailHeight: number
-  downloadURL: string
+export function DocumentLink({ filename, filetype, thumbnailURL, thumbnailWidth, thumbnailHeight, originalURL, originalWidth, originalHeight, withPreview }: AirtableCDNMap & {
   withPreview?: boolean
 }) {
   return (
-    <a href={downloadURL} className='block my-1 mr-2'>
+    <a href={originalURL} className='block my-1 mr-2'>
       <span className={cx(withPreview && 'block')}>
         <Emoji symbol='📑' label='File attachment' className='align-baseline' />
         &nbsp;
@@ -341,9 +335,9 @@ export function DocumentLink({ filename, filetype, thumbnailURL, thumbnailWidth,
       {withPreview && (
         <div className='inline-block overflow-hidden border border-black rounded-xl mt-4'>
           <Image
-            src={thumbnailURL}
-            width={thumbnailWidth}
-            height={thumbnailHeight}
+            src={thumbnailURL || originalURL}
+            width={thumbnailWidth || originalWidth}
+            height={thumbnailHeight || originalHeight}
           />
         </div>
       )}

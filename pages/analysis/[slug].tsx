@@ -15,6 +15,8 @@ type PageParams = { slug: string }
 export default function Page({ moreArticles, article, errorMessage }: PageProps) {
   if (!article) return <ErrorPage message={errorMessage} />
 
+  const image = article.cdnMap?.[0];
+
   return (
     <PageLayout>
       <NextSeo
@@ -23,12 +25,9 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
         openGraph={!!article.fields.Image?.[0] ? ({
           title: article.fields.Title,
           description: article.fields.Summary,
-          images: [
-            {
-              url: article.fields.Image[0].url,
-              alt: 'Game Worker Solidarity',
-            }
-          ]
+          images: article.cdnMap?.filter(image => image.filetype.includes("image/")).map(image => ({
+            url: image.originalURL
+          }))
         }) : ({
           title: article.fields.Title,
           description: article.fields.Summary,
@@ -40,7 +39,7 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
           <div className='space-x-4 text-sm font-semibold text-left'>
             <DateTime date={article.fields.Date} />
           </div>
-          {!!article.fields.Image?.[0] ? (
+          {!!image ? (
             <>
               <div className='flex flex-col justify-center space-y-4'>
                 <h1 className='font-identity text-5xl md:text-6xl'>{article.fields.Title}</h1>
@@ -49,9 +48,9 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
               <div className='rounded-lg shadow-gwPink overflow-hidden'>
                 <Image
                   layout='responsive'
-                  src={article.fields.Image[0].thumbnails.full?.url || article.fields.Image[0].url}
-                  width={article.fields.Image[0].thumbnails.large.width}
-                  height={article.fields.Image[0].thumbnails.large.height}
+                  src={image.originalURL}
+                  width={image.originalWidth || 500}
+                  height={image.originalHeight || 250}
                 />
               </div>
               <div className='pb-5' />
