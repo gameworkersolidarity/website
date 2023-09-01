@@ -59,6 +59,9 @@ export const getStaticProps: GetStaticProps<
       categories: await getCategories(),
       countries: await getCountries(),
       groups: await getOrganisingGroups()
-    }
+    },
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }

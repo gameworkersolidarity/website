@@ -66,6 +66,9 @@ export const getStaticProps: GetStaticProps<
     props: {
       group,
       errorMessage
-    }
+    },
+    revalidate: env.get('PAGE_TTL').default(
+      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
+    ).asInt(), // In seconds
   }
 }
