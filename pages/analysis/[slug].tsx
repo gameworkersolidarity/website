@@ -83,6 +83,8 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
   )
 }
 
+/analysis/existed-before-21231
+
 export const getStaticPaths: GetStaticPaths = async (context) => {
   const links = (await getBlogPosts()).filter(page => typeof page.fields.Slug === 'string')
   return {
@@ -117,9 +119,6 @@ export const getStaticProps: GetStaticProps<
       article,
       moreArticles: moreArticles.filter(a => a.id !== article.id),
       errorMessage
-    },
-    revalidate: env.get('PAGE_TTL').default(
-      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
-    ).asInt(), // In seconds
+    }
   }
 }

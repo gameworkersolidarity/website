@@ -44,9 +44,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
       blogPosts: await getBlogPosts() || []
-    },
-    revalidate: env.get('PAGE_TTL').default(
-      env.get('NODE_ENV').asString() === 'production' ? 60 : 5
-    ).asInt(), // In seconds
+    }
   }
 }
