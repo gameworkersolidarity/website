@@ -1,13 +1,30 @@
-import Emoji from 'a11y-react-emoji';
 import Link from 'next/link';
-import { StaticPage, MenuItem } from '../data/types';
-import qs from 'query-string';
-import useSWR from 'swr';
-import { doNotFetch } from '../utils/swr';
-import { LinksData } from '../pages/api/links';
 import cx from 'classnames';
 import useScrollPosition from '@react-hook/window-scroll'
 import { useRef } from 'react';
+
+type Links = Array<{ url: string, label: string }>
+
+const headerLinks: Links = [
+  // All header links as JSON objects
+  { url: '/analysis', label: 'Analysis' },
+  { url: '/start-organising', label: 'Organise!' },
+  { url: '/submit', label: 'Submit Action' },
+  { url: '/data', label: 'Data' },
+  { url: '/about', label: 'About' }
+]
+
+const footerLinks: Links = [
+  // All footer links as JSON objects
+  { url: '/analysis', label: 'Analysis' },
+  { url: '/start-organising', label: 'Organise!' },
+  { url: '/submit', label: 'Submit Action' },
+  { url: '/data', label: 'Data' },
+  { url: '/about', label: 'About' },
+  { url: 'https://github.com/gameworkersolidarity/website', label: 'GitHub' },
+  { url: 'https://twitter.com/GWSolidarity', label: 'Twitter' },
+  { url: 'mailto:hello@gameworkersolidarity.com', label: 'Email' }
+]
 
 export default function PageLayout ({ children }: { children: any }) {
   return (
@@ -24,11 +41,6 @@ export default function PageLayout ({ children }: { children: any }) {
 }
 
 function Header ({  }: {  }) {
-  const { data } = useSWR<{ headerLinks: MenuItem[] }>('/api/links?placement=Header', { 
-    // Data should have been loaded by _app.tsx already,
-    ...doNotFetch()
-  })
-  
   const headerRef = useRef<HTMLDivElement>(null)
   const scrollY = useScrollPosition(60 /*fps*/)
   const isFloating = scrollY > ((headerRef.current?.clientHeight || 100) * 0.75)
@@ -49,14 +61,14 @@ function Header ({  }: {  }) {
     </header>
     <nav className='top-0 sticky z-40 py-3 bg-gwPink' id='sticky-header'>
       <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start -mx-1 space-x-1 md:-mx-2 md:space-x-3 items-center'>
-        {data?.headerLinks?.map?.((link, i) => (
+        {headerLinks?.map?.((link, i) => (
           <a
-            href={link.fields.url}
-            key={link.fields.url}
+            href={link.url}
+            key={link.url}
             className='order-last md:order-1'
           >
             <span className='nav-link'>
-              {link.fields.label}
+              {link.label}
             </span>
           </a>
         ))}
@@ -73,23 +85,18 @@ function Header ({  }: {  }) {
   )
 }
 
-function Footer ({ }: { }) {
-  const { data } = useSWR<{ footerLinks: MenuItem[] }>('/api/links?placement=Header', { 
-    // Data should have been loaded by _app.tsx already,
-    ...doNotFetch()
-  })
-
+function Footer () {
   return (
     <footer className='mt-auto bg-gwPink text-sm'>
       <div className="content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top">
         <div className='space-y-4 flex-grow'>
           <nav className='flex flex-wrap -mx-1 md:-mx-2'>
-            {data?.footerLinks?.map?.((link, i) => (
+            {footerLinks?.map?.((link, i) => (
               <a
-                href={link.fields.url}
-                key={link.fields.url}
+                href={link.url}
+                key={link.url}
               >
-                <span className='nav-link'>{link.fields.label}</span>
+                <span className='nav-link'>{link.label}</span>
               </a>
             ))}
           </nav>
