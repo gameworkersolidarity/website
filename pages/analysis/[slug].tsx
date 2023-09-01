@@ -83,8 +83,6 @@ export default function Page({ moreArticles, article, errorMessage }: PageProps)
   )
 }
 
-/analysis/existed-before-21231
-
 export const getStaticPaths: GetStaticPaths = async (context) => {
   const links = (await getBlogPosts()).filter(page => typeof page.fields.Slug === 'string')
   return {

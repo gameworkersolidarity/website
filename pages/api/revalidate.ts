@@ -1,13 +1,19 @@
 // 1. set REVALIDATE_SECRET_TOKEN in DO
 // 2. trigger webhook with REVALIDATE_SECRET_TOKEN and path
 
-export default async function handler(req, res) {
-  const secret = req.query.secret
-  const path = req.query.path
+import { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const secret = req.query.secret?.toString()
+  const path = req.query.path?.toString()
 
   // Check for secret to confirm this is a valid request
-  if (secret !== process.env.REVALIDATE_SECRET_TOKEN) {
+  if (!secret || secret !== process.env.REVALIDATE_SECRET_TOKEN) {
     return res.status(401).json({ message: 'Invalid token' })
+  }
+
+  if (!path) {
+    return res.status(400).json({ message: 'Invalid path' })
   }
  
   try {
