@@ -336,8 +336,8 @@ export function DocumentLink({ filename, filetype, thumbnailURL, thumbnailWidth,
         <div className='inline-block overflow-hidden border border-black rounded-xl mt-4'>
           <Image
             src={thumbnailURL || originalURL}
-            width={thumbnailWidth || originalWidth}
-            height={thumbnailHeight || originalHeight}
+            width={thumbnailWidth || originalWidth || 300}
+            height={thumbnailHeight || originalHeight || 300 * (297 / 210) /** A4 proportional height */}
           />
         </div>
       )}

@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 type PageProps = { action: SolidarityAction | null, errorMessage?: string }
-type PageParams = { actionId: string }
+type PageParams = { actionId: string, page?: string }
 
 export default function Page({ action, errorMessage }: PageProps) {
   const router = useRouter()
@@ -42,7 +42,8 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
   return {
     paths: links.map(page => ({
       params: {
-        actionId: page.slug
+        actionId: page.slug,
+        page: JSON.stringify(page)
       }
     })),
     fallback: true
@@ -57,7 +58,11 @@ export const getStaticProps: GetStaticProps<
   let action
   let errorMessage = ''
   try {
-    action = await getSingleSolidarityAction(context.params.actionId) || null
+    if (context.params.page) {
+      action = JSON.parse(context.params.page)
+    } else {
+      action = await getSingleSolidarityAction(context.params.actionId) || null
+    }
   } catch (e) {
     console.error("No action was found", e)
     errorMessage = e.toString()
