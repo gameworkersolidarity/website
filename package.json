@@ -41,7 +41,6 @@
     "d3": "6",
     "date-fns": "^2.22.1",
     "env-var": "^7.0.1",
-    "fathom-client": "^3.1.0",
     "fuse.js": "^6.4.6",
     "highlight-words-core": "^1.2.2",
     "jest": "^27.4.5",

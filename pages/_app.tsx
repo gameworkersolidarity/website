@@ -1,4 +1,3 @@
-import * as Fathom from 'fathom-client';
 import { DefaultSeo } from 'next-seo';
 import App from 'next/app';
 import { useRouter } from 'next/router';
@@ -22,17 +21,6 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const canonicalURL = useCanonicalURL()
 
   const router = useRouter()
-
-  useEffect(() => {
-    Fathom.load('OZSKHUQE', {
-      includedDomains: ['gameworkersolidarity.com', 'www.gameworkersolidarity.com'],
-      url: 'https://skunk.gameworkersolidarity.com/script.js',
-    })
-
-    function onRouteChangeComplete() {
-      Fathom.trackPageview()
-    }
-
 
     router.events.on('routeChangeComplete', onRouteChangeComplete)
 
