@@ -18,15 +18,6 @@ export const defaultOGImageStack = [
 function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
   const canonicalURL = useCanonicalURL()
 
-  const router = useRouter()
-
-    router.events.on('routeChangeComplete', onRouteChangeComplete)
-
-    return () => {
-      router.events.off('routeChangeComplete', onRouteChangeComplete)
-    }
-  }, [])
-
   return (
     <SWRConfig value={{
       initialData: { ...pageProps, headerLinks, footerLinks },
