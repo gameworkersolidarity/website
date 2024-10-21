@@ -121,7 +121,7 @@ export const OrganisingGroupCard = ({ data, withPadding = true, withContext = tr
                   </svg>
                   &nbsp;
                   <span className='align-baseline underline text-inherit'>
-                    @{new URL(data.fields.Bluesky).pathname.replace(/\//gmi, '')}
+                    @{new URL(data.fields.Bluesky).pathname.replace(/\/profile\//gmi, '')}
                   </span>
                 </a>
               )}
