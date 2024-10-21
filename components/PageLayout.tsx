@@ -22,6 +22,7 @@ const footerLinks: Links = [
   { url: '/data', label: 'Data' },
   { url: '/about', label: 'About' },
   { url: 'https://github.com/gameworkersolidarity/website', label: 'GitHub' },
+  { url: 'https://bsky.app/profile/gameworkersolidarity.com', label: 'Bluesky' },
   { url: 'https://twitter.com/GWSolidarity', label: 'Twitter' },
   { url: 'mailto:hello@gameworkersolidarity.com', label: 'Email' }
 ]

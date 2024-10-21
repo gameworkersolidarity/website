@@ -257,6 +257,7 @@ export const organisingGroupSchema = baseRecordSchema.extend({
     countryCode: z.array(z.string()).optional(),
     IsUnion: z.boolean().optional(),
     Website: z.string().optional(),
+    Bluesky: z.string().optional(),
     Twitter: z.string().optional(),
     "Solidarity Actions": z.array(z.string()).optional(),
     LastModified: z.string(),

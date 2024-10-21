@@ -256,6 +256,7 @@ export interface OrganisingGroup extends BaseRecord {
     countryCode?: string[]
     IsUnion?: boolean
     Website?: string
+    Bluesky?: string
     Twitter?: string
     // 'Official Name':   string;
     'Solidarity Actions'?: string[]

@@ -4,6 +4,7 @@ export const projectStrings = {
   description: env.get('SITE_DESCRIPTION').default("Preserving and analysing the history of game worker solidarity").asString(),
   baseUrl: env.get('SITE_BASE_URL').default("https://gameworkersolidarity.com").asString(),
   twitterHandle: env.get('TWITTER_HANDLE').default('@GWSolidarity').asString(),
+  blueskyProfile: env.get('BLUESKY_PROFILE').default('https://bsky.app/profile/gameworkersolidarity.com').asString(),
   email: env.get('EMAIL_ADDRESS').default('hello@gameworkersolidarity.com').asString(),
   github: env.get('GITHUB_REPO_URL').default('https://github.com/gameworkersolidarity/website').asString(),
 }

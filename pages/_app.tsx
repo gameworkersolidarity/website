@@ -42,6 +42,10 @@ function MyApp({ Component, pageProps, headerLinks, footerLinks }) {
           description: projectStrings.description,
           images: defaultOGImageStack
         }}
+        bluesky={{
+          site: projectStrings.blueskyProfile,
+          cardType: 'summary_large_image',
+        }}
         twitter={{
           handle: projectStrings.twitterHandle,
           site: projectStrings.twitterHandle,
