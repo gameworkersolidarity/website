@@ -36,8 +36,10 @@ export const formatSolidarityAction = async (record: SolidarityActionAirtableRec
       // @ts-ignore
       // Parse and verify the JSON we store in the Airtable
       const { data, error } = openStreetMapReverseGeocodeResponseSchema.safeParse(_data)
+      
       if (error) {
-        console.error(_data, error)
+        // console.error(_action.fields.Name)
+        // console.error(_data, error)
       } else if (data) {
         action.geography.location = data
         solidarityActionBase().update(_action.id, {
@@ -167,7 +169,10 @@ export function actionUrl(action: SolidarityAction): string {
 export async function updateSolidarityActions(updates: RecordData<any>[]) {
   return new Promise<SolidarityActionAirtableRecord[]>((resolve, reject) => {
     solidarityActionBase().update(updates, function (err, records) {
-      if (err) reject(err)
+      if (err) {
+        console.error(records)
+        reject(err)
+      }
       resolve(records)
     });
   })
