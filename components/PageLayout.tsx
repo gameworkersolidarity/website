@@ -27,7 +27,7 @@ const footerLinks: Links = [
   { url: 'mailto:hello@gameworkersolidarity.com', label: 'Email' }
 ]
 
-export default function PageLayout ({ children }: { children: any }) {
+export default function PageLayout({ children }: { children: any }) {
   return (
     <div className='min-h-screen flex flex-col relative'>
       <Header />
@@ -41,52 +41,57 @@ export default function PageLayout ({ children }: { children: any }) {
   )
 }
 
-function Header ({  }: {  }) {
+function Header({ }: {}) {
   const headerRef = useRef<HTMLDivElement>(null)
   const scrollY = useScrollPosition(60 /*fps*/)
   const isFloating = scrollY > ((headerRef.current?.clientHeight || 100) * 0.75)
 
   return (
     <>
-    <header className='py-5 bg-gwPink space-y-2' ref={headerRef} id='static-header'>
-      <div className='content-wrapper'>
-        <div className='sm:flex sm:space-x-4 space-y-2 sm:space-y-0 items-top'>
-          <div className='leading-none text-4xl lg:text-[4vw] sm:w-1/2 font-identity cursor-pointer hover:text-gwPinkLight flex-shrink-0'>
+      <header className='pt-3 bg-gwPink space-y-2' ref={headerRef} id='static-header'>
+        <div className='content-wrapper'>
+          <div className='sm:flex sm:space-x-4 space-y-2 sm:space-y-0 items-center'>
+            <div className='leading-none flex-shrink-0'>
+              <a href='/'>
+                <img src='/images/GameWorkerSolidarity_Logo_Transparent.png' width="100" height="100"></img>
+              </a>
+            </div>
+            <div className='leading-none text-4xl lg:text-[4vw] sm:w-1/2 font-identity cursor-pointer hover:text-gwPinkLight flex-shrink-0'>
+              <Link href='/'>Game Worker Solidarity</Link>
+            </div>
+            <p className='leading-normal sm:leading-tight text-xl xl:text-2xl sm:w-1/2 block text-200 font-light'>
+              Mapping and documenting collective movements by game workers striving to improve their working conditions.
+            </p>
+          </div>
+        </div>
+      </header>
+      <nav className='pl-4 top-0 sticky z-40 py-3 bg-gwPink' id='sticky-header'>
+        <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start -mx-1 space-x-1 md:-mx-2 md:space-x-3 items-center'>
+          {headerLinks?.map?.((link, i) => (
+            <a
+              href={link.url}
+              key={link.url}
+              className='order-last md:order-1'
+            >
+              <span className='nav-link'>
+                {link.label}
+              </span>
+            </a>
+          ))}
+          <div className={cx(
+            isFloating ? 'opacity-100 max-w-6xl translate-x-0' : 'opacity-0 translate-x-2',
+            'hidden md:block transform ml-auto duration-200 transition-all leading-none text-xl lg:text-2xl font-identity cursor-pointer hover:text-gwPinkLight flex-shrink-0 order-1 md:order-last'
+          )} style={{ marginLeft: 'auto' }}>
             <Link href='/'>Game Worker Solidarity</Link>
           </div>
-          <p className='leading-normal sm:leading-tight text-xl xl:text-2xl sm:w-1/2 block text-200 max-w-2xl font-light flex-shrink-0'>
-            Mapping and documenting collective movements by game workers striving to improve their working conditions.
-          </p>
         </div>
-      </div>
-    </header>
-    <nav className='top-0 sticky z-40 py-3 bg-gwPink' id='sticky-header'>
-      <div className='text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start -mx-1 space-x-1 md:-mx-2 md:space-x-3 items-center'>
-        {headerLinks?.map?.((link, i) => (
-          <a
-            href={link.url}
-            key={link.url}
-            className='order-last md:order-1'
-          >
-            <span className='nav-link'>
-              {link.label}
-            </span>
-          </a>
-        ))}
-        <div className={cx(
-          isFloating ? 'opacity-100 max-w-6xl translate-x-0' : 'opacity-0 translate-x-2',
-          'hidden md:block transform ml-auto duration-200 transition-all leading-none text-xl lg:text-2xl font-identity cursor-pointer hover:text-gwPinkLight flex-shrink-0 order-1 md:order-last'
-        )} style={{ marginLeft: 'auto'}}>
-          <Link href='/'>Game Worker Solidarity</Link>
-        </div>
-      </div>
-    </nav>
-    <div id='portal-node' />
+      </nav>
+      <div id='portal-node' />
     </>
   )
 }
 
-function Footer () {
+function Footer() {
   return (
     <footer className='mt-auto bg-gwPink text-sm'>
       <div className="content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top">
