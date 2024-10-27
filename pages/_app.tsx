@@ -12,6 +12,8 @@ export const defaultOGImageStack = [
   {
     url: projectStrings.baseUrl + `/images/game-workers-share-card-new.png`,
     alt: 'Game Worker Solidarity',
+    width: 955,
+    height: 500
   }
 ]
 
