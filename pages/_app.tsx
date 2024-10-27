@@ -10,7 +10,7 @@ import { doNotFetch } from '../utils/swr';
 
 export const defaultOGImageStack = [
   {
-    url: projectStrings.baseUrl + `/images/game-workers-share-card.png`,
+    url: projectStrings.baseUrl + `/images/game-workers-share-card-new.png`,
     alt: 'Game Worker Solidarity',
   }
 ]
