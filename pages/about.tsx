@@ -43,7 +43,7 @@ export default function Page({ article, errorMessage }: PageProps) {
                 </section>
                 <section className='space-y-3'>
                   <h2 className='font-semibold text-lg'>Additional Help From</h2>
-                  <p>Pablo Lopez Soriano, Game worker and union organizer, IWGB.&nbsp;<a href='https://twitter.com/kednar' className='link'>@kednar</a></p>
+                  <p>Pablo Lopez Soriano, Game worker and union organizer, IWGB.&nbsp;<a href='https://fosstodon.org/@kednar' className='link'>@kednar</a></p>
                   <p>Michelle Phan, Research Assistant, University of Toronto.&nbsp;<a href='https://twitter.com/phanny' className='link'>@phanny</a></p>
                 </section>
                 <section className='space-y-3'>
