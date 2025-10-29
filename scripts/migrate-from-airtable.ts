@@ -233,7 +233,7 @@ async function migrateCountries(payload: any) {
 
       const countryData = {
         airtableId: record.id,
-        Name: fields.Name || '',
+        Name: fields.Name.trim() || '',
         countryCode: fields.countryCode || '',
         Slug: slug,
         Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
@@ -401,7 +401,7 @@ async function migrateOrganisingGroups(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const name = fields.Name
+      const name = fields.Name.trim()
       const slug = fields.slug
 
       if (!name) {
@@ -479,7 +479,7 @@ async function migrateSolidarityActions(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const name = fields.Name
+      const name = fields.Name.trim()
       const slug = fields.slug
 
       if (!name || !fields.Date) {
@@ -588,7 +588,7 @@ async function migrateBlogPosts(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const title = fields.Title
+      const title = fields.Title.trim()
       const slug = fields.Slug
 
       if (!title || !fields.Date) {
