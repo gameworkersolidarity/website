@@ -51,18 +51,18 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  plugins: [
-    cloudinaryStorage({
-      config: {
-        cloud_name: env.get('CLOUDINARY_NAME').required().asString(),
-        api_key: env.get('CLOUDINARY_API_KEY').required().asString(),
-        api_secret: env.get('CLOUDINARY_API_SECRET').required().asString(),
-      },
-      collections: {
-        media: true, // Enable for media collection
-        // Add more collections as needed
-      },
-      folder: 'gws-media', // Optional, defaults to 'payload-media'
-    }),
-  ],
+  // plugins: [
+  //   cloudinaryStorage({
+  //     config: {
+  //       cloud_name: env.get('CLOUDINARY_NAME').required().asString(),
+  //       api_key: env.get('CLOUDINARY_API_KEY').required().asString(),
+  //       api_secret: env.get('CLOUDINARY_API_SECRET').required().asString(),
+  //     },
+  //     collections: {
+  //       media: true, // Enable for media collection
+  //       // Add more collections as needed
+  //     },
+  //     folder: 'gws-media', // Optional, defaults to 'payload-media'
+  //   }),
+  // ],
 })

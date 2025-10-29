@@ -48,10 +48,12 @@ The script migrates data in the following order:
 ## Features
 
 - **Idempotent**: Running the script multiple times is safe - it won't create duplicates
-- **Relationship Resolution**: Automatically resolves relationships between entities
+- **Relationship Resolution**: Automatically resolves relationships between entities using Airtable IDs
 - **Rich Text Conversion**: Converts HTML content to Lexical rich text format
+- **File Upload**: Downloads attachments from Airtable and uploads them to Payload CMS Media collection
 - **Error Handling**: Skips problematic records and continues migration
 - **Progress Reporting**: Shows real-time progress and summary statistics
+- **Deduplication**: Avoids re-uploading the same files by tracking URLs
 
 ## Field Mappings
 
@@ -102,16 +104,23 @@ The script migrates data in the following order:
 - `Slug` → Slug
 - `Title` → Title
 - `ByLine` → ByLine
+- `Image` (attachments) → Image (uploads to Media collection, uses first image)
 - `Summary` → Summary (converted to rich text)
 - `Body` → Body (converted to rich text)
 - `Date` → Date
 - `Public` → Public
 
+### Solidarity Actions - Files
+- `Document` (attachments array) → Document (uploads all attachments to Media collection)
+
 ## Notes
 
 - The script uses Payload's Lexical rich text format for rich text fields
-- Relationships are resolved using name/slug lookups with caching
+- Relationships are resolved using Airtable IDs for accurate mapping
+- Files are downloaded from Airtable and uploaded to Payload's Media collection
+- File uploads are cached by URL to avoid duplicates
+- Large files (>10MB) are skipped with a warning
 - HTML tags are stripped from content when converting to rich text
 - Date fields are parsed and converted to ISO format
-- The script checks for existing records to avoid duplicates
+- The script checks for existing records using `airtableId` to avoid duplicates
 

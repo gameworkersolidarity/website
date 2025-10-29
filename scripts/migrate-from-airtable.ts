@@ -8,6 +8,9 @@ import { airtableBase } from '../airtable'
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
 import env from 'env-var'
+import { tmpdir } from 'os'
+import { join } from 'path'
+import { writeFile, unlink } from 'fs/promises'
 
 interface AirtableRecord {
   id: string
@@ -44,6 +47,9 @@ const categoryIdMap = new Map<string, string>()
 const organisingGroupIdMap = new Map<string, string>()
 const solidarityActionIdMap = new Map<string, string>()
 const blogPostIdMap = new Map<string, string>()
+
+// Maps: Airtable attachment URL -> Payload Media ID (to avoid re-uploading)
+const mediaUrlMap = new Map<string, string>()
 
 function parseRichText(html: string) {
   // Convert HTML to a simple Lexical JSON structure
@@ -83,6 +89,127 @@ function parseDate(dateString: string | undefined): string | undefined {
   // Try to parse the date string
   const date = new Date(dateString)
   return isNaN(date.getTime()) ? undefined : date.toISOString()
+}
+
+/**
+ * Download file from URL and upload to Payload Media collection
+ */
+async function uploadFileToPayload(
+  payload: any,
+  attachmentUrl: string,
+  filename: string,
+  altText: string = filename,
+): Promise<string | null> {
+  try {
+    // Check if we've already uploaded this file
+    const existingMediaId = mediaUrlMap.get(attachmentUrl)
+    if (existingMediaId) {
+      console.log(`  ✓ File already uploaded: ${filename}`)
+      return existingMediaId
+    }
+
+    // If the file exists in the media collection (search by filename) then add it to the map
+    const existingMedia = await payload.find({
+      collection: 'media',
+      where: { filename: { equals: filename } },
+      limit: 1,
+    })
+    if (existingMedia.docs.length > 0) {
+      mediaUrlMap.set(attachmentUrl, existingMedia.docs[0].id)
+      console.log(`  ✓ File already uploaded: ${filename}`)
+      return existingMedia.docs[0].id
+    }
+
+    console.log(`  📥 Downloading: ${filename}`)
+
+    // Download file
+    const response = await fetch(attachmentUrl)
+    if (!response.ok) {
+      console.warn(`  ⚠️  Failed to download ${filename}: ${response.statusText}`)
+      return null
+    }
+
+    const tempFilePath = join(tmpdir(), `airtable-${Date.now()}-${filename}`)
+
+    // Save to temporary file
+    const buffer = await response.arrayBuffer()
+    await writeFile(tempFilePath, Buffer.from(buffer))
+
+    console.log(`  📤 Uploading to Payload: ${filename}`)
+
+    // Read the file
+    const { readFile } = await import('fs/promises')
+    const fileBuffer = await readFile(tempFilePath)
+
+    // Create file object for Payload
+    const file = {
+      data: fileBuffer,
+      name: filename,
+      mimetype: response.headers.get('content-type') || 'application/octet-stream',
+      size: fileBuffer.length,
+    }
+
+    // Upload to Payload
+    const uploadResult = await payload.create({
+      collection: 'media',
+      data: { alt: altText },
+      file: file as any,
+    })
+
+    // Clean up temp file
+    await unlink(tempFilePath)
+
+    const mediaId = uploadResult.id.toString()
+    mediaUrlMap.set(attachmentUrl, mediaId)
+    console.log(`  ✓ Uploaded successfully: ${filename}`)
+
+    return mediaId
+  } catch (error) {
+    console.error(`  ✗ Error uploading ${filename}:`, error)
+    return null
+  }
+}
+
+/**
+ * Process Airtable attachments and upload to Payload
+ * Returns array of Payload media IDs
+ */
+async function processAttachments(
+  payload: any,
+  attachments: any[] | undefined,
+  contextName: string = 'attachment',
+): Promise<string[]> {
+  if (!attachments || !Array.isArray(attachments)) {
+    return []
+  }
+
+  const mediaIds: string[] = []
+
+  for (const attachment of attachments) {
+    const url = attachment.url
+    const filename = attachment.filename
+    const size = attachment.size
+
+    if (!url || !filename) {
+      console.warn(`  ⏭️  Skipping ${contextName}: missing URL or filename`)
+      continue
+    }
+
+    // Skip if file is too large (e.g., > 10MB)
+    if (size && size > 10 * 1024 * 1024) {
+      console.warn(
+        `  ⏭️  Skipping ${filename}: file too large (${Math.round(size / 1024 / 1024)}MB)`,
+      )
+      continue
+    }
+
+    const mediaId = await uploadFileToPayload(payload, url, filename)
+    if (mediaId) {
+      mediaIds.push(mediaId)
+    }
+  }
+
+  return mediaIds
 }
 
 async function migrateCountries(payload: any) {
@@ -394,6 +521,9 @@ async function migrateSolidarityActions(payload: any) {
         }
       }
 
+      // Process document attachments
+      const documentIds = await processAttachments(payload, fields.Document, `document for ${name}`)
+
       const solidarityActionData = {
         airtableId: record.id,
         slug: slug || undefined,
@@ -408,6 +538,7 @@ async function migrateSolidarityActions(payload: any) {
         Company: companyIds.length > 0 ? companyIds : undefined,
         OrganisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
         Category: categoryIds.length > 0 ? categoryIds : undefined,
+        Document: documentIds.length > 0 ? documentIds : undefined,
         DisplayStyle: fields.DisplayStyle === 'Featured' ? 'Featured' : undefined,
         hasPassedValidation: fields.hasPassedValidation || false,
         Public: fields.Public || false,
@@ -466,11 +597,16 @@ async function migrateBlogPosts(payload: any) {
         continue
       }
 
+      // Process image attachments
+      const imageIds = await processAttachments(payload, fields.Image, `image for ${title}`)
+      const imageId = imageIds.length > 0 ? imageIds[0] : undefined
+
       const blogPostData = {
         airtableId: record.id,
         Slug: slug || undefined,
         ByLine: fields.ByLine || undefined,
         Title: title,
+        Image: imageId,
         Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
         Body: parseRichText(fields.Body || ''),
         Date: parseDate(fields.Date)!,
