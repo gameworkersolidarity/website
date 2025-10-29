@@ -1,0 +1,67 @@
+import { slugField, type CollectionConfig } from 'payload'
+
+export const OrganisingGroups: CollectionConfig = {
+  slug: 'organisingGroups',
+  admin: {
+    useAsTitle: 'Name',
+  },
+  access: {
+    read: () => true,
+  },
+  fields: [
+    {
+      name: 'airtableId',
+      type: 'text',
+      unique: true,
+      admin: {
+        description: 'Legacy Airtable ID for URL redirects',
+      },
+      hidden: true,
+    },
+    slugField({
+      fieldToUse: 'Name',
+    }),
+    {
+      name: 'Name',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'FullName',
+      type: 'text',
+    },
+    {
+      name: 'Country',
+      type: 'relationship',
+      relationTo: 'countries',
+      hasMany: true,
+    },
+    {
+      name: 'IsUnion',
+      type: 'checkbox',
+    },
+    {
+      name: 'Website',
+      type: 'text',
+    },
+    {
+      name: 'Bluesky',
+      type: 'text',
+    },
+    {
+      name: 'Twitter',
+      type: 'text',
+    },
+    {
+      name: 'SolidarityActions',
+      type: 'relationship',
+      relationTo: 'solidarityActions',
+      hasMany: true,
+    },
+    {
+      name: 'LastModified',
+      type: 'date',
+      required: true,
+    },
+  ],
+}

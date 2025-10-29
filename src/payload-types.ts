@@ -69,6 +69,14 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    staticPages: StaticPage;
+    menuItems: MenuItem;
+    blogPosts: BlogPost;
+    countries: Country;
+    companies: Company;
+    categories: Category;
+    organisingGroups: OrganisingGroup;
+    solidarityActions: SolidarityAction;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,6 +85,14 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    staticPages: StaticPagesSelect<false> | StaticPagesSelect<true>;
+    menuItems: MenuItemsSelect<false> | MenuItemsSelect<true>;
+    blogPosts: BlogPostsSelect<false> | BlogPostsSelect<true>;
+    countries: CountriesSelect<false> | CountriesSelect<true>;
+    companies: CompaniesSelect<false> | CompaniesSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>;
+    solidarityActions: SolidarityActionsSelect<false> | SolidarityActionsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -144,6 +160,67 @@ export interface User {
 export interface Media {
   id: number;
   alt: string;
+  /**
+   * Cloudinary Media Information
+   */
+  cloudinary?: {
+    /**
+     * Cloudinary Public ID (used for transformations)
+     */
+    public_id?: string | null;
+    /**
+     * Type of the resource (image, video, raw)
+     */
+    resource_type?: string | null;
+    /**
+     * File format
+     */
+    format?: string | null;
+    /**
+     * Secure delivery URL
+     */
+    secure_url?: string | null;
+    /**
+     * File size in bytes
+     */
+    bytes?: number | null;
+    /**
+     * Creation timestamp
+     */
+    created_at?: string | null;
+    /**
+     * Current version number
+     */
+    version?: string | null;
+    /**
+     * Unique version identifier
+     */
+    version_id?: string | null;
+    /**
+     * Width in pixels
+     */
+    width?: number | null;
+    /**
+     * Height in pixels
+     */
+    height?: number | null;
+    /**
+     * Duration in seconds (for videos)
+     */
+    duration?: number | null;
+    /**
+     * Number of pages (for PDFs)
+     */
+    pages?: number | null;
+    /**
+     * Which page of the PDF to use for thumbnails (changes will apply after saving)
+     */
+    selected_page?: number | null;
+    /**
+     * URL for the thumbnail image (automatically generated for PDFs)
+     */
+    thumbnail_url?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -155,6 +232,271 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staticPages".
+ */
+export interface StaticPage {
+  id: number;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  Title: string;
+  Summary?: string | null;
+  Body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  Public?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "menuItems".
+ */
+export interface MenuItem {
+  id: number;
+  label: string;
+  url: string;
+  placement: ('Header' | 'Footer')[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogPosts".
+ */
+export interface BlogPost {
+  id: number;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  ByLine?: string | null;
+  Title: string;
+  Image?: (number | null) | Media;
+  Summary?: string | null;
+  Body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  Date: string;
+  Public?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "countries".
+ */
+export interface Country {
+  id: number;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  Name: string;
+  countryCode: string;
+  Summary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  Unions?: (number | OrganisingGroup)[] | null;
+  SolidarityActions?: (number | SolidarityAction)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organisingGroups".
+ */
+export interface OrganisingGroup {
+  id: number;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  Name: string;
+  FullName?: string | null;
+  Country?: (number | Country)[] | null;
+  IsUnion?: boolean | null;
+  Website?: string | null;
+  Bluesky?: string | null;
+  Twitter?: string | null;
+  SolidarityActions?: (number | SolidarityAction)[] | null;
+  LastModified: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solidarityActions".
+ */
+export interface SolidarityAction {
+  id: number;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  Name: string;
+  Location?: string | null;
+  Summary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  Date: string;
+  LastModified: string;
+  Link?: string | null;
+  LocationData?: string | null;
+  Country?: (number | Country)[] | null;
+  Company?: (number | Company)[] | null;
+  OrganisingGroups?: (number | OrganisingGroup)[] | null;
+  Category?: (number | Category)[] | null;
+  Document?: (number | Media)[] | null;
+  DisplayStyle?: 'Featured' | null;
+  hasPassedValidation?: boolean | null;
+  Public?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies".
+ */
+export interface Company {
+  id: number;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  Name: string;
+  Summary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  SolidarityActions?: (number | SolidarityAction)[] | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  Name: string;
+  Emoji?: string | null;
+  Summary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  SolidarityActions?: (number | SolidarityAction)[] | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -170,6 +512,38 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'staticPages';
+        value: number | StaticPage;
+      } | null)
+    | ({
+        relationTo: 'menuItems';
+        value: number | MenuItem;
+      } | null)
+    | ({
+        relationTo: 'blogPosts';
+        value: number | BlogPost;
+      } | null)
+    | ({
+        relationTo: 'countries';
+        value: number | Country;
+      } | null)
+    | ({
+        relationTo: 'companies';
+        value: number | Company;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'organisingGroups';
+        value: number | OrganisingGroup;
+      } | null)
+    | ({
+        relationTo: 'solidarityActions';
+        value: number | SolidarityAction;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -241,6 +615,24 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  cloudinary?:
+    | T
+    | {
+        public_id?: T;
+        resource_type?: T;
+        format?: T;
+        secure_url?: T;
+        bytes?: T;
+        created_at?: T;
+        version?: T;
+        version_id?: T;
+        width?: T;
+        height?: T;
+        duration?: T;
+        pages?: T;
+        selected_page?: T;
+        thumbnail_url?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -252,6 +644,140 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staticPages_select".
+ */
+export interface StaticPagesSelect<T extends boolean = true> {
+  generateSlug?: T;
+  slug?: T;
+  Title?: T;
+  Summary?: T;
+  Body?: T;
+  Public?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "menuItems_select".
+ */
+export interface MenuItemsSelect<T extends boolean = true> {
+  label?: T;
+  url?: T;
+  placement?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogPosts_select".
+ */
+export interface BlogPostsSelect<T extends boolean = true> {
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  ByLine?: T;
+  Title?: T;
+  Image?: T;
+  Summary?: T;
+  Body?: T;
+  Date?: T;
+  Public?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "countries_select".
+ */
+export interface CountriesSelect<T extends boolean = true> {
+  airtableId?: T;
+  Name?: T;
+  countryCode?: T;
+  Summary?: T;
+  generateSlug?: T;
+  slug?: T;
+  Unions?: T;
+  SolidarityActions?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies_select".
+ */
+export interface CompaniesSelect<T extends boolean = true> {
+  airtableId?: T;
+  Name?: T;
+  Summary?: T;
+  SolidarityActions?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  airtableId?: T;
+  Name?: T;
+  Emoji?: T;
+  Summary?: T;
+  SolidarityActions?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organisingGroups_select".
+ */
+export interface OrganisingGroupsSelect<T extends boolean = true> {
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  Name?: T;
+  FullName?: T;
+  Country?: T;
+  IsUnion?: T;
+  Website?: T;
+  Bluesky?: T;
+  Twitter?: T;
+  SolidarityActions?: T;
+  LastModified?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solidarityActions_select".
+ */
+export interface SolidarityActionsSelect<T extends boolean = true> {
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  Name?: T;
+  Location?: T;
+  Summary?: T;
+  Date?: T;
+  LastModified?: T;
+  Link?: T;
+  LocationData?: T;
+  Country?: T;
+  Company?: T;
+  OrganisingGroups?: T;
+  Category?: T;
+  Document?: T;
+  DisplayStyle?: T;
+  hasPassedValidation?: T;
+  Public?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
