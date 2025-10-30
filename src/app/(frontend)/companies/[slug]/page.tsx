@@ -5,7 +5,7 @@ import config from '@/payload.config'
 import React from 'react'
 import Link from 'next/link'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
+import { UnifiedTimeline } from '../../components/UnifiedTimeline'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
 
 export async function generateStaticParams() {
@@ -103,33 +103,47 @@ export default async function CompanyPage({ params }: Props) {
     notFound()
   }
 
-  // Query solidarity actions directly where this company is related
-  const actionsResult = await payload.find({
-    collection: 'solidarityActions',
-    where: {
-      and: [
-        {
-          Company: {
-            in: [company.id],
+  // Query solidarity actions and redundancies directly where this company is related
+  const [actionsResult, redundanciesResult] = await Promise.all([
+    payload.find({
+      collection: 'solidarityActions',
+      where: {
+        and: [
+          {
+            Company: {
+              in: [company.id],
+            },
           },
-        },
-        ...(!isDraftMode
-          ? [
-              {
-                _status: {
-                  equals: 'published',
+          ...(!isDraftMode
+            ? [
+                {
+                  _status: {
+                    equals: 'published',
+                  },
                 },
-              },
-            ]
-          : []),
-      ],
-    },
-    depth: 2, // Include related entities
-    draft: isDraftMode,
-    pagination: false,
-  })
+              ]
+            : []),
+        ],
+      },
+      depth: 2, // Include related entities
+      draft: isDraftMode,
+      pagination: false,
+    }),
+    payload.find({
+      collection: 'redundancies',
+      where: {
+        company: {
+          equals: company.id,
+        },
+      },
+      depth: 1,
+      pagination: false,
+      sort: '-date',
+    }),
+  ])
 
   const solidarityActions = actionsResult.docs
+  const redundancies = redundanciesResult.docs
 
   // Extract unique countries and organising groups from solidarity actions
   const countriesSet = new Map<string, { id: number; Name: string; slug: string }>()
@@ -261,14 +275,10 @@ export default async function CompanyPage({ params }: Props) {
           </div>
         </CollapsibleSection>
       )}
-      {solidarityActions.length > 0 && (
+      {(solidarityActions.length > 0 || redundancies.length > 0) && (
         <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Related Solidarity Actions</h2>
-          <ActionsTimeline
-            actions={solidarityActions.sort(
-              (a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime(),
-            )}
-          />
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Timeline</h2>
+          <UnifiedTimeline actions={solidarityActions} redundancies={redundancies} />
         </div>
       )}
     </div>

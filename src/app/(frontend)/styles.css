@@ -471,3 +471,59 @@ svg {
   color: #999;
   margin-top: 16px;
 }
+
+/* Unified Timeline Styles */
+.unified-timeline {
+  position: relative;
+}
+
+.timeline-line {
+  display: block;
+}
+
+.timeline-content {
+  max-width: 100%;
+}
+
+.timeline-spacer {
+  display: block;
+}
+
+.timeline-empty {
+  display: block;
+}
+
+/* Responsive styles for unified timeline */
+@media (max-width: 768px) {
+  .unified-timeline .timeline-line {
+    left: 20px !important;
+  }
+
+  .unified-timeline .timeline-year-label {
+    left: 20px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .unified-timeline .timeline-event-row {
+    flex-direction: column;
+  }
+
+  .unified-timeline .timeline-dot {
+    left: 20px !important;
+    top: 0 !important;
+  }
+
+  .unified-timeline .timeline-content {
+    padding: 0 0 0 3rem !important;
+    text-align: left !important;
+    width: 100%;
+  }
+
+  .unified-timeline .timeline-spacer {
+    display: none;
+  }
+
+  .unified-timeline .timeline-empty {
+    display: none;
+  }
+}

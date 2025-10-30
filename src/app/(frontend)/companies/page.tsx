@@ -26,36 +26,52 @@ export default async function CompaniesPage() {
     sort: 'Name',
   })
 
-  // Count actions for each company and filter out companies with no actions
-  const companiesWithActions = await Promise.all(
+  // Count actions and redundancies for each company
+  const companiesWithData = await Promise.all(
     companiesResult.docs.map(async (company) => {
-      const actionsResult = await payload.find({
-        collection: 'solidarityActions',
-        where: {
-          and: [
-            {
-              Company: {
-                in: [company.id],
+      const [actionsResult, redundanciesResult] = await Promise.all([
+        payload.find({
+          collection: 'solidarityActions',
+          where: {
+            and: [
+              {
+                Company: {
+                  in: [company.id],
+                },
               },
-            },
-            {
-              _status: {
-                equals: 'published',
+              {
+                _status: {
+                  equals: 'published',
+                },
               },
+            ],
+          },
+          limit: 1,
+          depth: 0,
+        }),
+        payload.find({
+          collection: 'redundancies',
+          where: {
+            company: {
+              equals: company.id,
             },
-          ],
-        },
-        limit: 1,
-        depth: 0,
-      })
+          },
+          limit: 1,
+          depth: 0,
+        }),
+      ])
       return {
         company,
         actionCount: actionsResult.totalDocs,
+        redundancyCount: redundanciesResult.totalDocs,
       }
     }),
   )
 
-  const filteredCompanies = companiesWithActions.filter((item) => item.actionCount > 0)
+  // Filter to show companies with either actions or redundancies
+  const filteredCompanies = companiesWithData.filter(
+    (item) => item.actionCount > 0 || item.redundancyCount > 0,
+  )
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
@@ -85,7 +101,7 @@ export default async function CompaniesPage() {
 
       {filteredCompanies.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
-          <p>No companies with solidarity actions found. Check back soon!</p>
+          <p>No companies with solidarity actions or redundancies found. Check back soon!</p>
         </div>
       ) : (
         <div
@@ -95,7 +111,7 @@ export default async function CompaniesPage() {
             gap: '1.5rem',
           }}
         >
-          {filteredCompanies.map(({ company, actionCount }) => (
+          {filteredCompanies.map(({ company, actionCount, redundancyCount }) => (
             <Link
               key={company.id}
               href={`/companies/${company.slug}`}
@@ -113,15 +129,24 @@ export default async function CompaniesPage() {
                 style={{
                   fontSize: '1.25rem',
                   fontWeight: '600',
-                  marginBottom: '0.5rem',
+                  marginBottom: '0.75rem',
                   color: '#4A90E2',
                 }}
               >
                 {company.Name}
               </h2>
-              <p style={{ fontSize: '0.875rem', color: '#666', margin: 0 }}>
-                {actionCount} action{actionCount !== 1 ? 's' : ''}
-              </p>
+              <div style={{ fontSize: '0.875rem', color: '#666' }}>
+                {actionCount > 0 && (
+                  <p style={{ margin: '0 0 0.25rem 0' }}>
+                    {actionCount} action{actionCount !== 1 ? 's' : ''}
+                  </p>
+                )}
+                {redundancyCount > 0 && (
+                  <p style={{ margin: 0 }}>
+                    {redundancyCount} redundanc{redundancyCount !== 1 ? 'ies' : 'y'}
+                  </p>
+                )}
+              </div>
             </Link>
           ))}
         </div>
