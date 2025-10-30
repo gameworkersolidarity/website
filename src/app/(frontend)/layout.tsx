@@ -1,6 +1,7 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import './styles.css'
@@ -42,9 +43,11 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Header navigation={headerData?.navigation || []} />
-        <main>{children}</main>
-        <Footer navigation={footerData?.navigation || []} />
+        <NuqsAdapter>
+          <Header navigation={headerData?.navigation || []} />
+          <main>{children}</main>
+          <Footer navigation={footerData?.navigation || []} />
+        </NuqsAdapter>
       </body>
     </html>
   )

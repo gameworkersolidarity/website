@@ -213,6 +213,8 @@ svg {
     font-size: 14px;
     background: white;
     cursor: pointer;
+    min-width: 180px;
+    width: 180px;
     
     &:hover {
       border-color: #999;
