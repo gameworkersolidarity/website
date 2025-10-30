@@ -32,9 +32,6 @@ export default async function SolidarityActionPage({ params }: Props) {
               _status: {
                 equals: 'published',
               },
-              Public: {
-                equals: true,
-              },
             }
           : {}),
       },

@@ -133,13 +133,5 @@ export const Campaigns: CollectionConfig = {
         },
       ],
     },
-    {
-      name: 'published',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        description: 'Only published campaigns will appear on the frontend',
-      },
-    },
   ],
 }

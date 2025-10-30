@@ -18,9 +18,6 @@ export async function generateStaticParams() {
       _status: {
         equals: 'published',
       },
-      published: {
-        equals: true,
-      },
     },
     limit: 100,
     depth: 0,
@@ -48,9 +45,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         ? {
             _status: {
               equals: 'published',
-            },
-            published: {
-              equals: true,
             },
           }
         : {}),
@@ -90,9 +84,6 @@ export default async function CampaignPage({ params }: { params: { slug: string 
         ? {
             _status: {
               equals: 'published',
-            },
-            published: {
-              equals: true,
             },
           }
         : {}),

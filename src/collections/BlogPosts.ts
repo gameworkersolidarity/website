@@ -4,13 +4,14 @@ export const BlogPosts: CollectionConfig = {
   slug: 'blogPosts',
   admin: {
     useAsTitle: 'Title',
-    defaultColumns: ['Title', 'Date', 'Public'],
+    defaultColumns: ['Title', 'Date'],
     preview: (doc) => {
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
       const encodedParams = new URLSearchParams({
-        slug: doc?.slug || '',
+        slug,
         collection: 'blogPosts',
-        path: `/blog/${doc?.slug || ''}`,
+        path: `/blog/${slug}`,
         previewSecret,
       })
 
@@ -68,14 +69,6 @@ export const BlogPosts: CollectionConfig = {
       name: 'Date',
       type: 'date',
       required: true,
-    },
-    {
-      name: 'Public',
-      type: 'checkbox',
-      defaultValue: true,
-      access: {
-        read: () => true,
-      },
     },
   ],
 }

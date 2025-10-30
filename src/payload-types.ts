@@ -218,7 +218,6 @@ export interface StaticPage {
     };
     [k: string]: unknown;
   };
-  Public?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -258,7 +257,6 @@ export interface BlogPost {
     [k: string]: unknown;
   };
   Date: string;
-  Public?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -557,10 +555,6 @@ export interface Campaign {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Only published campaigns will appear on the frontend
-   */
-  published?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -806,7 +800,6 @@ export interface StaticPagesSelect<T extends boolean = true> {
   Title?: T;
   Summary?: T;
   Body?: T;
-  Public?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -825,7 +818,6 @@ export interface BlogPostsSelect<T extends boolean = true> {
   Summary?: T;
   Body?: T;
   Date?: T;
-  Public?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -954,7 +946,6 @@ export interface CampaignsSelect<T extends boolean = true> {
         displayOrder?: T;
         id?: T;
       };
-  published?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

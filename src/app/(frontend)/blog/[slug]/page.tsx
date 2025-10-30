@@ -32,9 +32,6 @@ export default async function BlogPost({ params }: Props) {
               _status: {
                 equals: 'published',
               },
-              Public: {
-                equals: true,
-              },
             }
           : {}),
       },

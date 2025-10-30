@@ -6,10 +6,11 @@ export const StaticPages: CollectionConfig = {
     useAsTitle: 'Title',
     preview: (doc) => {
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
       const encodedParams = new URLSearchParams({
-        slug: doc?.slug || '',
+        slug,
         collection: 'staticPages',
-        path: `/${doc?.slug || ''}`,
+        path: `/${slug}`,
         previewSecret,
       })
 
@@ -44,14 +45,6 @@ export const StaticPages: CollectionConfig = {
       name: 'Body',
       type: 'richText',
       required: true,
-    },
-    {
-      name: 'Public',
-      type: 'checkbox',
-      defaultValue: true,
-      access: {
-        read: () => true,
-      },
     },
   ],
 }

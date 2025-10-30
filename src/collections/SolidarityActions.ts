@@ -112,10 +112,5 @@ export const SolidarityActions: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
     },
-    {
-      name: 'Public',
-      type: 'checkbox',
-      defaultValue: false,
-    },
   ],
 }

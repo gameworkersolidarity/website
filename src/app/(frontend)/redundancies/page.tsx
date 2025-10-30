@@ -6,8 +6,7 @@ import './redundancies.css'
 
 export const metadata = {
   title: 'Redundancies & Layoffs | Game Workers Solidarity Platform',
-  description:
-    'Track redundancies and layoffs in the games industry, linked to companies.',
+  description: 'Track redundancies and layoffs in the games industry, linked to companies.',
 }
 
 export default async function RedundanciesPage() {
@@ -53,7 +52,14 @@ export default async function RedundanciesPage() {
   return (
     <div className="redundancies-page">
       <div className="redundancies-container">
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem', textAlign: 'center' }}>
+        <h1
+          style={{
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            marginBottom: '1rem',
+            textAlign: 'center',
+          }}
+        >
           Redundancies & Layoffs
         </h1>
         <p style={{ textAlign: 'center', marginBottom: '3rem', color: '#666', fontSize: '1.1rem' }}>
@@ -92,8 +98,10 @@ export default async function RedundanciesPage() {
                 <div key={companyId} className="company-redundancies">
                   <div className="company-header">
                     {company && typeof company === 'object' && company.id ? (
-                      <Link 
-                        href={company.slug ? `/companies/${company.slug}` : `/#company-${company.id}`} 
+                      <Link
+                        href={
+                          company.slug ? `/companies/${company.slug}` : `/#company-${company.id}`
+                        }
                         className="company-link"
                       >
                         <h2>{companyName}</h2>
@@ -137,7 +145,9 @@ export default async function RedundanciesPage() {
                             {redundancy.parent && (
                               <div className="redundancy-parent">
                                 Parent:{' '}
-                                {redundancy.parentCompany && typeof redundancy.parentCompany === 'object' && redundancy.parentCompany.slug ? (
+                                {redundancy.parentCompany &&
+                                typeof redundancy.parentCompany === 'object' &&
+                                redundancy.parentCompany.slug ? (
                                   <Link
                                     href={`/companies/${redundancy.parentCompany.slug}`}
                                     className="parent-link"
@@ -163,4 +173,3 @@ export default async function RedundanciesPage() {
     </div>
   )
 }
-

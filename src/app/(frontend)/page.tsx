@@ -11,13 +11,23 @@ export default async function HomePage() {
   const payload = await getPayload({ config: payloadConfig })
 
   // Fetch all solidarity actions with country data
+  // Include both published and legacy records (where _status is null)
   const actionsResult = await payload.find({
     collection: 'solidarityActions',
-    // where: {
-    //   Public: {
-    //     equals: true,
-    //   },
-    // },
+    where: {
+      or: [
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
+        {
+          _status: {
+            equals: null,
+          },
+        },
+      ],
+    },
     depth: 2, // Include country data
     pagination: false,
   })
