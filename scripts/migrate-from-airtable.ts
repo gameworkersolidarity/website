@@ -25,7 +25,6 @@ interface MigrationStats {
   organisingGroups: { created: number; skipped: number }
   solidarityActions: { created: number; skipped: number }
   blogPosts: { created: number; skipped: number }
-  menuItems: { created: number; skipped: number }
   staticPages: { created: number; skipped: number }
 }
 
@@ -36,7 +35,6 @@ const stats: MigrationStats = {
   organisingGroups: { created: 0, skipped: 0 },
   solidarityActions: { created: 0, skipped: 0 },
   blogPosts: { created: 0, skipped: 0 },
-  menuItems: { created: 0, skipped: 0 },
   staticPages: { created: 0, skipped: 0 },
 }
 

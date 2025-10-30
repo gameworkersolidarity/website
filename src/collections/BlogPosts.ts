@@ -9,6 +9,14 @@ export const BlogPosts: CollectionConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 2000,
+      },
+      schedulePublish: true,
+    },
+  },
   fields: [
     {
       name: 'airtableId',

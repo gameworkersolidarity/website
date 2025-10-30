@@ -8,6 +8,14 @@ export const StaticPages: CollectionConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 2000,
+      },
+      schedulePublish: true,
+    },
+  },
   fields: [
     slugField({
       fieldToUse: 'Title',
