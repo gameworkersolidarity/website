@@ -252,8 +252,23 @@ export default async function SolidarityActionPage({ params }: Props) {
           ))}
           {categories.map((category, idx) => (
             <span key={idx} className="action-metadata-item capitalize">
-              {category.Emoji && <span>{category.Emoji}</span>}
-              <span> {category.Name}</span>
+              {category.slug ? (
+                <Link
+                  href={`/categories/${category.slug}`}
+                  style={{
+                    color: 'inherit',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {category.Emoji && <span>{category.Emoji}</span>}
+                  <span> {category.Name}</span>
+                </Link>
+              ) : (
+                <>
+                  {category.Emoji && <span>{category.Emoji}</span>}
+                  <span> {category.Name}</span>
+                </>
+              )}
             </span>
           ))}
         </div>
@@ -342,8 +357,8 @@ export default async function SolidarityActionPage({ params }: Props) {
                 </div>
                 <div className="related-info-type">Category</div>
                 {category.slug && (
-                  <Link href={`/actions?category=${category.id}`} className="related-info-link">
-                    All actions →
+                  <Link href={`/categories/${category.slug}`} className="related-info-link">
+                    {count} action{count !== 1 ? 's' : ''} →
                   </Link>
                 )}
               </div>
