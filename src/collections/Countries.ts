@@ -1,4 +1,5 @@
 import { slugField, type CollectionConfig } from 'payload'
+import coords from 'country-coords'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -55,6 +56,22 @@ export const Countries: CollectionConfig = {
       type: 'relationship',
       relationTo: 'solidarityActions',
       hasMany: true,
+    },
+    {
+      name: 'coords',
+      type: 'json',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            if (!siblingData.countryCode) {
+              return null
+            }
+            const countryData = coords[siblingData.countryCode]
+            return countryData || null
+          },
+        ],
+      },
     },
   ],
 }

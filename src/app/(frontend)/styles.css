@@ -7,10 +7,9 @@
 }
 
 html {
-  font-size: 18px;
-  line-height: 32px;
-
-  background: #f5f5f5;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #ffffff;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -21,17 +20,12 @@ body,
 }
 
 body {
-  font-family: system-ui;
-  font-size: 18px;
-  line-height: 32px;
-
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   margin: 0;
-  color: #1a1a1a;
-
-  @media (max-width: 1024px) {
-    font-size: 15px;
-    line-height: 24px;
-  }
+  color: #000000;
+  background: #ffffff;
 }
 
 img {
@@ -41,26 +35,33 @@ img {
 }
 
 h1 {
-  margin: 40px 0;
-  font-size: 64px;
-  line-height: 70px;
-  font-weight: bold;
+  margin: 0 0 16px 0;
+  font-size: 48px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 
   @media (max-width: 1024px) {
-    margin: 24px 0;
-    font-size: 42px;
-    line-height: 42px;
+    font-size: 36px;
   }
 
   @media (max-width: 768px) {
-    font-size: 38px;
-    line-height: 38px;
-  }
-
-  @media (max-width: 400px) {
     font-size: 32px;
-    line-height: 32px;
   }
+}
+
+h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 600;
 }
 
 p {
@@ -164,9 +165,66 @@ svg {
 }
 
 .homepage {
-  padding: 40px;
-  max-width: 1400px;
+  padding: 32px 24px;
+  max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+  }
+}
+
+.homepage-hero {
+  margin-bottom: 32px;
+}
+
+.homepage-subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 32px;
+  max-width: 880px;
+}
+
+.homepage-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  .filter-select {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    
+    &:hover {
+      border-color: #999;
+    }
+  }
+}
+
+.homepage-actions-count {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #000;
 }
 
 .homepage-grid {
@@ -176,15 +234,19 @@ svg {
   
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 }
 
 .map-section {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
   height: fit-content;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
 }
 
 .map-container {
@@ -197,20 +259,119 @@ svg {
 
 .timeline-section {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-height: 900px;
-  overflow-y: auto;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  max-height: none;
+  overflow-y: visible;
+}
+
+.action-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.action-date {
+  font-size: 14px;
+  color: #666;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.action-content {
+  flex: 1;
+}
+
+.action-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.action-country {
+  font-size: 14px;
+  color: #666;
+}
+
+.action-category {
+  font-size: 14px;
+  color: #666;
+}
+
+.action-location {
+  font-size: 14px;
+  color: #666;
+}
+
+.action-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 4px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.action-link {
+  font-size: 14px;
+  color: #666;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.year-group {
+  margin-bottom: 48px;
+
+  .year-header {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #000;
+  }
+
+  .actions-list {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.load-more {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #000;
+
+  &:hover {
+    background: #f5f5f5;
+  }
 }
 
 .site-header {
   background: white;
   border-bottom: 1px solid #e0e0e0;
-  padding: 16px 40px;
+  padding: 16px 24px;
 
   @media (max-width: 768px) {
-    padding: 12px 20px;
+    padding: 12px 16px;
   }
 }
 
@@ -222,6 +383,8 @@ svg {
   gap: 24px;
   flex-wrap: wrap;
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 
   @media (max-width: 768px) {
     gap: 16px;
@@ -233,45 +396,50 @@ svg {
 
   a {
     text-decoration: none;
-    color: #1a1a1a;
-    font-weight: 500;
+    color: #000;
+    font-weight: 400;
+    font-size: 15px;
     transition: opacity 0.2s;
 
     &:hover {
       opacity: 0.7;
+      text-decoration: underline;
     }
 
     &:focus {
-      outline: 2px solid #1a1a1a;
+      outline: 2px solid #000;
       outline-offset: 2px;
     }
   }
 }
 
 .site-footer {
-  background: #2a2a2a;
-  color: #f5f5f5;
-  padding: 32px 40px;
-  margin-top: 60px;
+  background: #000;
+  color: #fff;
+  padding: 48px 24px;
+  margin-top: 80px;
 
   @media (max-width: 768px) {
-    padding: 24px 20px;
-    margin-top: 40px;
+    padding: 32px 16px;
+    margin-top: 60px;
   }
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .footer-nav-list {
   display: flex;
   list-style: none;
-  margin: 0;
+  margin: 0 0 24px 0;
   padding: 0;
   gap: 24px;
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
     gap: 16px;
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   li {
@@ -280,16 +448,24 @@ svg {
 
   a {
     text-decoration: none;
-    color: #f5f5f5;
+    color: #fff;
+    font-size: 15px;
     transition: opacity 0.2s;
 
     &:hover {
       opacity: 0.8;
+      text-decoration: underline;
     }
 
     &:focus {
-      outline: 2px solid #f5f5f5;
+      outline: 2px solid #fff;
       outline-offset: 2px;
     }
   }
+}
+
+.footer-attribution {
+  font-size: 14px;
+  color: #999;
+  margin-top: 16px;
 }

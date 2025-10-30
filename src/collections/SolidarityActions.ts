@@ -5,8 +5,12 @@ export const SolidarityActions: CollectionConfig = {
   admin: {
     useAsTitle: 'Name',
     preview: (doc) => {
+      if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
+        return false
+      }
+
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
-      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
+      const slug = doc.slug
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'solidarityActions',
@@ -106,11 +110,6 @@ export const SolidarityActions: CollectionConfig = {
       name: 'DisplayStyle',
       type: 'select',
       options: ['Featured'],
-    },
-    {
-      name: 'hasPassedValidation',
-      type: 'checkbox',
-      defaultValue: false,
     },
   ],
 }

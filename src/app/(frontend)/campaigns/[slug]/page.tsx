@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import { CampaignTimeline } from '../../components/CampaignTimeline'
+import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { RichText } from '../../components/RichText'
+import type { SolidarityAction } from '@/payload-types'
 import '../campaigns.css'
 
 export async function generateStaticParams() {
@@ -196,15 +198,29 @@ export default async function CampaignPage({ params }: { params: { slug: string 
           )}
 
           {sortedTimelineEvents.length > 0 && (
-            <div className="campaign-timeline-section" style={{ marginTop: '3rem' }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Timeline</h2>
-              <CampaignTimeline
-                timelineEvents={sortedTimelineEvents.map((event) => ({
-                  ...event,
-                  id: event.id || undefined,
-                }))}
-              />
-            </div>
+            <>
+              <div className="campaign-timeline-section" style={{ marginTop: '3rem' }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Timeline</h2>
+                <CampaignTimeline
+                  timelineEvents={sortedTimelineEvents.map((event) => ({
+                    ...event,
+                    id: event.id || undefined,
+                  }))}
+                />
+              </div>
+              <div style={{ marginTop: '3rem' }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Solidarity Actions</h2>
+                <ActionsTimeline
+                  actions={sortedTimelineEvents
+                    .map((event) => event.event)
+                    .filter(
+                      (event): event is SolidarityAction =>
+                        typeof event === 'object' && event !== null && 'Date' in event,
+                    )
+                    .sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime())}
+                />
+              </div>
+            </>
           )}
         </article>
       </div>

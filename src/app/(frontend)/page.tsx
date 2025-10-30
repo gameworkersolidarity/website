@@ -68,14 +68,48 @@ export default async function HomePage() {
 
   return (
     <div className="homepage">
-      <h1 style={{ textAlign: 'center', marginBottom: '40px' }}>
-        Game Workers Solidarity Platform
-      </h1>
+      <div className="homepage-hero">
+        <h1>Game Worker Solidarity</h1>
+        <p className="homepage-subtitle">
+          Mapping and documenting collective movements by game workers striving to improve their
+          working conditions.
+        </p>
+      </div>
+
+      <div className="homepage-filters">
+        <div className="filter-group">
+          <span className="filter-label">Filter by</span>
+          <select className="filter-select">
+            <option>Country ▾</option>
+          </select>
+        </div>
+        <div className="filter-group">
+          <select className="filter-select">
+            <option>Category ▾</option>
+          </select>
+        </div>
+        <div className="filter-group">
+          <select className="filter-select">
+            <option>Company ▾</option>
+          </select>
+        </div>
+        <div className="filter-group">
+          <select className="filter-select">
+            <option>Union ▾</option>
+          </select>
+        </div>
+        <div className="filter-group">
+          <select className="filter-select">
+            <option>Select year</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="homepage-actions-count">{sortedActions.length} actions</div>
+
       <div className="homepage-grid">
         <div className="map-section">
-          <h2 style={{ marginBottom: '20px', fontSize: '24px', fontWeight: '600' }}>
-            Solidarity Action Density by Country
-          </h2>
+          <h2>Solidarity Action Density by Country</h2>
           <div className="map-container">
             <WorldMap data={countryDataMap} />
           </div>

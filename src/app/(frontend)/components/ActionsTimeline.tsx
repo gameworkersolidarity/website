@@ -1,9 +1,51 @@
 'use client'
 
-import type { SolidarityAction } from '@/payload-types'
+import Link from 'next/link'
+import type { SolidarityAction, Country, Category } from '@/payload-types'
 
 interface ActionsTimelineProps {
   actions: SolidarityAction[]
+}
+
+// Helper function to get country flag emoji from country code
+function getCountryFlag(code: string): string {
+  const codePoints = code
+    .toUpperCase()
+    .split('')
+    .map((char) => 127397 + char.charCodeAt(0))
+  return String.fromCodePoint(...codePoints)
+}
+
+// Helper function to format date like "02 Jun 2025"
+function formatDate(date: Date): string {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  const day = date.getDate().toString().padStart(2, '0')
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  return `${day} ${month} ${year}`
+}
+
+// Type guard for Country
+function isCountry(obj: number | Country): obj is Country {
+  return typeof obj === 'object' && obj !== null && 'countryCode' in obj
+}
+
+// Type guard for Category
+function isCategory(obj: number | Category): obj is Category {
+  return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
 export function ActionsTimeline({ actions }: ActionsTimelineProps) {
@@ -26,78 +68,78 @@ export function ActionsTimeline({ actions }: ActionsTimelineProps) {
     .sort((a, b) => b - a)
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2 style={{ marginBottom: '30px', fontSize: '32px', fontWeight: 'bold' }}>
-        Timeline of Solidarity Actions
-      </h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-        {years.map((year) => (
-          <div key={year}>
-            <h3
-              style={{
-                fontSize: '24px',
-                fontWeight: '600',
-                marginBottom: '15px',
-                color: '#4A90E2',
-              }}
-            >
-              {year} ({actionsByYear[year].length} action
-              {actionsByYear[year].length !== 1 ? 's' : ''})
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              {actionsByYear[year].map((action) => {
-                const date = new Date(action.Date)
-                const formattedDate = date.toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })
+    <div>
+      {years.map((year) => (
+        <div key={year} className="year-group">
+          <h2 className="year-header">{year}</h2>
+          <div className="actions-list">
+            {actionsByYear[year].map((action) => {
+              const date = new Date(action.Date)
+              const formattedDate = formatDate(date)
 
-                return (
-                  <div
-                    key={action.id}
-                    style={{
-                      padding: '15px',
-                      borderLeft: '3px solid #4A90E2',
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: '4px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'baseline',
-                        gap: '10px',
-                        marginBottom: '8px',
-                      }}
-                    >
-                      <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                        {formattedDate}
-                      </span>
+              // Get country flags
+              const countries = Array.isArray(action.Country)
+                ? action.Country.filter(isCountry)
+                : []
+
+              // Get categories with emojis
+              const categories = Array.isArray(action.Category)
+                ? action.Category.filter(isCategory)
+                : []
+
+              return (
+                <div key={action.id} className="action-item">
+                  <div className="action-date">{formattedDate}</div>
+                  <div className="action-content">
+                    <div className="action-meta">
                       {action.Location && (
-                        <span style={{ fontSize: '14px', color: '#888' }}>• {action.Location}</span>
+                        <span className="action-location">{action.Location}</span>
+                      )}
+                      {countries.map((country, idx) => (
+                        <span key={idx} className="action-country">
+                          {country.countryCode && getCountryFlag(country.countryCode)}
+                          {country.Name && ` ${country.Name}`}
+                        </span>
+                      ))}
+                      {categories.map((category, idx) => (
+                        <span key={idx} className="action-category">
+                          {category.Emoji || '📌'}
+                          {category.Name && ` ${category.Name}`}
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {action.slug ? (
+                        <Link href={`/actions/${action.slug}`} className="action-title">
+                          {action.Name}
+                        </Link>
+                      ) : (
+                        <span
+                          className="action-title"
+                          style={{ textDecoration: 'none', cursor: 'default' }}
+                        >
+                          {action.Name}
+                        </span>
+                      )}
+                      {action.Link && (
+                        <a
+                          href={action.Link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="action-link"
+                          style={{ fontSize: '14px', textDecoration: 'none' }}
+                        >
+                          🔗
+                        </a>
                       )}
                     </div>
-                    <h4 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '5px' }}>
-                      {action.Name}
-                    </h4>
-                    {action.Link && (
-                      <a
-                        href={action.Link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ fontSize: '14px', color: '#4A90E2', textDecoration: 'none' }}
-                      >
-                        Learn more →
-                      </a>
-                    )}
                   </div>
-                )
-              })}
-            </div>
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   )
 }

@@ -12,8 +12,8 @@ export async function generateStaticParams() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  const companiesResult = await payload.find({
-    collection: 'companies',
+  const countriesResult = await payload.find({
+    collection: 'countries',
     where: {
       _status: {
         equals: 'published',
@@ -23,8 +23,8 @@ export async function generateStaticParams() {
     depth: 0,
   })
 
-  return companiesResult.docs.map((company) => ({
-    slug: company.slug,
+  return countriesResult.docs.map((country) => ({
+    slug: country.slug,
   }))
 }
 
@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
 
-  const companyResult = await payload.find({
-    collection: 'companies',
+  const countryResult = await payload.find({
+    collection: 'countries',
     where: {
       slug: {
         equals: slug,
@@ -53,16 +53,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     limit: 1,
   })
 
-  if (companyResult.docs.length === 0) {
+  if (countryResult.docs.length === 0) {
     return {
-      title: 'Company Not Found',
+      title: 'Country Not Found',
     }
   }
 
-  const company = companyResult.docs[0]
+  const country = countryResult.docs[0]
   return {
-    title: `${company.Name} - Companies - Game Workers Solidarity Platform`,
-    description: `Learn about ${company.Name} and related solidarity actions.`,
+    title: `${country.Name} - Countries - Game Workers Solidarity Platform`,
+    description: `Explore solidarity actions and organising groups in ${country.Name}.`,
   }
 }
 
@@ -70,16 +70,16 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-export default async function CompanyPage({ params }: Props) {
+export default async function CountryPage({ params }: Props) {
   const { slug } = await params
   const isDraftMode = (await draftMode()).isEnabled
 
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  const company = await payload
+  const country = await payload
     .find({
-      collection: 'companies',
+      collection: 'countries',
       depth: 2, // Include related solidarity actions and their related entities
       draft: isDraftMode,
       limit: 1,
@@ -99,18 +99,18 @@ export default async function CompanyPage({ params }: Props) {
     })
     .then(({ docs }) => docs?.[0])
 
-  if (!company) {
+  if (!country) {
     notFound()
   }
 
-  // Query solidarity actions directly where this company is related
+  // Query solidarity actions directly where this country is related
   const actionsResult = await payload.find({
     collection: 'solidarityActions',
     where: {
       and: [
         {
-          Company: {
-            in: [company.id],
+          Country: {
+            in: [country.id],
           },
         },
         ...(!isDraftMode
@@ -131,52 +131,25 @@ export default async function CompanyPage({ params }: Props) {
 
   const solidarityActions = actionsResult.docs
 
-  // Extract unique countries and organising groups from solidarity actions
-  const countriesSet = new Map<string, { id: number; Name: string; slug: string }>()
-  const organisingGroupsSet = new Map<
-    string,
-    { id: number; Name: string; FullName?: string; slug: string }
-  >()
+  // Extract unique companies from solidarity actions
+  const companiesSet = new Map<string, { id: number; Name: string; slug: string }>()
 
   solidarityActions.forEach((action) => {
-    // Extract countries
-    if (action.Country && Array.isArray(action.Country)) {
-      action.Country.forEach((country) => {
+    if (action.Company && Array.isArray(action.Company)) {
+      action.Company.forEach((company) => {
         if (
-          typeof country === 'object' &&
-          country !== null &&
-          'id' in country &&
-          'slug' in country &&
-          'Name' in country
+          typeof company === 'object' &&
+          company !== null &&
+          'id' in company &&
+          'slug' in company &&
+          'Name' in company
         ) {
-          const countryId = String(country.id)
-          if (!countriesSet.has(countryId)) {
-            countriesSet.set(countryId, {
-              id: country.id as number,
-              Name: country.Name as string,
-              slug: country.slug as string,
-            })
-          }
-        }
-      })
-    }
-    // Extract organising groups
-    if (action.OrganisingGroups && Array.isArray(action.OrganisingGroups)) {
-      action.OrganisingGroups.forEach((group) => {
-        if (
-          typeof group === 'object' &&
-          group !== null &&
-          'id' in group &&
-          'slug' in group &&
-          'Name' in group
-        ) {
-          const groupId = String(group.id)
-          if (!organisingGroupsSet.has(groupId)) {
-            organisingGroupsSet.set(groupId, {
-              id: group.id as number,
-              Name: (group.Name || '') as string,
-              FullName: (group.FullName || undefined) as string | undefined,
-              slug: group.slug as string,
+          const companyId = String(company.id)
+          if (!companiesSet.has(companyId)) {
+            companiesSet.set(companyId, {
+              id: company.id as number,
+              Name: company.Name as string,
+              slug: company.slug as string,
             })
           }
         }
@@ -184,13 +157,12 @@ export default async function CompanyPage({ params }: Props) {
     }
   })
 
-  const uniqueCountries = Array.from(countriesSet.values())
-  const uniqueOrganisingGroups = Array.from(organisingGroupsSet.values())
+  const uniqueCompanies = Array.from(companiesSet.values())
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
       <Link
-        href="/companies"
+        href="/countries"
         style={{
           display: 'inline-block',
           marginBottom: '1rem',
@@ -198,17 +170,22 @@ export default async function CompanyPage({ params }: Props) {
           textDecoration: 'none',
         }}
       >
-        ← Back to Companies
+        ← Back to Countries
       </Link>
 
-      <h1>{company.Name}</h1>
-      {company.Summary && (
+      <h1>{country.Name}</h1>
+      {country.countryCode && (
+        <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
+          Country Code: {country.countryCode.toUpperCase()}
+        </p>
+      )}
+      {country.Summary && (
         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={company.Summary} />
+          <LexicalRenderer content={country.Summary} />
         </div>
       )}
-      {uniqueCountries.length > 0 && (
-        <CollapsibleSection title={`Related Countries (${uniqueCountries.length})`}>
+      {uniqueCompanies.length > 0 && (
+        <CollapsibleSection title={`Related Companies (${uniqueCompanies.length})`}>
           <div
             style={{
               display: 'grid',
@@ -216,10 +193,10 @@ export default async function CompanyPage({ params }: Props) {
               gap: '0.75rem',
             }}
           >
-            {uniqueCountries.map((country) => (
+            {uniqueCompanies.map((company) => (
               <Link
-                key={country.id}
-                href={`/countries/${country.slug}`}
+                key={company.id}
+                href={`/companies/${company.slug}`}
                 style={{
                   color: '#4A90E2',
                   textDecoration: 'none',
@@ -228,14 +205,14 @@ export default async function CompanyPage({ params }: Props) {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {country.Name}
+                {company.Name}
               </Link>
             ))}
           </div>
         </CollapsibleSection>
       )}
-      {uniqueOrganisingGroups.length > 0 && (
-        <CollapsibleSection title={`Related Organising Groups (${uniqueOrganisingGroups.length})`}>
+      {country.Unions && Array.isArray(country.Unions) && country.Unions.length > 0 && (
+        <CollapsibleSection title={`Unions & Organising Groups (${country.Unions.length})`}>
           <div
             style={{
               display: 'grid',
@@ -243,20 +220,38 @@ export default async function CompanyPage({ params }: Props) {
               gap: '0.75rem',
             }}
           >
-            {uniqueOrganisingGroups.map((group) => (
-              <Link
-                key={group.id}
-                href={`/organising-groups/${group.slug}`}
-                style={{
-                  color: '#4A90E2',
-                  textDecoration: 'none',
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                {group.FullName || group.Name}
-              </Link>
+            {country.Unions.map((union, index) => (
+              <div key={index}>
+                {typeof union === 'object' && union !== null && 'slug' in union ? (
+                  <Link
+                    href={`/organising-groups/${(union as { slug: string }).slug}`}
+                    style={{
+                      color: '#4A90E2',
+                      textDecoration: 'none',
+                      padding: '0.5rem',
+                      borderRadius: '4px',
+                      display: 'block',
+                      transition: 'background-color 0.2s',
+                    }}
+                  >
+                    {'FullName' in union && typeof union.FullName === 'string'
+                      ? union.FullName
+                      : 'Name' in union && typeof union.Name === 'string'
+                        ? union.Name
+                        : 'Unknown Group'}
+                  </Link>
+                ) : (
+                  <span
+                    style={{
+                      padding: '0.5rem',
+                      display: 'block',
+                      color: '#666',
+                    }}
+                  >
+                    Unknown Group
+                  </span>
+                )}
+              </div>
             ))}
           </div>
         </CollapsibleSection>

@@ -43,13 +43,13 @@ export const BlogPosts: CollectionConfig = {
       fieldToUse: 'Title',
     }),
     {
-      name: 'ByLine',
-      type: 'text',
-    },
-    {
       name: 'Title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'ByLine',
+      type: 'text',
     },
     {
       name: 'Image',
@@ -63,11 +63,6 @@ export const BlogPosts: CollectionConfig = {
     {
       name: 'Body',
       type: 'richText',
-      required: true,
-    },
-    {
-      name: 'Date',
-      type: 'date',
       required: true,
     },
   ],

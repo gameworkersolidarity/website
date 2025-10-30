@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import React from 'react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
+import Link from 'next/link'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -77,10 +78,23 @@ export default async function SolidarityActionPage({ params }: Props) {
           <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Companies:</h3>
           <ul>
             {action.Company.map((company, index) => (
-              <li key={index}>
-                {typeof company === 'object' && 'Name' in company
-                  ? company.Name
-                  : 'Unknown Company'}
+              <li key={index} style={{ marginBottom: '0.5rem' }}>
+                {typeof company === 'object' && company !== null && 'slug' in company ? (
+                  <Link
+                    href={`/companies/${company.slug}`}
+                    style={{ color: '#4A90E2', textDecoration: 'none' }}
+                  >
+                    {typeof company === 'object' && 'Name' in company
+                      ? company.Name
+                      : 'Unknown Company'}
+                  </Link>
+                ) : (
+                  <span>
+                    {typeof company === 'object' && 'Name' in company
+                      ? company.Name
+                      : 'Unknown Company'}
+                  </span>
+                )}
               </li>
             ))}
           </ul>
@@ -93,8 +107,27 @@ export default async function SolidarityActionPage({ params }: Props) {
             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Organising Groups:</h3>
             <ul>
               {action.OrganisingGroups.map((group, index) => (
-                <li key={index}>
-                  {typeof group === 'object' && 'Name' in group ? group.Name : 'Unknown Group'}
+                <li key={index} style={{ marginBottom: '0.5rem' }}>
+                  {typeof group === 'object' && group !== null && 'slug' in group ? (
+                    <Link
+                      href={`/organising-groups/${group.slug}`}
+                      style={{ color: '#4A90E2', textDecoration: 'none' }}
+                    >
+                      {typeof group === 'object' && 'FullName' in group
+                        ? group.FullName || group.Name
+                        : typeof group === 'object' && 'Name' in group
+                          ? group.Name
+                          : 'Unknown Group'}
+                    </Link>
+                  ) : (
+                    <span>
+                      {typeof group === 'object' && 'FullName' in group
+                        ? group.FullName || group.Name
+                        : typeof group === 'object' && 'Name' in group
+                          ? group.Name
+                          : 'Unknown Group'}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -105,13 +138,23 @@ export default async function SolidarityActionPage({ params }: Props) {
           <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Countries:</h3>
           <ul>
             {action.Country.map((country, index) => (
-              <li key={index}>
-                {typeof country === 'object' &&
-                country !== null &&
-                'name' in country &&
-                typeof country.name === 'string'
-                  ? country.name
-                  : 'Unknown Country'}
+              <li key={index} style={{ marginBottom: '0.5rem' }}>
+                {typeof country === 'object' && country !== null && 'slug' in country ? (
+                  <Link
+                    href={`/countries/${country.slug}`}
+                    style={{ color: '#4A90E2', textDecoration: 'none' }}
+                  >
+                    {typeof country === 'object' && 'Name' in country
+                      ? country.Name
+                      : 'Unknown Country'}
+                  </Link>
+                ) : (
+                  <span>
+                    {typeof country === 'object' && country !== null && 'Name' in country
+                      ? country.Name
+                      : 'Unknown Country'}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

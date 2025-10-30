@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
+import Link from 'next/link'
 import type { SolidarityAction } from '@/payload-types'
 
 interface TimelineEvent {
@@ -156,9 +157,24 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
             )}
           </div>
 
-          <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-            {node.event.Name}
-          </h4>
+          {node.event.slug ? (
+            <Link
+              href={`/actions/${node.event.slug}`}
+              style={{
+                fontSize: '1.125rem',
+                fontWeight: '600',
+                marginBottom: '0.5rem',
+                color: '#4A90E2',
+                textDecoration: 'none',
+              }}
+            >
+              {node.event.Name}
+            </Link>
+          ) : (
+            <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+              {node.event.Name}
+            </h4>
+          )}
 
           {node.linkDescription && (
             <p

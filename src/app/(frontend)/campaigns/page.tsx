@@ -18,13 +18,13 @@ export default async function CampaignsPage() {
   const campaignsResult = await payload.find({
     collection: 'campaigns',
     where: {
-      published: {
-        equals: true,
+      _status: {
+        equals: 'published',
       },
     },
     depth: 2,
     pagination: false,
-    sort: '-createdAt',
+    sort: 'createdAt',
   })
 
   return (

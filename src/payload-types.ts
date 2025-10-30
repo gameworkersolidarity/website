@@ -237,8 +237,8 @@ export interface BlogPost {
    */
   generateSlug?: boolean | null;
   slug: string;
-  ByLine?: string | null;
   Title: string;
+  ByLine?: string | null;
   Image?: (number | null) | Media;
   Summary?: string | null;
   Body: {
@@ -256,7 +256,6 @@ export interface BlogPost {
     };
     [k: string]: unknown;
   };
-  Date: string;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -295,6 +294,15 @@ export interface Country {
   slug: string;
   Unions?: (number | OrganisingGroup)[] | null;
   SolidarityActions?: (number | SolidarityAction)[] | null;
+  coords?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -369,8 +377,6 @@ export interface SolidarityAction {
   Category?: (number | Category)[] | null;
   Document?: (number | Media)[] | null;
   DisplayStyle?: 'Featured' | null;
-  hasPassedValidation?: boolean | null;
-  Public?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -812,12 +818,11 @@ export interface BlogPostsSelect<T extends boolean = true> {
   airtableId?: T;
   generateSlug?: T;
   slug?: T;
-  ByLine?: T;
   Title?: T;
+  ByLine?: T;
   Image?: T;
   Summary?: T;
   Body?: T;
-  Date?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -835,6 +840,7 @@ export interface CountriesSelect<T extends boolean = true> {
   slug?: T;
   Unions?: T;
   SolidarityActions?: T;
+  coords?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -913,8 +919,6 @@ export interface SolidarityActionsSelect<T extends boolean = true> {
   Category?: T;
   Document?: T;
   DisplayStyle?: T;
-  hasPassedValidation?: T;
-  Public?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
