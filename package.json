@@ -44,6 +44,7 @@
     "nuqs": "^2.7.2",
     "payload": "3.59.1",
     "payload-cloudinary": "^2.1.0",
+    "payload-oapi": "^0.2.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-simple-maps": "^3.0.0",

@@ -21,6 +21,7 @@ import { cloudinaryStorage } from 'payload-cloudinary'
 import 'dotenv/config'
 import env from 'env-var'
 import { s3Storage } from '@payloadcms/storage-s3'
+import { openapi, scalar } from 'payload-oapi'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -57,6 +58,19 @@ export default buildConfig({
     },
   }),
   plugins: [
+    openapi({
+      openapiVersion: '3.0',
+      metadata: {
+        title: 'Game Workers Solidarity Platform API',
+        version: '1.0.0',
+        description: 'OpenAPI specification for the Game Workers Solidarity Platform',
+      },
+    }),
+    scalar({
+      // Scalar UI will be available at /api/docs by default
+      // You can customize the path if needed:
+      // path: '/api/docs',
+    }),
     env.get('STORAGE_TYPE').required().asString() === 'cloudinary'
       ? cloudinaryStorage({
           config: {
