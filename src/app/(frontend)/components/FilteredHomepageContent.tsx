@@ -146,8 +146,6 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
   return (
     <>
-      <div className="homepage-actions-count">{sortedActions.length} actions</div>
-
       <div className="homepage-grid">
         <div className="map-section">
           <div className="map-container">
