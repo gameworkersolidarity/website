@@ -31,6 +31,8 @@ export const StaticPages: CollectionConfig = {
   fields: [
     slugField({
       fieldToUse: 'Title',
+      checkboxName: 'Generate slug?',
+      position: 'sidebar',
     }),
     {
       name: 'Title',

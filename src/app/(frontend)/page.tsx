@@ -56,7 +56,7 @@ export default async function HomePage() {
   return (
     <div className="homepage">
       <div className="homepage-hero">
-        <h1>Game Worker Solidarity</h1>
+        <h1 className="font-identity">Game Worker Solidarity</h1>
         <p className="homepage-subtitle">
           Mapping and documenting collective movements by game workers striving to improve their
           working conditions.

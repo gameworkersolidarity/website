@@ -199,7 +199,7 @@ export interface StaticPage {
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null;
+  'Generate slug?'?: boolean | null;
   slug: string;
   Title: string;
   Summary?: string | null;
@@ -801,7 +801,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "staticPages_select".
  */
 export interface StaticPagesSelect<T extends boolean = true> {
-  generateSlug?: T;
+  'Generate slug?'?: T;
   slug?: T;
   Title?: T;
   Summary?: T;

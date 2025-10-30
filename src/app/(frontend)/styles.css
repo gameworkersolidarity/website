@@ -1,5 +1,25 @@
 :root {
   --font-mono: 'Roboto Mono', monospace;
+  
+  /* Game Worker Solidarity Colors */
+  --gw-pink: #DD96FF;
+  --gw-pink-light: #FFCAD9;
+  --gw-orange: #FF8038;
+  --gw-orange-light: #FFC58E;
+  --gw-blue: #3B97EC;
+  --gw-yellow: #EBFF00;
+  --gw-background: #F8F8F8;
+  --gw-text-200: rgba(0, 0, 0, 0.7);
+}
+
+@font-face {
+  font-family: 'Parabole';
+  src: url('/fonts/Parabole-Regular.woff2') format('woff2'),
+       url('/fonts/Parabole-Regular.woff') format('woff'),
+       url('/fonts/Parabole-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 * {
@@ -9,7 +29,7 @@
 html {
   font-size: 16px;
   line-height: 1.6;
-  background: #ffffff;
+  background: var(--gw-background);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -20,12 +40,16 @@ body,
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
   color: #000000;
-  background: #ffffff;
+  background: var(--gw-background);
+}
+
+.font-identity {
+  font-family: 'Parabole', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
 }
 
 img {
@@ -40,6 +64,7 @@ h1 {
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: -0.02em;
+  font-family: 'Parabole', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
 
   @media (max-width: 1024px) {
     font-size: 36px;
@@ -55,6 +80,7 @@ h2 {
   font-size: 20px;
   line-height: 1.4;
   font-weight: 600;
+  font-family: 'Parabole', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
 }
 
 h3 {
@@ -181,9 +207,10 @@ svg {
 .homepage-subtitle {
   font-size: 18px;
   line-height: 1.6;
-  color: #333;
+  color: var(--gw-text-200);
   margin-bottom: 32px;
   max-width: 880px;
+  font-weight: 300;
 }
 
 .homepage-filters {
@@ -223,10 +250,12 @@ svg {
 }
 
 .homepage-actions-count {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 3.75rem;
+  font-weight: 400;
   margin-bottom: 24px;
   color: #000;
+  font-family: 'Parabole', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  line-height: 1;
 }
 
 .homepage-grid {
@@ -368,12 +397,59 @@ svg {
 }
 
 .site-header {
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--gw-pink);
+  border-bottom: none;
   padding: 16px 24px;
 
   @media (max-width: 768px) {
     padding: 12px 16px;
+  }
+}
+
+.header-content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-logo-link {
+  display: block;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.header-title {
+  font-size: 2.25rem;
+  line-height: 1;
+  font-weight: 400;
+  text-decoration: none;
+  color: #000;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--gw-pink-light);
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 4vw;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
   }
 }
 
@@ -401,23 +477,23 @@ svg {
     color: #000;
     font-weight: 400;
     font-size: 15px;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
 
     &:hover {
-      opacity: 0.7;
+      opacity: 0.8;
       text-decoration: underline;
     }
 
     &:focus {
-      outline: 2px solid #000;
+      outline: 2px solid var(--gw-pink-light);
       outline-offset: 2px;
     }
   }
 }
 
 .site-footer {
-  background: #000;
-  color: #fff;
+  background: var(--gw-pink);
+  color: #000;
   padding: 48px 24px;
   margin-top: 80px;
 
@@ -450,7 +526,7 @@ svg {
 
   a {
     text-decoration: none;
-    color: #fff;
+    color: #000;
     font-size: 15px;
     transition: opacity 0.2s;
 
@@ -460,7 +536,7 @@ svg {
     }
 
     &:focus {
-      outline: 2px solid #fff;
+      outline: 2px solid var(--gw-pink-light);
       outline-offset: 2px;
     }
   }
