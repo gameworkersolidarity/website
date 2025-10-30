@@ -5,9 +5,58 @@ import config from '@/payload.config'
 import React from 'react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import Link from 'next/link'
+import type { Country, Category, Company, OrganisingGroup } from '@/payload-types'
 
 type Props = {
   params: Promise<{ slug: string }>
+}
+
+// Helper function to get country flag emoji from country code
+function getCountryFlag(code: string): string {
+  const codePoints = code
+    .toUpperCase()
+    .split('')
+    .map((char) => 127397 + char.charCodeAt(0))
+  return String.fromCodePoint(...codePoints)
+}
+
+// Helper function to format date like "02 Jun 2025"
+function formatDate(date: Date): string {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  const day = date.getDate().toString().padStart(2, '0')
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  return `${day} ${month} ${year}`
+}
+
+// Type guards
+function isCountry(obj: number | Country): obj is Country {
+  return typeof obj === 'object' && obj !== null && 'countryCode' in obj
+}
+
+function isCategory(obj: number | Category): obj is Category {
+  return typeof obj === 'object' && obj !== null && 'Name' in obj
+}
+
+function isCompany(obj: number | Company): obj is Company {
+  return typeof obj === 'object' && obj !== null && 'Name' in obj
+}
+
+function isOrganisingGroup(obj: number | OrganisingGroup): obj is OrganisingGroup {
+  return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
 export default async function SolidarityActionPage({ params }: Props) {
@@ -43,121 +92,294 @@ export default async function SolidarityActionPage({ params }: Props) {
     notFound()
   }
 
+  // Extract related entities
+  const countries = Array.isArray(action.Country) ? action.Country.filter(isCountry) : []
+  const categories = Array.isArray(action.Category) ? action.Category.filter(isCategory) : []
+  const companies = Array.isArray(action.Company) ? action.Company.filter(isCompany) : []
+  const organisingGroups = Array.isArray(action.OrganisingGroups)
+    ? action.OrganisingGroups.filter(isOrganisingGroup)
+    : []
+
+  // Fetch action counts for related entities
+  const [
+    countryActionsCounts,
+    categoryActionsCounts,
+    companyActionsCounts,
+    organisingGroupActionsCounts,
+  ] = await Promise.all([
+    // Country action counts
+    Promise.all(
+      countries.map(async (country) => {
+        const result = await payload.find({
+          collection: 'solidarityActions',
+          where: {
+            and: [
+              {
+                Country: {
+                  in: [country.id],
+                },
+              },
+              ...(!isDraftMode
+                ? [
+                    {
+                      _status: {
+                        equals: 'published',
+                      },
+                    },
+                  ]
+                : []),
+            ],
+          },
+          limit: 0,
+        })
+        return { id: country.id, count: result.totalDocs }
+      }),
+    ),
+    // Category action counts
+    Promise.all(
+      categories.map(async (category) => {
+        const result = await payload.find({
+          collection: 'solidarityActions',
+          where: {
+            and: [
+              {
+                Category: {
+                  in: [category.id],
+                },
+              },
+              ...(!isDraftMode
+                ? [
+                    {
+                      _status: {
+                        equals: 'published',
+                      },
+                    },
+                  ]
+                : []),
+            ],
+          },
+          limit: 0,
+        })
+        return { id: category.id, count: result.totalDocs }
+      }),
+    ),
+    // Company action counts
+    Promise.all(
+      companies.map(async (company) => {
+        const result = await payload.find({
+          collection: 'solidarityActions',
+          where: {
+            and: [
+              {
+                Company: {
+                  in: [company.id],
+                },
+              },
+              ...(!isDraftMode
+                ? [
+                    {
+                      _status: {
+                        equals: 'published',
+                      },
+                    },
+                  ]
+                : []),
+            ],
+          },
+          limit: 0,
+        })
+        return { id: company.id, count: result.totalDocs }
+      }),
+    ),
+    // Organising group action counts
+    Promise.all(
+      organisingGroups.map(async (group) => {
+        const result = await payload.find({
+          collection: 'solidarityActions',
+          where: {
+            and: [
+              {
+                OrganisingGroups: {
+                  in: [group.id],
+                },
+              },
+              ...(!isDraftMode
+                ? [
+                    {
+                      _status: {
+                        equals: 'published',
+                      },
+                    },
+                  ]
+                : []),
+            ],
+          },
+          limit: 0,
+        })
+        return { id: group.id, count: result.totalDocs }
+      }),
+    ),
+  ])
+
+  const countryActionsMap = new Map(countryActionsCounts.map((c) => [c.id, c.count]))
+  const categoryActionsMap = new Map(categoryActionsCounts.map((c) => [c.id, c.count]))
+  const companyActionsMap = new Map(companyActionsCounts.map((c) => [c.id, c.count]))
+  const organisingGroupActionsMap = new Map(
+    organisingGroupActionsCounts.map((c) => [c.id, c.count]),
+  )
+
+  const formattedDate = action.Date ? formatDate(new Date(action.Date)) : ''
+
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <h1>{action.Name}</h1>
-      {action.Location && (
-        <p style={{ fontSize: '1rem', color: '#666', marginBottom: '0.5rem' }}>
-          Location: {action.Location}
-        </p>
-      )}
-      {action.Date && (
-        <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem' }}>
-          Date: {new Date(action.Date).toLocaleDateString()}
-        </p>
-      )}
-      {action.Summary && (
-        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={action.Summary} />
+    <div className="action-page">
+      <article className="action-article">
+        {/* Metadata line */}
+        <div className="action-metadata">
+          {formattedDate && (
+            <time dateTime={action.Date} className="action-date">
+              {formattedDate}
+            </time>
+          )}
+          {countries.map((country, idx) => (
+            <span key={idx} className="action-metadata-item">
+              {country.countryCode && (
+                <span className="action-flag" aria-label={`Flag of ${country.Name}`}>
+                  {getCountryFlag(country.countryCode)}
+                </span>
+              )}
+              <span>{country.Name}</span>
+            </span>
+          ))}
+          {categories.map((category, idx) => (
+            <span key={idx} className="action-metadata-item capitalize">
+              {category.Emoji && <span>{category.Emoji}</span>}
+              <span> {category.Name}</span>
+            </span>
+          ))}
         </div>
-      )}
-      {action.Link && (
-        <p style={{ marginTop: '1rem' }}>
-          <a
-            href={action.Link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#4A90E2' }}
-          >
-            Learn more
-          </a>
-        </p>
-      )}
-      {action.Company && Array.isArray(action.Company) && action.Company.length > 0 && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Companies:</h3>
-          <ul>
-            {action.Company.map((company, index) => (
-              <li key={index} style={{ marginBottom: '0.5rem' }}>
-                {typeof company === 'object' && company !== null && 'slug' in company ? (
-                  <Link
-                    href={`/companies/${company.slug}`}
-                    style={{ color: '#4A90E2', textDecoration: 'none' }}
-                  >
-                    {typeof company === 'object' && 'Name' in company
-                      ? company.Name
-                      : 'Unknown Company'}
-                  </Link>
-                ) : (
-                  <span>
-                    {typeof company === 'object' && 'Name' in company
-                      ? company.Name
-                      : 'Unknown Company'}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {action.OrganisingGroups &&
-        Array.isArray(action.OrganisingGroups) &&
-        action.OrganisingGroups.length > 0 && (
-          <div style={{ marginTop: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Organising Groups:</h3>
-            <ul>
-              {action.OrganisingGroups.map((group, index) => (
-                <li key={index} style={{ marginBottom: '0.5rem' }}>
-                  {typeof group === 'object' && group !== null && 'slug' in group ? (
-                    <Link
-                      href={`/organising-groups/${group.slug}`}
-                      style={{ color: '#4A90E2', textDecoration: 'none' }}
-                    >
-                      {typeof group === 'object' && 'FullName' in group
-                        ? group.FullName || group.Name
-                        : typeof group === 'object' && 'Name' in group
-                          ? group.Name
-                          : 'Unknown Group'}
-                    </Link>
-                  ) : (
-                    <span>
-                      {typeof group === 'object' && 'FullName' in group
-                        ? group.FullName || group.Name
-                        : typeof group === 'object' && 'Name' in group
-                          ? group.Name
-                          : 'Unknown Group'}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+
+        {/* Article title */}
+        <h1 className="action-title font-identity">{action.Name}</h1>
+
+        {/* Article content */}
+        {action.Summary && (
+          <div className="action-content">
+            <LexicalRenderer content={action.Summary} />
           </div>
         )}
-      {action.Country && Array.isArray(action.Country) && action.Country.length > 0 && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Countries:</h3>
-          <ul>
-            {action.Country.map((country, index) => (
-              <li key={index} style={{ marginBottom: '0.5rem' }}>
-                {typeof country === 'object' && country !== null && 'slug' in country ? (
-                  <Link
-                    href={`/countries/${country.slug}`}
-                    style={{ color: '#4A90E2', textDecoration: 'none' }}
-                  >
-                    {typeof country === 'object' && 'Name' in country
-                      ? country.Name
-                      : 'Unknown Country'}
+
+        {/* External link */}
+        {action.Link && (
+          <div className="action-link-section">
+            <a
+              href={action.Link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="action-external-link"
+            >
+              <span aria-label="Link" role="img">
+                🔗
+              </span>{' '}
+              <span className="action-link-domain">
+                {(() => {
+                  try {
+                    return new URL(action.Link).hostname.replace('www.', '')
+                  } catch {
+                    return action.Link
+                  }
+                })()}
+              </span>
+            </a>
+          </div>
+        )}
+
+        {/* Have more info section */}
+        <div className="action-more-info">
+          <span>Have more info about this action? </span>
+          <a href="mailto:hello@gameworkersolidarity.com" className="action-more-info-link">
+            Let us know →
+          </a>
+        </div>
+      </article>
+
+      {/* Related information boxes */}
+      {(countries.length > 0 ||
+        categories.length > 0 ||
+        companies.length > 0 ||
+        organisingGroups.length > 0) && (
+        <div className="action-related-info">
+          {countries.map((country) => {
+            const count = countryActionsMap.get(country.id) || 0
+            return (
+              <div key={country.id} className="related-info-box">
+                <div className="related-info-header">
+                  {country.countryCode && (
+                    <span className="related-info-icon" aria-label={`Flag of ${country.Name}`}>
+                      {getCountryFlag(country.countryCode)}
+                    </span>
+                  )}
+                  <span className="related-info-title">{country.Name}</span>
+                </div>
+                <div className="related-info-type">Country</div>
+                {country.slug && (
+                  <Link href={`/countries/${country.slug}`} className="related-info-link">
+                    {count} action{count !== 1 ? 's' : ''} →
                   </Link>
-                ) : (
-                  <span>
-                    {typeof country === 'object' && country !== null && 'Name' in country
-                      ? country.Name
-                      : 'Unknown Country'}
-                  </span>
                 )}
-              </li>
-            ))}
-          </ul>
+              </div>
+            )
+          })}
+
+          {categories.map((category) => {
+            const count = categoryActionsMap.get(category.id) || 0
+            return (
+              <div key={category.id} className="related-info-box">
+                <div className="related-info-header">
+                  {category.Emoji && (
+                    <span className="related-info-icon">{category.Emoji}</span>
+                  )}
+                  <span className="related-info-title">{category.Name}</span>
+                </div>
+                <div className="related-info-type">Category</div>
+                {category.slug && (
+                  <Link href={`/actions?category=${category.id}`} className="related-info-link">
+                    All actions →
+                  </Link>
+                )}
+              </div>
+            )
+          })}
+
+          {organisingGroups.map((group) => (
+            <div key={group.id} className="related-info-box">
+              <div className="related-info-title">
+                {typeof group === 'object' && 'FullName' in group
+                  ? group.FullName || group.Name
+                  : group.Name}
+              </div>
+              <div className="related-info-type">Organising group</div>
+              {group.slug && (
+                <Link href={`/organising-groups/${group.slug}`} className="related-info-link">
+                  Learn more →
+                </Link>
+              )}
+            </div>
+          ))}
+
+          {companies.map((company) => {
+            const count = companyActionsMap.get(company.id) || 0
+            return (
+              <div key={company.id} className="related-info-box">
+                <div className="related-info-title">{company.Name}</div>
+                <div className="related-info-type">Company</div>
+                {company.slug && (
+                  <Link href={`/companies/${company.slug}`} className="related-info-link">
+                    All actions →
+                  </Link>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

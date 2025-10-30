@@ -150,7 +150,6 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
       <div className="homepage-grid">
         <div className="map-section">
-          <h2>Solidarity Action Density by Country</h2>
           <div className="map-container">
             <WorldMap data={countryDataMap} />
           </div>
