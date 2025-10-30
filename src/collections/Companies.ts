@@ -4,6 +4,18 @@ export const Companies: CollectionConfig = {
   slug: 'companies',
   admin: {
     useAsTitle: 'Name',
+    preview: (doc) => {
+      const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
+      const encodedParams = new URLSearchParams({
+        slug,
+        collection: 'companies',
+        path: `/companies/${slug}`,
+        previewSecret,
+      })
+
+      return `/preview?${encodedParams.toString()}`
+    },
   },
   access: {
     read: () => true,
@@ -41,6 +53,15 @@ export const Companies: CollectionConfig = {
       type: 'relationship',
       relationTo: 'solidarityActions',
       hasMany: true,
+    },
+    {
+      name: 'Redundancies',
+      type: 'relationship',
+      relationTo: 'redundancies',
+      hasMany: true,
+      admin: {
+        description: 'Redundancies and layoffs linked to this company',
+      },
     },
     slugField({
       fieldToUse: 'Name',

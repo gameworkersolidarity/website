@@ -76,6 +76,8 @@ export interface Config {
     categories: Category;
     organisingGroups: OrganisingGroup;
     solidarityActions: SolidarityAction;
+    campaigns: Campaign;
+    redundancies: Redundancy;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +94,8 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>;
     solidarityActions: SolidarityActionsSelect<false> | SolidarityActionsSelect<true>;
+    campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    redundancies: RedundanciesSelect<false> | RedundanciesSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -401,10 +405,54 @@ export interface Company {
   } | null;
   SolidarityActions?: (number | SolidarityAction)[] | null;
   /**
+   * Redundancies and layoffs linked to this company
+   */
+  Redundancies?: (number | Redundancy)[] | null;
+  /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
   slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redundancies".
+ */
+export interface Redundancy {
+  id: number;
+  studio: string;
+  date: string;
+  /**
+   * Number of people affected (if known)
+   */
+  headcount?: number | null;
+  /**
+   * Parent company name (as imported from CSV)
+   */
+  parent?: string | null;
+  /**
+   * Type of studio/business
+   */
+  type?: ('Indie' | 'Console' | 'Mobile' | 'Online' | 'AR/VR' | 'Tech' | 'Publisher') | null;
+  /**
+   * Location of the studio
+   */
+  studioLocation?: string | null;
+  /**
+   * Location of the parent company
+   */
+  parentLocation?: string | null;
+  /**
+   * Matched company from database
+   */
+  company?: (number | null) | Company;
+  /**
+   * Matched parent company from database
+   */
+  parentCompany?: (number | null) | Company;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -442,6 +490,77 @@ export interface Category {
    */
   generateSlug?: boolean | null;
   slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaigns".
+ */
+export interface Campaign {
+  id: number;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  title: string;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  featuredImage?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Add events to create a timeline. Set parent events to create hierarchical relationships. Use link types to indicate causality.
+   */
+  timeline?:
+    | {
+        /**
+         * The solidarity action/event to include in this timeline
+         */
+        event: number | SolidarityAction;
+        /**
+         * Optional: Set this event as a child of another event to create a hierarchy
+         */
+        parentEvent?: (number | null) | SolidarityAction;
+        /**
+         * Strong links indicate direct causality. Weak links indicate indirect relationships. None for root events.
+         */
+        linkType: 'strong' | 'weak' | 'none';
+        /**
+         * Optional description of how this event relates to its parent
+         */
+        linkDescription?: string | null;
+        /**
+         * Order in which to display events (lower numbers first)
+         */
+        displayOrder?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Only published campaigns will appear on the frontend
+   */
+  published?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -580,6 +699,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'solidarityActions';
         value: number | SolidarityAction;
+      } | null)
+    | ({
+        relationTo: 'campaigns';
+        value: number | Campaign;
+      } | null)
+    | ({
+        relationTo: 'redundancies';
+        value: number | Redundancy;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -729,6 +856,7 @@ export interface CompaniesSelect<T extends boolean = true> {
   Name?: T;
   Summary?: T;
   SolidarityActions?: T;
+  Redundancies?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -795,6 +923,56 @@ export interface SolidarityActionsSelect<T extends boolean = true> {
   DisplayStyle?: T;
   hasPassedValidation?: T;
   Public?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaigns_select".
+ */
+export interface CampaignsSelect<T extends boolean = true> {
+  generateSlug?: T;
+  slug?: T;
+  title?: T;
+  description?: T;
+  featuredImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  timeline?:
+    | T
+    | {
+        event?: T;
+        parentEvent?: T;
+        linkType?: T;
+        linkDescription?: T;
+        displayOrder?: T;
+        id?: T;
+      };
+  published?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redundancies_select".
+ */
+export interface RedundanciesSelect<T extends boolean = true> {
+  studio?: T;
+  date?: T;
+  headcount?: T;
+  parent?: T;
+  type?: T;
+  studioLocation?: T;
+  parentLocation?: T;
+  company?: T;
+  parentCompany?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -970,6 +1148,14 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'solidarityActions';
           value: number | SolidarityAction;
+        } | null)
+      | ({
+          relationTo: 'campaigns';
+          value: number | Campaign;
+        } | null)
+      | ({
+          relationTo: 'redundancies';
+          value: number | Redundancy;
         } | null);
     global?: string | null;
     user?: (number | null) | User;

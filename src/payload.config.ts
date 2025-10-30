@@ -1,4 +1,3 @@
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -14,6 +13,8 @@ import { Companies } from './collections/Companies'
 import { Categories } from './collections/Categories'
 import { OrganisingGroups } from './collections/OrganisingGroups'
 import { SolidarityActions } from './collections/SolidarityActions'
+import { Campaigns } from './collections/Campaigns'
+import { Redundancies } from './collections/Redundancies'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { cloudinaryStorage } from 'payload-cloudinary'
@@ -41,6 +42,8 @@ export default buildConfig({
     Categories,
     OrganisingGroups,
     SolidarityActions,
+    Campaigns,
+    Redundancies,
   ],
   globals: [Header, Footer],
   editor: lexicalEditor(),
@@ -74,15 +77,15 @@ export default buildConfig({
                 prefix: 'media',
               },
             },
-            bucket: process.env.S3_BUCKET,
+            bucket: process.env.S3_BUCKET || '',
             config: {
               forcePathStyle: true,
               credentials: {
-                accessKeyId: process.env.S3_ACCESS_KEY_ID,
-                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+                accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
               },
-              region: process.env.S3_REGION,
-              endpoint: process.env.S3_ENDPOINT,
+              region: process.env.S3_REGION || 'us-east-1',
+              endpoint: process.env.S3_ENDPOINT || '',
             },
           })
         : (config) => {

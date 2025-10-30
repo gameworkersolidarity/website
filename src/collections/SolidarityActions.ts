@@ -4,6 +4,18 @@ export const SolidarityActions: CollectionConfig = {
   slug: 'solidarityActions',
   admin: {
     useAsTitle: 'Name',
+    preview: (doc) => {
+      const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
+      const encodedParams = new URLSearchParams({
+        slug,
+        collection: 'solidarityActions',
+        path: `/actions/${slug}`,
+        previewSecret,
+      })
+
+      return `/preview?${encodedParams.toString()}`
+    },
   },
   access: {
     read: () => true,

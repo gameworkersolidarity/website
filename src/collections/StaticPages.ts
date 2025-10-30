@@ -4,6 +4,17 @@ export const StaticPages: CollectionConfig = {
   slug: 'staticPages',
   admin: {
     useAsTitle: 'Title',
+    preview: (doc) => {
+      const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const encodedParams = new URLSearchParams({
+        slug: doc?.slug || '',
+        collection: 'staticPages',
+        path: `/${doc?.slug || ''}`,
+        previewSecret,
+      })
+
+      return `/preview?${encodedParams.toString()}`
+    },
   },
   access: {
     read: () => true,

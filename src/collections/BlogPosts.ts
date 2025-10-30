@@ -5,6 +5,17 @@ export const BlogPosts: CollectionConfig = {
   admin: {
     useAsTitle: 'Title',
     defaultColumns: ['Title', 'Date', 'Public'],
+    preview: (doc) => {
+      const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const encodedParams = new URLSearchParams({
+        slug: doc?.slug || '',
+        collection: 'blogPosts',
+        path: `/blog/${doc?.slug || ''}`,
+        previewSecret,
+      })
+
+      return `/preview?${encodedParams.toString()}`
+    },
   },
   access: {
     read: () => true,

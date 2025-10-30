@@ -1,0 +1,170 @@
+.redundancies-page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: #f5f5f5;
+}
+
+.redundancies-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Summary Statistics */
+.redundancies-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Company Groupings */
+.redundancies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.company-redundancies {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.company-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.company-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.company-link {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.2s;
+}
+
+.company-link:hover {
+  color: #0066cc;
+}
+
+.redundancy-count {
+  background: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Redundancy Timeline */
+.redundancies-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.redundancy-item {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #0066cc;
+}
+
+.redundancy-date {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.redundancy-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.redundancy-studio {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+}
+
+.redundancy-type {
+  background: #e0e0e0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.redundancy-headcount {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.redundancy-location,
+.redundancy-parent {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.parent-link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.parent-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .redundancy-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .redundancy-date {
+    font-size: 0.85rem;
+  }
+
+  .company-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
