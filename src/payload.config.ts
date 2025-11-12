@@ -1,4 +1,3 @@
-import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -22,6 +21,7 @@ import 'dotenv/config'
 import env from 'env-var'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { openapi, scalar } from 'payload-oapi'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -52,10 +52,8 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: vercelPostgresAdapter({
-    pool: {
-      connectionString: process.env.POSTGRES_URL || '',
-    },
+  db: mongooseAdapter({
+    url: env.get('MONGODB_URL').required().asString(),
   }),
   plugins: [
     openapi({
