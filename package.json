@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@payloadcms/db-mongodb": "*",
+    "@payloadcms/live-preview-react": "^3.63.0",
     "@payloadcms/next": "*",
     "@payloadcms/payload-cloud": "*",
     "@payloadcms/plugin-cloud-storage": "*",

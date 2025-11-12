@@ -42,6 +42,42 @@ export default buildConfig({
             prefillOnly: true,
           }
         : undefined,
+    livePreview: {
+      url: ({ data }) => {
+        const baseURL = process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        if (data?.slug) {
+          return `${baseURL}/events/${data.slug}`
+        }
+        return baseURL
+      },
+      collections: ['events'],
+      breakpoints: [
+        {
+          label: 'Mobile',
+          name: 'mobile',
+          width: 375,
+          height: 667,
+        },
+        {
+          label: 'Tablet',
+          name: 'tablet',
+          width: 768,
+          height: 1024,
+        },
+        {
+          label: 'Laptop',
+          name: 'laptop',
+          width: 1440,
+          height: 900,
+        },
+        {
+          label: 'Desktop',
+          name: 'desktop',
+          width: 1920,
+          height: 1080,
+        },
+      ],
+    },
   },
   collections: [
     Users,

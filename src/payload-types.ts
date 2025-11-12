@@ -79,7 +79,6 @@ export interface Config {
     campaigns: Campaign;
     redundancies: Redundancy;
     events: Event;
-    eventLinks: EventLink;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -100,7 +99,6 @@ export interface Config {
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
     redundancies: RedundanciesSelect<false> | RedundanciesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
-    eventLinks: EventLinksSelect<false> | EventLinksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -625,33 +623,6 @@ export interface Event {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Links between events with descriptive comments
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventLinks".
- */
-export interface EventLink {
-  id: string;
-  /**
-   * The source event
-   */
-  fromEvent: string | Event;
-  /**
-   * The target/related event
-   */
-  toEvent: string | Event;
-  /**
-   * The quality of the relationship between events
-   */
-  quality: 'DIRECT' | 'INDIRECT';
-  /**
-   * Description of how these events are related (e.g., "The same organiser went on to do this other thing")
-   */
-  comment: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -814,10 +785,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'events';
         value: string | Event;
-      } | null)
-    | ({
-        relationTo: 'eventLinks';
-        value: string | EventLink;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1101,18 +1068,6 @@ export interface EventsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventLinks_select".
- */
-export interface EventLinksSelect<T extends boolean = true> {
-  fromEvent?: T;
-  toEvent?: T;
-  quality?: T;
-  comment?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
