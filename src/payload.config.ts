@@ -32,6 +32,15 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    autoRefresh: true,
+    autoLogin:
+      process.env.NODE_ENV === 'development'
+        ? {
+            email: 'test@example.com',
+            password: 'test',
+            prefillOnly: true,
+          }
+        : undefined,
   },
   collections: [
     Users,
