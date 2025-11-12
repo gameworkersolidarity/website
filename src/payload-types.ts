@@ -78,6 +78,9 @@ export interface Config {
     solidarityActions: SolidarityAction;
     campaigns: Campaign;
     redundancies: Redundancy;
+    events: Event;
+    eventLinks: EventLink;
+    'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,13 +99,16 @@ export interface Config {
     solidarityActions: SolidarityActionsSelect<false> | SolidarityActionsSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
     redundancies: RedundanciesSelect<false> | RedundanciesSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    eventLinks: EventLinksSelect<false> | EventLinksSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
   globals: {
     header: Header;
@@ -150,7 +156,7 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -175,7 +181,7 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: number;
+  id: string;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -195,7 +201,7 @@ export interface Media {
  * via the `definition` "staticPages".
  */
 export interface StaticPage {
-  id: number;
+  id: string;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -227,7 +233,7 @@ export interface StaticPage {
  * via the `definition` "blogPosts".
  */
 export interface BlogPost {
-  id: number;
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
@@ -239,7 +245,7 @@ export interface BlogPost {
   slug: string;
   Title: string;
   ByLine?: string | null;
-  Image?: (number | null) | Media;
+  Image?: (string | null) | Media;
   Summary?: string | null;
   Body: {
     root: {
@@ -265,7 +271,7 @@ export interface BlogPost {
  * via the `definition` "countries".
  */
 export interface Country {
-  id: number;
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
@@ -292,8 +298,8 @@ export interface Country {
    */
   generateSlug?: boolean | null;
   slug: string;
-  Unions?: (number | OrganisingGroup)[] | null;
-  SolidarityActions?: (number | SolidarityAction)[] | null;
+  Unions?: (string | OrganisingGroup)[] | null;
+  SolidarityActions?: (string | SolidarityAction)[] | null;
   coords?:
     | {
         [k: string]: unknown;
@@ -312,7 +318,7 @@ export interface Country {
  * via the `definition` "organisingGroups".
  */
 export interface OrganisingGroup {
-  id: number;
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
@@ -324,12 +330,12 @@ export interface OrganisingGroup {
   slug: string;
   Name: string;
   FullName?: string | null;
-  Country?: (number | Country)[] | null;
+  Country?: (string | Country)[] | null;
   IsUnion?: boolean | null;
   Website?: string | null;
   Bluesky?: string | null;
   Twitter?: string | null;
-  SolidarityActions?: (number | SolidarityAction)[] | null;
+  SolidarityActions?: (string | SolidarityAction)[] | null;
   LastModified: string;
   updatedAt: string;
   createdAt: string;
@@ -340,7 +346,7 @@ export interface OrganisingGroup {
  * via the `definition` "solidarityActions".
  */
 export interface SolidarityAction {
-  id: number;
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
@@ -371,11 +377,11 @@ export interface SolidarityAction {
   LastModified: string;
   Link?: string | null;
   LocationData?: string | null;
-  Country?: (number | Country)[] | null;
-  Company?: (number | Company)[] | null;
-  OrganisingGroups?: (number | OrganisingGroup)[] | null;
-  Category?: (number | Category)[] | null;
-  Document?: (number | Media)[] | null;
+  Country?: (string | Country)[] | null;
+  Company?: (string | Company)[] | null;
+  OrganisingGroups?: (string | OrganisingGroup)[] | null;
+  Category?: (string | Category)[] | null;
+  Document?: (string | Media)[] | null;
   DisplayStyle?: 'Featured' | null;
   updatedAt: string;
   createdAt: string;
@@ -386,7 +392,7 @@ export interface SolidarityAction {
  * via the `definition` "companies".
  */
 export interface Company {
-  id: number;
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
@@ -407,11 +413,11 @@ export interface Company {
     };
     [k: string]: unknown;
   } | null;
-  SolidarityActions?: (number | SolidarityAction)[] | null;
+  SolidarityActions?: (string | SolidarityAction)[] | null;
   /**
    * Redundancies and layoffs linked to this company
    */
-  Redundancies?: (number | Redundancy)[] | null;
+  Redundancies?: (string | Redundancy)[] | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -426,7 +432,7 @@ export interface Company {
  * via the `definition` "redundancies".
  */
 export interface Redundancy {
-  id: number;
+  id: string;
   studio: string;
   date: string;
   /**
@@ -452,11 +458,11 @@ export interface Redundancy {
   /**
    * Matched company from database
    */
-  company?: (number | null) | Company;
+  company?: (string | null) | Company;
   /**
    * Matched parent company from database
    */
-  parentCompany?: (number | null) | Company;
+  parentCompany?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -466,7 +472,7 @@ export interface Redundancy {
  * via the `definition` "categories".
  */
 export interface Category {
-  id: number;
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
@@ -488,7 +494,7 @@ export interface Category {
     };
     [k: string]: unknown;
   } | null;
-  SolidarityActions?: (number | SolidarityAction)[] | null;
+  SolidarityActions?: (string | SolidarityAction)[] | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -503,7 +509,7 @@ export interface Category {
  * via the `definition` "campaigns".
  */
 export interface Campaign {
-  id: number;
+  id: string;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -525,10 +531,10 @@ export interface Campaign {
     };
     [k: string]: unknown;
   };
-  featuredImage?: (number | null) | Media;
+  featuredImage?: (string | null) | Media;
   gallery?:
     | {
-        image: number | Media;
+        image: string | Media;
         caption?: string | null;
         id?: string | null;
       }[]
@@ -541,11 +547,11 @@ export interface Campaign {
         /**
          * The solidarity action/event to include in this timeline
          */
-        event: number | SolidarityAction;
+        event: string | SolidarityAction;
         /**
          * Optional: Set this event as a child of another event to create a hierarchy
          */
-        parentEvent?: (number | null) | SolidarityAction;
+        parentEvent?: (string | null) | SolidarityAction;
         /**
          * Strong links indicate direct causality. Weak links indicate indirect relationships. None for root events.
          */
@@ -567,10 +573,107 @@ export interface Campaign {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  title: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  date: string;
+  location?: string | null;
+  /**
+   * Create links to related events directly from this event
+   */
+  relatedEvents?:
+    | {
+        /**
+         * The event this is related to
+         */
+        relatedEvent: string | Event;
+        /**
+         * The quality of the relationship
+         */
+        quality: 'DIRECT' | 'INDIRECT';
+        /**
+         * Description of how these events are related (e.g., "The same organiser went on to do this other thing")
+         */
+        comment: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Links between events with descriptive comments
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventLinks".
+ */
+export interface EventLink {
+  id: string;
+  /**
+   * The source event
+   */
+  fromEvent: string | Event;
+  /**
+   * The target/related event
+   */
+  toEvent: string | Event;
+  /**
+   * The quality of the relationship between events
+   */
+  quality: 'DIRECT' | 'INDIRECT';
+  /**
+   * Description of how these events are related (e.g., "The same organiser went on to do this other thing")
+   */
+  comment: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: string;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: number;
+  id: string;
   /**
    * Input data provided to the job
    */
@@ -662,60 +765,64 @@ export interface PayloadJob {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: number | Media;
+        value: string | Media;
       } | null)
     | ({
         relationTo: 'staticPages';
-        value: number | StaticPage;
+        value: string | StaticPage;
       } | null)
     | ({
         relationTo: 'blogPosts';
-        value: number | BlogPost;
+        value: string | BlogPost;
       } | null)
     | ({
         relationTo: 'countries';
-        value: number | Country;
+        value: string | Country;
       } | null)
     | ({
         relationTo: 'companies';
-        value: number | Company;
+        value: string | Company;
       } | null)
     | ({
         relationTo: 'categories';
-        value: number | Category;
+        value: string | Category;
       } | null)
     | ({
         relationTo: 'organisingGroups';
-        value: number | OrganisingGroup;
+        value: string | OrganisingGroup;
       } | null)
     | ({
         relationTo: 'solidarityActions';
-        value: number | SolidarityAction;
+        value: string | SolidarityAction;
       } | null)
     | ({
         relationTo: 'campaigns';
-        value: number | Campaign;
+        value: string | Campaign;
       } | null)
     | ({
         relationTo: 'redundancies';
-        value: number | Redundancy;
+        value: string | Redundancy;
       } | null)
     | ({
-        relationTo: 'payload-jobs';
-        value: number | PayloadJob;
+        relationTo: 'events';
+        value: string | Event;
+      } | null)
+    | ({
+        relationTo: 'eventLinks';
+        value: string | EventLink;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -725,10 +832,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -748,7 +855,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -974,6 +1081,49 @@ export interface RedundanciesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  generateSlug?: T;
+  slug?: T;
+  title?: T;
+  description?: T;
+  date?: T;
+  location?: T;
+  relatedEvents?:
+    | T
+    | {
+        relatedEvent?: T;
+        quality?: T;
+        comment?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventLinks_select".
+ */
+export interface EventLinksSelect<T extends boolean = true> {
+  fromEvent?: T;
+  toEvent?: T;
+  quality?: T;
+  comment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
@@ -1040,7 +1190,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  * via the `definition` "header".
  */
 export interface Header {
-  id: number;
+  id: string;
   navigation?:
     | {
         label: string;
@@ -1056,7 +1206,7 @@ export interface Header {
  * via the `definition` "footer".
  */
 export interface Footer {
-  id: number;
+  id: string;
   navigation?:
     | {
         label: string;
@@ -1110,50 +1260,54 @@ export interface TaskSchedulePublish {
     doc?:
       | ({
           relationTo: 'users';
-          value: number | User;
+          value: string | User;
         } | null)
       | ({
           relationTo: 'media';
-          value: number | Media;
+          value: string | Media;
         } | null)
       | ({
           relationTo: 'staticPages';
-          value: number | StaticPage;
+          value: string | StaticPage;
         } | null)
       | ({
           relationTo: 'blogPosts';
-          value: number | BlogPost;
+          value: string | BlogPost;
         } | null)
       | ({
           relationTo: 'countries';
-          value: number | Country;
+          value: string | Country;
         } | null)
       | ({
           relationTo: 'companies';
-          value: number | Company;
+          value: string | Company;
         } | null)
       | ({
           relationTo: 'categories';
-          value: number | Category;
+          value: string | Category;
         } | null)
       | ({
           relationTo: 'organisingGroups';
-          value: number | OrganisingGroup;
+          value: string | OrganisingGroup;
         } | null)
       | ({
           relationTo: 'solidarityActions';
-          value: number | SolidarityAction;
+          value: string | SolidarityAction;
         } | null)
       | ({
           relationTo: 'campaigns';
-          value: number | Campaign;
+          value: string | Campaign;
         } | null)
       | ({
           relationTo: 'redundancies';
-          value: number | Redundancy;
+          value: string | Redundancy;
+        } | null)
+      | ({
+          relationTo: 'events';
+          value: string | Event;
         } | null);
     global?: string | null;
-    user?: (number | null) | User;
+    user?: (string | null) | User;
   };
   output?: unknown;
 }
