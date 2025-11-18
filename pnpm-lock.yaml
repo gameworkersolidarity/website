@@ -123,9 +123,6 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3.2.0
         version: 3.3.1
-      '@playwright/test':
-        specifier: 1.54.1
-        version: 1.54.1
       '@testing-library/react':
         specifier: 16.3.0
         version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -141,12 +138,6 @@ importers:
       jsdom:
         specifier: 26.1.0
         version: 26.1.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)
-      playwright:
-        specifier: 1.54.1
-        version: 1.54.1
-      playwright-core:
-        specifier: 1.54.1
-        version: 1.54.1
       prettier:
         specifier: ^3.4.2
         version: 3.6.2
@@ -6385,6 +6376,7 @@ snapshots:
   '@playwright/test@1.54.1':
     dependencies:
       playwright: 1.54.1
+    optional: true
 
   '@rolldown/pluginutils@1.0.0-beta.11': {}
 
@@ -9293,13 +9285,15 @@ snapshots:
       sonic-boom: 4.2.0
       thread-stream: 3.1.0
 
-  playwright-core@1.54.1: {}
+  playwright-core@1.54.1:
+    optional: true
 
   playwright@1.54.1:
     dependencies:
       playwright-core: 1.54.1
     optionalDependencies:
       fsevents: 2.3.2
+    optional: true
 
   pluralize@8.0.0: {}
 
