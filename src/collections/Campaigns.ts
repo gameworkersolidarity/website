@@ -2,6 +2,7 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
+  trash: true,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'createdAt', 'updatedAt'],
@@ -49,87 +50,77 @@ export const Campaigns: CollectionConfig = {
       relationTo: 'media',
     },
     {
-      name: 'gallery',
-      type: 'array',
-      fields: [
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          required: true,
-        },
-        {
-          name: 'caption',
-          type: 'text',
-        },
-      ],
-    },
-    {
-      name: 'timeline',
-      type: 'array',
-      label: 'Timeline Events',
-      minRows: 0,
+      name: 'events',
+      label: 'Events',
       admin: {
         description:
-          'Add events to create a timeline. Set parent events to create hierarchical relationships. Use link types to indicate causality.',
+          'Configure which events to include in this campaign. You can either select individual events or create a dynamic list of events based on selected companies, countries, categories, and organising groups.',
       },
-      fields: [
+      type: 'blocks',
+      blocks: [
         {
-          name: 'event',
-          type: 'relationship',
-          relationTo: 'solidarityActions',
-          required: true,
-          admin: {
-            description: 'The solidarity action/event to include in this timeline',
+          slug: 'event',
+          labels: {
+            singular: 'Event',
+            plural: 'Events',
           },
-        },
-        {
-          name: 'parentEvent',
-          type: 'relationship',
-          relationTo: 'solidarityActions',
-          admin: {
-            description:
-              'Optional: Set this event as a child of another event to create a hierarchy',
-          },
-        },
-        {
-          name: 'linkType',
-          type: 'select',
-          options: [
+          fields: [
             {
-              label: 'Strong Link',
-              value: 'strong',
-            },
-            {
-              label: 'Weak Link',
-              value: 'weak',
-            },
-            {
-              label: 'No Link (Root Event)',
-              value: 'none',
+              name: 'event',
+              type: 'relationship',
+              relationTo: 'events',
+              required: true,
+              hasMany: true,
+              admin: {
+                description: 'Manually select events to include in this campaign',
+              },
             },
           ],
-          defaultValue: 'none',
-          required: true,
-          admin: {
-            description:
-              'Strong links indicate direct causality. Weak links indicate indirect relationships. None for root events.',
-          },
         },
         {
-          name: 'linkDescription',
-          type: 'textarea',
-          admin: {
-            description: 'Optional description of how this event relates to its parent',
+          slug: 'dynamicEventList',
+          labels: {
+            singular: 'Dynamic Event List',
+            plural: 'Dynamic Event Lists',
           },
-        },
-        {
-          name: 'displayOrder',
-          type: 'number',
-          defaultValue: 0,
-          admin: {
-            description: 'Order in which to display events (lower numbers first)',
-          },
+          fields: [
+            {
+              name: 'companies',
+              type: 'relationship',
+              relationTo: 'companies',
+              hasMany: true,
+              admin: {
+                description: 'Filter events by selected companies',
+              },
+            },
+            {
+              name: 'countries',
+              type: 'relationship',
+              relationTo: 'countries',
+              hasMany: true,
+              admin: {
+                description: 'Filter events by selected countries',
+              },
+            },
+            {
+              name: 'categories',
+              type: 'relationship',
+              relationTo: 'categories',
+              hasMany: true,
+              admin: {
+                description: 'Filter events by selected categories',
+              },
+            },
+            {
+              name: 'organisingGroups',
+              type: 'relationship',
+              relationTo: 'organisingGroups',
+              hasMany: true,
+              admin: {
+                description: 'Filter events by selected organising groups',
+              },
+            },
+          ],
         },
       ],
     },

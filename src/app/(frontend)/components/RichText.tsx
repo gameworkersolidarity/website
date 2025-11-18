@@ -60,7 +60,7 @@ export function RichText({ data }: RichTextProps) {
         switch (node.type) {
           case 'heading':
             const level = (node.tag || node.headingSize || 'h2') as string
-            const HeadingTag = level as keyof JSX.IntrinsicElements
+            const HeadingTag = level as keyof React.ElementType
             return React.createElement(HeadingTag, { key: index }, children)
 
           case 'paragraph':

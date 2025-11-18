@@ -2,6 +2,7 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const OrganisingGroups: CollectionConfig = {
   slug: 'organisingGroups',
+  trash: true,
   admin: {
     useAsTitle: 'Name',
     preview: (doc) => {
@@ -82,6 +83,24 @@ export const OrganisingGroups: CollectionConfig = {
       name: 'LastModified',
       type: 'date',
       required: true,
+    },
+    {
+      name: 'Parents',
+      type: 'relationship',
+      relationTo: 'organisingGroups',
+      hasMany: true,
+      admin: {
+        description: 'Parent organising groups',
+      },
+    },
+    {
+      name: 'Children',
+      type: 'relationship',
+      relationTo: 'organisingGroups',
+      hasMany: true,
+      admin: {
+        description: 'Child/sub-organising groups',
+      },
     },
   ],
 }

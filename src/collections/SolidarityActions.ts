@@ -2,11 +2,12 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const SolidarityActions: CollectionConfig = {
   slug: 'solidarityActions',
+  trash: true,
   admin: {
     useAsTitle: 'Name',
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
-        return false
+        return null
       }
 
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''

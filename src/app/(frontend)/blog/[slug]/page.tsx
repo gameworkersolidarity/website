@@ -83,9 +83,9 @@ export default async function BlogPost({ params }: Props) {
       {post.ByLine && (
         <p style={{ fontSize: '1rem', color: '#666', fontStyle: 'italic' }}>{post.ByLine}</p>
       )}
-      {post.Date && (
+      {post.createdAt && (
         <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem' }}>
-          {new Date(post.Date).toLocaleDateString()}
+          {new Date(post.createdAt).toLocaleDateString()}
         </p>
       )}
       {post.Image && typeof post.Image === 'object' && 'url' in post.Image && (

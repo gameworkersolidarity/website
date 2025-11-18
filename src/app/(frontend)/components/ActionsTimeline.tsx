@@ -40,12 +40,12 @@ function formatDate(date: Date): string {
 }
 
 // Type guard for Country
-function isCountry(obj: number | Country): obj is Country {
+function isCountry(obj: Country['id'] | Country): obj is Country {
   return typeof obj === 'object' && obj !== null && 'countryCode' in obj
 }
 
 // Type guard for Category
-function isCategory(obj: number | Category): obj is Category {
+function isCategory(obj: Category['id'] | Category): obj is Category {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 

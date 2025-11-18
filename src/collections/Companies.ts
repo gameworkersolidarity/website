@@ -2,6 +2,7 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
+  trash: true,
   admin: {
     useAsTitle: 'Name',
     preview: (doc) => {
@@ -61,6 +62,24 @@ export const Companies: CollectionConfig = {
       hasMany: true,
       admin: {
         description: 'Redundancies and layoffs linked to this company',
+      },
+    },
+    {
+      name: 'Parents',
+      type: 'relationship',
+      relationTo: 'companies',
+      hasMany: true,
+      admin: {
+        description: 'Parent companies',
+      },
+    },
+    {
+      name: 'Children',
+      type: 'relationship',
+      relationTo: 'companies',
+      hasMany: true,
+      admin: {
+        description: 'Child/subsidiary companies',
       },
     },
     slugField({

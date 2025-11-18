@@ -145,7 +145,9 @@ export async function GET() {
   const rssItems = posts
     .map((post) => {
       const postUrl = `${baseUrl}/blog/${post.slug}`
-      const pubDate = post.Date ? formatRssDate(post.Date as string) : formatRssDate(post.createdAt)
+      const pubDate = post.createdAt
+        ? formatRssDate(post.createdAt as string)
+        : formatRssDate(post.createdAt)
       const title = escapeXml(post.Title as string)
 
       // Use Summary if available, otherwise generate description from body

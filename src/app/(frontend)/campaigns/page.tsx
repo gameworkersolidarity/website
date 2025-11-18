@@ -79,10 +79,10 @@ export default async function CampaignsPage() {
                   )}
                   <div className="campaign-card-content">
                     <h2>{campaign.title}</h2>
-                    {campaign.timeline && campaign.timeline.length > 0 && (
+                    {campaign.events && campaign.events.length > 0 && (
                       <p className="campaign-card-meta">
-                        {campaign.timeline.length} event{campaign.timeline.length !== 1 ? 's' : ''}{' '}
-                        in timeline
+                        {campaign.events.length} event{campaign.events.length !== 1 ? 's' : ''} in
+                        timeline
                       </p>
                     )}
                   </div>

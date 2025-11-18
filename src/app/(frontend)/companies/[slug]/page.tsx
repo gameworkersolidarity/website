@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { UnifiedTimeline } from '../../components/UnifiedTimeline'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
+import { Country, OrganisingGroup } from '@/payload-types'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -146,11 +147,8 @@ export default async function CompanyPage({ params }: Props) {
   const redundancies = redundanciesResult.docs
 
   // Extract unique countries and organising groups from solidarity actions
-  const countriesSet = new Map<string, { id: number; Name: string; slug: string }>()
-  const organisingGroupsSet = new Map<
-    string,
-    { id: number; Name: string; FullName?: string; slug: string }
-  >()
+  const countriesSet = new Map<string, Country>()
+  const organisingGroupsSet = new Map<string, OrganisingGroup>()
 
   solidarityActions.forEach((action) => {
     // Extract countries
@@ -165,11 +163,7 @@ export default async function CompanyPage({ params }: Props) {
         ) {
           const countryId = String(country.id)
           if (!countriesSet.has(countryId)) {
-            countriesSet.set(countryId, {
-              id: country.id as number,
-              Name: country.Name as string,
-              slug: country.slug as string,
-            })
+            countriesSet.set(countryId, country)
           }
         }
       })
@@ -186,12 +180,7 @@ export default async function CompanyPage({ params }: Props) {
         ) {
           const groupId = String(group.id)
           if (!organisingGroupsSet.has(groupId)) {
-            organisingGroupsSet.set(groupId, {
-              id: group.id as number,
-              Name: (group.Name || '') as string,
-              FullName: (group.FullName || undefined) as string | undefined,
-              slug: group.slug as string,
-            })
+            organisingGroupsSet.set(groupId, group)
           }
         }
       })

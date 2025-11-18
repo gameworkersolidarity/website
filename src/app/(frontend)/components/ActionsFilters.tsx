@@ -17,23 +17,18 @@ export function ActionsFilters({
   organisingGroups,
 }: ActionsFiltersProps) {
   const [countryFilter, setCountryFilter] = useQueryState('country', {
-    defaultValue: null,
     clearOnDefault: true,
   })
   const [categoryFilter, setCategoryFilter] = useQueryState('category', {
-    defaultValue: null,
     clearOnDefault: true,
   })
   const [companyFilter, setCompanyFilter] = useQueryState('company', {
-    defaultValue: null,
     clearOnDefault: true,
   })
   const [unionFilter, setUnionFilter] = useQueryState('union', {
-    defaultValue: null,
     clearOnDefault: true,
   })
   const [yearFilter, setYearFilter] = useQueryState('year', {
-    defaultValue: null,
     clearOnDefault: true,
   })
 

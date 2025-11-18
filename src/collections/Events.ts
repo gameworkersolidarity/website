@@ -2,12 +2,13 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const Events: CollectionConfig = {
   slug: 'events',
+  trash: true,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'date', 'createdAt', 'updatedAt'],
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
-        return false
+        return null
       }
 
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
@@ -56,6 +57,37 @@ export const Events: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'headcount',
+      type: 'number',
+      admin: {
+        description: 'How many workers were involved in, or affected by, this event.',
+      },
+    },
+    {
+      name: 'countries',
+      type: 'relationship',
+      relationTo: 'countries',
+      hasMany: true,
+    },
+    {
+      name: 'companies',
+      type: 'relationship',
+      relationTo: 'companies',
+      hasMany: true,
+    },
+    {
+      name: 'organisingGroups',
+      type: 'relationship',
+      relationTo: 'organisingGroups',
+      hasMany: true,
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'categories',
+      hasMany: true,
+    },
+    {
       name: 'relatedEvents',
       type: 'array',
       label: 'Related Events',
@@ -96,46 +128,11 @@ export const Events: CollectionConfig = {
           type: 'textarea',
           required: true,
           admin: {
-            description: 'Description of how these events are related (e.g., "The same organiser went on to do this other thing")',
+            description:
+              'Description of how these events are related (e.g., "The same organiser went on to do this other thing")',
           },
         },
       ],
     },
   ],
-  hooks: {
-    beforeValidate: [
-      async ({ data, req, id }) => {
-        // Validate that relatedEvents don't link to the same event or to itself
-        if (data?.relatedEvents && Array.isArray(data.relatedEvents)) {
-          const relatedEventIds = new Set()
-          const currentEventId = id || (data.id ? String(data.id) : null)
-          
-          for (const item of data.relatedEvents) {
-            if (item?.relatedEvent) {
-              const eventId =
-                typeof item.relatedEvent === 'object'
-                  ? item.relatedEvent.id
-                  : String(item.relatedEvent)
-              
-              // Prevent self-links
-              if (currentEventId && eventId === currentEventId) {
-                throw new Error(
-                  'An event cannot link to itself',
-                )
-              }
-              
-              // Prevent duplicate links in the same array
-              if (relatedEventIds.has(eventId)) {
-                throw new Error(
-                  'Cannot link to the same event multiple times in related events',
-                )
-              }
-              relatedEventIds.add(eventId)
-            }
-          }
-        }
-      },
-    ],
-  },
 }
-

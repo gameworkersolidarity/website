@@ -3,6 +3,7 @@ import coords from 'country-coords'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
+  trash: true,
   admin: {
     useAsTitle: 'Name',
   },

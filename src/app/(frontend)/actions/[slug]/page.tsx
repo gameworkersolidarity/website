@@ -43,19 +43,19 @@ function formatDate(date: Date): string {
 }
 
 // Type guards
-function isCountry(obj: number | Country): obj is Country {
+function isCountry(obj: string | Country): obj is Country {
   return typeof obj === 'object' && obj !== null && 'countryCode' in obj
 }
 
-function isCategory(obj: number | Category): obj is Category {
+function isCategory(obj: string | Category): obj is Category {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
-function isCompany(obj: number | Company): obj is Company {
+function isCompany(obj: string | Company): obj is Company {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
-function isOrganisingGroup(obj: number | OrganisingGroup): obj is OrganisingGroup {
+function isOrganisingGroup(obj: string | OrganisingGroup): obj is OrganisingGroup {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
@@ -350,9 +350,7 @@ export default async function SolidarityActionPage({ params }: Props) {
             return (
               <div key={category.id} className="related-info-box">
                 <div className="related-info-header">
-                  {category.Emoji && (
-                    <span className="related-info-icon">{category.Emoji}</span>
-                  )}
+                  {category.Emoji && <span className="related-info-icon">{category.Emoji}</span>}
                   <span className="related-info-title">{category.Name}</span>
                 </div>
                 <div className="related-info-type">Category</div>

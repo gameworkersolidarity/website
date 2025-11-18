@@ -2,6 +2,7 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const Redundancies: CollectionConfig = {
   slug: 'redundancies',
+  trash: true,
   admin: {
     useAsTitle: 'studio',
     defaultColumns: ['studio', 'date', 'headcount', 'company', 'type', 'createdAt'],

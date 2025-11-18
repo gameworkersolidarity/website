@@ -2,6 +2,7 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const StaticPages: CollectionConfig = {
   slug: 'staticPages',
+  trash: true,
   admin: {
     useAsTitle: 'Title',
     preview: (doc) => {

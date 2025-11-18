@@ -40,14 +40,15 @@ function isEvent(obj: number | Event): obj is Event {
 
 export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
   // Use the Payload API URL (where the admin panel is hosted)
-  const serverURL = process.env.NEXT_PUBLIC_PAYLOAD_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'
-  
+  const serverURL =
+    process.env.NEXT_PUBLIC_PAYLOAD_URL ||
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+    'http://localhost:3000'
+
   const { data: event } = useLivePreview({
     initialData: initialEvent,
     serverURL,
     depth: 2,
-    collection: 'events',
-    id: initialEvent.id,
   })
 
   // Extract related events from the event data
@@ -60,16 +61,17 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
     for (const relatedEventItem of event.relatedEvents) {
       if (relatedEventItem?.relatedEvent) {
         // Check if the related event is already populated (object) or just an ID
-        if (typeof relatedEventItem.relatedEvent === 'object' && isEvent(relatedEventItem.relatedEvent)) {
+        if (
+          typeof relatedEventItem.relatedEvent === 'object' &&
+          isEvent(relatedEventItem.relatedEvent)
+        ) {
           // Already populated, use it directly if it's published (when not in draft mode)
-          if (isDraftMode || relatedEventItem.relatedEvent._status === 'published') {
-            events.push(relatedEventItem.relatedEvent)
-          }
+          events.push(relatedEventItem.relatedEvent)
         }
       }
     }
     return events
-  }, [event?.relatedEvents, isDraftMode])
+  }, [event?.relatedEvents])
 
   if (!event) {
     return null
@@ -87,9 +89,7 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
               {formattedDate}
             </time>
           )}
-          {event.location && (
-            <span className="action-metadata-item">{event.location}</span>
-          )}
+          {event.location && <span className="action-metadata-item">{event.location}</span>}
         </div>
 
         {/* Article title */}
@@ -125,4 +125,3 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
     </div>
   )
 }
-

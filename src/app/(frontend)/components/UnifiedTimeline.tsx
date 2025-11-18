@@ -1,18 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import type { SolidarityAction, Country, Category } from '@/payload-types'
-
-interface Redundancy {
-  id: number
-  studio: string
-  date: string
-  headcount?: number | null
-  parent?: string | null
-  type?: string | null
-  studioLocation?: string | null
-  parentLocation?: string | null
-}
+import type { SolidarityAction, Country, Category, Redundancy } from '@/payload-types'
 
 interface UnifiedTimelineProps {
   actions: SolidarityAction[]
@@ -51,12 +40,12 @@ function formatDate(date: Date): string {
 }
 
 // Type guard for Country
-function isCountry(obj: number | Country): obj is Country {
+function isCountry(obj: Country['id'] | Country): obj is Country {
   return typeof obj === 'object' && obj !== null && 'countryCode' in obj
 }
 
 // Type guard for Category
-function isCategory(obj: number | Category): obj is Category {
+function isCategory(obj: Category['id'] | Category): obj is Category {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
@@ -161,7 +150,9 @@ export function UnifiedTimeline({ actions, redundancies }: UnifiedTimelineProps)
               {year}
             </div>
 
-            <div style={{ marginTop: '3rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div
+              style={{ marginTop: '3rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}
+            >
               {yearEvents.map((event, eventIndex) => {
                 const isAction = event.type === 'action'
                 const isLast = eventIndex === yearEvents.length - 1
@@ -212,7 +203,10 @@ export function UnifiedTimeline({ actions, redundancies }: UnifiedTimelineProps)
                         </div>
 
                         {/* Spacer for center timeline */}
-                        <div style={{ width: '100px', flexShrink: 0 }} className="timeline-spacer" />
+                        <div
+                          style={{ width: '100px', flexShrink: 0 }}
+                          className="timeline-spacer"
+                        />
 
                         {/* Empty space on right side */}
                         <div style={{ flex: 1 }} className="timeline-empty" />
@@ -223,7 +217,10 @@ export function UnifiedTimeline({ actions, redundancies }: UnifiedTimelineProps)
                         <div style={{ flex: 1 }} className="timeline-empty" />
 
                         {/* Spacer for center timeline */}
-                        <div style={{ width: '100px', flexShrink: 0 }} className="timeline-spacer" />
+                        <div
+                          style={{ width: '100px', flexShrink: 0 }}
+                          className="timeline-spacer"
+                        />
 
                         {/* Content - right side for redundancies */}
                         <div
@@ -254,14 +251,10 @@ function ActionItem({ action }: { action: SolidarityAction }) {
   const formattedDate = formatDate(date)
 
   // Get country flags
-  const countries = Array.isArray(action.Country)
-    ? action.Country.filter(isCountry)
-    : []
+  const countries = Array.isArray(action.Country) ? action.Country.filter(isCountry) : []
 
   // Get categories with emojis
-  const categories = Array.isArray(action.Category)
-    ? action.Category.filter(isCategory)
-    : []
+  const categories = Array.isArray(action.Category) ? action.Category.filter(isCategory) : []
 
   return (
     <div
@@ -295,7 +288,9 @@ function ActionItem({ action }: { action: SolidarityAction }) {
           </span>
         ))}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}
+      >
         {action.slug ? (
           <Link
             href={`/actions/${action.slug}`}
@@ -423,4 +418,3 @@ function RedundancyItem({ redundancy }: { redundancy: Redundancy }) {
     </div>
   )
 }
-

@@ -1,13 +1,12 @@
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
-import React from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import { CampaignTimeline } from '../../components/CampaignTimeline'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
-import { RichText } from '../../components/RichText'
-import type { SolidarityAction } from '@/payload-types'
+// import { CampaignTimeline } from '../../components/CampaignTimeline'
+// import { ActionsTimeline } from '../../components/ActionsTimeline'
+// import { RichText } from '../../components/RichText'
+// import type { SolidarityAction } from '@/payload-types'
 import '../campaigns.css'
 
 export async function generateStaticParams() {
@@ -102,26 +101,23 @@ export default async function CampaignPage({ params }: { params: { slug: string 
   const campaign = campaignResult.docs[0]
 
   // Build the timeline structure with events
-  const timelineEvents = campaign.timeline || []
+  const timelineEvents = campaign.events || []
 
   // Sort by displayOrder, then by date
-  const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
-    const orderDiff = (a.displayOrder || 0) - (b.displayOrder || 0)
-    if (orderDiff !== 0) return orderDiff
+  // const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
+  //   const eventA = typeof a.event === 'object' ? a.event : null
+  //   const eventB = typeof b.event === 'object' ? b.event : null
 
-    const eventA = typeof a.event === 'object' ? a.event : null
-    const eventB = typeof b.event === 'object' ? b.event : null
+  //   if (eventA && eventB) {
+  //     return new Date(eventA.Date).getTime() - new Date(eventB.Date).getTime()
+  //   }
+  //   return 0
+  // })
 
-    if (eventA && eventB) {
-      return new Date(eventA.Date).getTime() - new Date(eventB.Date).getTime()
-    }
-    return 0
-  })
-
-  const featuredImage =
-    typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
-      ? campaign.featuredImage.url
-      : null
+  // const featuredImage =
+  //   typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
+  //     ? campaign.featuredImage.url
+  //     : null
 
   return (
     <div className="campaign-page">
@@ -138,7 +134,7 @@ export default async function CampaignPage({ params }: { params: { slug: string 
           ← Back to Campaigns
         </Link>
 
-        <article className="campaign-article">
+        {/* <article className="campaign-article">
           {featuredImage && (
             <div className="campaign-featured-image">
               <img src={featuredImage} alt={campaign.title} />
@@ -222,7 +218,7 @@ export default async function CampaignPage({ params }: { params: { slug: string 
               </div>
             </>
           )}
-        </article>
+        </article> */}
       </div>
     </div>
   )

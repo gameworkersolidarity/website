@@ -148,7 +148,6 @@ export default buildConfig({
             },
           })
         : (config) => {
-            console.log('STORAGE_TYPE is not set')
             return config
           },
   ],

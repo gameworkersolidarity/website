@@ -2,6 +2,7 @@ import { slugField, type CollectionConfig } from 'payload'
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blogPosts',
+  trash: true,
   admin: {
     useAsTitle: 'Title',
     defaultColumns: ['Title', 'Date'],

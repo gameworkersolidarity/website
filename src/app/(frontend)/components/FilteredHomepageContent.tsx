@@ -12,40 +12,40 @@ interface FilteredHomepageContentProps {
 }
 
 // Type guard for Country
-function isCountry(obj: number | Country): obj is Country {
+function isCountry(obj: Country['id'] | Country): obj is Country {
   return typeof obj === 'object' && obj !== null && 'countryCode' in obj
 }
 
 // Type guard for Category
-function isCategory(obj: number | Category): obj is Category {
+function isCategory(obj: Category['id'] | Category): obj is Category {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
 // Type guard for Company
-function isCompany(obj: number | Company): obj is Company {
+function isCompany(obj: Company['id'] | Company): obj is Company {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
 // Type guard for OrganisingGroup
-function isOrganisingGroup(obj: number | OrganisingGroup): obj is OrganisingGroup {
+function isOrganisingGroup(obj: OrganisingGroup['id'] | OrganisingGroup): obj is OrganisingGroup {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
 export function FilteredHomepageContent({ actions, countries }: FilteredHomepageContentProps) {
-  const [countryFilter] = useQueryState('country', { defaultValue: null })
-  const [categoryFilter] = useQueryState('category', { defaultValue: null })
-  const [companyFilter] = useQueryState('company', { defaultValue: null })
-  const [unionFilter] = useQueryState('union', { defaultValue: null })
-  const [yearFilter] = useQueryState('year', { defaultValue: null })
+  const [countryFilter] = useQueryState('country', { clearOnDefault: true })
+  const [categoryFilter] = useQueryState('category', { clearOnDefault: true })
+  const [companyFilter] = useQueryState('company', { clearOnDefault: true })
+  const [unionFilter] = useQueryState('union', { clearOnDefault: true })
+  const [yearFilter] = useQueryState('year', { clearOnDefault: true })
 
   // Filter actions based on query params
   const filteredActions = useMemo(() => {
     let filtered = [...actions]
 
-    const countryFilterId = countryFilter ? parseInt(countryFilter, 10) : null
-    const categoryFilterId = categoryFilter ? parseInt(categoryFilter, 10) : null
-    const companyFilterId = companyFilter ? parseInt(companyFilter, 10) : null
-    const unionFilterId = unionFilter ? parseInt(unionFilter, 10) : null
+    const countryFilterId = countryFilter ? countryFilter : null
+    const categoryFilterId = categoryFilter ? categoryFilter : null
+    const companyFilterId = companyFilter ? companyFilter : null
+    const unionFilterId = unionFilter ? unionFilter : null
     const yearFilterNum = yearFilter ? parseInt(yearFilter, 10) : null
 
     // Filter by country

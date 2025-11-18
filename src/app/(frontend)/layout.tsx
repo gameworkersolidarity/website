@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
@@ -43,11 +43,13 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <NuqsAdapter>
-          <Header navigation={headerData?.navigation || []} />
-          <main>{children}</main>
-          <Footer navigation={footerData?.navigation || []} />
-        </NuqsAdapter>
+        <Suspense fallback={<div>Loading...</div>}>
+          <NuqsAdapter>
+            <Header navigation={headerData?.navigation || []} />
+            <main>{children}</main>
+            <Footer navigation={footerData?.navigation || []} />
+          </NuqsAdapter>
+        </Suspense>
       </body>
     </html>
   )

@@ -68,7 +68,7 @@ function renderNode(node: LexicalNode): React.ReactNode {
     switch (type) {
       case 'heading':
         const headingTag = (rest.tag as string) || 'h1'
-        const HeadingTag = headingTag as keyof JSX.IntrinsicElements
+        const HeadingTag = headingTag as keyof React.ElementType
         return React.createElement(HeadingTag, null, renderedChildren)
 
       case 'paragraph':

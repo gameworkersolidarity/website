@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
+import { Company } from '@/payload-types'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -132,7 +133,7 @@ export default async function CountryPage({ params }: Props) {
   const solidarityActions = actionsResult.docs
 
   // Extract unique companies from solidarity actions
-  const companiesSet = new Map<string, { id: number; Name: string; slug: string }>()
+  const companiesSet = new Map<string, Company>()
 
   solidarityActions.forEach((action) => {
     if (action.Company && Array.isArray(action.Company)) {
@@ -146,11 +147,7 @@ export default async function CountryPage({ params }: Props) {
         ) {
           const companyId = String(company.id)
           if (!companiesSet.has(companyId)) {
-            companiesSet.set(companyId, {
-              id: company.id as number,
-              Name: company.Name as string,
-              slug: company.slug as string,
-            })
+            companiesSet.set(companyId, company)
           }
         }
       })

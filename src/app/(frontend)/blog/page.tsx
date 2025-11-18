@@ -60,9 +60,9 @@ export default async function BlogPage() {
                     <div className="blog-card-content">
                       <h2>{post.Title}</h2>
                       {post.ByLine && <p className="blog-card-byline">{post.ByLine}</p>}
-                      {post.Date && (
-                        <time className="blog-card-date" dateTime={post.Date as string}>
-                          {new Date(post.Date as string).toLocaleDateString('en-US', {
+                      {post.createdAt && (
+                        <time className="blog-card-date" dateTime={post.createdAt as string}>
+                          {new Date(post.createdAt as string).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',

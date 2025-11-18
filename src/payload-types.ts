@@ -183,6 +183,7 @@ export interface Media {
   alt: string;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
   url?: string | null;
   thumbnailURL?: string | null;
@@ -224,6 +225,7 @@ export interface StaticPage {
   };
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -262,6 +264,7 @@ export interface BlogPost {
   };
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -309,6 +312,7 @@ export interface Country {
     | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -335,8 +339,17 @@ export interface OrganisingGroup {
   Twitter?: string | null;
   SolidarityActions?: (string | SolidarityAction)[] | null;
   LastModified: string;
+  /**
+   * Parent organising groups
+   */
+  Parents?: (string | OrganisingGroup)[] | null;
+  /**
+   * Child/sub-organising groups
+   */
+  Children?: (string | OrganisingGroup)[] | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -383,6 +396,7 @@ export interface SolidarityAction {
   DisplayStyle?: 'Featured' | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -417,12 +431,21 @@ export interface Company {
    */
   Redundancies?: (string | Redundancy)[] | null;
   /**
+   * Parent companies
+   */
+  Parents?: (string | Company)[] | null;
+  /**
+   * Child/subsidiary companies
+   */
+  Children?: (string | Company)[] | null;
+  /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
   slug: string;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -463,6 +486,7 @@ export interface Redundancy {
   parentCompany?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -500,6 +524,7 @@ export interface Category {
   slug: string;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -530,43 +555,46 @@ export interface Campaign {
     [k: string]: unknown;
   };
   featuredImage?: (string | null) | Media;
-  gallery?:
-    | {
-        image: string | Media;
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   /**
-   * Add events to create a timeline. Set parent events to create hierarchical relationships. Use link types to indicate causality.
+   * Configure which events to include in this campaign. You can either select individual events or create a dynamic list of events based on selected companies, countries, categories, and organising groups.
    */
-  timeline?:
-    | {
-        /**
-         * The solidarity action/event to include in this timeline
-         */
-        event: string | SolidarityAction;
-        /**
-         * Optional: Set this event as a child of another event to create a hierarchy
-         */
-        parentEvent?: (string | null) | SolidarityAction;
-        /**
-         * Strong links indicate direct causality. Weak links indicate indirect relationships. None for root events.
-         */
-        linkType: 'strong' | 'weak' | 'none';
-        /**
-         * Optional description of how this event relates to its parent
-         */
-        linkDescription?: string | null;
-        /**
-         * Order in which to display events (lower numbers first)
-         */
-        displayOrder?: number | null;
-        id?: string | null;
-      }[]
+  events?:
+    | (
+        | {
+            /**
+             * Manually select events to include in this campaign
+             */
+            event: (string | Event)[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'event';
+          }
+        | {
+            /**
+             * Filter events by selected companies
+             */
+            companies?: (string | Company)[] | null;
+            /**
+             * Filter events by selected countries
+             */
+            countries?: (string | Country)[] | null;
+            /**
+             * Filter events by selected categories
+             */
+            categories?: (string | Category)[] | null;
+            /**
+             * Filter events by selected organising groups
+             */
+            organisingGroups?: (string | OrganisingGroup)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'dynamicEventList';
+          }
+      )[]
     | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -599,6 +627,14 @@ export interface Event {
   date: string;
   location?: string | null;
   /**
+   * How many workers were involved in, or affected by, this event.
+   */
+  headcount?: number | null;
+  countries?: (string | Country)[] | null;
+  companies?: (string | Company)[] | null;
+  organisingGroups?: (string | OrganisingGroup)[] | null;
+  categories?: (string | Category)[] | null;
+  /**
    * Create links to related events directly from this event
    */
   relatedEvents?:
@@ -620,6 +656,7 @@ export interface Event {
     | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -859,6 +896,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
   url?: T;
   thumbnailURL?: T;
@@ -882,6 +920,7 @@ export interface StaticPagesSelect<T extends boolean = true> {
   Body?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -899,6 +938,7 @@ export interface BlogPostsSelect<T extends boolean = true> {
   Body?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -917,6 +957,7 @@ export interface CountriesSelect<T extends boolean = true> {
   coords?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -929,10 +970,13 @@ export interface CompaniesSelect<T extends boolean = true> {
   Summary?: T;
   SolidarityActions?: T;
   Redundancies?: T;
+  Parents?: T;
+  Children?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -949,6 +993,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -968,8 +1013,11 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   Twitter?: T;
   SolidarityActions?: T;
   LastModified?: T;
+  Parents?: T;
+  Children?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -995,6 +1043,7 @@ export interface SolidarityActionsSelect<T extends boolean = true> {
   DisplayStyle?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -1007,25 +1056,30 @@ export interface CampaignsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   featuredImage?: T;
-  gallery?:
+  events?:
     | T
     | {
-        image?: T;
-        caption?: T;
-        id?: T;
-      };
-  timeline?:
-    | T
-    | {
-        event?: T;
-        parentEvent?: T;
-        linkType?: T;
-        linkDescription?: T;
-        displayOrder?: T;
-        id?: T;
+        event?:
+          | T
+          | {
+              event?: T;
+              id?: T;
+              blockName?: T;
+            };
+        dynamicEventList?:
+          | T
+          | {
+              companies?: T;
+              countries?: T;
+              categories?: T;
+              organisingGroups?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -1044,6 +1098,7 @@ export interface RedundanciesSelect<T extends boolean = true> {
   parentCompany?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -1057,6 +1112,11 @@ export interface EventsSelect<T extends boolean = true> {
   description?: T;
   date?: T;
   location?: T;
+  headcount?: T;
+  countries?: T;
+  companies?: T;
+  organisingGroups?: T;
+  categories?: T;
   relatedEvents?:
     | T
     | {
@@ -1067,6 +1127,7 @@ export interface EventsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**

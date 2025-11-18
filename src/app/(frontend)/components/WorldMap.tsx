@@ -53,7 +53,7 @@ export function WorldMap({ data }: WorldMapProps) {
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={colorScale(queue)}
+                  fill={colorScale(queue).toString()}
                   stroke="#fff"
                   strokeWidth={0.5}
                   style={{
