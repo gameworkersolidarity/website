@@ -49,7 +49,8 @@
     "react-dom": "19.1.0",
     "react-simple-maps": "^3.0.0",
     "string-similarity": "^4.0.4",
-    "world-atlas": "^2.0.2"
+    "world-atlas": "^2.0.2",
+    "typescript": "5.7.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -70,7 +71,6 @@
     "playwright-core": "1.54.1",
     "prettier": "^3.4.2",
     "tsx": "^4.19.1",
-    "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.3"
   },
