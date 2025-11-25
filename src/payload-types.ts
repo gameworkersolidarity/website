@@ -339,10 +339,6 @@ export interface OrganisingGroup {
   SolidarityActions?: (string | SolidarityAction)[] | null;
   LastModified: string;
   /**
-   * Parent organising groups
-   */
-  Parents?: (string | OrganisingGroup)[] | null;
-  /**
    * Child/sub-organising groups
    */
   Children?: (string | OrganisingGroup)[] | null;
@@ -429,10 +425,6 @@ export interface Company {
    * Redundancies and layoffs linked to this company
    */
   Redundancies?: (string | Redundancy)[] | null;
-  /**
-   * Parent companies
-   */
-  Parents?: (string | Company)[] | null;
   /**
    * Child/subsidiary companies
    */
@@ -608,6 +600,14 @@ export interface Event {
   generateSlug?: boolean | null;
   slug: string;
   title: string;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * Source of this event.
+   */
+  source?: string | null;
   description?: {
     root: {
       type: string;
@@ -629,6 +629,8 @@ export interface Event {
    * How many workers were involved in, or affected by, this event.
    */
   headcount?: number | null;
+  link?: string | null;
+  document?: (string | Media)[] | null;
   countries?: (string | Country)[] | null;
   companies?: (string | Company)[] | null;
   organisingGroups?: (string | OrganisingGroup)[] | null;
@@ -968,7 +970,6 @@ export interface CompaniesSelect<T extends boolean = true> {
   Summary?: T;
   SolidarityActions?: T;
   Redundancies?: T;
-  Parents?: T;
   Children?: T;
   generateSlug?: T;
   slug?: T;
@@ -1011,7 +1012,6 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   Twitter?: T;
   SolidarityActions?: T;
   LastModified?: T;
-  Parents?: T;
   Children?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1107,10 +1107,14 @@ export interface EventsSelect<T extends boolean = true> {
   generateSlug?: T;
   slug?: T;
   title?: T;
+  airtableId?: T;
+  source?: T;
   description?: T;
   date?: T;
   location?: T;
   headcount?: T;
+  link?: T;
+  document?: T;
   countries?: T;
   companies?: T;
   organisingGroups?: T;

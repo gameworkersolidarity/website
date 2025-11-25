@@ -25,6 +25,7 @@
     "@payloadcms/next": "*",
     "@payloadcms/payload-cloud": "*",
     "@payloadcms/plugin-cloud-storage": "*",
+    "@payloadcms/plugin-mcp": "^3.64.0",
     "@payloadcms/richtext-lexical": "*",
     "@payloadcms/storage-s3": "^*",
     "@payloadcms/storage-vercel-blob": "*",

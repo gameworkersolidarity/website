@@ -10,10 +10,10 @@ export default async function HomePage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  // Fetch all solidarity actions with related data
+  // Fetch all events with related data
   // Include both published and legacy records (where _status is null)
-  const actionsResult = await payload.find({
-    collection: 'solidarityActions',
+  const eventsResult = await payload.find({
+    collection: 'events',
     where: {
       or: [
         {
@@ -56,7 +56,7 @@ export default async function HomePage() {
   return (
     <div className="homepage">
       <div className="homepage-hero">
-        <h1>{actionsResult.docs.length} solidarity actions</h1>
+        <h1>{eventsResult.docs.length} events</h1>
       </div>
 
       <ActionsFilters
@@ -66,7 +66,7 @@ export default async function HomePage() {
         organisingGroups={organisingGroupsResult.docs}
       />
 
-      <FilteredHomepageContent actions={actionsResult.docs} countries={countriesResult.docs} />
+      <FilteredHomepageContent events={eventsResult.docs} countries={countriesResult.docs} />
     </div>
   )
 }

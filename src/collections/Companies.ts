@@ -65,15 +65,6 @@ export const Companies: CollectionConfig = {
       },
     },
     {
-      name: 'Parents',
-      type: 'relationship',
-      relationTo: 'companies',
-      hasMany: true,
-      admin: {
-        description: 'Parent companies',
-      },
-    },
-    {
       name: 'Children',
       type: 'relationship',
       relationTo: 'companies',

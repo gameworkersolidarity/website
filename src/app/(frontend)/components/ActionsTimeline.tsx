@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import React from 'react'
-import type { SolidarityAction, Country, Category } from '@/payload-types'
+import type { Event, Country, Category } from '@/payload-types'
 
 interface ActionsTimelineProps {
-  actions: SolidarityAction[]
+  events: Event[]
 }
 
 // Helper function to get country flag emoji from country code
@@ -49,22 +49,22 @@ function isCategory(obj: Category['id'] | Category): obj is Category {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
-export function ActionsTimeline({ actions }: ActionsTimelineProps) {
-  // Group actions by year
-  const actionsByYear = actions.reduce(
-    (acc, action) => {
-      const year = new Date(action.Date).getFullYear()
+export function ActionsTimeline({ events }: ActionsTimelineProps) {
+  // Group events by year
+  const eventsByYear = events.reduce(
+    (acc, event) => {
+      const year = new Date(event.date).getFullYear()
       if (!acc[year]) {
         acc[year] = []
       }
-      acc[year].push(action)
+      acc[year].push(event)
       return acc
     },
-    {} as Record<number, SolidarityAction[]>,
+    {} as Record<number, Event[]>,
   )
 
   // Sort years in descending order
-  const years = Object.keys(actionsByYear)
+  const years = Object.keys(eventsByYear)
     .map(Number)
     .sort((a, b) => b - a)
 
@@ -77,44 +77,33 @@ export function ActionsTimeline({ actions }: ActionsTimelineProps) {
               {year}
             </h2>
             <div className="year-action-count">
-              {actionsByYear[year].length} action{actionsByYear[year].length !== 1 ? 's' : ''}
+              {eventsByYear[year].length} event{eventsByYear[year].length !== 1 ? 's' : ''}
             </div>
           </div>
           <div className="actions-list">
-            {actionsByYear[year].map((action) => {
-              const date = new Date(action.Date)
+            {eventsByYear[year].map((event) => {
+              const date = new Date(event.date)
               const formattedDate = formatDate(date)
 
               // Get country flags
-              const countries = Array.isArray(action.Country)
-                ? action.Country.filter(isCountry)
+              const countries = Array.isArray(event.countries)
+                ? event.countries.filter(isCountry)
                 : []
 
               // Get categories with emojis
-              const categories = Array.isArray(action.Category)
-                ? action.Category.filter(isCategory)
+              const categories = Array.isArray(event.categories)
+                ? event.categories.filter(isCategory)
                 : []
-
-              // Extract domain from link
-              const linkDomain = action.Link
-                ? (() => {
-                    try {
-                      return new URL(action.Link).hostname.replace('www.', '')
-                    } catch {
-                      return action.Link
-                    }
-                  })()
-                : null
 
               const cardContent = (
                 <>
                   {/* Metadata line */}
                   <div className="timeline-action-metadata">
-                    <time dateTime={action.Date} className="timeline-action-date">
+                    <time dateTime={event.date} className="timeline-action-date">
                       {formattedDate}
                     </time>
-                    {action.Location && (
-                      <span className="timeline-action-location">{action.Location}</span>
+                    {event.location && (
+                      <span className="timeline-action-location">{event.location}</span>
                     )}
                     {countries.map((country, idx) => (
                       <span key={idx} className="timeline-action-metadata-item">
@@ -138,38 +127,20 @@ export function ActionsTimeline({ actions }: ActionsTimelineProps) {
                   </div>
 
                   {/* Title */}
-                  <h3 className="timeline-action-title">{action.Name}</h3>
-
-                  {/* External link */}
-                  {action.Link && (
-                    <div className="timeline-action-link">
-                      <a
-                        href={action.Link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="timeline-action-external-link"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <span aria-label="Link" role="img">
-                          🔗
-                        </span>{' '}
-                        <span className="timeline-action-link-domain">{linkDomain}</span>
-                      </a>
-                    </div>
-                  )}
+                  <h3 className="timeline-action-title">{event.title}</h3>
                 </>
               )
 
-              return action.slug ? (
+              return event.slug ? (
                 <Link
-                  key={action.id}
-                  href={`/actions/${action.slug}`}
+                  key={event.id}
+                  href={`/events/${event.slug}`}
                   className="timeline-action-card-link"
                 >
                   <article className="timeline-action-card">{cardContent}</article>
                 </Link>
               ) : (
-                <article key={action.id} className="timeline-action-card">
+                <article key={event.id} className="timeline-action-card">
                   {cardContent}
                 </article>
               )

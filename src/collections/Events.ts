@@ -44,6 +44,22 @@ export const Events: CollectionConfig = {
       required: true,
     },
     {
+      name: 'airtableId',
+      type: 'text',
+      unique: true,
+      admin: {
+        description: 'Legacy Airtable ID for URL redirects',
+      },
+      hidden: true,
+    },
+    {
+      name: 'source',
+      type: 'text',
+      admin: {
+        description: 'Source of this event.',
+      },
+    },
+    {
       name: 'description',
       type: 'richText',
     },
@@ -63,6 +79,17 @@ export const Events: CollectionConfig = {
         description: 'How many workers were involved in, or affected by, this event.',
       },
     },
+    {
+      name: 'link',
+      type: 'text',
+    },
+    {
+      name: 'document',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
+    },
+    // Relations
     {
       name: 'countries',
       type: 'relationship',

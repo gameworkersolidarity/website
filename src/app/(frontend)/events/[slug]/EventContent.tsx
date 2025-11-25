@@ -5,6 +5,9 @@ import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { EventTimeline } from '../../components/EventTimeline'
 import type { Event } from '@/payload-types'
 import { useMemo } from 'react'
+import { isCategory, isCountry, isCompany, isOrganisingGroup } from '@/utils/type-guards'
+import { getCountryFlag } from '@/utils/iso'
+import Link from 'next/link'
 
 type EventContentProps = {
   initialEvent: Event
@@ -79,8 +82,17 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
 
   const formattedDate = event.date ? formatDate(new Date(event.date)) : ''
 
+  // Extract related entities
+  const countries = Array.isArray(event.countries) ? event.countries.filter(isCountry) : []
+  const categories = Array.isArray(event.categories) ? event.categories.filter(isCategory) : []
+  const companies = Array.isArray(event.companies) ? event.companies.filter(isCompany) : []
+  const organisingGroups = Array.isArray(event.organisingGroups)
+    ? event.organisingGroups.filter(isOrganisingGroup)
+    : []
+
   return (
     <div className="action-page">
+      <pre>{JSON.stringify(event, null, 2)}</pre>
       <article className="action-article">
         {/* Metadata line */}
         <div className="action-metadata">
@@ -110,6 +122,82 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
           </a>
         </div>
       </article>
+
+      {/* Related information boxes */}
+      {(countries.length > 0 ||
+        categories.length > 0 ||
+        companies.length > 0 ||
+        organisingGroups.length > 0) && (
+        <div className="action-related-info">
+          {countries.map((country) => {
+            return (
+              <div key={country.id} className="related-info-box">
+                <div className="related-info-header">
+                  {country.countryCode && (
+                    <span className="related-info-icon" aria-label={`Flag of ${country.Name}`}>
+                      {getCountryFlag(country.countryCode)}
+                    </span>
+                  )}
+                  <span className="related-info-title">{country.Name}</span>
+                </div>
+                <div className="related-info-type">Country</div>
+                {country.slug && (
+                  <Link href={`/countries/${country.slug}`} className="related-info-link">
+                    Learn more →
+                  </Link>
+                )}
+              </div>
+            )
+          })}
+
+          {categories.map((category) => {
+            return (
+              <div key={category.id} className="related-info-box">
+                <div className="related-info-header">
+                  {category.Emoji && <span className="related-info-icon">{category.Emoji}</span>}
+                  <span className="related-info-title">{category.Name}</span>
+                </div>
+                <div className="related-info-type">Category</div>
+                {category.slug && (
+                  <Link href={`/categories/${category.slug}`} className="related-info-link">
+                    Learn more →
+                  </Link>
+                )}
+              </div>
+            )
+          })}
+
+          {organisingGroups.map((group) => (
+            <div key={group.id} className="related-info-box">
+              <div className="related-info-title">
+                {typeof group === 'object' && 'FullName' in group
+                  ? group.FullName || group.Name
+                  : group.Name}
+              </div>
+              <div className="related-info-type">Organising group</div>
+              {group.slug && (
+                <Link href={`/organising-groups/${group.slug}`} className="related-info-link">
+                  Learn more →
+                </Link>
+              )}
+            </div>
+          ))}
+
+          {companies.map((company) => {
+            return (
+              <div key={company.id} className="related-info-box">
+                <div className="related-info-title">{company.Name}</div>
+                <div className="related-info-type">Company</div>
+                {company.slug && (
+                  <Link href={`/companies/${company.slug}`} className="related-info-link">
+                    Learn more →
+                  </Link>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Related events section */}
       {relatedEvents.length > 0 && (

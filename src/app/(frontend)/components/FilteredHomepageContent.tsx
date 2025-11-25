@@ -2,12 +2,12 @@
 
 import { useQueryState } from 'nuqs'
 import { useMemo } from 'react'
-import type { SolidarityAction, Country, Category, Company, OrganisingGroup } from '@/payload-types'
+import type { Event, Country, Category, Company, OrganisingGroup } from '@/payload-types'
 import { WorldMap } from './WorldMap'
 import { ActionsTimeline } from './ActionsTimeline'
 
 interface FilteredHomepageContentProps {
-  actions: SolidarityAction[]
+  events: Event[]
   countries: Country[]
 }
 
@@ -31,16 +31,16 @@ function isOrganisingGroup(obj: OrganisingGroup['id'] | OrganisingGroup): obj is
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
-export function FilteredHomepageContent({ actions, countries }: FilteredHomepageContentProps) {
+export function FilteredHomepageContent({ events, countries }: FilteredHomepageContentProps) {
   const [countryFilter] = useQueryState('country', { clearOnDefault: true })
   const [categoryFilter] = useQueryState('category', { clearOnDefault: true })
   const [companyFilter] = useQueryState('company', { clearOnDefault: true })
   const [unionFilter] = useQueryState('union', { clearOnDefault: true })
   const [yearFilter] = useQueryState('year', { clearOnDefault: true })
 
-  // Filter actions based on query params
-  const filteredActions = useMemo(() => {
-    let filtered = [...actions]
+  // Filter events based on query params
+  const filteredEvents = useMemo(() => {
+    let filtered = [...events]
 
     const countryFilterId = countryFilter ? countryFilter : null
     const categoryFilterId = categoryFilter ? categoryFilter : null
@@ -50,10 +50,10 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
     // Filter by country
     if (countryFilterId) {
-      filtered = filtered.filter((action) => {
-        if (!action.Country || !Array.isArray(action.Country)) return false
-        return action.Country.some((country) => {
-          if (typeof country === 'number') {
+      filtered = filtered.filter((event) => {
+        if (!event.countries || !Array.isArray(event.countries)) return false
+        return event.countries.some((country) => {
+          if (typeof country === 'string') {
             return country === countryFilterId
           }
           return isCountry(country) && country.id === countryFilterId
@@ -63,10 +63,10 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
     // Filter by category
     if (categoryFilterId) {
-      filtered = filtered.filter((action) => {
-        if (!action.Category || !Array.isArray(action.Category)) return false
-        return action.Category.some((category) => {
-          if (typeof category === 'number') {
+      filtered = filtered.filter((event) => {
+        if (!event.categories || !Array.isArray(event.categories)) return false
+        return event.categories.some((category) => {
+          if (typeof category === 'string') {
             return category === categoryFilterId
           }
           return isCategory(category) && category.id === categoryFilterId
@@ -76,10 +76,10 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
     // Filter by company
     if (companyFilterId) {
-      filtered = filtered.filter((action) => {
-        if (!action.Company || !Array.isArray(action.Company)) return false
-        return action.Company.some((company) => {
-          if (typeof company === 'number') {
+      filtered = filtered.filter((event) => {
+        if (!event.companies || !Array.isArray(event.companies)) return false
+        return event.companies.some((company) => {
+          if (typeof company === 'string') {
             return company === companyFilterId
           }
           return isCompany(company) && company.id === companyFilterId
@@ -89,10 +89,10 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
     // Filter by union/organising group
     if (unionFilterId) {
-      filtered = filtered.filter((action) => {
-        if (!action.OrganisingGroups || !Array.isArray(action.OrganisingGroups)) return false
-        return action.OrganisingGroups.some((group) => {
-          if (typeof group === 'number') {
+      filtered = filtered.filter((event) => {
+        if (!event.organisingGroups || !Array.isArray(event.organisingGroups)) return false
+        return event.organisingGroups.some((group) => {
+          if (typeof group === 'string') {
             return group === unionFilterId
           }
           return isOrganisingGroup(group) && group.id === unionFilterId
@@ -102,39 +102,39 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
 
     // Filter by year
     if (yearFilterNum) {
-      filtered = filtered.filter((action) => {
-        const actionYear = new Date(action.Date).getFullYear()
-        return actionYear === yearFilterNum
+      filtered = filtered.filter((event) => {
+        const eventYear = new Date(event.date).getFullYear()
+        return eventYear === yearFilterNum
       })
     }
 
     return filtered
-  }, [actions, countryFilter, categoryFilter, companyFilter, unionFilter, yearFilter])
+  }, [events, countryFilter, categoryFilter, companyFilter, unionFilter, yearFilter])
 
-  // Sort actions by date (most recent first)
-  const sortedActions = useMemo(() => {
-    return [...filteredActions].sort(
-      (a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime(),
+  // Sort events by date (most recent first)
+  const sortedEvents = useMemo(() => {
+    return [...filteredEvents].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     )
-  }, [filteredActions])
+  }, [filteredEvents])
 
-  // Create a map of country codes to action counts from filtered actions
+  // Create a map of country codes to event counts from filtered events
   const countryDataMap = useMemo(() => {
-    const countryActionCounts: Record<string, number> = {}
+    const countryEventCounts: Record<string, number> = {}
 
-    filteredActions.forEach((action) => {
-      if (action.Country && Array.isArray(action.Country)) {
-        action.Country.forEach((country) => {
+    filteredEvents.forEach((event) => {
+      if (event.countries && Array.isArray(event.countries)) {
+        event.countries.forEach((country) => {
           if (isCountry(country) && country.countryCode) {
             const code = country.countryCode
-            countryActionCounts[code] = (countryActionCounts[code] || 0) + 1
+            countryEventCounts[code] = (countryEventCounts[code] || 0) + 1
           }
         })
       }
     })
 
     const result: Record<string, { queue: number; color: string }> = {}
-    Object.entries(countryActionCounts).forEach(([code, count]) => {
+    Object.entries(countryEventCounts).forEach(([code, count]) => {
       result[code] = {
         queue: count,
         color: '',
@@ -142,7 +142,7 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
     })
 
     return result
-  }, [filteredActions])
+  }, [filteredEvents])
 
   return (
     <>
@@ -153,7 +153,7 @@ export function FilteredHomepageContent({ actions, countries }: FilteredHomepage
           </div>
         </div>
         <div className="timeline-section">
-          <ActionsTimeline actions={sortedActions} />
+          <ActionsTimeline events={sortedEvents} />
         </div>
       </div>
     </>

@@ -74,7 +74,7 @@ export function WorldMap({ data }: WorldMapProps) {
       </ComposableMap>
       <div style={{ marginTop: '20px', padding: '10px' }}>
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px' }}>Solidarity Actions:</span>
+          <span style={{ fontSize: '14px' }}>Events:</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: '20px', height: '15px', backgroundColor: '#E5E5E5' }} />
             <span style={{ fontSize: '12px' }}>0</span>

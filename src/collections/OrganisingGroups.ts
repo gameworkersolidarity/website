@@ -85,15 +85,6 @@ export const OrganisingGroups: CollectionConfig = {
       required: true,
     },
     {
-      name: 'Parents',
-      type: 'relationship',
-      relationTo: 'organisingGroups',
-      hasMany: true,
-      admin: {
-        description: 'Parent organising groups',
-      },
-    },
-    {
       name: 'Children',
       type: 'relationship',
       relationTo: 'organisingGroups',

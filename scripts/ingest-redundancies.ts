@@ -14,16 +14,6 @@ interface CsvRow {
   'Parent Location': string
 }
 
-interface RedundancyData {
-  studio: string
-  date: string
-  headcount?: number
-  parent?: string
-  type?: string
-  studioLocation?: string
-  parentLocation?: string
-}
-
 // Normalize company names for better matching
 function normalizeName(name: string): string {
   if (!name) return ''
@@ -85,6 +75,62 @@ async function findCompany(
       `  ✓ Matched "${name}" to "${bestMatch.company.Name}" (similarity: ${(bestMatch.score * 100).toFixed(1)}%)`,
     )
     return { id: bestMatch.company.id }
+  }
+
+  return null
+}
+
+// Find best matching country using fuzzy matching
+async function findCountry(
+  payload: any,
+  name: string,
+  threshold: number = 0.6,
+): Promise<{ id: number | string } | null> {
+  if (!name || !name.trim()) return null
+
+  const normalizedSearch = normalizeName(name)
+
+  // First try exact match (case-insensitive)
+  const exactMatch = await payload.find({
+    collection: 'countries',
+    where: {
+      Name: {
+        like: name.trim(),
+      },
+    },
+    limit: 1,
+  })
+
+  if (exactMatch.docs.length > 0) {
+    return { id: exactMatch.docs[0].id }
+  }
+
+  // Get all countries for fuzzy matching
+  const allCountries = await payload.find({
+    collection: 'countries',
+    limit: 1000, // Adjust if needed
+    pagination: false,
+  })
+
+  if (allCountries.docs.length === 0) return null
+
+  // Find best match using string similarity
+  let bestMatch: { country: any; score: number } | null = null
+
+  for (const country of allCountries.docs) {
+    const normalizedCountryName = normalizeName(country.Name || '')
+    const similarity = compareTwoStrings(normalizedSearch, normalizedCountryName)
+
+    if (similarity > (bestMatch?.score || 0) && similarity >= threshold) {
+      bestMatch = { country, score: similarity }
+    }
+  }
+
+  if (bestMatch) {
+    console.log(
+      `  ✓ Matched country "${name}" to "${bestMatch.country.Name}" (similarity: ${(bestMatch.score * 100).toFixed(1)}%)`,
+    )
+    return { id: bestMatch.country.id }
   }
 
   return null
@@ -255,6 +301,11 @@ async function processRedundancies(filePath: string, payload: any) {
     companiesCreated: 0,
   }
 
+  // Map to collect parent-child relationships: parentId -> Set of childIds
+  const parentChildRelationships: {
+    [parentId: string]: Set<string>
+  } = {}
+
   console.log(`\n🔄 Processing ${rows.length} rows...\n`)
 
   for (let i = 0; i < rows.length; i++) {
@@ -395,8 +446,37 @@ async function processRedundancies(filePath: string, payload: any) {
           stats.companiesMatched++
           console.log(`  ✓ Matched parent company with ID: ${parentCompanyId.id}`)
         }
+
+        // Collect parent-child relationship for later processing
+        if (companyId && parentCompanyId) {
+          const parentId = parentCompanyId.id.toString()
+          const childId = companyId.id.toString()
+
+          if (!parentChildRelationships[parentId]) {
+            parentChildRelationships[parentId] = new Set<string>()
+          }
+          parentChildRelationships[parentId].add(childId)
+          console.log(
+            `  📝 Collected relationship: ${parentName} (${parentId}) → ${studioName} (${childId})`,
+          )
+        }
       } else {
         console.log(`  ℹ️  No parent company specified`)
+      }
+
+      // Match country from Studio Location or Parent Location
+      let countryId: { id: number | string } | null = null
+      const locationToMatch = row['Studio Location']?.trim() || row['Parent Location']?.trim()
+      if (locationToMatch) {
+        console.log(`  🔍 Looking up country for location: "${locationToMatch}"`)
+        countryId = await findCountry(payload, locationToMatch)
+        if (countryId) {
+          console.log(`  ✓ Matched country with ID: ${countryId.id}`)
+        } else {
+          console.log(`  ⚠️  Could not match country for location: "${locationToMatch}"`)
+        }
+      } else {
+        console.log(`  ℹ️  No location specified for country matching`)
       }
 
       // Build description from redundancy data
@@ -448,13 +528,17 @@ async function processRedundancies(filePath: string, payload: any) {
           }
         : undefined
 
-      // Collect company IDs for the companies relationship
+      // Collect company IDs for the companies relationship (only studio company, not parent)
       const companyIds: string[] = []
       if (companyId) {
         companyIds.push(companyId.id.toString())
       }
-      if (parentCompanyId) {
-        companyIds.push(parentCompanyId.id.toString())
+      // Note: Parent companies are linked via the company's Parents relationship, not added to event
+
+      // Collect country IDs
+      const countryIds: string[] = []
+      if (countryId) {
+        countryIds.push(countryId.id.toString())
       }
 
       // Determine location (prefer studio location, fallback to parent location)
@@ -468,7 +552,9 @@ async function processRedundancies(filePath: string, payload: any) {
         headcount: headcount || undefined,
         location: eventLocation,
         description: description,
+        source: 'https://publish.obsidian.md/vg-layoffs/Archive/2025',
         companies: companyIds.length > 0 ? companyIds : undefined,
+        countries: countryIds.length > 0 ? countryIds : undefined,
       }
 
       console.log(`  💾 Creating event record with data:`, {
@@ -477,6 +563,7 @@ async function processRedundancies(filePath: string, payload: any) {
         headcount: eventData.headcount,
         location: eventData.location,
         companyIds: companyIds.length > 0 ? companyIds : 'none',
+        countryIds: countryIds.length > 0 ? countryIds : 'none',
       })
 
       const created = await payload.create({
@@ -496,6 +583,55 @@ async function processRedundancies(filePath: string, payload: any) {
       }
       stats.errors++
     }
+  }
+
+  // Set children relationships on parent companies after all companies are created
+  if (Object.keys(parentChildRelationships).length > 0) {
+    console.log(`\n🔗 Setting parent-child relationships...`)
+    let relationshipsSet = 0
+    let relationshipsSkipped = 0
+
+    for (const parentId in parentChildRelationships) {
+      const childIds = parentChildRelationships[parentId]
+      try {
+        // Get current parent company to check existing children
+        const parentCompany = await payload.findByID({
+          collection: 'companies',
+          id: parentId,
+        })
+        const existingChildren = parentCompany.Children || []
+        const existingChildIds = Array.isArray(existingChildren)
+          ? new Set(existingChildren.map((c: any) => (typeof c === 'string' ? c : c.id)))
+          : new Set()
+
+        // Merge with new children
+        const allChildIds = Array.from(new Set([...existingChildIds, ...childIds]))
+
+        // Update parent company with all children
+        await payload.update({
+          collection: 'companies',
+          id: parentId,
+          data: {
+            Children: allChildIds,
+          },
+        })
+
+        const newChildrenCount = Array.from(childIds).filter(
+          (id) => !existingChildIds.has(id),
+        ).length
+        relationshipsSet += newChildrenCount
+        console.log(
+          `  ✓ Updated parent company ${parentId}: added ${newChildrenCount} child${newChildrenCount !== 1 ? 'ren' : ''} (total: ${allChildIds.length})`,
+        )
+      } catch (error: any) {
+        console.warn(`  ⚠️  Could not update parent company ${parentId}:`, error.message)
+        relationshipsSkipped += childIds.size
+      }
+    }
+
+    console.log(
+      `  ✅ Set ${relationshipsSet} parent-child relationship${relationshipsSet !== 1 ? 's' : ''}${relationshipsSkipped > 0 ? ` (${relationshipsSkipped} skipped)` : ''}`,
+    )
   }
 
   console.log(`\n📊 Statistics:`)
@@ -525,9 +661,7 @@ async function main() {
       collection: 'events',
       limit: 1,
     })
-    console.log(
-      `✓ Events collection accessible (existing records: ${eventsCheck.totalDocs})`,
-    )
+    console.log(`✓ Events collection accessible (existing records: ${eventsCheck.totalDocs})`)
   } catch (error: any) {
     console.error(`✗ Error accessing events collection:`, error.message)
   }
@@ -540,6 +674,16 @@ async function main() {
     console.log(`✓ Companies collection accessible (existing records: ${companiesCheck.totalDocs})`)
   } catch (error: any) {
     console.error(`✗ Error accessing companies collection:`, error.message)
+  }
+
+  try {
+    const countriesCheck = await payload.find({
+      collection: 'countries',
+      limit: 1,
+    })
+    console.log(`✓ Countries collection accessible (existing records: ${countriesCheck.totalDocs})`)
+  } catch (error: any) {
+    console.error(`✗ Error accessing countries collection:`, error.message)
   }
 
   // Process all CSV files from public/redundancies/ directory
