@@ -229,9 +229,9 @@ async function getOrCreateCompany(
   }
 }
 
-// Process redundancies from CSV
+// Process redundancies from CSV and create Events
 async function processRedundancies(filePath: string, payload: any) {
-  console.log(`\n📂 Processing redundancies from ${path.basename(filePath)}...`)
+  console.log(`\n📂 Processing redundancies from ${path.basename(filePath)} and creating Events...`)
 
   const rows = parseCsv(filePath)
   console.log(`\n📊 Found ${rows.length} redundancy records to process`)
@@ -324,24 +324,25 @@ async function processRedundancies(filePath: string, payload: any) {
         // Try to continue with original date string
       }
 
-      // Check if redundancy already exists (same studio + date)
-      console.log(`  🔍 Checking for existing redundancy...`)
+      // Check if event already exists (same title + date)
+      const eventTitle = `Redundancies at ${studioName}`
+      console.log(`  🔍 Checking for existing event...`)
       const existing = await payload.find({
-        collection: 'redundancies',
+        collection: 'events',
         where: {
-          and: [{ studio: { equals: studioName } }, { date: { equals: normalizedDate } }],
+          and: [{ title: { equals: eventTitle } }, { date: { equals: normalizedDate } }],
         },
         limit: 1,
       })
 
       if (existing.docs.length > 0) {
         console.log(
-          `  ⏭️  Skipping duplicate: ${studioName} on ${normalizedDate} (found existing: ${existing.docs[0].id})`,
+          `  ⏭️  Skipping duplicate: ${eventTitle} on ${normalizedDate} (found existing: ${existing.docs[0].id})`,
         )
         stats.skipped++
         continue
       }
-      console.log(`  ✓ No existing redundancy found, proceeding...`)
+      console.log(`  ✓ No existing event found, proceeding...`)
 
       // Parse headcount
       let headcount: number | undefined
@@ -398,35 +399,94 @@ async function processRedundancies(filePath: string, payload: any) {
         console.log(`  ℹ️  No parent company specified`)
       }
 
-      // Create redundancy record
-      const redundancyData = {
-        studio: studioName,
-        date: normalizedDate,
-        headcount: headcount || undefined,
-        parent: row.Parent?.trim() || undefined,
-        type: row.Type?.trim() || undefined,
-        studioLocation: row['Studio Location']?.trim() || undefined,
-        parentLocation: row['Parent Location']?.trim() || undefined,
-        company: companyId,
-        parentCompany: parentCompanyId,
+      // Build description from redundancy data
+      const descriptionParts: string[] = []
+      if (headcount) {
+        descriptionParts.push(`${headcount} workers affected`)
+      }
+      if (row.Type?.trim()) {
+        descriptionParts.push(`Type: ${row.Type.trim()}`)
+      }
+      if (row.Parent?.trim()) {
+        descriptionParts.push(`Parent company: ${row.Parent.trim()}`)
+      }
+      if (row['Studio Location']?.trim()) {
+        descriptionParts.push(`Studio location: ${row['Studio Location'].trim()}`)
+      }
+      const descriptionText = descriptionParts.join('. ') + (descriptionParts.length > 0 ? '.' : '')
+
+      // Create description as rich text
+      const description = descriptionText
+        ? {
+            root: {
+              children: [
+                {
+                  children: [
+                    {
+                      detail: 0,
+                      format: 0,
+                      mode: 'normal',
+                      style: '',
+                      text: descriptionText,
+                      type: 'text',
+                      version: 1,
+                    },
+                  ],
+                  direction: 'ltr',
+                  format: '',
+                  indent: 0,
+                  type: 'paragraph',
+                  version: 1,
+                },
+              ],
+              direction: 'ltr',
+              format: '',
+              indent: 0,
+              type: 'root',
+              version: 1,
+            },
+          }
+        : undefined
+
+      // Collect company IDs for the companies relationship
+      const companyIds: string[] = []
+      if (companyId) {
+        companyIds.push(companyId.id.toString())
+      }
+      if (parentCompanyId) {
+        companyIds.push(parentCompanyId.id.toString())
       }
 
-      console.log(`  💾 Creating redundancy record with data:`, {
-        studio: redundancyData.studio,
-        date: redundancyData.date,
-        headcount: redundancyData.headcount,
-        companyId: companyId?.id || 'none',
-        parentCompanyId: parentCompanyId?.id || 'none',
+      // Determine location (prefer studio location, fallback to parent location)
+      const eventLocation =
+        row['Studio Location']?.trim() || row['Parent Location']?.trim() || undefined
+
+      // Create event record
+      const eventData: any = {
+        title: eventTitle,
+        date: normalizedDate,
+        headcount: headcount || undefined,
+        location: eventLocation,
+        description: description,
+        companies: companyIds.length > 0 ? companyIds : undefined,
+      }
+
+      console.log(`  💾 Creating event record with data:`, {
+        title: eventData.title,
+        date: eventData.date,
+        headcount: eventData.headcount,
+        location: eventData.location,
+        companyIds: companyIds.length > 0 ? companyIds : 'none',
       })
 
       const created = await payload.create({
-        collection: 'redundancies',
-        data: redundancyData,
+        collection: 'events',
+        data: eventData,
       })
 
       stats.created++
       console.log(
-        `  ✅ Successfully created redundancy (ID: ${created.id}): ${studioName} (${headcount || 'unknown'} affected) - ${normalizedDate}`,
+        `  ✅ Successfully created event (ID: ${created.id}): ${eventTitle} (${headcount || 'unknown'} affected) - ${normalizedDate}`,
       )
     } catch (error: any) {
       console.error(`  ❌ Error processing row ${i + 1}:`, error.message)
@@ -450,7 +510,7 @@ async function processRedundancies(filePath: string, payload: any) {
 
 // Main function
 async function main() {
-  console.log('🚀 Starting redundancy ingestion...\n')
+  console.log('🚀 Starting redundancy ingestion (creating Events)...\n')
   console.log(`Working directory: ${process.cwd()}`)
 
   console.log('\n📦 Initializing Payload...')
@@ -461,15 +521,15 @@ async function main() {
   // Verify collections exist
   console.log('\n🔍 Verifying collections...')
   try {
-    const redundanciesCheck = await payload.find({
-      collection: 'redundancies',
+    const eventsCheck = await payload.find({
+      collection: 'events',
       limit: 1,
     })
     console.log(
-      `✓ Redundancies collection accessible (existing records: ${redundanciesCheck.totalDocs})`,
+      `✓ Events collection accessible (existing records: ${eventsCheck.totalDocs})`,
     )
   } catch (error: any) {
-    console.error(`✗ Error accessing redundancies collection:`, error.message)
+    console.error(`✗ Error accessing events collection:`, error.message)
   }
 
   try {
@@ -482,11 +542,13 @@ async function main() {
     console.error(`✗ Error accessing companies collection:`, error.message)
   }
 
-  // Process all CSV files
+  // Process all CSV files from public/redundancies/ directory
+  const redundanciesDir = path.join(process.cwd(), 'public', 'redundancies')
   const csvFiles = [
-    '/Users/jan/Downloads/2025 Grid View.csv',
-    '/Users/jan/Downloads/2024 Grid View Breakdown.csv',
-    '/Users/jan/Downloads/2023 Grid View Breakdown.csv',
+    path.join(redundanciesDir, '2025 Grid View.csv'),
+    path.join(redundanciesDir, '2024 Grid View Breakdown.csv'),
+    path.join(redundanciesDir, '2023 Grid View Breakdown.csv'),
+    path.join(redundanciesDir, '2022 Grid View Breakdown.csv'),
   ]
 
   const totalStats = {

@@ -463,7 +463,7 @@ async function migrateOrganisingGroups(payload: any) {
 }
 
 async function migrateSolidarityActions(payload: any) {
-  console.log('\n📂 Migrating Solidarity Actions...')
+  console.log('\n📂 Migrating Solidarity Actions from Airtable to Events...')
   const base = airtableBase()
   const tableName = env
     .get('AIRTABLE_SOLIDARITY_ACTIONS_TABLE')
@@ -477,10 +477,10 @@ async function migrateSolidarityActions(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const name = fields.Name.trim()
-      const slug = fields.slug
+      const name = fields.Name?.trim()
+      const date = parseDate(fields.Date)
 
-      if (!name || !fields.Date) {
+      if (!name || !date) {
         console.warn(`⏭️  Skipping solidarity action ${record.id}: missing required fields`)
         stats.solidarityActions.skipped++
         continue
@@ -519,53 +519,49 @@ async function migrateSolidarityActions(payload: any) {
         }
       }
 
-      // Process document attachments
-      const documentIds = await processAttachments(payload, fields.Document, `document for ${name}`)
-
-      const solidarityActionData = {
-        airtableId: record.id,
-        slug: slug || undefined,
-        Name: name,
-        Location: fields.Location || undefined,
-        Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
-        Date: parseDate(fields.Date)!,
-        LastModified: parseDate(fields.LastModified) || new Date().toISOString(),
-        Link: fields.Link || undefined,
-        LocationData: fields.LocationData || undefined,
-        Country: countryIds.length > 0 ? countryIds : undefined,
-        Company: companyIds.length > 0 ? companyIds : undefined,
-        OrganisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
-        Category: categoryIds.length > 0 ? categoryIds : undefined,
-        Document: documentIds.length > 0 ? documentIds : undefined,
-        DisplayStyle: fields.DisplayStyle === 'Featured' ? 'Featured' : undefined,
-        hasPassedValidation: fields.hasPassedValidation || false,
-        Public: fields.Public || false,
-      }
-
+      // Check if event already exists (same title + date)
       try {
         const existing = await payload.find({
-          collection: 'solidarityActions',
-          where: { airtableId: { equals: record.id } },
+          collection: 'events',
+          where: {
+            and: [{ title: { equals: name } }, { date: { equals: date } }],
+          },
           limit: 1,
         })
 
         if (existing.docs.length > 0) {
-          console.log(`✓ Solidarity action "${name}" already exists, skipping`)
+          console.log(`✓ Event "${name}" already exists, skipping`)
           stats.solidarityActions.skipped++
           solidarityActionIdMap.set(record.id, existing.docs[0].id)
           continue
         }
+      } catch (error) {
+        // If lookup fails, continue anyway
+      }
 
+      // Create event data from solidarity action
+      const eventData: any = {
+        title: name,
+        date: date,
+        location: fields.Location || undefined,
+        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        countries: countryIds.length > 0 ? countryIds : undefined,
+        companies: companyIds.length > 0 ? companyIds : undefined,
+        organisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
+        categories: categoryIds.length > 0 ? categoryIds : undefined,
+      }
+
+      try {
         const result = await payload.create({
-          collection: 'solidarityActions',
-          data: solidarityActionData,
+          collection: 'events',
+          data: eventData,
         })
 
         solidarityActionIdMap.set(record.id, result.id)
         stats.solidarityActions.created++
-        console.log(`✓ Created solidarity action: ${name}`)
+        console.log(`✓ Created event from solidarity action: ${name}`)
       } catch (error) {
-        console.error(`✗ Error creating solidarity action ${name}:`, error)
+        console.error(`✗ Error creating event from solidarity action ${name}:`, error)
         stats.solidarityActions.skipped++
       }
     }

@@ -11,7 +11,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
-    "migrate:airtable": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/migrate-from-airtable.ts",
+    "ingest:actions": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/migrate-from-airtable.ts",
     "ingest:redundancies": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/ingest-redundancies.ts",
     "create:user": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/create-user.ts",
     "set:password": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/set-password.ts",
