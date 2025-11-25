@@ -1,4 +1,46 @@
-# Airtable to Payload CMS Migration Script
+# Scripts
+
+This directory contains utility scripts for managing the Payload CMS instance.
+
+## Create User Script
+
+Creates a new Payload user with email and password authentication.
+
+### Usage
+
+```bash
+# Using the npm script (recommended)
+pnpm run create:user --email <email> --password <password>
+
+# Or directly with tsx
+tsx scripts/create-user.ts --email <email> --password <password>
+```
+
+### Options
+
+- `-e, --email <email>` - Email address for the new user (required)
+- `-p, --password <password>` - Password for the new user (required)
+
+### Examples
+
+```bash
+# Using long form options
+pnpm run create:user --email admin@example.com --password mySecurePassword123
+
+# Using short form options
+pnpm run create:user -e admin@example.com -p mySecurePassword123
+
+# Get help
+pnpm run create:user --help
+```
+
+### Notes
+
+- The command checks if a user with the given email already exists before creating a new one
+
+---
+
+## Airtable to Payload CMS Migration Script
 
 This script migrates data from Airtable to Payload CMS collections.
 

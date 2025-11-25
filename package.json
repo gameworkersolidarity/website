@@ -13,6 +13,7 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "migrate:airtable": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/migrate-from-airtable.ts",
     "ingest:redundancies": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/ingest-redundancies.ts",
+    "create:user": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/create-user.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e"
@@ -35,6 +36,7 @@
     "@types/react-simple-maps": "^3.0.6",
     "@types/string-similarity": "^4.0.2",
     "airtable": "*",
+    "commander": "^14.0.2",
     "country-coords": "^1.0.0",
     "country-flag-emoji": "^1.0.3",
     "cross-env": "^7.0.3",

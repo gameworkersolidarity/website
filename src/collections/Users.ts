@@ -6,14 +6,6 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
   },
   auth: true,
-  versions: {
-    drafts: {
-      autosave: {
-        interval: 2000,
-      },
-      schedulePublish: true,
-    },
-  },
   fields: [
     // Email added by default
     // Add more fields as needed

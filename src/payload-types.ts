@@ -157,7 +157,6 @@ export interface User {
   id: string;
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -872,7 +871,6 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
-  _status?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
@@ -1274,10 +1272,6 @@ export interface TaskSchedulePublish {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
     doc?:
-      | ({
-          relationTo: 'users';
-          value: string | User;
-        } | null)
       | ({
           relationTo: 'media';
           value: string | Media;
