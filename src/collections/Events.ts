@@ -48,7 +48,7 @@ export const Events: CollectionConfig = {
       type: 'text',
       unique: true,
       admin: {
-        description: 'Legacy Airtable ID for URL redirects',
+        description: 'Legacy Airtable ID for url redirects.',
       },
       hidden: true,
     },

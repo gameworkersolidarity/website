@@ -92,7 +92,6 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
 
   return (
     <div className="action-page">
-      <pre>{JSON.stringify(event, null, 2)}</pre>
       <article className="action-article">
         {/* Metadata line */}
         <div className="action-metadata">

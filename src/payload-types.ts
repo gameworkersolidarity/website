@@ -601,7 +601,7 @@ export interface Event {
   slug: string;
   title: string;
   /**
-   * Legacy Airtable ID for URL redirects
+   * Legacy Airtable ID for url redirects.
    */
   airtableId?: string | null;
   /**
