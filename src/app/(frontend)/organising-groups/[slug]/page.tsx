@@ -105,7 +105,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
 
   // Query solidarity actions directly where this organising group is related
   const actionsResult = await payload.find({
-    collection: 'solidarityActions',
+    collection: 'events',
     where: {
       and: [
         {
@@ -129,15 +129,15 @@ export default async function OrganisingGroupPage({ params }: Props) {
     pagination: false,
   })
 
-  const solidarityActions = actionsResult.docs
+  const events = actionsResult.docs
 
   // Extract unique companies from solidarity actions
   const companiesSet = new Map<string, Company>()
 
-  solidarityActions.forEach((action) => {
+  events.forEach((action) => {
     // Extract companies
-    if (action.Company && Array.isArray(action.Company)) {
-      action.Company.forEach((company) => {
+    if (action.companies && Array.isArray(action.companies)) {
+      action.companies.forEach((company) => {
         if (
           typeof company === 'object' &&
           company !== null &&
@@ -294,13 +294,11 @@ export default async function OrganisingGroupPage({ params }: Props) {
           </div>
         </CollapsibleSection>
       )}
-      {solidarityActions.length > 0 && (
+      {events.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Related Solidarity Actions</h2>
           <ActionsTimeline
-            actions={solidarityActions.sort(
-              (a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime(),
-            )}
+            events={events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
           />
         </div>
       )}

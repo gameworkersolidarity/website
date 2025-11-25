@@ -104,7 +104,7 @@ export default async function CategoryPage({ params }: Props) {
 
   // Query solidarity actions directly where this category is related
   const actionsResult = await payload.find({
-    collection: 'solidarityActions',
+    collection: 'events',
     where: {
       and: [
         {
@@ -128,7 +128,7 @@ export default async function CategoryPage({ params }: Props) {
     pagination: false,
   })
 
-  const solidarityActions = actionsResult.docs
+  const events = actionsResult.docs
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
@@ -155,19 +155,18 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       )}
 
-      {solidarityActions.length > 0 && (
+      {events.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-            Related Solidarity Actions ({solidarityActions.length})
+            Related Solidarity Actions ({events.length})
           </h2>
           <ActionsTimeline
-            actions={solidarityActions.sort(
-              (a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime(),
-            )}
+            events={events
+              .slice()
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
           />
         </div>
       )}
     </div>
   )
 }
-
