@@ -40,6 +40,45 @@ pnpm run create:user --help
 
 ---
 
+## Set Password Script
+
+Sets a new password for an existing Payload user.
+
+### Usage
+
+```bash
+# Using the npm script (recommended)
+pnpm run set:password --email <email> --password <password>
+
+# Or directly with tsx
+tsx scripts/set-password.ts --email <email> --password <password>
+```
+
+### Options
+
+- `-e, --email <email>` - Email address of the user (required)
+- `-p, --password <password>` - New password for the user (required)
+
+### Examples
+
+```bash
+# Using long form options
+pnpm run set:password --email admin@example.com --password myNewSecurePassword123
+
+# Using short form options
+pnpm run set:password -e admin@example.com -p myNewSecurePassword123
+
+# Get help
+pnpm run set:password --help
+```
+
+### Notes
+
+- The command verifies that a user with the given email exists before updating the password
+- The password will be automatically hashed by Payload
+
+---
+
 ## Airtable to Payload CMS Migration Script
 
 This script migrates data from Airtable to Payload CMS collections.
