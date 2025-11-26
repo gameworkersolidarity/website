@@ -586,7 +586,7 @@ async function migrateBlogPosts(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const title = fields.Title.trim()
+      const title = fields.title.trim()
       const slug = fields.Slug
 
       if (!title || !fields.Date) {
@@ -605,10 +605,8 @@ async function migrateBlogPosts(payload: any) {
         byline: fields.ByLine || undefined,
         title: title,
         image: imageId,
-        summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
         body: parseRichText(fields.Body || ''),
         date: parseDate(fields.Date)!,
-        public: fields.Public ?? true,
       }
 
       try {

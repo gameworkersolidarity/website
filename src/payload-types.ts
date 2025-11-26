@@ -201,8 +201,11 @@ export interface StaticPage {
    */
   'Generate slug?'?: boolean | null;
   slug: string;
-  Title: string;
-  Summary?: string | null;
+  title: string;
+  /**
+   * A short summary of the page. Used for SEO and social media.
+   */
+  summary?: string | null;
   Body: {
     root: {
       type: string;
@@ -847,8 +850,8 @@ export interface MediaSelect<T extends boolean = true> {
 export interface StaticPagesSelect<T extends boolean = true> {
   'Generate slug?'?: T;
   slug?: T;
-  Title?: T;
-  Summary?: T;
+  title?: T;
+  summary?: T;
   Body?: T;
   updatedAt?: T;
   createdAt?: T;

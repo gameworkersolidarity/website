@@ -47,19 +47,19 @@ export default async function BlogPage() {
           <div className="blog-grid">
             {blogPostsResult.docs.map((post) => {
               const imageUrl =
-                typeof post.Image === 'object' && post.Image?.url ? post.Image.url : null
+                typeof post.image === 'object' && post.image?.url ? post.image.url : null
 
               return (
                 <article key={post.id} className="blog-card">
                   <Link href={`/blog/${post.slug}`} className="blog-card-link">
                     {imageUrl && (
                       <div className="blog-card-image">
-                        <img src={imageUrl} alt={post.Title} />
+                        <img src={imageUrl} alt={post.title} />
                       </div>
                     )}
                     <div className="blog-card-content">
-                      <h2>{post.Title}</h2>
-                      {post.ByLine && <p className="blog-card-byline">{post.ByLine}</p>}
+                      <h2>{post.title}</h2>
+                      {post.byline && <p className="blog-card-byline">{post.byline}</p>}
                       {post.createdAt && (
                         <time className="blog-card-date" dateTime={post.createdAt as string}>
                           {new Date(post.createdAt as string).toLocaleDateString('en-US', {
@@ -69,7 +69,6 @@ export default async function BlogPage() {
                           })}
                         </time>
                       )}
-                      {post.Summary && <p className="blog-card-summary">{post.Summary}</p>}
                     </div>
                   </Link>
                 </article>

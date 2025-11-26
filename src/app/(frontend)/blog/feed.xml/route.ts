@@ -148,14 +148,12 @@ export async function GET() {
       const pubDate = post.createdAt
         ? formatRssDate(post.createdAt as string)
         : formatRssDate(post.createdAt)
-      const title = escapeXml(post.Title as string)
+      const title = escapeXml(post.title as string)
 
       // Use Summary if available, otherwise generate description from body
       let description = ''
-      if (post.Summary) {
-        description = escapeXml(post.Summary as string)
-      } else if (post.Body) {
-        const bodyHtml = lexicalToHtml(post.Body as LexicalRoot)
+      if (post.body) {
+        const bodyHtml = lexicalToHtml(post.body as LexicalRoot)
         // Strip HTML tags and limit length
         const plainText = bodyHtml.replace(/<[^>]*>/g, '').trim()
         description = plainText.substring(0, 500)
@@ -166,10 +164,10 @@ export async function GET() {
       }
 
       // Full HTML content for content:encoded
-      const fullContent = post.Body ? lexicalToHtml(post.Body as LexicalRoot) : ''
+      const fullContent = post.body ? lexicalToHtml(post.body as LexicalRoot) : ''
 
       const imageUrl =
-        typeof post.Image === 'object' && post.Image?.url ? `${baseUrl}${post.Image.url}` : null
+        typeof post.image === 'object' && post.image?.url ? `${baseUrl}${post.image.url}` : null
 
       let itemXml = `    <item>
       <title>${title}</title>

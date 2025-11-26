@@ -4,7 +4,7 @@ export const StaticPages: CollectionConfig = {
   slug: 'staticPages',
   trash: true,
   admin: {
-    useAsTitle: 'Title',
+    useAsTitle: 'title',
     preview: (doc) => {
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
       const slug = typeof doc?.slug === 'string' ? doc.slug : ''
@@ -31,18 +31,22 @@ export const StaticPages: CollectionConfig = {
   },
   fields: [
     slugField({
-      fieldToUse: 'Title',
+      fieldToUse: 'title',
       checkboxName: 'Generate slug?',
       position: 'sidebar',
     }),
     {
-      name: 'Title',
+      name: 'title',
       type: 'text',
       required: true,
     },
     {
-      name: 'Summary',
+      name: 'summary',
       type: 'text',
+      admin: {
+        description: 'A short summary of the page. Used for SEO and social media.',
+        position: 'sidebar',
+      },
     },
     {
       name: 'Body',

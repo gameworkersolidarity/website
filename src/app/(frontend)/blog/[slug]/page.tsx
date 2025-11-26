@@ -79,27 +79,24 @@ export default async function BlogPost({ params }: Props) {
         ← Back to Blog
       </Link>
 
-      <h1>{post.Title}</h1>
-      {post.ByLine && (
-        <p style={{ fontSize: '1rem', color: '#666', fontStyle: 'italic' }}>{post.ByLine}</p>
+      <h1>{post.title}</h1>
+      {post.byline && (
+        <p style={{ fontSize: '1rem', color: '#666', fontStyle: 'italic' }}>{post.byline}</p>
       )}
       {post.createdAt && (
         <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem' }}>
           {new Date(post.createdAt).toLocaleDateString()}
         </p>
       )}
-      {post.Image && typeof post.Image === 'object' && 'url' in post.Image && (
+      {post.image && typeof post.image === 'object' && 'url' in post.image && (
         <img
-          src={post.Image.url as string}
-          alt={post.Title}
+          src={post.image.url as string}
+          alt={post.title}
           style={{ width: '100%', height: 'auto', marginBottom: '2rem' }}
         />
       )}
-      {post.Summary && (
-        <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '1.5rem' }}>{post.Summary}</p>
-      )}
       <div style={{ marginTop: '2rem' }}>
-        <LexicalRenderer content={post.Body} />
+        <LexicalRenderer content={post.body} />
       </div>
 
       {/* Previous/Next Navigation */}
@@ -130,7 +127,7 @@ export default async function BlogPost({ params }: Props) {
               <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
                 ← Previous Post
               </div>
-              <div style={{ fontWeight: 600, color: '#333' }}>{previousPost.Title as string}</div>
+              <div style={{ fontWeight: 600, color: '#333' }}>{previousPost.title as string}</div>
             </Link>
           ) : (
             <div style={{ flex: 1 }} />
@@ -153,7 +150,7 @@ export default async function BlogPost({ params }: Props) {
               <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
                 Next Post →
               </div>
-              <div style={{ fontWeight: 600, color: '#333' }}>{nextPost.Title as string}</div>
+              <div style={{ fontWeight: 600, color: '#333' }}>{nextPost.title as string}</div>
             </Link>
           ) : (
             <div style={{ flex: 1 }} />
