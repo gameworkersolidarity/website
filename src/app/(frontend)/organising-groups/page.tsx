@@ -30,11 +30,11 @@ export default async function OrganisingGroupsPage() {
   const groupsWithActions = await Promise.all(
     groupsResult.docs.map(async (group) => {
       const actionsResult = await payload.find({
-        collection: 'solidarityActions',
+        collection: 'events',
         where: {
           and: [
             {
-              OrganisingGroups: {
+              organisingGroups: {
                 in: [group.id],
               },
             },

@@ -26,52 +26,28 @@ export default async function CompaniesPage() {
     sort: 'Name',
   })
 
-  // Count actions and redundancies for each company
+  // Count actions for each company
   const companiesWithData = await Promise.all(
     companiesResult.docs.map(async (company) => {
-      const [actionsResult, redundanciesResult] = await Promise.all([
+      const actionsResult = await Promise.all([
         payload.find({
-          collection: 'solidarityActions',
+          collection: 'events',
           where: {
-            and: [
-              {
-                Company: {
-                  in: [company.id],
-                },
-              },
-              {
-                _status: {
-                  equals: 'published',
-                },
-              },
-            ],
-          },
-          limit: 1,
-          depth: 0,
-        }),
-        payload.find({
-          collection: 'redundancies',
-          where: {
-            company: {
-              equals: company.id,
+            companies: {
+              in: [company.id],
             },
           },
-          limit: 1,
-          depth: 0,
         }),
       ])
       return {
         company,
         actionCount: actionsResult.totalDocs,
-        redundancyCount: redundanciesResult.totalDocs,
       }
     }),
   )
 
-  // Filter to show companies with either actions or redundancies
-  const filteredCompanies = companiesWithData.filter(
-    (item) => item.actionCount > 0 || item.redundancyCount > 0,
-  )
+  // Filter to show companies with actions
+  const filteredCompanies = companiesWithData.filter((item) => item.actionCount > 0)
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
@@ -101,7 +77,7 @@ export default async function CompaniesPage() {
 
       {filteredCompanies.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
-          <p>No companies with solidarity actions or redundancies found. Check back soon!</p>
+          <p>No companies with solidarity actions found. Check back soon!</p>
         </div>
       ) : (
         <div
@@ -111,7 +87,7 @@ export default async function CompaniesPage() {
             gap: '1.5rem',
           }}
         >
-          {filteredCompanies.map(({ company, actionCount, redundancyCount }) => (
+          {filteredCompanies.map(({ company, actionCount }) => (
             <Link
               key={company.id}
               href={`/companies/${company.slug}`}
@@ -139,11 +115,6 @@ export default async function CompaniesPage() {
                 {actionCount > 0 && (
                   <p style={{ margin: '0 0 0.25rem 0' }}>
                     {actionCount} action{actionCount !== 1 ? 's' : ''}
-                  </p>
-                )}
-                {redundancyCount > 0 && (
-                  <p style={{ margin: 0 }}>
-                    {redundancyCount} redundanc{redundancyCount !== 1 ? 'ies' : 'y'}
                   </p>
                 )}
               </div>
