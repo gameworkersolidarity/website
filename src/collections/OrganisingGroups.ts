@@ -5,14 +5,18 @@ export const OrganisingGroups: CollectionConfig = {
   slug: 'organisingGroups',
   trash: true,
   admin: {
-    useAsTitle: 'Name',
+    useAsTitle: 'name',
     preview: (doc) => {
+      if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
+        return null
+      }
+
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
-      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
+      const slug = doc.slug
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'organisingGroups',
-        path: `/organising-groups/${slug}`,
+        path: `/groups/${slug}`,
         previewSecret,
       })
 

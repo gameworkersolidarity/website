@@ -5,7 +5,23 @@ export const Categories: CollectionConfig = {
   slug: 'categories',
   trash: true,
   admin: {
-    useAsTitle: 'Name',
+    useAsTitle: 'name',
+    preview: (doc) => {
+      if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
+        return null
+      }
+
+      const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const slug = doc.slug
+      const encodedParams = new URLSearchParams({
+        slug,
+        collection: 'categories',
+        path: `/categories/${slug}`,
+        previewSecret,
+      })
+
+      return `/preview?${encodedParams.toString()}`
+    },
   },
   access: {
     read: () => true,
@@ -56,7 +72,6 @@ export const Categories: CollectionConfig = {
       name: 'primaryColor',
       label: 'Primary Color',
       admin: {
-        position: 'sidebar',
         description: 'Choose a color for this page',
       },
     }),

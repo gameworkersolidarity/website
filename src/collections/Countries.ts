@@ -6,7 +6,23 @@ export const Countries: CollectionConfig = {
   slug: 'countries',
   trash: true,
   admin: {
-    useAsTitle: 'Name',
+    useAsTitle: 'name',
+    preview: (doc) => {
+      if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
+        return null
+      }
+
+      const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+      const slug = doc.slug
+      const encodedParams = new URLSearchParams({
+        slug,
+        collection: 'countries',
+        path: `/countries/${slug}`,
+        previewSecret,
+      })
+
+      return `/preview?${encodedParams.toString()}`
+    },
   },
   access: {
     read: () => true,

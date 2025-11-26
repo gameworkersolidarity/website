@@ -272,9 +272,13 @@ export interface Country {
    * Legacy Airtable ID for URL redirects
    */
   airtableId?: string | null;
-  Name: string;
-  countryCode: string;
-  Summary?: {
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  description?: {
     root: {
       type: string;
       children: {
@@ -289,12 +293,13 @@ export interface Country {
     };
     [k: string]: unknown;
   } | null;
+  featuredImage?: (string | null) | Media;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Choose a color for this page
    */
-  generateSlug?: boolean | null;
-  slug: string;
-  Unions?: (string | OrganisingGroup)[] | null;
+  primaryColor?: string | null;
+  countryCode: string;
+  unions?: (string | OrganisingGroup)[] | null;
   coords?:
     | {
         [k: string]: unknown;
@@ -324,18 +329,37 @@ export interface OrganisingGroup {
    */
   generateSlug?: boolean | null;
   slug: string;
-  Name: string;
-  FullName?: string | null;
-  Country?: (string | Country)[] | null;
-  IsUnion?: boolean | null;
-  Website?: string | null;
-  Bluesky?: string | null;
-  Twitter?: string | null;
-  LastModified: string;
+  name: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
+  /**
+   * Choose a color for this page
+   */
+  primaryColor?: string | null;
+  fullName?: string | null;
+  country?: (string | Country)[] | null;
+  isUnion?: boolean | null;
+  website?: string | null;
+  bluesky?: string | null;
+  twitter?: string | null;
   /**
    * Child/sub-organising groups
    */
-  Children?: (string | OrganisingGroup)[] | null;
+  children?: (string | OrganisingGroup)[] | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -351,8 +375,13 @@ export interface Company {
    * Legacy Airtable ID for URL redirects
    */
   airtableId?: string | null;
-  Name: string;
-  Summary?: {
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  description?: {
     root: {
       type: string;
       children: {
@@ -367,15 +396,15 @@ export interface Company {
     };
     [k: string]: unknown;
   } | null;
+  featuredImage?: (string | null) | Media;
+  /**
+   * Choose a color for this page
+   */
+  primaryColor?: string | null;
   /**
    * Child/subsidiary companies
    */
-  Children?: (string | Company)[] | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
+  children?: (string | Company)[] | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -391,9 +420,14 @@ export interface Category {
    * Legacy Airtable ID for URL redirects
    */
   airtableId?: string | null;
-  Name: string;
-  Emoji?: string | null;
-  Summary?: {
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  emoji?: string | null;
+  description?: {
     root: {
       type: string;
       children: {
@@ -408,11 +442,11 @@ export interface Category {
     };
     [k: string]: unknown;
   } | null;
+  featuredImage?: (string | null) | Media;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Choose a color for this page
    */
-  generateSlug?: boolean | null;
-  slug: string;
+  primaryColor?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -429,7 +463,7 @@ export interface Campaign {
    */
   generateSlug?: boolean | null;
   slug: string;
-  title: string;
+  name: string;
   description?: {
     root: {
       type: string;
@@ -450,6 +484,10 @@ export interface Campaign {
    * Choose a color for this page
    */
   primaryColor: string;
+  /**
+   * Used to illustrate the campaign label.
+   */
+  emoji?: string | null;
   events?: (string | Event)[] | null;
   /**
    * Filter events by selected companies, countries, categories, and organising groups
@@ -520,10 +558,14 @@ export interface Event {
   headcount?: number | null;
   link?: string | null;
   document?: (string | Media)[] | null;
-  countries?: (string | Country)[] | null;
-  companies?: (string | Company)[] | null;
-  organisingGroups?: (string | OrganisingGroup)[] | null;
-  categories?: (string | Category)[] | null;
+  /**
+   * Is this event a worker-led action or a boss-led action?
+   */
+  isWorkerAction?: boolean | null;
+  category?: (string | Category)[] | null;
+  country?: (string | Country)[] | null;
+  company?: (string | Company)[] | null;
+  organisingGroup?: (string | OrganisingGroup)[] | null;
   /**
    * Create links to related events directly from this event
    */
@@ -828,12 +870,14 @@ export interface BlogPostsSelect<T extends boolean = true> {
  */
 export interface CountriesSelect<T extends boolean = true> {
   airtableId?: T;
-  Name?: T;
-  countryCode?: T;
-  Summary?: T;
   generateSlug?: T;
   slug?: T;
-  Unions?: T;
+  name?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
+  countryCode?: T;
+  unions?: T;
   coords?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -846,11 +890,13 @@ export interface CountriesSelect<T extends boolean = true> {
  */
 export interface CompaniesSelect<T extends boolean = true> {
   airtableId?: T;
-  Name?: T;
-  Summary?: T;
-  Children?: T;
   generateSlug?: T;
   slug?: T;
+  name?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
+  children?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -862,11 +908,13 @@ export interface CompaniesSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   airtableId?: T;
-  Name?: T;
-  Emoji?: T;
-  Summary?: T;
   generateSlug?: T;
   slug?: T;
+  name?: T;
+  emoji?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -880,15 +928,17 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   airtableId?: T;
   generateSlug?: T;
   slug?: T;
-  Name?: T;
-  FullName?: T;
-  Country?: T;
-  IsUnion?: T;
-  Website?: T;
-  Bluesky?: T;
-  Twitter?: T;
-  LastModified?: T;
-  Children?: T;
+  name?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
+  fullName?: T;
+  country?: T;
+  isUnion?: T;
+  website?: T;
+  bluesky?: T;
+  twitter?: T;
+  children?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -901,10 +951,11 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
 export interface CampaignsSelect<T extends boolean = true> {
   generateSlug?: T;
   slug?: T;
-  title?: T;
+  name?: T;
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  emoji?: T;
   events?: T;
   eventFilters?:
     | T
@@ -935,10 +986,11 @@ export interface EventsSelect<T extends boolean = true> {
   headcount?: T;
   link?: T;
   document?: T;
-  countries?: T;
-  companies?: T;
-  organisingGroups?: T;
-  categories?: T;
+  isWorkerAction?: T;
+  category?: T;
+  country?: T;
+  company?: T;
+  organisingGroup?: T;
   relatedEvents?:
     | T
     | {

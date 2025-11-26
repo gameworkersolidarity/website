@@ -5,11 +5,15 @@ export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
   trash: true,
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'createdAt', 'updatedAt'],
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'createdAt', 'updatedAt'],
     preview: (doc) => {
+      if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
+        return null
+      }
+
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
-      const slug = typeof doc?.slug === 'string' ? doc.slug : ''
+      const slug = doc.slug
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'campaigns',
@@ -41,10 +45,6 @@ export const Campaigns: CollectionConfig = {
       required: true,
     },
     {
-      name: 'emoji',
-      type: 'text',
-    },
-    {
       name: 'description',
       type: 'richText',
     },
@@ -65,6 +65,14 @@ export const Campaigns: CollectionConfig = {
         description: 'Choose a color for this page',
       },
     }),
+    {
+      name: 'emoji',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Used to illustrate the campaign label.',
+      },
+    },
     {
       label: 'Events',
       type: 'group',
