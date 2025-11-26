@@ -12,6 +12,8 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import { writeFile, unlink } from 'fs/promises'
 import { BlogPost, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import { EventInitiator } from '@/collections/enums'
+import { parseHTMLAsLexicalRichText } from '@/utils/payload'
 
 interface AirtableRecord {
   id: string
@@ -49,39 +51,6 @@ const blogPostIdMap = new Map<string, string>()
 
 // Maps: Airtable attachment URL -> Payload Media ID (to avoid re-uploading)
 const mediaUrlMap = new Map<string, string>()
-
-function parseRichText(html: string) {
-  // Convert HTML to a simple Lexical JSON structure
-  return {
-    root: {
-      children: [
-        {
-          children: [
-            {
-              detail: 0,
-              format: 0,
-              mode: 'normal' as const,
-              style: '' as const,
-              text: html.replace(/<[^>]*>/g, ''), // Strip HTML tags
-              type: 'text' as const,
-              version: 1,
-            },
-          ],
-          direction: 'ltr' as const,
-          format: '' as const,
-          indent: 0,
-          type: 'paragraph' as const,
-          version: 1,
-        },
-      ],
-      direction: 'ltr' as const,
-      format: '' as const,
-      indent: 0,
-      type: 'root' as const,
-      version: 1,
-    },
-  }
-}
 
 function parseDate(dateString: string | undefined): string | undefined {
   if (!dateString) return undefined
@@ -235,7 +204,7 @@ async function migrateCountries(payload: any) {
         name: fields.Name.trim() || '',
         countryCode: fields.countryCode || '',
         slug: slug,
-        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
       }
 
       try {
@@ -293,7 +262,7 @@ async function migrateCompanies(payload: any) {
         slug: record.fields.Slug as string,
         airtableId: record.id,
         name: name,
-        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
       }
 
       try {
@@ -352,7 +321,7 @@ async function migrateCategories(payload: any) {
         airtableId: record.id,
         name: name,
         emoji: fields.Emoji || '',
-        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
       }
 
       try {
@@ -425,7 +394,7 @@ async function migrateOrganisingGroups(payload: any) {
         slug: slug || undefined,
         name: name,
         fullName: fields['Full Name'] || fields.FullName || undefined,
-        country: countryIds.length > 0 ? countryIds : undefined,
+        countries: countryIds.length > 0 ? countryIds : undefined,
         isUnion: fields.IsUnion || false,
         website: fields.Website || undefined,
         bluesky: fields.Bluesky || undefined,
@@ -545,14 +514,15 @@ async function migrateSolidarityActions(payload: any) {
       const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
         slug: record.fields.Slug as string,
         airtableId: record.id,
-        title: name,
+        name: name,
         date: date,
         location: fields.Location || undefined,
-        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
-        country: countryIds.length > 0 ? countryIds : undefined,
-        company: companyIds.length > 0 ? companyIds : undefined,
-        organisingGroup: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
-        category: categoryIds.length > 0 ? categoryIds : undefined,
+        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
+        countries: countryIds.length > 0 ? countryIds : undefined,
+        companies: companyIds.length > 0 ? companyIds : undefined,
+        organisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
+        categories: categoryIds.length > 0 ? categoryIds : undefined,
+        initiator: EventInitiator.WORKER_LED,
       }
 
       try {
@@ -586,7 +556,7 @@ async function migrateBlogPosts(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const title = fields.title.trim()
+      const title = fields.Title.trim()
       const slug = fields.Slug
 
       if (!title || !fields.Date) {
@@ -605,7 +575,7 @@ async function migrateBlogPosts(payload: any) {
         byline: fields.ByLine || undefined,
         title: title,
         image: imageId,
-        body: parseRichText(fields.Body || ''),
+        body: parseHTMLAsLexicalRichText(fields.Body || ''),
         date: parseDate(fields.Date)!,
       }
 

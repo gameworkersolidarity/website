@@ -1,11 +1,12 @@
 import { slugField, type CollectionConfig } from 'payload'
+import { EventInitiator } from './enums'
 
 export const Events: CollectionConfig = {
   slug: 'events',
   trash: true,
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'date', 'createdAt', 'updatedAt'],
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'date', 'createdAt', 'updatedAt'],
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
         return null
@@ -36,10 +37,10 @@ export const Events: CollectionConfig = {
   },
   fields: [
     slugField({
-      fieldToUse: 'title',
+      fieldToUse: 'name',
     }),
     {
-      name: 'title',
+      name: 'name',
       type: 'text',
       required: true,
     },
@@ -90,33 +91,49 @@ export const Events: CollectionConfig = {
       hasMany: true,
     },
     {
-      name: 'isWorkerAction',
-      type: 'checkbox',
+      name: 'initiator',
+      type: 'select',
+      options: [
+        {
+          label: 'Worker-led (e.g. an action or worker news)',
+          value: EventInitiator.WORKER_LED,
+        },
+        {
+          label: 'Boss-led (e.g. a redundancy or a policy change)',
+          value: EventInitiator.BOSS_LED,
+        },
+        {
+          label: 'Other (neither worker-led nor boss-led)',
+          value: EventInitiator.OTHER,
+        },
+      ],
+      defaultValue: EventInitiator.WORKER_LED,
       admin: {
-        description: 'Is this event a worker-led action or a boss-led action?',
+        description:
+          'Who led this? Used to decide whether to display the event on timelines and so on.',
       },
     },
     {
-      name: 'category',
+      name: 'categories',
       type: 'relationship',
       relationTo: 'categories',
       hasMany: true,
     },
     // Relations
     {
-      name: 'country',
+      name: 'countries',
       type: 'relationship',
       relationTo: 'countries',
       hasMany: true,
     },
     {
-      name: 'company',
+      name: 'companies',
       type: 'relationship',
       relationTo: 'companies',
       hasMany: true,
     },
     {
-      name: 'organisingGroup',
+      name: 'organisingGroups',
       type: 'relationship',
       relationTo: 'organisingGroups',
       hasMany: true,
@@ -124,13 +141,13 @@ export const Events: CollectionConfig = {
     {
       name: 'relatedEvents',
       type: 'array',
-      label: 'Related Events',
+      label: 'Related events',
       admin: {
-        description: 'Create links to related events directly from this event',
+        description: 'Link related events and they will appear on the same timeline',
       },
       fields: [
         {
-          name: 'relatedEvent',
+          name: 'event',
           type: 'relationship',
           relationTo: 'events',
           required: true,
@@ -139,26 +156,26 @@ export const Events: CollectionConfig = {
           },
         },
         {
-          name: 'quality',
+          name: 'connectionType',
           type: 'select',
           options: [
             {
-              label: 'Direct',
+              label: 'Direct (e.g. the same organiser)',
               value: 'DIRECT',
             },
             {
-              label: 'Indirect',
+              label: 'Indirect (e.g. inspired by or influenced by)',
               value: 'INDIRECT',
             },
           ],
           required: true,
           defaultValue: 'DIRECT',
           admin: {
-            description: 'The quality of the relationship',
+            description: 'How are these events related?',
           },
         },
         {
-          name: 'comment',
+          name: 'description',
           type: 'textarea',
           required: true,
           admin: {

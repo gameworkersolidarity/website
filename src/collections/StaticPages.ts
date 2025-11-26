@@ -49,7 +49,7 @@ export const StaticPages: CollectionConfig = {
       },
     },
     {
-      name: 'Body',
+      name: 'body',
       type: 'richText',
       required: true,
     },

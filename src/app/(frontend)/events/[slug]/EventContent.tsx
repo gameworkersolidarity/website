@@ -62,14 +62,11 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
 
     const events: Event[] = []
     for (const relatedEventItem of event.relatedEvents) {
-      if (relatedEventItem?.relatedEvent) {
+      if (relatedEventItem?.event) {
         // Check if the related event is already populated (object) or just an ID
-        if (
-          typeof relatedEventItem.relatedEvent === 'object' &&
-          isEvent(relatedEventItem.relatedEvent)
-        ) {
+        if (typeof relatedEventItem.event === 'object' && isEvent(relatedEventItem.event)) {
           // Already populated, use it directly if it's published (when not in draft mode)
-          events.push(relatedEventItem.relatedEvent)
+          events.push(relatedEventItem.event)
         }
       }
     }
@@ -104,7 +101,7 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
         </div>
 
         {/* Article title */}
-        <h1 className="action-title font-identity">{event.title}</h1>
+        <h1 className="action-title font-identity">{event.name}</h1>
 
         {/* Article content */}
         {event.description && (
@@ -153,7 +150,7 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
             return (
               <div key={category.id} className="related-info-box">
                 <div className="related-info-header">
-                  {category.Emoji && <span className="related-info-icon">{category.Emoji}</span>}
+                  {category.emoji && <span className="related-info-icon">{category.emoji}</span>}
                   <span className="related-info-title">{category.name}</span>
                 </div>
                 <div className="related-info-type">Category</div>
@@ -169,8 +166,8 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
           {organisingGroups.map((group) => (
             <div key={group.id} className="related-info-box">
               <div className="related-info-title">
-                {typeof group === 'object' && 'FullName' in group
-                  ? group.FullName || group.name
+                {typeof group === 'object' && 'fullName' in group
+                  ? group.fullName || group.name
                   : group.name}
               </div>
               <div className="related-info-type">Organising group</div>

@@ -78,10 +78,22 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'country',
+      name: 'countries',
       type: 'relationship',
       relationTo: 'countries',
       hasMany: true,
+      admin: {
+        description: 'Countries where this group organises.',
+      },
+    },
+    {
+      name: 'companies',
+      type: 'relationship',
+      relationTo: 'companies',
+      hasMany: true,
+      admin: {
+        description: 'Companies this group organises workers within.',
+      },
     },
     {
       name: 'isUnion',

@@ -79,7 +79,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
                   </div>
 
                   {/* Title */}
-                  <h3 className="timeline-action-title">{event.title}</h3>
+                  <h3 className="timeline-action-title">{event.name}</h3>
                 </>
               )
 
@@ -103,4 +103,3 @@ export function EventTimeline({ events }: EventTimelineProps) {
     </div>
   )
 }
-

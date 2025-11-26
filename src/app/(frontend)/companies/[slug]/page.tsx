@@ -147,7 +147,7 @@ export default async function CompanyPage({ params }: Props) {
           country !== null &&
           'id' in country &&
           'slug' in country &&
-          'Name' in country
+          'name' in country
         ) {
           const countryId = String(country.id)
           if (!countriesSet.has(countryId)) {
@@ -164,7 +164,7 @@ export default async function CompanyPage({ params }: Props) {
           group !== null &&
           'id' in group &&
           'slug' in group &&
-          'Name' in group
+          'name' in group
         ) {
           const groupId = String(group.id)
           if (!organisingGroupsSet.has(groupId)) {
@@ -193,9 +193,9 @@ export default async function CompanyPage({ params }: Props) {
       </Link>
 
       <h1>{company.name}</h1>
-      {company.Summary && (
+      {company.description && (
         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={company.Summary} />
+          <LexicalRenderer content={company.description} />
         </div>
       )}
       {uniqueCountries.length > 0 && (
@@ -246,7 +246,7 @@ export default async function CompanyPage({ params }: Props) {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {group.FullName || group.name}
+                {group.fullName || group.name}
               </Link>
             ))}
           </div>

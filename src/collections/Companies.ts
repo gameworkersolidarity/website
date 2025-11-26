@@ -82,5 +82,14 @@ export const Companies: CollectionConfig = {
         description: 'Child/subsidiary companies',
       },
     },
+    {
+      name: 'countries',
+      type: 'relationship',
+      relationTo: 'countries',
+      hasMany: true,
+      admin: {
+        description: 'Countries where this company has workers.',
+      },
+    },
   ],
 }

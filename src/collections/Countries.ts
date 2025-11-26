@@ -81,12 +81,6 @@ export const Countries: CollectionConfig = {
       unique: true,
     },
     {
-      name: 'unions',
-      type: 'relationship',
-      relationTo: 'organisingGroups',
-      hasMany: true,
-    },
-    {
       name: 'coords',
       type: 'json',
       virtual: true,

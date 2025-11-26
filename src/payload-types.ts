@@ -206,7 +206,7 @@ export interface StaticPage {
    * A short summary of the page. Used for SEO and social media.
    */
   summary?: string | null;
-  Body: {
+  body: {
     root: {
       type: string;
       children: {
@@ -308,7 +308,6 @@ export interface Country {
    */
   primaryColor?: string | null;
   countryCode: string;
-  unions?: (string | OrganisingGroup)[] | null;
   coords?:
     | {
         [k: string]: unknown;
@@ -318,57 +317,6 @@ export interface Country {
     | number
     | boolean
     | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organisingGroups".
- */
-export interface OrganisingGroup {
-  id: string;
-  /**
-   * Legacy Airtable ID for URL redirects
-   */
-  airtableId?: string | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  name: string;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  featuredImage?: (string | null) | Media;
-  /**
-   * Choose a color for this page
-   */
-  primaryColor?: string | null;
-  fullName?: string | null;
-  country?: (string | Country)[] | null;
-  isUnion?: boolean | null;
-  website?: string | null;
-  bluesky?: string | null;
-  twitter?: string | null;
-  /**
-   * Child/sub-organising groups
-   */
-  children?: (string | OrganisingGroup)[] | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -414,6 +362,10 @@ export interface Company {
    * Child/subsidiary companies
    */
   children?: (string | Company)[] | null;
+  /**
+   * Countries where this company has workers.
+   */
+  countries?: (string | Country)[] | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -456,6 +408,64 @@ export interface Category {
    * Choose a color for this page
    */
   primaryColor?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organisingGroups".
+ */
+export interface OrganisingGroup {
+  id: string;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
+  /**
+   * Choose a color for this page
+   */
+  primaryColor?: string | null;
+  fullName?: string | null;
+  /**
+   * Countries where this group organises.
+   */
+  countries?: (string | Country)[] | null;
+  /**
+   * Companies this group organises workers within.
+   */
+  companies?: (string | Company)[] | null;
+  isUnion?: boolean | null;
+  website?: string | null;
+  bluesky?: string | null;
+  twitter?: string | null;
+  /**
+   * Child/sub-organising groups
+   */
+  children?: (string | OrganisingGroup)[] | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -538,7 +548,7 @@ export interface Event {
    */
   generateSlug?: boolean | null;
   slug: string;
-  title: string;
+  name: string;
   /**
    * Legacy Airtable ID for url redirects.
    */
@@ -571,30 +581,30 @@ export interface Event {
   link?: string | null;
   document?: (string | Media)[] | null;
   /**
-   * Is this event a worker-led action or a boss-led action?
+   * Who led this? Used to decide whether to display the event on timelines and so on.
    */
-  isWorkerAction?: boolean | null;
-  category?: (string | Category)[] | null;
-  country?: (string | Country)[] | null;
-  company?: (string | Company)[] | null;
-  organisingGroup?: (string | OrganisingGroup)[] | null;
+  initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null;
+  categories?: (string | Category)[] | null;
+  countries?: (string | Country)[] | null;
+  companies?: (string | Company)[] | null;
+  organisingGroups?: (string | OrganisingGroup)[] | null;
   /**
-   * Create links to related events directly from this event
+   * Link related events and they will appear on the same timeline
    */
   relatedEvents?:
     | {
         /**
          * The event this is related to
          */
-        relatedEvent: string | Event;
+        event: string | Event;
         /**
-         * The quality of the relationship
+         * How are these events related?
          */
-        quality: 'DIRECT' | 'INDIRECT';
+        connectionType: 'DIRECT' | 'INDIRECT';
         /**
          * Description of how these events are related (e.g., "The same organiser went on to do this other thing")
          */
-        comment: string;
+        description: string;
         id?: string | null;
       }[]
     | null;
@@ -852,7 +862,7 @@ export interface StaticPagesSelect<T extends boolean = true> {
   slug?: T;
   title?: T;
   summary?: T;
-  Body?: T;
+  body?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -889,7 +899,6 @@ export interface CountriesSelect<T extends boolean = true> {
   featuredImage?: T;
   primaryColor?: T;
   countryCode?: T;
-  unions?: T;
   coords?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -909,6 +918,7 @@ export interface CompaniesSelect<T extends boolean = true> {
   featuredImage?: T;
   primaryColor?: T;
   children?: T;
+  countries?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -945,7 +955,8 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   featuredImage?: T;
   primaryColor?: T;
   fullName?: T;
-  country?: T;
+  countries?: T;
+  companies?: T;
   isUnion?: T;
   website?: T;
   bluesky?: T;
@@ -989,7 +1000,7 @@ export interface CampaignsSelect<T extends boolean = true> {
 export interface EventsSelect<T extends boolean = true> {
   generateSlug?: T;
   slug?: T;
-  title?: T;
+  name?: T;
   airtableId?: T;
   source?: T;
   description?: T;
@@ -998,17 +1009,17 @@ export interface EventsSelect<T extends boolean = true> {
   headcount?: T;
   link?: T;
   document?: T;
-  isWorkerAction?: T;
-  category?: T;
-  country?: T;
-  company?: T;
-  organisingGroup?: T;
+  initiator?: T;
+  categories?: T;
+  countries?: T;
+  companies?: T;
+  organisingGroups?: T;
   relatedEvents?:
     | T
     | {
-        relatedEvent?: T;
-        quality?: T;
-        comment?: T;
+        event?: T;
+        connectionType?: T;
+        description?: T;
         id?: T;
       };
   updatedAt?: T;

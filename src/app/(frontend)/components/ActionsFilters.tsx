@@ -63,7 +63,7 @@ export function ActionsFilters({
           <option value="">Category ▾</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id.toString()}>
-              {category.Emoji && `${category.Emoji} `}
+              {category.emoji && `${category.emoji} `}
               {category.name}
             </option>
           ))}
@@ -91,7 +91,7 @@ export function ActionsFilters({
         >
           <option value="">Union ▾</option>
           {organisingGroups
-            .filter((group) => group.IsUnion)
+            .filter((group) => group.isUnion)
             .map((group) => (
               <option key={group.id} value={group.id.toString()}>
                 {group.name}

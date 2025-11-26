@@ -145,13 +145,13 @@ export default async function CategoryPage({ params }: Props) {
       </Link>
 
       <h1>
-        {category.Emoji && <span style={{ marginRight: '0.5rem' }}>{category.Emoji}</span>}
+        {category.emoji && <span style={{ marginRight: '0.5rem' }}>{category.emoji}</span>}
         {category.name}
       </h1>
 
-      {category.Summary && (
+      {category.description && (
         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={category.Summary} />
+          <LexicalRenderer content={category.description} />
         </div>
       )}
 

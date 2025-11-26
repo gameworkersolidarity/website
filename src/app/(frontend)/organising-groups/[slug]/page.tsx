@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const group = groupResult.docs[0]
   return {
-    title: `${group.FullName || group.name} - Organising Groups - Game Workers Solidarity Platform`,
-    description: `Learn about ${group.FullName || group.name} and related solidarity actions.`,
+    title: `${group.fullName || group.name} - Organising Groups - Game Workers Solidarity Platform`,
+    description: `Learn about ${group.fullName || group.name} and related solidarity actions.`,
   }
 }
 
@@ -170,23 +170,23 @@ export default async function OrganisingGroupPage({ params }: Props) {
         ← Back to Organising Groups
       </Link>
 
-      <h1>{group.FullName || group.name}</h1>
-      {group.name !== group.FullName && group.name && (
+      <h1>{group.fullName || group.name}</h1>
+      {group.name !== group.fullName && group.name && (
         <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
           Also known as: {group.name}
         </p>
       )}
-      {group.IsUnion && (
+      {group.isUnion && (
         <p
           style={{ fontSize: '0.9rem', color: '#4A90E2', marginBottom: '1rem', fontWeight: 'bold' }}
         >
           Union
         </p>
       )}
-      {group.Website && (
+      {group.website && (
         <p style={{ marginBottom: '0.5rem' }}>
           <a
-            href={group.Website}
+            href={group.website}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#4A90E2' }}
@@ -195,10 +195,10 @@ export default async function OrganisingGroupPage({ params }: Props) {
           </a>
         </p>
       )}
-      {group.Twitter && (
+      {group.twitter && (
         <p style={{ marginBottom: '0.5rem' }}>
           <a
-            href={group.Twitter}
+            href={group.twitter}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#4A90E2' }}
@@ -207,10 +207,10 @@ export default async function OrganisingGroupPage({ params }: Props) {
           </a>
         </p>
       )}
-      {group.Bluesky && (
+      {group.bluesky && (
         <p style={{ marginBottom: '1rem' }}>
           <a
-            href={group.Bluesky}
+            href={group.bluesky}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#4A90E2' }}
@@ -246,8 +246,8 @@ export default async function OrganisingGroupPage({ params }: Props) {
           </div>
         </CollapsibleSection>
       )}
-      {group.Country && Array.isArray(group.Country) && group.Country.length > 0 && (
-        <CollapsibleSection title={`Countries (${group.Country.length})`}>
+      {group.countries && Array.isArray(group.countries) && group.countries.length > 0 && (
+        <CollapsibleSection title={`Countries (${group.countries.length})`}>
           <div
             style={{
               display: 'grid',
@@ -255,7 +255,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
               gap: '0.75rem',
             }}
           >
-            {group.Country.map((country, index) => (
+            {group.countries.map((country, index) => (
               <div key={index}>
                 {typeof country === 'object' && country !== null && 'slug' in country ? (
                   <Link
@@ -269,7 +269,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
                       transition: 'background-color 0.2s',
                     }}
                   >
-                    {typeof country === 'object' && 'Name' in country
+                    {typeof country === 'object' && 'name' in country
                       ? country.name
                       : 'Unknown Country'}
                   </Link>
@@ -283,9 +283,9 @@ export default async function OrganisingGroupPage({ params }: Props) {
                   >
                     {typeof country === 'object' &&
                     country !== null &&
-                    'Name' in country &&
-                    typeof (country as { Name?: unknown }).name === 'string'
-                      ? (country as { Name: string }).name
+                    'name' in country &&
+                    typeof (country as { name?: unknown }).name === 'string'
+                      ? (country as { name: string }).name
                       : 'Unknown Country'}
                   </span>
                 )}

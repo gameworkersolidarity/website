@@ -3,6 +3,10 @@ import { compareTwoStrings } from 'string-similarity'
 import * as fs from 'fs'
 import * as path from 'path'
 import config from '../src/payload.config'
+import { EventInitiator } from '@/collections/enums'
+import { Event } from '@/payload-types'
+import { parseHTMLAsLexicalRichText } from '@/utils/payload'
+import { slugify } from 'payload/shared'
 
 interface CsvRow {
   Studio: string
@@ -495,39 +499,6 @@ async function processRedundancies(filePath: string, payload: any) {
       }
       const descriptionText = descriptionParts.join('. ') + (descriptionParts.length > 0 ? '.' : '')
 
-      // Create description as rich text
-      const description = descriptionText
-        ? {
-            root: {
-              children: [
-                {
-                  children: [
-                    {
-                      detail: 0,
-                      format: 0,
-                      mode: 'normal',
-                      style: '',
-                      text: descriptionText,
-                      type: 'text',
-                      version: 1,
-                    },
-                  ],
-                  direction: 'ltr',
-                  format: '',
-                  indent: 0,
-                  type: 'paragraph',
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              type: 'root',
-              version: 1,
-            },
-          }
-        : undefined
-
       // Collect company IDs for the companies relationship (only studio company, not parent)
       const companyIds: string[] = []
       if (companyId) {
@@ -546,19 +517,21 @@ async function processRedundancies(filePath: string, payload: any) {
         row['Studio Location']?.trim() || row['Parent Location']?.trim() || undefined
 
       // Create event record
-      const eventData: any = {
-        title: eventTitle,
+      const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
+        name: eventTitle,
+        slug: slugify(eventTitle) || eventTitle,
         date: normalizedDate,
         headcount: headcount || undefined,
         location: eventLocation,
-        description: description,
+        description: parseHTMLAsLexicalRichText(descriptionText),
         source: 'https://publish.obsidian.md/vg-layoffs/Archive/2025',
         companies: companyIds.length > 0 ? companyIds : undefined,
         countries: countryIds.length > 0 ? countryIds : undefined,
+        initiator: EventInitiator.BOSS_LED,
       }
 
       console.log(`  💾 Creating event record with data:`, {
-        title: eventData.title,
+        name: eventData.name,
         date: eventData.date,
         headcount: eventData.headcount,
         location: eventData.location,

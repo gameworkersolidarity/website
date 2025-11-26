@@ -168,11 +168,11 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
                 textDecoration: 'none',
               }}
             >
-              {node.event.title}
+              {node.event.name}
             </Link>
           ) : (
             <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-              {node.event.title}
+              {node.event.name}
             </h4>
           )}
 

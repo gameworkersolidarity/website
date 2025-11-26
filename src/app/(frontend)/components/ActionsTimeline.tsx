@@ -120,14 +120,14 @@ export function ActionsTimeline({ events }: ActionsTimelineProps) {
                     ))}
                     {categories.map((category, idx) => (
                       <span key={idx} className="timeline-action-metadata-item capitalize">
-                        {category.Emoji && <span>{category.Emoji}</span>}
+                        {category.emoji && <span>{category.emoji}</span>}
                         <span> {category.name}</span>
                       </span>
                     ))}
                   </div>
 
                   {/* Title */}
-                  <h3 className="timeline-action-title">{event.title}</h3>
+                  <h3 className="timeline-action-title">{event.name}</h3>
                 </>
               )
 

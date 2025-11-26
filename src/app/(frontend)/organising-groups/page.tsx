@@ -117,9 +117,9 @@ export default async function OrganisingGroupsPage() {
                   color: '#4A90E2',
                 }}
               >
-                {group.FullName || group.name}
+                {group.fullName || group.name}
               </h2>
-              {group.IsUnion && (
+              {group.isUnion && (
                 <p
                   style={{ fontSize: '0.875rem', color: '#4A90E2', margin: 0, fontWeight: 'bold' }}
                 >

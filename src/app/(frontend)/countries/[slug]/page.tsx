@@ -155,6 +155,15 @@ export default async function CountryPage({ params }: Props) {
 
   const uniqueCompanies = Array.from(companiesSet.values())
 
+  const organisingGroups = await payload.find({
+    collection: 'organisingGroups',
+    where: {
+      countries: {
+        in: [country.id],
+      },
+    },
+  })
+
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
       <Link
@@ -175,9 +184,9 @@ export default async function CountryPage({ params }: Props) {
           Country Code: {country.countryCode.toUpperCase()}
         </p>
       )}
-      {country.Summary && (
+      {country.description && (
         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={country.Summary} />
+          <LexicalRenderer content={country.description} />
         </div>
       )}
       {uniqueCompanies.length > 0 && (
@@ -207,8 +216,8 @@ export default async function CountryPage({ params }: Props) {
           </div>
         </CollapsibleSection>
       )}
-      {country.Unions && Array.isArray(country.Unions) && country.Unions.length > 0 && (
-        <CollapsibleSection title={`Unions & Organising Groups (${country.Unions.length})`}>
+      {organisingGroups && Array.isArray(organisingGroups) && organisingGroups.length > 0 && (
+        <CollapsibleSection title={`Unions & Organising Groups (${organisingGroups.length})`}>
           <div
             style={{
               display: 'grid',
@@ -216,37 +225,21 @@ export default async function CountryPage({ params }: Props) {
               gap: '0.75rem',
             }}
           >
-            {country.Unions.map((union, index) => (
+            {organisingGroups.map((organisingGroup, index) => (
               <div key={index}>
-                {typeof union === 'object' && union !== null && 'slug' in union ? (
-                  <Link
-                    href={`/organising-groups/${(union as { slug: string }).slug}`}
-                    style={{
-                      color: '#4A90E2',
-                      textDecoration: 'none',
-                      padding: '0.5rem',
-                      borderRadius: '4px',
-                      display: 'block',
-                      transition: 'background-color 0.2s',
-                    }}
-                  >
-                    {'FullName' in union && typeof union.FullName === 'string'
-                      ? union.FullName
-                      : 'Name' in union && typeof union.name === 'string'
-                        ? union.name
-                        : 'Unknown Group'}
-                  </Link>
-                ) : (
-                  <span
-                    style={{
-                      padding: '0.5rem',
-                      display: 'block',
-                      color: '#666',
-                    }}
-                  >
-                    Unknown Group
-                  </span>
-                )}
+                <Link
+                  href={`/organising-groups/${(organisingGroup as { slug: string }).slug}`}
+                  style={{
+                    color: '#4A90E2',
+                    textDecoration: 'none',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    display: 'block',
+                    transition: 'background-color 0.2s',
+                  }}
+                >
+                  {organisingGroup.fullName || organisingGroup.name}
+                </Link>
               </div>
             ))}
           </div>
