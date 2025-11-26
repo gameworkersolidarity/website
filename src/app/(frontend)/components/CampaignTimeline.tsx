@@ -2,12 +2,12 @@
 
 import React, { useMemo } from 'react'
 import Link from 'next/link'
-import type { SolidarityAction } from '@/payload-types'
+import type { Event } from '@/payload-types'
 
 interface TimelineEvent {
   id?: string
-  event: number | SolidarityAction
-  parentEvent?: number | SolidarityAction | null
+  event: number | Event
+  parentEvent?: number | Event | null
   linkType?: 'strong' | 'weak' | 'none' | null
   linkDescription?: string | null
   displayOrder?: number | null
@@ -18,7 +18,7 @@ interface CampaignTimelineProps {
 }
 
 interface TimelineNode {
-  event: SolidarityAction
+  event: Event
   linkType: 'strong' | 'weak' | 'none'
   linkDescription?: string | null
   children: TimelineNode[]
@@ -28,8 +28,8 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
   // Build hierarchical tree structure
   const timelineTree = useMemo(() => {
     // First, resolve all events (convert IDs to objects)
-    const eventMap = new Map<number | string, SolidarityAction>()
-    const nodes: Array<{ timelineEvent: TimelineEvent; event: SolidarityAction | null }> = []
+    const eventMap = new Map<number | string, Event>()
+    const nodes: Array<{ timelineEvent: TimelineEvent; event: Event | null }> = []
 
     timelineEvents.forEach((timelineEvent) => {
       const event = typeof timelineEvent.event === 'object' ? timelineEvent.event : null
@@ -87,19 +87,19 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
     // Sort children by date
     const sortNode = (node: TimelineNode) => {
       node.children.sort((a, b) => {
-        return new Date(a.event.Date).getTime() - new Date(b.event.Date).getTime()
+        return new Date(a.event.date).getTime() - new Date(b.event.date).getTime()
       })
       node.children.forEach(sortNode)
     }
 
     rootNodes.forEach(sortNode)
-    rootNodes.sort((a, b) => new Date(a.event.Date).getTime() - new Date(b.event.Date).getTime())
+    rootNodes.sort((a, b) => new Date(a.event.date).getTime() - new Date(b.event.date).getTime())
 
     return rootNodes
   }, [timelineEvents])
 
   const renderNode = (node: TimelineNode, level: number = 0): React.ReactNode => {
-    const date = new Date(node.event.Date)
+    const date = new Date(node.event.date)
     const formattedDate = date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
@@ -135,8 +135,8 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
             <span style={{ fontSize: '0.875rem', color: '#666', fontWeight: '500' }}>
               {formattedDate}
             </span>
-            {node.event.Location && (
-              <span style={{ fontSize: '0.875rem', color: '#888' }}>• {node.event.Location}</span>
+            {node.event.location && (
+              <span style={{ fontSize: '0.875rem', color: '#888' }}>• {node.event.location}</span>
             )}
             {node.linkType !== 'none' && (
               <span
@@ -168,11 +168,11 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
                 textDecoration: 'none',
               }}
             >
-              {node.event.Name}
+              {node.event.title}
             </Link>
           ) : (
             <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-              {node.event.Name}
+              {node.event.title}
             </h4>
           )}
 
@@ -191,9 +191,9 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
             </p>
           )}
 
-          {node.event.Link && (
+          {node.event.link && (
             <a
-              href={node.event.Link}
+              href={node.event.link}
               target="_blank"
               rel="noopener noreferrer"
               style={{ fontSize: '0.875rem', color: '#4A90E2', textDecoration: 'none' }}

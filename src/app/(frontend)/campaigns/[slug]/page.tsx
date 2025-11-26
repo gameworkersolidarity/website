@@ -3,10 +3,6 @@ import { getPayload } from 'payload'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-// import { CampaignTimeline } from '../../components/CampaignTimeline'
-// import { ActionsTimeline } from '../../components/ActionsTimeline'
-// import { RichText } from '../../components/RichText'
-// import type { SolidarityAction } from '@/payload-types'
 import '../campaigns.css'
 
 export async function generateStaticParams() {

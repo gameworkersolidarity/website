@@ -29,16 +29,14 @@ export default async function CompaniesPage() {
   // Count actions for each company
   const companiesWithData = await Promise.all(
     companiesResult.docs.map(async (company) => {
-      const actionsResult = await Promise.all([
-        payload.find({
-          collection: 'events',
-          where: {
-            companies: {
-              in: [company.id],
-            },
+      const actionsResult = await payload.find({
+        collection: 'events',
+        where: {
+          companies: {
+            in: [company.id],
           },
-        }),
-      ])
+        },
+      })
       return {
         company,
         actionCount: actionsResult.totalDocs,
