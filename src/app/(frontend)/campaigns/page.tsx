@@ -74,11 +74,11 @@ export default async function CampaignsPage() {
                 >
                   {featuredImage && (
                     <div className="campaign-card-image">
-                      <img src={featuredImage} alt={campaign.title} />
+                      <img src={featuredImage} alt={campaign.name} />
                     </div>
                   )}
                   <div className="campaign-card-content">
-                    <h2>{campaign.title}</h2>
+                    <h2>{campaign.name}</h2>
                     {campaign.events && campaign.events.length > 0 && (
                       <p className="campaign-card-meta">
                         {campaign.events.length} event{campaign.events.length !== 1 ? 's' : ''} in

@@ -12,6 +12,18 @@ interface HeaderProps {
 }
 
 export function Header({ navigation = [] }: HeaderProps) {
+  const _navigation = [
+    {
+      label: 'Home',
+      url: '/',
+    },
+    ...navigation,
+    {
+      label: 'API docs',
+      url: '/api/docs',
+    },
+  ]
+
   return (
     <header className="site-header">
       <div className="header-content-wrapper">
@@ -29,23 +41,21 @@ export function Header({ navigation = [] }: HeaderProps) {
             Game Worker Solidarity
           </Link>
         </div>
-        {navigation.length > 0 && (
-          <nav className="header-nav">
-            <ul className="header-nav-list">
-              {navigation.map((item, index) => (
-                <li key={index}>
-                  {item.url.startsWith('http') ? (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer">
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link href={item.url}>{item.label}</Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
+        <nav className="header-nav">
+          <ul className="header-nav-list">
+            {_navigation.map((item, index) => (
+              <li key={index}>
+                {item.url.startsWith('http') ? (
+                  <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link href={item.url}>{item.label}</Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </header>
   )

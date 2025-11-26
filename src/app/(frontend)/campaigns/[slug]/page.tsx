@@ -63,8 +63,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const campaign = campaignResult.docs[0]
   return {
-    title: `${campaign.title} - Campaigns - Game Workers Solidarity Platform`,
-    description: `Learn about the ${campaign.title} campaign and its timeline of solidarity actions.`,
+    title: `${campaign.name} - Campaigns - Game Workers Solidarity Platform`,
+    description: `Learn about the ${campaign.name} campaign and its timeline of solidarity actions.`,
   }
 }
 
@@ -129,12 +129,12 @@ export default async function CampaignPage({ params }: { params: { slug: string 
         <article className="campaign-article">
           {campaign.featuredImage && (
             <div className="campaign-featured-image">
-              <img src={campaign.featuredImage as string} alt={campaign.title} />
+              <img src={campaign.featuredImage as string} alt={campaign.name} />
             </div>
           )}
 
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            {campaign.title}
+            {campaign.name}
           </h1>
 
           {campaign.description && (
