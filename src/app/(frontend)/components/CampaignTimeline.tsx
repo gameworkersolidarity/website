@@ -159,7 +159,7 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
 
           {node.event.slug ? (
             <Link
-              href={`/actions/${node.event.slug}`}
+              href={`/events/${node.event.slug}`}
               style={{
                 fontSize: '1.125rem',
                 fontWeight: '600',

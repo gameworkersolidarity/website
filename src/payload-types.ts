@@ -75,9 +75,7 @@ export interface Config {
     companies: Company;
     categories: Category;
     organisingGroups: OrganisingGroup;
-    solidarityActions: SolidarityAction;
     campaigns: Campaign;
-    redundancies: Redundancy;
     events: Event;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -95,9 +93,7 @@ export interface Config {
     companies: CompaniesSelect<false> | CompaniesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>;
-    solidarityActions: SolidarityActionsSelect<false> | SolidarityActionsSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
-    redundancies: RedundanciesSelect<false> | RedundanciesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -299,7 +295,6 @@ export interface Country {
   generateSlug?: boolean | null;
   slug: string;
   Unions?: (string | OrganisingGroup)[] | null;
-  SolidarityActions?: (string | SolidarityAction)[] | null;
   coords?:
     | {
         [k: string]: unknown;
@@ -336,59 +331,11 @@ export interface OrganisingGroup {
   Website?: string | null;
   Bluesky?: string | null;
   Twitter?: string | null;
-  SolidarityActions?: (string | SolidarityAction)[] | null;
   LastModified: string;
   /**
    * Child/sub-organising groups
    */
   Children?: (string | OrganisingGroup)[] | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "solidarityActions".
- */
-export interface SolidarityAction {
-  id: string;
-  /**
-   * Legacy Airtable ID for URL redirects
-   */
-  airtableId?: string | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  Name: string;
-  Location?: string | null;
-  Summary?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  Date: string;
-  LastModified: string;
-  Link?: string | null;
-  LocationData?: string | null;
-  Country?: (string | Country)[] | null;
-  Company?: (string | Company)[] | null;
-  OrganisingGroups?: (string | OrganisingGroup)[] | null;
-  Category?: (string | Category)[] | null;
-  Document?: (string | Media)[] | null;
-  DisplayStyle?: 'Featured' | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -420,11 +367,6 @@ export interface Company {
     };
     [k: string]: unknown;
   } | null;
-  SolidarityActions?: (string | SolidarityAction)[] | null;
-  /**
-   * Redundancies and layoffs linked to this company
-   */
-  Redundancies?: (string | Redundancy)[] | null;
   /**
    * Child/subsidiary companies
    */
@@ -434,47 +376,6 @@ export interface Company {
    */
   generateSlug?: boolean | null;
   slug: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redundancies".
- */
-export interface Redundancy {
-  id: string;
-  studio: string;
-  date: string;
-  /**
-   * Number of people affected (if known)
-   */
-  headcount?: number | null;
-  /**
-   * Parent company name (as imported from CSV)
-   */
-  parent?: string | null;
-  /**
-   * Type of studio/business
-   */
-  type?: ('Indie' | 'Console' | 'Mobile' | 'Online' | 'AR/VR' | 'Tech' | 'Publisher') | null;
-  /**
-   * Location of the studio
-   */
-  studioLocation?: string | null;
-  /**
-   * Location of the parent company
-   */
-  parentLocation?: string | null;
-  /**
-   * Matched company from database
-   */
-  company?: (string | null) | Company;
-  /**
-   * Matched parent company from database
-   */
-  parentCompany?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -507,7 +408,6 @@ export interface Category {
     };
     [k: string]: unknown;
   } | null;
-  SolidarityActions?: (string | SolidarityAction)[] | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -809,16 +709,8 @@ export interface PayloadLockedDocument {
         value: string | OrganisingGroup;
       } | null)
     | ({
-        relationTo: 'solidarityActions';
-        value: string | SolidarityAction;
-      } | null)
-    | ({
         relationTo: 'campaigns';
         value: string | Campaign;
-      } | null)
-    | ({
-        relationTo: 'redundancies';
-        value: string | Redundancy;
       } | null)
     | ({
         relationTo: 'events';
@@ -953,7 +845,6 @@ export interface CountriesSelect<T extends boolean = true> {
   generateSlug?: T;
   slug?: T;
   Unions?: T;
-  SolidarityActions?: T;
   coords?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -968,8 +859,6 @@ export interface CompaniesSelect<T extends boolean = true> {
   airtableId?: T;
   Name?: T;
   Summary?: T;
-  SolidarityActions?: T;
-  Redundancies?: T;
   Children?: T;
   generateSlug?: T;
   slug?: T;
@@ -987,7 +876,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   Name?: T;
   Emoji?: T;
   Summary?: T;
-  SolidarityActions?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1010,35 +898,8 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   Website?: T;
   Bluesky?: T;
   Twitter?: T;
-  SolidarityActions?: T;
   LastModified?: T;
   Children?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "solidarityActions_select".
- */
-export interface SolidarityActionsSelect<T extends boolean = true> {
-  airtableId?: T;
-  generateSlug?: T;
-  slug?: T;
-  Name?: T;
-  Location?: T;
-  Summary?: T;
-  Date?: T;
-  LastModified?: T;
-  Link?: T;
-  LocationData?: T;
-  Country?: T;
-  Company?: T;
-  OrganisingGroups?: T;
-  Category?: T;
-  Document?: T;
-  DisplayStyle?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1075,25 +936,6 @@ export interface CampaignsSelect<T extends boolean = true> {
               blockName?: T;
             };
       };
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redundancies_select".
- */
-export interface RedundanciesSelect<T extends boolean = true> {
-  studio?: T;
-  date?: T;
-  headcount?: T;
-  parent?: T;
-  type?: T;
-  studioLocation?: T;
-  parentLocation?: T;
-  company?: T;
-  parentCompany?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1305,16 +1147,8 @@ export interface TaskSchedulePublish {
           value: string | OrganisingGroup;
         } | null)
       | ({
-          relationTo: 'solidarityActions';
-          value: string | SolidarityAction;
-        } | null)
-      | ({
           relationTo: 'campaigns';
           value: string | Campaign;
-        } | null)
-      | ({
-          relationTo: 'redundancies';
-          value: string | Redundancy;
         } | null)
       | ({
           relationTo: 'events';

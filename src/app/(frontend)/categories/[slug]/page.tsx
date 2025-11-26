@@ -108,7 +108,7 @@ export default async function CategoryPage({ params }: Props) {
     where: {
       and: [
         {
-          Category: {
+          categories: {
             in: [category.id],
           },
         },

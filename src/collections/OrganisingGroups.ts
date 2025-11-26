@@ -74,12 +74,6 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'SolidarityActions',
-      type: 'relationship',
-      relationTo: 'solidarityActions',
-      hasMany: true,
-    },
-    {
       name: 'LastModified',
       type: 'date',
       required: true,

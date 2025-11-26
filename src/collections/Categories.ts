@@ -41,12 +41,6 @@ export const Categories: CollectionConfig = {
       name: 'Summary',
       type: 'richText',
     },
-    {
-      name: 'SolidarityActions',
-      type: 'relationship',
-      relationTo: 'solidarityActions',
-      hasMany: true,
-    },
     slugField({
       fieldToUse: 'Name',
     }),

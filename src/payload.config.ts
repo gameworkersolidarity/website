@@ -11,9 +11,7 @@ import { Countries } from './collections/Countries'
 import { Companies } from './collections/Companies'
 import { Categories } from './collections/Categories'
 import { OrganisingGroups } from './collections/OrganisingGroups'
-import { SolidarityActions } from './collections/SolidarityActions'
 import { Campaigns } from './collections/Campaigns'
-import { Redundancies } from './collections/Redundancies'
 import { Events } from './collections/Events'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
@@ -88,9 +86,7 @@ export default buildConfig({
     Companies,
     Categories,
     OrganisingGroups,
-    SolidarityActions,
     Campaigns,
-    Redundancies,
     Events,
   ],
   globals: [Header, Footer],

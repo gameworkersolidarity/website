@@ -293,7 +293,7 @@ function ActionItem({ action }: { action: SolidarityAction }) {
       >
         {action.slug ? (
           <Link
-            href={`/actions/${action.slug}`}
+            href={`/events/${action.slug}`}
             style={{
               fontSize: '1.1rem',
               fontWeight: 600,

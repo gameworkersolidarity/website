@@ -2,7 +2,6 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import React from 'react'
 import Link from 'next/link'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
@@ -21,7 +20,7 @@ export async function generateStaticParams() {
       },
     },
     limit: 100,
-    depth: 0,
+    depth: 1,
   })
 
   return countriesResult.docs.map((country) => ({
@@ -110,7 +109,7 @@ export default async function CountryPage({ params }: Props) {
     where: {
       and: [
         {
-          Country: {
+          countries: {
             in: [country.id],
           },
         },

@@ -53,12 +53,6 @@ export const Countries: CollectionConfig = {
       hasMany: true,
     },
     {
-      name: 'SolidarityActions',
-      type: 'relationship',
-      relationTo: 'solidarityActions',
-      hasMany: true,
-    },
-    {
       name: 'coords',
       type: 'json',
       virtual: true,

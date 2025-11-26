@@ -23,7 +23,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   let footerData: { navigation?: Array<{ label: string; url: string }> } | null = null
 
   try {
-    const result = await (payload.findGlobal as any)({
+    const result = await payload.findGlobal({
       slug: 'header',
     })
     headerData = result as { navigation?: Array<{ label: string; url: string }> }
@@ -32,7 +32,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   }
 
   try {
-    const result = await (payload.findGlobal as any)({
+    const result = await payload.findGlobal({
       slug: 'footer',
     })
     footerData = result as { navigation?: Array<{ label: string; url: string }> }

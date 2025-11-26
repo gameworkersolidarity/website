@@ -8,6 +8,7 @@ import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { UnifiedTimeline } from '../../components/UnifiedTimeline'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Country, OrganisingGroup } from '@/payload-types'
+import { ActionsTimeline } from '../../components/ActionsTimeline'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -105,13 +106,13 @@ export default async function CompanyPage({ params }: Props) {
   }
 
   // Query solidarity actions and redundancies directly where this company is related
-  const [actionsResult, redundanciesResult] = await Promise.all([
+  const [actionsResult] = await Promise.all([
     payload.find({
-      collection: 'solidarityActions',
+      collection: 'events',
       where: {
         and: [
           {
-            Company: {
+            companies: {
               in: [company.id],
             },
           },
@@ -130,21 +131,9 @@ export default async function CompanyPage({ params }: Props) {
       draft: isDraftMode,
       pagination: false,
     }),
-    payload.find({
-      collection: 'redundancies',
-      where: {
-        company: {
-          equals: company.id,
-        },
-      },
-      depth: 1,
-      pagination: false,
-      sort: '-date',
-    }),
   ])
 
   const solidarityActions = actionsResult.docs
-  const redundancies = redundanciesResult.docs
 
   // Extract unique countries and organising groups from solidarity actions
   const countriesSet = new Map<string, Country>()
@@ -152,8 +141,8 @@ export default async function CompanyPage({ params }: Props) {
 
   solidarityActions.forEach((action) => {
     // Extract countries
-    if (action.Country && Array.isArray(action.Country)) {
-      action.Country.forEach((country) => {
+    if (action.countries && Array.isArray(action.countries)) {
+      action.countries.forEach((country) => {
         if (
           typeof country === 'object' &&
           country !== null &&
@@ -169,8 +158,8 @@ export default async function CompanyPage({ params }: Props) {
       })
     }
     // Extract organising groups
-    if (action.OrganisingGroups && Array.isArray(action.OrganisingGroups)) {
-      action.OrganisingGroups.forEach((group) => {
+    if (action.organisingGroups && Array.isArray(action.organisingGroups)) {
+      action.organisingGroups.forEach((group) => {
         if (
           typeof group === 'object' &&
           group !== null &&
@@ -264,10 +253,14 @@ export default async function CompanyPage({ params }: Props) {
           </div>
         </CollapsibleSection>
       )}
-      {(solidarityActions.length > 0 || redundancies.length > 0) && (
+      {solidarityActions.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Timeline</h2>
-          <UnifiedTimeline actions={solidarityActions} redundancies={redundancies} />
+          <ActionsTimeline
+            events={solidarityActions.sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+            )}
+          />
         </div>
       )}
     </div>

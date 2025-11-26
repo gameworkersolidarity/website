@@ -50,21 +50,6 @@ export const Companies: CollectionConfig = {
       type: 'richText',
     },
     {
-      name: 'SolidarityActions',
-      type: 'relationship',
-      relationTo: 'solidarityActions',
-      hasMany: true,
-    },
-    {
-      name: 'Redundancies',
-      type: 'relationship',
-      relationTo: 'redundancies',
-      hasMany: true,
-      admin: {
-        description: 'Redundancies and layoffs linked to this company',
-      },
-    },
-    {
       name: 'Children',
       type: 'relationship',
       relationTo: 'companies',

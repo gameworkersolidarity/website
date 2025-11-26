@@ -30,11 +30,11 @@ export default async function CountriesPage() {
   const countriesWithActions = await Promise.all(
     countriesResult.docs.map(async (country) => {
       const actionsResult = await payload.find({
-        collection: 'solidarityActions',
+        collection: 'events',
         where: {
           and: [
             {
-              Country: {
+              countries: {
                 in: [country.id],
               },
             },
