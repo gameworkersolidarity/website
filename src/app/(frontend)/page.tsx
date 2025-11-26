@@ -38,18 +38,38 @@ export default async function HomePage() {
       payload.find({
         collection: 'countries',
         pagination: false,
+        select: {
+          name: true,
+          id: true,
+          slug: true,
+        },
       }),
       payload.find({
         collection: 'categories',
         pagination: false,
+        select: {
+          name: true,
+          id: true,
+          slug: true,
+        },
       }),
       payload.find({
         collection: 'companies',
         pagination: false,
+        select: {
+          name: true,
+          id: true,
+          slug: true,
+        },
       }),
       payload.find({
         collection: 'organisingGroups',
         pagination: false,
+        select: {
+          name: true,
+          id: true,
+          slug: true,
+        },
       }),
     ])
 
