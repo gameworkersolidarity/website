@@ -62,8 +62,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const company = companyResult.docs[0]
   return {
-    title: `${company.Name} - Companies - Game Workers Solidarity Platform`,
-    description: `Learn about ${company.Name} and related solidarity actions.`,
+    title: `${company.name} - Companies - Game Workers Solidarity Platform`,
+    description: `Learn about ${company.name} and related solidarity actions.`,
   }
 }
 
@@ -192,7 +192,7 @@ export default async function CompanyPage({ params }: Props) {
         ← Back to Companies
       </Link>
 
-      <h1>{company.Name}</h1>
+      <h1>{company.name}</h1>
       {company.Summary && (
         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
           <LexicalRenderer content={company.Summary} />
@@ -219,7 +219,7 @@ export default async function CompanyPage({ params }: Props) {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {country.Name}
+                {country.name}
               </Link>
             ))}
           </div>
@@ -246,7 +246,7 @@ export default async function CompanyPage({ params }: Props) {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {group.FullName || group.Name}
+                {group.FullName || group.name}
               </Link>
             ))}
           </div>

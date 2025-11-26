@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const country = countryResult.docs[0]
   return {
-    title: `${country.Name} - Countries - Game Workers Solidarity Platform`,
-    description: `Explore solidarity actions and organising groups in ${country.Name}.`,
+    title: `${country.name} - Countries - Game Workers Solidarity Platform`,
+    description: `Explore solidarity actions and organising groups in ${country.name}.`,
   }
 }
 
@@ -169,7 +169,7 @@ export default async function CountryPage({ params }: Props) {
         ← Back to Countries
       </Link>
 
-      <h1>{country.Name}</h1>
+      <h1>{country.name}</h1>
       {country.countryCode && (
         <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
           Country Code: {country.countryCode.toUpperCase()}
@@ -201,7 +201,7 @@ export default async function CountryPage({ params }: Props) {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {company.Name}
+                {company.name}
               </Link>
             ))}
           </div>
@@ -232,8 +232,8 @@ export default async function CountryPage({ params }: Props) {
                   >
                     {'FullName' in union && typeof union.FullName === 'string'
                       ? union.FullName
-                      : 'Name' in union && typeof union.Name === 'string'
-                        ? union.Name
+                      : 'Name' in union && typeof union.name === 'string'
+                        ? union.name
                         : 'Unknown Group'}
                   </Link>
                 ) : (

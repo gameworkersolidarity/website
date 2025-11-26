@@ -107,7 +107,7 @@ export default async function CompaniesPage() {
                   color: '#4A90E2',
                 }}
               >
-                {company.Name}
+                {company.name}
               </h2>
               <div style={{ fontSize: '0.875rem', color: '#666' }}>
                 {actionCount > 0 && (

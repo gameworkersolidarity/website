@@ -11,6 +11,7 @@ import env from 'env-var'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { writeFile, unlink } from 'fs/promises'
+import { BlogPost, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 
 interface AirtableRecord {
   id: string
@@ -59,24 +60,24 @@ function parseRichText(html: string) {
             {
               detail: 0,
               format: 0,
-              mode: 'normal',
-              style: '',
+              mode: 'normal' as const,
+              style: '' as const,
               text: html.replace(/<[^>]*>/g, ''), // Strip HTML tags
-              type: 'text',
+              type: 'text' as const,
               version: 1,
             },
           ],
-          direction: 'ltr',
-          format: '',
+          direction: 'ltr' as const,
+          format: '' as const,
           indent: 0,
-          type: 'paragraph',
+          type: 'paragraph' as const,
           version: 1,
         },
       ],
-      direction: 'ltr',
-      format: '',
+      direction: 'ltr' as const,
+      format: '' as const,
       indent: 0,
-      type: 'root',
+      type: 'root' as const,
       version: 1,
     },
   }
@@ -229,12 +230,12 @@ async function migrateCountries(payload: any) {
         continue
       }
 
-      const countryData = {
+      const countryData: Omit<Country, 'id' | 'updatedAt' | 'createdAt'> = {
         airtableId: record.id,
-        Name: fields.Name.trim() || '',
+        name: fields.Name.trim() || '',
         countryCode: fields.countryCode || '',
-        Slug: slug,
-        Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        slug: slug,
+        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
       }
 
       try {
@@ -258,7 +259,7 @@ async function migrateCountries(payload: any) {
 
         countryIdMap.set(record.id, result.id)
         stats.countries.created++
-        console.log(`✓ Created country: ${countryData.Name}`)
+        console.log(`✓ Created country: ${countryData.name}`)
       } catch (error) {
         console.error(`✗ Error creating country ${slug}:`, error)
         stats.countries.skipped++
@@ -288,10 +289,11 @@ async function migrateCompanies(payload: any) {
         continue
       }
 
-      const companyData = {
+      const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
+        slug: record.fields.Slug as string,
         airtableId: record.id,
-        Name: name,
-        Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        name: name,
+        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
       }
 
       try {
@@ -345,11 +347,12 @@ async function migrateCategories(payload: any) {
         continue
       }
 
-      const categoryData = {
+      const categoryData: Omit<Category, 'id' | 'updatedAt' | 'createdAt'> = {
+        slug: record.fields.Slug as string,
         airtableId: record.id,
-        Name: name,
-        Emoji: fields.Emoji || '',
-        Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        name: name,
+        emoji: fields.Emoji || '',
+        description: fields.Summary ? parseRichText(fields.Summary) : undefined,
       }
 
       try {
@@ -417,17 +420,16 @@ async function migrateOrganisingGroups(payload: any) {
         }
       }
 
-      const organisingGroupData = {
+      const organisingGroupData: Omit<OrganisingGroup, 'id' | 'updatedAt' | 'createdAt'> = {
         airtableId: record.id,
         slug: slug || undefined,
-        Name: name,
-        FullName: fields['Full Name'] || fields.FullName || undefined,
-        Country: countryIds.length > 0 ? countryIds : undefined,
-        IsUnion: fields.IsUnion || false,
-        Website: fields.Website || undefined,
-        Bluesky: fields.Bluesky || undefined,
-        Twitter: fields.Twitter || undefined,
-        LastModified: parseDate(fields.LastModified) || new Date().toISOString(),
+        name: name,
+        fullName: fields['Full Name'] || fields.FullName || undefined,
+        country: countryIds.length > 0 ? countryIds : undefined,
+        isUnion: fields.IsUnion || false,
+        website: fields.Website || undefined,
+        bluesky: fields.Bluesky || undefined,
+        twitter: fields.Twitter || undefined,
       }
 
       try {
@@ -540,15 +542,17 @@ async function migrateSolidarityActions(payload: any) {
       }
 
       // Create event data from solidarity action
-      const eventData: any = {
+      const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
+        slug: record.fields.Slug as string,
+        airtableId: record.id,
         title: name,
         date: date,
         location: fields.Location || undefined,
         description: fields.Summary ? parseRichText(fields.Summary) : undefined,
-        countries: countryIds.length > 0 ? countryIds : undefined,
-        companies: companyIds.length > 0 ? companyIds : undefined,
-        organisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
-        categories: categoryIds.length > 0 ? categoryIds : undefined,
+        country: countryIds.length > 0 ? countryIds : undefined,
+        company: companyIds.length > 0 ? companyIds : undefined,
+        organisingGroup: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
+        category: categoryIds.length > 0 ? categoryIds : undefined,
       }
 
       try {
@@ -595,16 +599,16 @@ async function migrateBlogPosts(payload: any) {
       const imageIds = await processAttachments(payload, fields.Image, `image for ${title}`)
       const imageId = imageIds.length > 0 ? imageIds[0] : undefined
 
-      const blogPostData = {
+      const blogPostData: Omit<BlogPost, 'id' | 'updatedAt' | 'createdAt'> = {
         airtableId: record.id,
-        Slug: slug || undefined,
-        ByLine: fields.ByLine || undefined,
-        Title: title,
-        Image: imageId,
-        Summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
-        Body: parseRichText(fields.Body || ''),
-        Date: parseDate(fields.Date)!,
-        Public: fields.Public ?? true,
+        slug: slug || undefined,
+        byline: fields.ByLine || undefined,
+        title: title,
+        image: imageId,
+        summary: fields.Summary ? parseRichText(fields.Summary) : undefined,
+        body: parseRichText(fields.Body || ''),
+        date: parseDate(fields.Date)!,
+        public: fields.Public ?? true,
       }
 
       try {

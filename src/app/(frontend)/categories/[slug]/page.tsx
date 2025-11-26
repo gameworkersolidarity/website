@@ -60,8 +60,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const category = categoryResult.docs[0]
   return {
-    title: `${category.Name} - Categories - Game Workers Solidarity Platform`,
-    description: `Explore solidarity actions in the ${category.Name} category.`,
+    title: `${category.name} - Categories - Game Workers Solidarity Platform`,
+    description: `Explore solidarity actions in the ${category.name} category.`,
   }
 }
 
@@ -146,7 +146,7 @@ export default async function CategoryPage({ params }: Props) {
 
       <h1>
         {category.Emoji && <span style={{ marginRight: '0.5rem' }}>{category.Emoji}</span>}
-        {category.Name}
+        {category.name}
       </h1>
 
       {category.Summary && (

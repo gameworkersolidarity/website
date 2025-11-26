@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const group = groupResult.docs[0]
   return {
-    title: `${group.FullName || group.Name} - Organising Groups - Game Workers Solidarity Platform`,
-    description: `Learn about ${group.FullName || group.Name} and related solidarity actions.`,
+    title: `${group.FullName || group.name} - Organising Groups - Game Workers Solidarity Platform`,
+    description: `Learn about ${group.FullName || group.name} and related solidarity actions.`,
   }
 }
 
@@ -170,10 +170,10 @@ export default async function OrganisingGroupPage({ params }: Props) {
         ← Back to Organising Groups
       </Link>
 
-      <h1>{group.FullName || group.Name}</h1>
-      {group.Name !== group.FullName && group.Name && (
+      <h1>{group.FullName || group.name}</h1>
+      {group.name !== group.FullName && group.name && (
         <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
-          Also known as: {group.Name}
+          Also known as: {group.name}
         </p>
       )}
       {group.IsUnion && (
@@ -240,7 +240,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {company.Name}
+                {company.name}
               </Link>
             ))}
           </div>
@@ -270,7 +270,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
                     }}
                   >
                     {typeof country === 'object' && 'Name' in country
-                      ? country.Name
+                      ? country.name
                       : 'Unknown Country'}
                   </Link>
                 ) : (
@@ -284,8 +284,8 @@ export default async function OrganisingGroupPage({ params }: Props) {
                     {typeof country === 'object' &&
                     country !== null &&
                     'Name' in country &&
-                    typeof (country as { Name?: unknown }).Name === 'string'
-                      ? (country as { Name: string }).Name
+                    typeof (country as { Name?: unknown }).name === 'string'
+                      ? (country as { Name: string }).name
                       : 'Unknown Country'}
                   </span>
                 )}

@@ -4,8 +4,8 @@ export const BlogPosts: CollectionConfig = {
   slug: 'blogPosts',
   trash: true,
   admin: {
-    useAsTitle: 'Title',
-    defaultColumns: ['Title', 'Date'],
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'date'],
     preview: (doc) => {
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
       const slug = typeof doc?.slug === 'string' ? doc.slug : ''
@@ -32,6 +32,15 @@ export const BlogPosts: CollectionConfig = {
   },
   fields: [
     {
+      name: 'date',
+      type: 'date',
+      required: true,
+      defaultValue: () => new Date().toISOString(),
+      admin: {
+        description: 'When the post was published.',
+      },
+    },
+    {
       name: 'airtableId',
       type: 'text',
       unique: true,
@@ -41,28 +50,27 @@ export const BlogPosts: CollectionConfig = {
       hidden: true,
     },
     slugField({
-      fieldToUse: 'Title',
+      fieldToUse: 'title',
     }),
     {
-      name: 'Title',
+      name: 'title',
       type: 'text',
       required: true,
     },
     {
-      name: 'ByLine',
+      name: 'byline',
       type: 'text',
+      admin: {
+        description: 'Who wrote this post?',
+      },
     },
     {
-      name: 'Image',
+      name: 'image',
       type: 'upload',
       relationTo: 'media',
     },
     {
-      name: 'Summary',
-      type: 'textarea',
-    },
-    {
-      name: 'Body',
+      name: 'body',
       type: 'richText',
       required: true,
     },

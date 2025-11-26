@@ -49,7 +49,7 @@ export function ActionsFilters({
           <option value="">Country ▾</option>
           {countries.map((country) => (
             <option key={country.id} value={country.id.toString()}>
-              {country.Name}
+              {country.name}
             </option>
           ))}
         </select>
@@ -64,7 +64,7 @@ export function ActionsFilters({
           {categories.map((category) => (
             <option key={category.id} value={category.id.toString()}>
               {category.Emoji && `${category.Emoji} `}
-              {category.Name}
+              {category.name}
             </option>
           ))}
         </select>
@@ -78,7 +78,7 @@ export function ActionsFilters({
           <option value="">Company ▾</option>
           {companies.map((company) => (
             <option key={company.id} value={company.id.toString()}>
-              {company.Name}
+              {company.name}
             </option>
           ))}
         </select>
@@ -94,7 +94,7 @@ export function ActionsFilters({
             .filter((group) => group.IsUnion)
             .map((group) => (
               <option key={group.id} value={group.id.toString()}>
-                {group.Name}
+                {group.name}
               </option>
             ))}
         </select>

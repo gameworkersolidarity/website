@@ -117,7 +117,7 @@ export default async function CountriesPage() {
                   color: '#4A90E2',
                 }}
               >
-                {country.Name}
+                {country.name}
               </h2>
               {country.countryCode && (
                 <p style={{ fontSize: '0.875rem', color: '#888', margin: 0 }}>

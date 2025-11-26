@@ -62,7 +62,7 @@ async function findCompany(
   let bestMatch: { company: any; score: number } | null = null
 
   for (const company of allCompanies.docs) {
-    const normalizedCompanyName = normalizeName(company.Name || '')
+    const normalizedCompanyName = normalizeName(company.name || '')
     const similarity = compareTwoStrings(normalizedSearch, normalizedCompanyName)
 
     if (similarity > (bestMatch?.score || 0) && similarity >= threshold) {
@@ -72,7 +72,7 @@ async function findCompany(
 
   if (bestMatch) {
     console.log(
-      `  ✓ Matched "${name}" to "${bestMatch.company.Name}" (similarity: ${(bestMatch.score * 100).toFixed(1)}%)`,
+      `  ✓ Matched "${name}" to "${bestMatch.company.name}" (similarity: ${(bestMatch.score * 100).toFixed(1)}%)`,
     )
     return { id: bestMatch.company.id }
   }
@@ -118,7 +118,7 @@ async function findCountry(
   let bestMatch: { country: any; score: number } | null = null
 
   for (const country of allCountries.docs) {
-    const normalizedCountryName = normalizeName(country.Name || '')
+    const normalizedCountryName = normalizeName(country.name || '')
     const similarity = compareTwoStrings(normalizedSearch, normalizedCountryName)
 
     if (similarity > (bestMatch?.score || 0) && similarity >= threshold) {
@@ -128,7 +128,7 @@ async function findCountry(
 
   if (bestMatch) {
     console.log(
-      `  ✓ Matched country "${name}" to "${bestMatch.country.Name}" (similarity: ${(bestMatch.score * 100).toFixed(1)}%)`,
+      `  ✓ Matched country "${name}" to "${bestMatch.country.name}" (similarity: ${(bestMatch.score * 100).toFixed(1)}%)`,
     )
     return { id: bestMatch.country.id }
   }
@@ -262,7 +262,7 @@ async function getOrCreateCompany(
       })
 
       const match = allCompanies.docs.find(
-        (c: any) => normalizeName(c.Name) === normalizeName(normalizedName),
+        (c: any) => normalizeName(c.name) === normalizeName(normalizedName),
       )
 
       if (match) {

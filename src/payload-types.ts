@@ -230,6 +230,10 @@ export interface StaticPage {
 export interface BlogPost {
   id: string;
   /**
+   * When the post was published.
+   */
+  date: string;
+  /**
    * Legacy Airtable ID for URL redirects
    */
   airtableId?: string | null;
@@ -238,11 +242,13 @@ export interface BlogPost {
    */
   generateSlug?: boolean | null;
   slug: string;
-  Title: string;
-  ByLine?: string | null;
-  Image?: (string | null) | Media;
-  Summary?: string | null;
-  Body: {
+  title: string;
+  /**
+   * Who wrote this post?
+   */
+  byline?: string | null;
+  image?: (string | null) | Media;
+  body: {
     root: {
       type: string;
       children: {
@@ -464,6 +470,9 @@ export interface Campaign {
   generateSlug?: boolean | null;
   slug: string;
   name: string;
+  /**
+   * Go into more detail.
+   */
   description?: {
     root: {
       type: string;
@@ -851,14 +860,14 @@ export interface StaticPagesSelect<T extends boolean = true> {
  * via the `definition` "blogPosts_select".
  */
 export interface BlogPostsSelect<T extends boolean = true> {
+  date?: T;
   airtableId?: T;
   generateSlug?: T;
   slug?: T;
-  Title?: T;
-  ByLine?: T;
-  Image?: T;
-  Summary?: T;
-  Body?: T;
+  title?: T;
+  byline?: T;
+  image?: T;
+  body?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

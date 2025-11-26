@@ -47,6 +47,9 @@ export const Campaigns: CollectionConfig = {
     {
       name: 'description',
       type: 'richText',
+      admin: {
+        description: 'Go into more detail.',
+      },
     },
     {
       name: 'featuredImage',

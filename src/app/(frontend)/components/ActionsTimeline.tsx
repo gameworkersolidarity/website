@@ -110,18 +110,18 @@ export function ActionsTimeline({ events }: ActionsTimelineProps) {
                         {country.countryCode && (
                           <span
                             className="timeline-action-flag"
-                            aria-label={`Flag of ${country.Name}`}
+                            aria-label={`Flag of ${country.name}`}
                           >
                             {getCountryFlag(country.countryCode)}
                           </span>
                         )}
-                        <span>{country.Name}</span>
+                        <span>{country.name}</span>
                       </span>
                     ))}
                     {categories.map((category, idx) => (
                       <span key={idx} className="timeline-action-metadata-item capitalize">
                         {category.Emoji && <span>{category.Emoji}</span>}
-                        <span> {category.Name}</span>
+                        <span> {category.name}</span>
                       </span>
                     ))}
                   </div>

@@ -117,7 +117,7 @@ export default async function OrganisingGroupsPage() {
                   color: '#4A90E2',
                 }}
               >
-                {group.FullName || group.Name}
+                {group.FullName || group.name}
               </h2>
               {group.IsUnion && (
                 <p

@@ -133,11 +133,11 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
               <div key={country.id} className="related-info-box">
                 <div className="related-info-header">
                   {country.countryCode && (
-                    <span className="related-info-icon" aria-label={`Flag of ${country.Name}`}>
+                    <span className="related-info-icon" aria-label={`Flag of ${country.name}`}>
                       {getCountryFlag(country.countryCode)}
                     </span>
                   )}
-                  <span className="related-info-title">{country.Name}</span>
+                  <span className="related-info-title">{country.name}</span>
                 </div>
                 <div className="related-info-type">Country</div>
                 {country.slug && (
@@ -154,7 +154,7 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
               <div key={category.id} className="related-info-box">
                 <div className="related-info-header">
                   {category.Emoji && <span className="related-info-icon">{category.Emoji}</span>}
-                  <span className="related-info-title">{category.Name}</span>
+                  <span className="related-info-title">{category.name}</span>
                 </div>
                 <div className="related-info-type">Category</div>
                 {category.slug && (
@@ -170,8 +170,8 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
             <div key={group.id} className="related-info-box">
               <div className="related-info-title">
                 {typeof group === 'object' && 'FullName' in group
-                  ? group.FullName || group.Name
-                  : group.Name}
+                  ? group.FullName || group.name
+                  : group.name}
               </div>
               <div className="related-info-type">Organising group</div>
               {group.slug && (
@@ -185,7 +185,7 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
           {companies.map((company) => {
             return (
               <div key={company.id} className="related-info-box">
-                <div className="related-info-title">{company.Name}</div>
+                <div className="related-info-title">{company.name}</div>
                 <div className="related-info-type">Company</div>
                 {company.slug && (
                   <Link href={`/companies/${company.slug}`} className="related-info-link">
