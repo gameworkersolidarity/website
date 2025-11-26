@@ -1,0 +1,101 @@
+@import '@payloadcms/ui/scss';
+
+.field-type.color {
+  position: relative;
+
+  input {
+    @include formInput;
+  }
+}
+
+.color {
+  &__input-container {
+    position: relative;
+    display: flex;
+  }
+
+  &__color-preview {
+    height: base(2);
+    width: base(2);
+    border: 1px solid var(--theme-elevation-150);
+  }
+
+  &__color-picker-modal {
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    display: flex;
+    flex-direction: row;
+
+    margin-top: base(0.5);
+    z-index: $z-modal;
+
+    visibility: hidden;
+    opacity: 0;
+
+    transition: all 0.1s ease-in-out;
+
+    &__predefined-colors {
+      display: flex;
+      flex-direction: column;
+
+      & * {
+        width: base(1);
+        flex: 1;
+
+        &:focus,
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    &__button__color {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    & .react-colorful__saturation,
+    .react-colorful__hue {
+      border-radius: 0;
+    }
+
+    & .react-colorful__pointer {
+      border-radius: 0;
+      width: base(0.95);
+      height: base(0.95);
+    }
+  }
+
+  &__color-picker-modal--rtl {
+    left: auto;
+    right: 0;
+  }
+
+  &__color-picker-modal--focused {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+html[data-theme='light'] {
+  .field-type.color {
+    &.error {
+      input {
+        @include lightInputError;
+      }
+    }
+  }
+}
+
+html[data-theme='dark'] {
+  .field-type.color {
+    &.error {
+      input {
+        @include darkInputError;
+      }
+    }
+  }
+}

@@ -4,6 +4,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import '../campaigns.css'
+import { ActionsTimeline } from '../../components/ActionsTimeline'
+import { Event } from '@/payload-types'
+import { CampaignTimeline } from '../../components/CampaignTimeline'
+import { RichText } from '../../components/RichText'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -96,19 +100,11 @@ export default async function CampaignPage({ params }: { params: { slug: string 
 
   const campaign = campaignResult.docs[0]
 
-  // Build the timeline structure with events
-  const timelineEvents = campaign.events || []
-
   // Sort by displayOrder, then by date
-  // const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
-  //   const eventA = typeof a.event === 'object' ? a.event : null
-  //   const eventB = typeof b.event === 'object' ? b.event : null
-
-  //   if (eventA && eventB) {
-  //     return new Date(eventA.Date).getTime() - new Date(eventB.Date).getTime()
-  //   }
-  //   return 0
-  // })
+  const sortedTimelineEvents = campaignResult.docs[0].events?.sort((a, b) => {
+    return new Date((a as Event).date).getTime() - new Date((b as Event).date).getTime()
+    return 0
+  })
 
   // const featuredImage =
   //   typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
@@ -130,10 +126,10 @@ export default async function CampaignPage({ params }: { params: { slug: string 
           ← Back to Campaigns
         </Link>
 
-        {/* <article className="campaign-article">
-          {featuredImage && (
+        <article className="campaign-article">
+          {campaign.featuredImage && (
             <div className="campaign-featured-image">
-              <img src={featuredImage} alt={campaign.title} />
+              <img src={campaign.featuredImage as string} alt={campaign.title} />
             </div>
           )}
 
@@ -143,78 +139,27 @@ export default async function CampaignPage({ params }: { params: { slug: string 
 
           {campaign.description && (
             <div className="campaign-description">
-              <RichText data={campaign.description as any} />
+              <RichText data={campaign.description} />
             </div>
           )}
 
-          {campaign.gallery && campaign.gallery.length > 0 && (
-            <div className="campaign-gallery" style={{ marginTop: '2rem' }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Gallery</h2>
-              <div
-                className="gallery-grid"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                  gap: '1rem',
-                }}
-              >
-                {campaign.gallery.map((item: any, index: number) => {
-                  const imageUrl =
-                    typeof item.image === 'object' && item.image?.url ? item.image.url : null
-                  if (!imageUrl) return null
-
-                  return (
-                    <figure key={index} style={{ margin: 0 }}>
-                      <img
-                        src={imageUrl}
-                        alt={item.caption || `Gallery image ${index + 1}`}
-                        style={{ width: '100%', borderRadius: '8px' }}
-                      />
-                      {item.caption && (
-                        <figcaption
-                          style={{
-                            marginTop: '0.5rem',
-                            fontSize: '0.875rem',
-                            color: '#666',
-                            textAlign: 'center',
-                          }}
-                        >
-                          {item.caption}
-                        </figcaption>
-                      )}
-                    </figure>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {sortedTimelineEvents.length > 0 && (
+          {sortedTimelineEvents && sortedTimelineEvents.length > 0 && (
             <>
-              <div className="campaign-timeline-section" style={{ marginTop: '3rem' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Timeline</h2>
-                <CampaignTimeline
-                  timelineEvents={sortedTimelineEvents.map((event) => ({
-                    ...event,
-                    id: event.id || undefined,
-                  }))}
-                />
-              </div>
               <div style={{ marginTop: '3rem' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Solidarity Actions</h2>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Events</h2>
                 <ActionsTimeline
-                  actions={sortedTimelineEvents
-                    .map((event) => event.event)
-                    .filter(
-                      (event): event is SolidarityAction =>
-                        typeof event === 'object' && event !== null && 'Date' in event,
-                    )
-                    .sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime())}
+                  events={sortedTimelineEvents
+                    .map((event) => event as Event)
+                    .sort(
+                      (a, b) =>
+                        new Date((b as Event).date).getTime() -
+                        new Date((a as Event).date).getTime(),
+                    )}
                 />
               </div>
             </>
           )}
-        </article> */}
+        </article>
       </div>
     </div>
   )

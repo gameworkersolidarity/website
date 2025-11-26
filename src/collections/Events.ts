@@ -89,29 +89,36 @@ export const Events: CollectionConfig = {
       relationTo: 'media',
       hasMany: true,
     },
+    {
+      name: 'isWorkerAction',
+      type: 'checkbox',
+      admin: {
+        description: 'Is this event a worker-led action or a boss-led action?',
+      },
+    },
+    {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'categories',
+      hasMany: true,
+    },
     // Relations
     {
-      name: 'countries',
+      name: 'country',
       type: 'relationship',
       relationTo: 'countries',
       hasMany: true,
     },
     {
-      name: 'companies',
+      name: 'company',
       type: 'relationship',
       relationTo: 'companies',
       hasMany: true,
     },
     {
-      name: 'organisingGroups',
+      name: 'organisingGroup',
       type: 'relationship',
       relationTo: 'organisingGroups',
-      hasMany: true,
-    },
-    {
-      name: 'categories',
-      type: 'relationship',
-      relationTo: 'categories',
       hasMany: true,
     },
     {

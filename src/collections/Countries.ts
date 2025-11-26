@@ -1,5 +1,6 @@
 import { slugField, type CollectionConfig } from 'payload'
 import coords from 'country-coords'
+import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -28,11 +29,35 @@ export const Countries: CollectionConfig = {
       },
       hidden: true,
     },
+    slugField({
+      fieldToUse: 'name',
+    }),
     {
-      name: 'Name',
+      name: 'name',
       type: 'text',
+      unique: true,
       required: true,
     },
+    {
+      name: 'description',
+      type: 'richText',
+    },
+    {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    colorPickerField({
+      name: 'primaryColor',
+      label: 'Primary Color',
+      admin: {
+        position: 'sidebar',
+        description: 'Choose a color for this page',
+      },
+    }),
     {
       name: 'countryCode',
       type: 'text',
@@ -40,14 +65,7 @@ export const Countries: CollectionConfig = {
       unique: true,
     },
     {
-      name: 'Summary',
-      type: 'richText',
-    },
-    slugField({
-      fieldToUse: 'Name',
-    }),
-    {
-      name: 'Unions',
+      name: 'unions',
       type: 'relationship',
       relationTo: 'organisingGroups',
       hasMany: true,

@@ -1,3 +1,4 @@
+import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 
 export const OrganisingGroups: CollectionConfig = {
@@ -40,46 +41,62 @@ export const OrganisingGroups: CollectionConfig = {
       hidden: true,
     },
     slugField({
-      fieldToUse: 'Name',
+      fieldToUse: 'name',
     }),
     {
-      name: 'Name',
+      name: 'name',
       type: 'text',
+      unique: true,
       required: true,
     },
     {
-      name: 'FullName',
+      name: 'description',
+      type: 'richText',
+    },
+    {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    colorPickerField({
+      name: 'primaryColor',
+      label: 'Primary Color',
+      admin: {
+        position: 'sidebar',
+        description: 'Choose a color for this page',
+      },
+    }),
+    {
+      name: 'fullName',
       type: 'text',
     },
     {
-      name: 'Country',
+      name: 'country',
       type: 'relationship',
       relationTo: 'countries',
       hasMany: true,
     },
     {
-      name: 'IsUnion',
+      name: 'isUnion',
       type: 'checkbox',
     },
     {
-      name: 'Website',
+      name: 'website',
       type: 'text',
     },
     {
-      name: 'Bluesky',
+      name: 'bluesky',
       type: 'text',
     },
     {
-      name: 'Twitter',
+      name: 'twitter',
       type: 'text',
     },
     {
-      name: 'LastModified',
-      type: 'date',
-      required: true,
-    },
-    {
-      name: 'Children',
+      name: 'children',
       type: 'relationship',
       relationTo: 'organisingGroups',
       hasMany: true,

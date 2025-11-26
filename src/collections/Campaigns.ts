@@ -1,3 +1,4 @@
+import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 
 export const Campaigns: CollectionConfig = {
@@ -32,57 +33,60 @@ export const Campaigns: CollectionConfig = {
   },
   fields: [
     slugField({
-      fieldToUse: 'title',
+      fieldToUse: 'name',
     }),
     {
-      name: 'title',
+      name: 'name',
       type: 'text',
       required: true,
     },
     {
+      name: 'emoji',
+      type: 'text',
+    },
+    {
       name: 'description',
       type: 'richText',
-      required: true,
     },
     {
       name: 'featuredImage',
       type: 'upload',
       relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+      },
     },
+    colorPickerField({
+      name: 'primaryColor',
+      label: 'Primary Color',
+      required: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Choose a color for this page',
+      },
+    }),
     {
-      name: 'events',
       label: 'Events',
+      type: 'group',
       admin: {
         description:
           'Configure which events to include in this campaign. You can either select individual events or create a dynamic list of events based on selected companies, countries, categories, and organising groups.',
       },
-      type: 'blocks',
-      blocks: [
+      fields: [
         {
-          slug: 'event',
-          labels: {
-            singular: 'Event',
-            plural: 'Events',
-          },
-          fields: [
-            {
-              name: 'event',
-              type: 'relationship',
-              relationTo: 'events',
-              required: true,
-              hasMany: true,
-              admin: {
-                description: 'Manually select events to include in this campaign',
-              },
-            },
-          ],
+          name: 'events',
+          label: 'Events',
+          type: 'relationship',
+          relationTo: 'events',
+          hasMany: true,
         },
         {
-          slug: 'dynamicEventList',
-          labels: {
-            singular: 'Dynamic Event List',
-            plural: 'Dynamic Event Lists',
+          name: 'eventFilters',
+          admin: {
+            description:
+              'Filter events by selected companies, countries, categories, and organising groups',
           },
+          type: 'group',
           fields: [
             {
               name: 'companies',

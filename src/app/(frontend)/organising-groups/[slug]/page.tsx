@@ -109,7 +109,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
     where: {
       and: [
         {
-          OrganisingGroups: {
+          organisingGroups: {
             in: [group.id],
           },
         },

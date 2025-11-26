@@ -430,7 +430,7 @@ export interface Campaign {
   generateSlug?: boolean | null;
   slug: string;
   title: string;
-  description: {
+  description?: {
     root: {
       type: string;
       children: {
@@ -444,45 +444,34 @@ export interface Campaign {
       version: number;
     };
     [k: string]: unknown;
-  };
+  } | null;
   featuredImage?: (string | null) | Media;
   /**
-   * Configure which events to include in this campaign. You can either select individual events or create a dynamic list of events based on selected companies, countries, categories, and organising groups.
+   * Choose a color for this page
    */
-  events?:
-    | (
-        | {
-            /**
-             * Manually select events to include in this campaign
-             */
-            event: (string | Event)[];
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'event';
-          }
-        | {
-            /**
-             * Filter events by selected companies
-             */
-            companies?: (string | Company)[] | null;
-            /**
-             * Filter events by selected countries
-             */
-            countries?: (string | Country)[] | null;
-            /**
-             * Filter events by selected categories
-             */
-            categories?: (string | Category)[] | null;
-            /**
-             * Filter events by selected organising groups
-             */
-            organisingGroups?: (string | OrganisingGroup)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'dynamicEventList';
-          }
-      )[]
-    | null;
+  primaryColor: string;
+  events?: (string | Event)[] | null;
+  /**
+   * Filter events by selected companies, countries, categories, and organising groups
+   */
+  eventFilters?: {
+    /**
+     * Filter events by selected companies
+     */
+    companies?: (string | Company)[] | null;
+    /**
+     * Filter events by selected countries
+     */
+    countries?: (string | Country)[] | null;
+    /**
+     * Filter events by selected categories
+     */
+    categories?: (string | Category)[] | null;
+    /**
+     * Filter events by selected organising groups
+     */
+    organisingGroups?: (string | OrganisingGroup)[] | null;
+  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -915,26 +904,15 @@ export interface CampaignsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   featuredImage?: T;
-  events?:
+  primaryColor?: T;
+  events?: T;
+  eventFilters?:
     | T
     | {
-        event?:
-          | T
-          | {
-              event?: T;
-              id?: T;
-              blockName?: T;
-            };
-        dynamicEventList?:
-          | T
-          | {
-              companies?: T;
-              countries?: T;
-              categories?: T;
-              organisingGroups?: T;
-              id?: T;
-              blockName?: T;
-            };
+        companies?: T;
+        countries?: T;
+        categories?: T;
+        organisingGroups?: T;
       };
   updatedAt?: T;
   createdAt?: T;
