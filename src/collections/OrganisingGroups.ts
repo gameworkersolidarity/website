@@ -131,7 +131,7 @@ export const OrganisingGroups: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
-      required: true,
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hidden: true,
       hooks: {
         afterRead: [
@@ -145,7 +145,7 @@ export const OrganisingGroups: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
-      required: true,
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hidden: true,
       hooks: {
         afterRead: [

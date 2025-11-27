@@ -86,8 +86,8 @@ export const Categories: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
-      required: true,
       hidden: true,
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -100,7 +100,7 @@ export const Categories: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
-      required: true,
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hidden: true,
       hooks: {
         afterRead: [

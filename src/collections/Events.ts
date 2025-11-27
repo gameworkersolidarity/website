@@ -146,6 +146,15 @@ export const Events: CollectionConfig = {
       hasMany: true,
     },
     {
+      name: 'campaigns',
+      type: 'join',
+      collection: 'campaigns',
+      on: 'events',
+      admin: {
+        description: 'Campaigns this event is part of.',
+      },
+    },
+    {
       name: 'relatedEvents',
       type: 'array',
       label: 'Related events',
@@ -196,8 +205,8 @@ export const Events: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
-      required: true,
       hidden: true,
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -210,8 +219,8 @@ export const Events: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
-      required: true,
       hidden: true,
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hooks: {
         afterRead: [
           ({ siblingData }) => {

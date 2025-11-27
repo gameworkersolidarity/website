@@ -109,10 +109,10 @@ This script migrates data from Airtable to Payload CMS collections.
 
 ```bash
 # Using the npm script (recommended)
-pnpm run migrate:airtable
+pnpm run ingest:actions
 
 # Or directly with tsx
-tsx scripts/migrate-from-airtable.ts
+tsx scripts/ingest-actions.ts
 ```
 
 ## What Gets Migrated

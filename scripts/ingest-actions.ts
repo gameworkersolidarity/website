@@ -1,7 +1,7 @@
 /**
  * Migration script to pull data from Airtable and populate Payload CMS collections
  *
- * Run with: tsx scripts/migrate-from-airtable.ts
+ * Run with: tsx scripts/ingest-actions.ts
  */
 
 import { airtableBase } from '../airtable'
@@ -199,10 +199,10 @@ async function migrateCountries(payload: any) {
         continue
       }
 
-      const countryData: Omit<Country, 'id' | 'updatedAt' | 'createdAt'> = {
+      const countryData: Omit<Country, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         airtableId: record.id,
         name: fields.Name.trim() || '',
-        isoA2: fields.isoA2 || '',
+        isoA2: fields.countryCode || '',
         slug: slug,
         description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
       }
@@ -231,6 +231,7 @@ async function migrateCountries(payload: any) {
         console.log(`✓ Created country: ${countryData.name}`)
       } catch (error) {
         console.error(`✗ Error creating country ${slug}:`, error)
+        console.error(JSON.stringify(countryData, null, 2))
         stats.countries.skipped++
       }
     }
@@ -258,7 +259,7 @@ async function migrateCompanies(payload: any) {
         continue
       }
 
-      const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
+      const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         slug: record.fields.Slug as string,
         airtableId: record.id,
         name: name,
@@ -316,7 +317,7 @@ async function migrateCategories(payload: any) {
         continue
       }
 
-      const categoryData: Omit<Category, 'id' | 'updatedAt' | 'createdAt'> = {
+      const categoryData: Omit<Category, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         slug: record.fields.Slug as string,
         airtableId: record.id,
         name: name,
@@ -389,7 +390,10 @@ async function migrateOrganisingGroups(payload: any) {
         }
       }
 
-      const organisingGroupData: Omit<OrganisingGroup, 'id' | 'updatedAt' | 'createdAt'> = {
+      const organisingGroupData: Omit<
+        OrganisingGroup,
+        'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'
+      > = {
         airtableId: record.id,
         slug: slug || undefined,
         name: name,
@@ -511,7 +515,7 @@ async function migrateSolidarityActions(payload: any) {
       }
 
       // Create event data from solidarity action
-      const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
+      const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         slug: record.fields.Slug as string,
         airtableId: record.id,
         name: name,
@@ -569,7 +573,7 @@ async function migrateBlogPosts(payload: any) {
       const imageIds = await processAttachments(payload, fields.Image, `image for ${title}`)
       const imageId = imageIds.length > 0 ? imageIds[0] : undefined
 
-      const blogPostData: Omit<BlogPost, 'id' | 'updatedAt' | 'createdAt'> = {
+      const blogPostData: Omit<BlogPost, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         airtableId: record.id,
         slug: slug || undefined,
         byline: fields.ByLine || undefined,

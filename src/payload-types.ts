@@ -83,7 +83,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    events: {
+      campaigns: 'campaigns';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -104,6 +108,7 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
+  fallbackLocale: null;
   globals: {
     header: Header;
     footer: Footer;
@@ -221,8 +226,8 @@ export interface StaticPage {
     };
     [k: string]: unknown;
   };
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -268,8 +273,8 @@ export interface BlogPost {
     };
     [k: string]: unknown;
   };
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -312,28 +317,12 @@ export interface Country {
    */
   primaryColor?: string | null;
   isoA2: string;
-  emoji?: string | null;
-  bbox?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  isoA3?: string | null;
-  coordinates?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  path: string;
-  url: string;
+  emoji?: string;
+  bbox?: string;
+  isoA3?: string;
+  coordinates?: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -383,8 +372,8 @@ export interface Company {
    * Countries where this company has workers.
    */
   countries?: (string | Country)[] | null;
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -427,8 +416,8 @@ export interface Category {
    * Choose a color for this page
    */
   primaryColor?: string | null;
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -487,8 +476,8 @@ export interface OrganisingGroup {
    * Child/sub-organising groups
    */
   children?: (string | OrganisingGroup)[] | null;
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -534,8 +523,8 @@ export interface Campaign {
    */
   emoji?: string | null;
   events?: (string | Event)[] | null;
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -593,6 +582,14 @@ export interface Event {
   companies?: (string | Company)[] | null;
   organisingGroups?: (string | OrganisingGroup)[] | null;
   /**
+   * Campaigns this event is part of.
+   */
+  campaigns?: {
+    docs?: (string | Campaign)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
    * Link related events and they will appear on the same timeline
    */
   relatedEvents?:
@@ -612,8 +609,8 @@ export interface Event {
         id?: string | null;
       }[]
     | null;
-  path: string;
-  url: string;
+  path?: string;
+  url?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1029,6 +1026,7 @@ export interface EventsSelect<T extends boolean = true> {
   countries?: T;
   companies?: T;
   organisingGroups?: T;
+  campaigns?: T;
   relatedEvents?:
     | T
     | {
