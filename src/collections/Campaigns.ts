@@ -1,5 +1,10 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
+import { projectStrings } from '@/project-strings'
+
+function getPath(siblingData: { slug: string }) {
+  return `/campaigns/${siblingData.slug}`
+}
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
@@ -17,7 +22,7 @@ export const Campaigns: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'campaigns',
-        path: `/campaigns/${slug}`,
+        path: getPath({ slug }),
         previewSecret,
       })
 
@@ -38,6 +43,8 @@ export const Campaigns: CollectionConfig = {
   fields: [
     slugField({
       fieldToUse: 'name',
+      required: true,
+      position: 'sidebar',
     }),
     {
       name: 'name',
@@ -91,53 +98,34 @@ export const Campaigns: CollectionConfig = {
           relationTo: 'events',
           hasMany: true,
         },
-        {
-          name: 'eventFilters',
-          admin: {
-            description:
-              'Filter events by selected companies, countries, categories, and organising groups',
-          },
-          type: 'group',
-          fields: [
-            {
-              name: 'companies',
-              type: 'relationship',
-              relationTo: 'companies',
-              hasMany: true,
-              admin: {
-                description: 'Filter events by selected companies',
-              },
-            },
-            {
-              name: 'countries',
-              type: 'relationship',
-              relationTo: 'countries',
-              hasMany: true,
-              admin: {
-                description: 'Filter events by selected countries',
-              },
-            },
-            {
-              name: 'categories',
-              type: 'relationship',
-              relationTo: 'categories',
-              hasMany: true,
-              admin: {
-                description: 'Filter events by selected categories',
-              },
-            },
-            {
-              name: 'organisingGroups',
-              type: 'relationship',
-              relationTo: 'organisingGroups',
-              hasMany: true,
-              admin: {
-                description: 'Filter events by selected organising groups',
-              },
-            },
-          ],
-        },
       ],
+    },
+    {
+      name: 'path',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getPath(siblingData as unknown as { slug: string })
+          },
+        ],
+      },
+    },
+    {
+      name: 'url',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return new URL(
+              getPath(siblingData as unknown as { slug: string }),
+              projectStrings.baseUrl,
+            ).toString()
+          },
+        ],
+      },
     },
   ],
 }

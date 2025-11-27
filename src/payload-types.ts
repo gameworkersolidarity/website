@@ -199,7 +199,7 @@ export interface StaticPage {
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  'Generate slug?'?: boolean | null;
+  generateSlug?: boolean | null;
   slug: string;
   title: string;
   /**
@@ -221,6 +221,8 @@ export interface StaticPage {
     };
     [k: string]: unknown;
   };
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -266,6 +268,8 @@ export interface BlogPost {
     };
     [k: string]: unknown;
   };
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -317,6 +321,9 @@ export interface Country {
     | number
     | boolean
     | null;
+  emoji?: string | null;
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -366,6 +373,8 @@ export interface Company {
    * Countries where this company has workers.
    */
   countries?: (string | Country)[] | null;
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -408,6 +417,8 @@ export interface Category {
    * Choose a color for this page
    */
   primaryColor?: string | null;
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -466,6 +477,8 @@ export interface OrganisingGroup {
    * Child/sub-organising groups
    */
   children?: (string | OrganisingGroup)[] | null;
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -511,27 +524,8 @@ export interface Campaign {
    */
   emoji?: string | null;
   events?: (string | Event)[] | null;
-  /**
-   * Filter events by selected companies, countries, categories, and organising groups
-   */
-  eventFilters?: {
-    /**
-     * Filter events by selected companies
-     */
-    companies?: (string | Company)[] | null;
-    /**
-     * Filter events by selected countries
-     */
-    countries?: (string | Country)[] | null;
-    /**
-     * Filter events by selected categories
-     */
-    categories?: (string | Category)[] | null;
-    /**
-     * Filter events by selected organising groups
-     */
-    organisingGroups?: (string | OrganisingGroup)[] | null;
-  };
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -579,7 +573,7 @@ export interface Event {
    */
   headcount?: number | null;
   link?: string | null;
-  document?: (string | Media)[] | null;
+  documents?: (string | Media)[] | null;
   /**
    * Who led this? Used to decide whether to display the event on timelines and so on.
    */
@@ -608,6 +602,8 @@ export interface Event {
         id?: string | null;
       }[]
     | null;
+  path?: string | null;
+  url?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -858,11 +854,13 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "staticPages_select".
  */
 export interface StaticPagesSelect<T extends boolean = true> {
-  'Generate slug?'?: T;
+  generateSlug?: T;
   slug?: T;
   title?: T;
   summary?: T;
   body?: T;
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -881,6 +879,8 @@ export interface BlogPostsSelect<T extends boolean = true> {
   byline?: T;
   image?: T;
   body?: T;
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -900,6 +900,9 @@ export interface CountriesSelect<T extends boolean = true> {
   primaryColor?: T;
   countryCode?: T;
   coords?: T;
+  emoji?: T;
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -919,6 +922,8 @@ export interface CompaniesSelect<T extends boolean = true> {
   primaryColor?: T;
   children?: T;
   countries?: T;
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -937,6 +942,8 @@ export interface CategoriesSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -962,6 +969,8 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   bluesky?: T;
   twitter?: T;
   children?: T;
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -980,14 +989,8 @@ export interface CampaignsSelect<T extends boolean = true> {
   primaryColor?: T;
   emoji?: T;
   events?: T;
-  eventFilters?:
-    | T
-    | {
-        companies?: T;
-        countries?: T;
-        categories?: T;
-        organisingGroups?: T;
-      };
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1008,7 +1011,7 @@ export interface EventsSelect<T extends boolean = true> {
   location?: T;
   headcount?: T;
   link?: T;
-  document?: T;
+  documents?: T;
   initiator?: T;
   categories?: T;
   countries?: T;
@@ -1022,6 +1025,8 @@ export interface EventsSelect<T extends boolean = true> {
         description?: T;
         id?: T;
       };
+  path?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

@@ -1,5 +1,10 @@
 import { slugField, type CollectionConfig } from 'payload'
 import { EventInitiator } from './enums'
+import { projectStrings } from '@/project-strings'
+
+function getPath(siblingData: { slug: string }) {
+  return `/events/${siblingData.slug}`
+}
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -17,7 +22,7 @@ export const Events: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'events',
-        path: `/events/${slug}`,
+        path: getPath({ slug }),
         previewSecret,
       })
 
@@ -38,6 +43,8 @@ export const Events: CollectionConfig = {
   fields: [
     slugField({
       fieldToUse: 'name',
+      required: true,
+      position: 'sidebar',
     }),
     {
       name: 'name',
@@ -85,7 +92,7 @@ export const Events: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'document',
+      name: 'documents',
       type: 'upload',
       relationTo: 'media',
       hasMany: true,
@@ -184,6 +191,33 @@ export const Events: CollectionConfig = {
           },
         },
       ],
+    },
+    {
+      name: 'path',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getPath(siblingData as unknown as { slug: string })
+          },
+        ],
+      },
+    },
+    {
+      name: 'url',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return new URL(
+              getPath(siblingData as unknown as { slug: string }),
+              projectStrings.baseUrl,
+            ).toString()
+          },
+        ],
+      },
     },
   ],
 }

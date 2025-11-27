@@ -1,6 +1,12 @@
 import { slugField, type CollectionConfig } from 'payload'
 import coords from 'country-coords'
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
+import { getCountryFlag } from '@/utils/iso'
+import { projectStrings } from '@/project-strings'
+
+function getPath(siblingData: { slug: string }) {
+  return `/countries/${siblingData.slug}`
+}
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -17,7 +23,7 @@ export const Countries: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'countries',
-        path: `/countries/${slug}`,
+        path: getPath({ slug }),
         previewSecret,
       })
 
@@ -47,6 +53,8 @@ export const Countries: CollectionConfig = {
     },
     slugField({
       fieldToUse: 'name',
+      required: true,
+      position: 'sidebar',
     }),
     {
       name: 'name',
@@ -92,6 +100,48 @@ export const Countries: CollectionConfig = {
             }
             const countryData = coords[siblingData.countryCode]
             return countryData || null
+          },
+        ],
+      },
+    },
+    {
+      name: 'emoji',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            if (!siblingData.countryCode) {
+              return null
+            }
+            return getCountryFlag(siblingData.countryCode)
+          },
+        ],
+      },
+    },
+    {
+      name: 'path',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getPath(siblingData as unknown as { slug: string })
+          },
+        ],
+      },
+    },
+    {
+      name: 'url',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return new URL(
+              getPath(siblingData as unknown as { slug: string }),
+              projectStrings.baseUrl,
+            ).toString()
           },
         ],
       },

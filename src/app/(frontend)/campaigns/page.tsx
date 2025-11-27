@@ -2,7 +2,6 @@ import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
 import config from '@/payload.config'
-import './campaigns.css'
 
 export const metadata = {
   title: 'Campaigns - Game Workers Solidarity Platform',

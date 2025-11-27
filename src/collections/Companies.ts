@@ -1,5 +1,10 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
+import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
+
+function getPath(siblingData: { slug: string }) {
+  return `/companies/${siblingData.slug}`
+}
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
@@ -16,7 +21,7 @@ export const Companies: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'companies',
-        path: `/companies/${slug}`,
+        path: getPath({ slug }),
         previewSecret,
       })
 
@@ -46,6 +51,8 @@ export const Companies: CollectionConfig = {
     },
     slugField({
       fieldToUse: 'name',
+      required: true,
+      position: 'sidebar',
     }),
     {
       name: 'name',
@@ -89,6 +96,33 @@ export const Companies: CollectionConfig = {
       hasMany: true,
       admin: {
         description: 'Countries where this company has workers.',
+      },
+    },
+    {
+      name: 'path',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getPath(siblingData as unknown as { slug: string })
+          },
+        ],
+      },
+    },
+    {
+      name: 'url',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return new URL(
+              getPath(siblingData as unknown as { slug: string }),
+              projectStrings.baseUrl,
+            ).toString()
+          },
+        ],
       },
     },
   ],

@@ -1,4 +1,5 @@
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
 type LexicalNode = {
   type: string
@@ -18,10 +19,6 @@ type LexicalRoot = {
     type: string
   }
   [key: string]: unknown
-}
-
-type LexicalRendererProps = {
-  content: LexicalRoot
 }
 
 // Simple Lexical JSON to HTML renderer
@@ -99,13 +96,19 @@ function renderNode(node: LexicalNode): React.ReactNode {
   return null
 }
 
-export function LexicalRenderer({ content }: LexicalRendererProps) {
+export function LexicalRenderer({
+  content,
+  className,
+}: {
+  content: LexicalRoot
+  className?: string
+}) {
   if (!content?.root?.children) {
     return null
   }
 
   return (
-    <div className="lexical-content">
+    <div className={twMerge('lexical-content', className)}>
       {content.root.children.map((child, index) => (
         <React.Fragment key={index}>{renderNode(child)}</React.Fragment>
       ))}

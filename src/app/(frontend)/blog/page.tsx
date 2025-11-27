@@ -2,7 +2,6 @@ import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
 import config from '@/payload.config'
-import './blog.css'
 
 export const metadata = {
   title: 'Blog - Game Workers Solidarity Platform',

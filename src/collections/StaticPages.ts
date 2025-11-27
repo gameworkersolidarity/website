@@ -1,4 +1,9 @@
+import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
+
+function getPath(siblingData: { slug: string }) {
+  return `/${siblingData.slug}`
+}
 
 export const StaticPages: CollectionConfig = {
   slug: 'staticPages',
@@ -11,7 +16,7 @@ export const StaticPages: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'staticPages',
-        path: `/${slug}`,
+        path: getPath({ slug }),
         previewSecret,
       })
 
@@ -32,8 +37,8 @@ export const StaticPages: CollectionConfig = {
   fields: [
     slugField({
       fieldToUse: 'title',
-      checkboxName: 'Generate slug?',
       position: 'sidebar',
+      required: true,
     }),
     {
       name: 'title',
@@ -52,6 +57,33 @@ export const StaticPages: CollectionConfig = {
       name: 'body',
       type: 'richText',
       required: true,
+    },
+    {
+      name: 'path',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getPath(siblingData as unknown as { slug: string })
+          },
+        ],
+      },
+    },
+    {
+      name: 'url',
+      type: 'text',
+      virtual: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return new URL(
+              getPath(siblingData as unknown as { slug: string }),
+              projectStrings.baseUrl,
+            ).toString()
+          },
+        ],
+      },
     },
   ],
 }
