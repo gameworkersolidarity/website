@@ -12,10 +12,15 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useQueryState } from 'nuqs'
 import type { Country, Category, Company, OrganisingGroup } from '@/payload-types'
 import { useState } from 'react'
-import { Input } from '@/components/ui/input'
+import {
+  useCategoryFilter,
+  useYearFilter,
+  useCompanyFilter,
+  useUnionFilter,
+  useCountryFilter,
+} from '@/utils/global-state'
 
 interface EventFilterProps {
   countries: Country[]
@@ -34,21 +39,11 @@ export function EventFilter({
   // searchQuery,
   // setSearchQuery,
 }: EventFilterProps) {
-  const [countryFilter, setCountryFilter] = useQueryState('country', {
-    clearOnDefault: true,
-  })
-  const [categoryFilter, setCategoryFilter] = useQueryState('category', {
-    clearOnDefault: true,
-  })
-  const [companyFilter, setCompanyFilter] = useQueryState('company', {
-    clearOnDefault: true,
-  })
-  const [unionFilter, setUnionFilter] = useQueryState('union', {
-    clearOnDefault: true,
-  })
-  const [yearFilter, setYearFilter] = useQueryState('year', {
-    clearOnDefault: true,
-  })
+  const [countryFilter, setCountryFilter] = useCountryFilter()
+  const [categoryFilter, setCategoryFilter] = useCategoryFilter()
+  const [companyFilter, setCompanyFilter] = useCompanyFilter()
+  const [unionFilter, setUnionFilter] = useUnionFilter()
+  const [yearFilter, setYearFilter] = useYearFilter()
 
   // Get unique years from all actions (we'll calculate this from context or pass as prop)
   // For now, we'll generate years from 2018 to current year
@@ -58,10 +53,10 @@ export function EventFilter({
   return (
     <div className="homepage-filters">
       <span className="filter-label">Filter by</span>
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2 w-full flex-wrap">
         <div className="filter-group">
           <Select
-            placeholder="Select country..."
+            placeholder="Filter country..."
             options={countries.map((country) => ({
               label: country.name,
               value: country.id.toString(),
@@ -72,7 +67,7 @@ export function EventFilter({
         </div>
         <div className="filter-group">
           <Select
-            placeholder="Select category..."
+            placeholder="Filter category..."
             options={categories.map((category) => ({
               label: (category.emoji && `${category.emoji} ` + category.name) || category.name,
               value: category.id.toString(),
@@ -83,7 +78,7 @@ export function EventFilter({
         </div>
         <div className="filter-group">
           <Select
-            placeholder="Select company..."
+            placeholder="Filter company..."
             options={companies.map((company) => ({
               label: company.name,
               value: company.id.toString(),
@@ -94,7 +89,7 @@ export function EventFilter({
         </div>
         <div className="filter-group">
           <Select
-            placeholder="Select union..."
+            placeholder="Filter union..."
             options={organisingGroups
               .filter((group) => group.isUnion)
               .map((group) => ({
@@ -107,7 +102,7 @@ export function EventFilter({
         </div>
         <div className="filter-group">
           <Select
-            placeholder="Select year..."
+            placeholder="Filter year..."
             options={years.map((year) => ({
               label: year.toString(),
               value: year.toString(),

@@ -85,6 +85,8 @@ export const BlogPosts: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -97,6 +99,8 @@ export const BlogPosts: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {

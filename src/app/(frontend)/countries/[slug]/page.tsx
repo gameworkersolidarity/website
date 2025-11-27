@@ -7,6 +7,9 @@ import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Company } from '@/payload-types'
+import useSWR from 'swr'
+import { payloadClient } from '@/utils/payload'
+import { CountryQuery } from './CountryQuery'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -178,10 +181,12 @@ export default async function CountryPage({ params }: Props) {
         ← Back to Countries
       </Link>
 
+      <CountryQuery countryId={country.id} />
+
       <h1>{country.name}</h1>
-      {country.countryCode && (
+      {country.isoA2 && (
         <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
-          Country Code: {country.countryCode.toUpperCase()}
+          Country Code: {country.isoA2.toUpperCase()}
         </p>
       )}
       {country.description && (

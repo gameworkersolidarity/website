@@ -2,7 +2,7 @@ import { Category, Company, Country, OrganisingGroup } from '@/payload-types'
 
 // Type guards
 export function isCountry(obj: string | Country): obj is Country {
-  return typeof obj === 'object' && obj !== null && 'countryCode' in obj
+  return typeof obj === 'object' && obj !== null && 'isoA2' in obj
 }
 
 export function isCategory(obj: string | Category): obj is Category {

@@ -13,7 +13,7 @@ interface FilteredHomepageContentProps {
 
 // Type guard for Country
 function isCountry(obj: Country['id'] | Country): obj is Country {
-  return typeof obj === 'object' && obj !== null && 'countryCode' in obj
+  return typeof obj === 'object' && obj !== null && 'isoA2' in obj
 }
 
 // Type guard for Category
@@ -125,8 +125,8 @@ export function FilteredHomepageContent({ events, countries }: FilteredHomepageC
     filteredEvents.forEach((event) => {
       if (event.countries && Array.isArray(event.countries)) {
         event.countries.forEach((country) => {
-          if (isCountry(country) && country.countryCode) {
-            const code = country.countryCode
+          if (isCountry(country) && country.isoA2) {
+            const code = country.isoA2
             countryEventCounts[code] = (countryEventCounts[code] || 0) + 1
           }
         })

@@ -83,7 +83,7 @@ export default async function HomePage() {
 
   return (
     <div className="homepage">
-      <div className="content-wrapper pb-4">
+      <div className="content-wrapper py-4 bg-white border-b border-gray-200">
         <EventFilter
           countries={countriesResult.docs}
           categories={categoriesResult.docs}

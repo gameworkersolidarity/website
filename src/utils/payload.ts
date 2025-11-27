@@ -1,3 +1,7 @@
+import { PayloadSDK } from '@payloadcms/sdk'
+import type { Config } from '@/payload-types'
+import { projectStrings } from '@/project-strings'
+
 export function parseHTMLAsLexicalRichText(html: string) {
   // Convert HTML to a simple Lexical JSON structure
   return {
@@ -30,3 +34,8 @@ export function parseHTMLAsLexicalRichText(html: string) {
     },
   }
 }
+
+// Pass your config from generated types as generic
+export const payloadClient = new PayloadSDK<Config>({
+  baseURL: '/api',
+})

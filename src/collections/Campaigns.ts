@@ -104,6 +104,8 @@ export const Campaigns: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -116,6 +118,8 @@ export const Campaigns: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {

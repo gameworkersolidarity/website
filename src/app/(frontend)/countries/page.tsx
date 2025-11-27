@@ -119,9 +119,9 @@ export default async function CountriesPage() {
               >
                 {country.name}
               </h2>
-              {country.countryCode && (
+              {country.isoA2 && (
                 <p style={{ fontSize: '0.875rem', color: '#888', margin: 0 }}>
-                  {country.countryCode.toUpperCase()}
+                  {country.isoA2.toUpperCase()}
                 </p>
               )}
               <p style={{ fontSize: '0.875rem', color: '#666', margin: 0 }}>

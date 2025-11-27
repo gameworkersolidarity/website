@@ -140,7 +140,7 @@ The script migrates data in the following order:
 
 ### Countries
 - `Name` → Name
-- `countryCode` → countryCode
+- `isoA2` → isoA2
 - `Slug` → Slug
 - `Summary` → Summary (converted to rich text)
 

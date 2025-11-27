@@ -86,6 +86,8 @@ export const Categories: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -98,6 +100,8 @@ export const Categories: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {

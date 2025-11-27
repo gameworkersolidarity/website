@@ -129,9 +129,9 @@ export function EventContent({ initialEvent, isDraftMode }: EventContentProps) {
             return (
               <div key={country.id} className="related-info-box">
                 <div className="related-info-header">
-                  {country.countryCode && (
+                  {country.isoA2 && (
                     <span className="related-info-icon" aria-label={`Flag of ${country.name}`}>
-                      {getCountryFlag(country.countryCode)}
+                      {getCountryFlag(country.isoA2)}
                     </span>
                   )}
                   <span className="related-info-title">{country.name}</span>

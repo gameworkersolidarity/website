@@ -3,6 +3,7 @@ import coords from 'country-coords'
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { getCountryFlag } from '@/utils/iso'
 import { projectStrings } from '@/project-strings'
+import { getBboxForCountry, getIsoA3ForCountry, getLatLngForCountry } from '@/utils/geo'
 
 function getPath(siblingData: { slug: string }) {
   return `/countries/${siblingData.slug}`
@@ -83,38 +84,62 @@ export const Countries: CollectionConfig = {
       },
     }),
     {
-      name: 'countryCode',
+      name: 'isoA2',
       type: 'text',
       required: true,
       unique: true,
     },
     {
-      name: 'coords',
-      type: 'json',
+      name: 'emoji',
+      type: 'text',
       virtual: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            if (!siblingData.countryCode) {
+            if (!siblingData.isoA2) {
               return null
             }
-            const countryData = coords[siblingData.countryCode]
-            return countryData || null
+            return getCountryFlag(siblingData.isoA2)
           },
         ],
       },
     },
     {
-      name: 'emoji',
-      type: 'text',
+      name: 'bbox',
+      type: 'json',
       virtual: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            if (!siblingData.countryCode) {
-              return null
-            }
-            return getCountryFlag(siblingData.countryCode)
+            return getBboxForCountry(siblingData.isoA2)
+          },
+        ],
+      },
+    },
+    {
+      name: 'isoA3',
+      type: 'text',
+      virtual: true,
+      hidden: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getIsoA3ForCountry(siblingData.isoA2)
+          },
+        ],
+      },
+    },
+    {
+      name: 'coordinates',
+      type: 'json',
+      virtual: true,
+      hidden: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return getLatLngForCountry(siblingData.isoA2)
           },
         ],
       },
@@ -123,6 +148,8 @@ export const Countries: CollectionConfig = {
       name: 'path',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -135,6 +162,8 @@ export const Countries: CollectionConfig = {
       name: 'url',
       type: 'text',
       virtual: true,
+      required: true,
+      hidden: true,
       hooks: {
         afterRead: [
           ({ siblingData }) => {

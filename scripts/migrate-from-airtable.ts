@@ -202,7 +202,7 @@ async function migrateCountries(payload: any) {
       const countryData: Omit<Country, 'id' | 'updatedAt' | 'createdAt'> = {
         airtableId: record.id,
         name: fields.Name.trim() || '',
-        countryCode: fields.countryCode || '',
+        isoA2: fields.isoA2 || '',
         slug: slug,
         description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
       }

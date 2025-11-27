@@ -41,7 +41,7 @@ function formatDate(date: Date): string {
 
 // Type guard for Country
 function isCountry(obj: Country['id'] | Country): obj is Country {
-  return typeof obj === 'object' && obj !== null && 'countryCode' in obj
+  return typeof obj === 'object' && obj !== null && 'isoA2' in obj
 }
 
 // Type guard for Category
@@ -107,12 +107,12 @@ export function ActionsTimeline({ events }: ActionsTimelineProps) {
                     )}
                     {countries.map((country, idx) => (
                       <span key={idx} className="timeline-action-metadata-item">
-                        {country.countryCode && (
+                        {country.isoA2 && (
                           <span
                             className="timeline-action-flag"
                             aria-label={`Flag of ${country.name}`}
                           >
-                            {getCountryFlag(country.countryCode)}
+                            {getCountryFlag(country.isoA2)}
                           </span>
                         )}
                         <span>{country.name}</span>

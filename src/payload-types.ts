@@ -221,8 +221,8 @@ export interface StaticPage {
     };
     [k: string]: unknown;
   };
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -268,8 +268,8 @@ export interface BlogPost {
     };
     [k: string]: unknown;
   };
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -311,8 +311,9 @@ export interface Country {
    * Choose a color for this page
    */
   primaryColor?: string | null;
-  countryCode: string;
-  coords?:
+  isoA2: string;
+  emoji?: string | null;
+  bbox?:
     | {
         [k: string]: unknown;
       }
@@ -321,9 +322,18 @@ export interface Country {
     | number
     | boolean
     | null;
-  emoji?: string | null;
-  path?: string | null;
-  url?: string | null;
+  isoA3?: string | null;
+  coordinates?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -373,8 +383,8 @@ export interface Company {
    * Countries where this company has workers.
    */
   countries?: (string | Country)[] | null;
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -417,8 +427,8 @@ export interface Category {
    * Choose a color for this page
    */
   primaryColor?: string | null;
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -477,8 +487,8 @@ export interface OrganisingGroup {
    * Child/sub-organising groups
    */
   children?: (string | OrganisingGroup)[] | null;
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -524,8 +534,8 @@ export interface Campaign {
    */
   emoji?: string | null;
   events?: (string | Event)[] | null;
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -602,8 +612,8 @@ export interface Event {
         id?: string | null;
       }[]
     | null;
-  path?: string | null;
-  url?: string | null;
+  path: string;
+  url: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -898,9 +908,11 @@ export interface CountriesSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
-  countryCode?: T;
-  coords?: T;
+  isoA2?: T;
   emoji?: T;
+  bbox?: T;
+  isoA3?: T;
+  coordinates?: T;
   path?: T;
   url?: T;
   updatedAt?: T;

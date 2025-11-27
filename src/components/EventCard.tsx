@@ -1,22 +1,17 @@
-import { Dialog, Transition } from '@headlessui/react'
 import Emoji from 'a11y-react-emoji'
-import { format, getYear } from 'date-fns'
-import { useRouter } from 'next/dist/client/router'
+import { getYear } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
 import pluralize from 'pluralize'
 import qs from 'query-string'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
-// import { FilterContext } from '../components/Timeline'
-// import { projectStrings } from '../data/site'
-// import { actionUrl } from '../data/event'
-// import { AirtableCDNMap, Attachment, Country, Event } from '../data/types'
-import { usePrevious } from '@/utils/usePrevious'
 import { DateTime } from '@/components/DateTime'
-import { Event, Media } from '@/payload-types'
+import { Category, Country, Event, Media, OrganisingGroup, Company } from '@/payload-types'
 import { LexicalRenderer } from '@/app/(frontend)/components/LexicalRenderer'
+import { projectStrings } from '@/project-strings'
 import { twMerge } from 'tailwind-merge'
+import { payloadClient } from '@/utils/payload'
 
 interface ListProps {
   data: Event[]
@@ -24,6 +19,7 @@ interface ListProps {
   gridStyle?: string
   dialogProps?: Partial<DialogProps>
   mini?: boolean
+  fullDisplay?: boolean
 }
 
 interface DialogProps {
@@ -35,8 +31,10 @@ interface DialogProps {
 
 interface CardProps {
   data: Event
+  hoverable?: boolean
   withContext?: boolean
   contextProps?: Partial<ContextProps>
+  displayStandaloneInfo?: boolean
 }
 
 interface ContextProps {
@@ -45,61 +43,6 @@ interface ContextProps {
   name?: any
   metadata?: any
   buttonLabel?: any
-}
-
-export function EventDialog({ selectedEvent, returnHref, cardProps }: DialogProps) {
-  const router = useRouter()
-
-  function onClose() {
-    if (returnHref) {
-      return router.push(returnHref, returnHref, { shallow: false, scroll: false })
-    }
-  }
-
-  const showDialog = !!selectedEvent
-
-  return (
-    <Transition
-      show={showDialog}
-      enter="transition duration-100 ease-out"
-      enterFrom="transform scale-95 opacity-0"
-      enterTo="transform scale-100 opacity-100"
-      leave="transition duration-75 ease-out"
-      leaveFrom="transform scale-100 opacity-100"
-      leaveTo="transform scale-95 opacity-0"
-    >
-      <Dialog open={showDialog} onClose={onClose} className="fixed z-40 inset-0 overflow-y-auto">
-        {selectedEvent?.fields && (
-          <>
-            <Dialog.Overlay className="fixed z-10 inset-0 bg-gwOrange opacity-80" />
-            <div className="absolute z-20 w-full max-w-4xl top-[1%] left-1/2 transform -translate-x-1/2 py-5 p-4">
-              <Dialog.Title className="hidden">{selectedEvent.fields.Name}</Dialog.Title>
-              <Dialog.Description className="hidden">
-                {selectedEvent.fields.Summary}
-              </Dialog.Description>
-              <button
-                type="button"
-                className="mb-3 rounded-xl px-2 py-1 border-box bg-white"
-                onClick={onClose}
-              >
-                &larr; Back
-              </button>
-              <EventCard data={selectedEvent} {...cardProps} />
-            </div>
-          </>
-        )}
-      </Dialog>
-    </Transition>
-  )
-}
-
-export const DEFAULT_ACTION_DIALOG_KEY = 'dialogActionId'
-
-export function useSelectedEvent(events: Event[], key = DEFAULT_ACTION_DIALOG_KEY) {
-  const router = useRouter()
-  const dialogActionId = router.query[key]
-  const selectedEvent = events.find((a) => a.slug === dialogActionId)
-  return [selectedEvent, key] as const
 }
 
 const DownArrow = (
@@ -122,19 +65,16 @@ const UpArrow = (
 
 export function EventsList({
   data: events,
-  withDialog,
   gridStyle = 'grid-cols-1',
-  dialogProps,
   mini,
+  fullDisplay = false,
 }: ListProps) {
-  const { makeContextualHref } = useContextualRouting()
-  const [selectedEvent, dialogKey] = useSelectedEvent(events || [], dialogProps?.key)
   const [openYears, setOpenYears] = useState<string[]>([])
 
   const actionsByYear = useMemo(() => {
     const group = (events || []).reduce(
       (bins, action) => {
-        const key = `${getYear(new Date(action.fields.Date))}`
+        const key = `${getYear(new Date(action.date))}`
         bins[key] ??= []
         bins[key].push(action)
         return bins
@@ -145,27 +85,8 @@ export function EventsList({
     return Object.entries(group).sort(([year1, d], [year2, D]) => parseInt(year2) - parseInt(year1))
   }, [events])
 
-  const router = useRouter()
-
-  // when the router changes, update the current route
-  const [currentHref, setCurrentHref] = useState(router.asPath)
-
-  // store the past route and use it as the currentHref
-  const lastHref = usePrevious(currentHref)
-
-  useEffect(() => {
-    const handleRouteChangeComplete = (url, obj) => {
-      setCurrentHref(url)
-    }
-    router.events.on('routeChangeComplete', handleRouteChangeComplete)
-    return () => router.events.off('routeChangeComplete', handleRouteChangeComplete)
-  }, [router])
-
   return (
     <>
-      {withDialog && (
-        <EventDialog selectedEvent={selectedEvent} returnHref={lastHref || '/'} {...dialogProps} />
-      )}
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear.map(([yearString, actions], i) => {
           let hiddenActions = [] as Event[]
@@ -188,36 +109,37 @@ export function EventsList({
           return (
             <div key={i}>
               <div className="flex flex-row justify-between items-center pb-3">
-                <h2 className={cx(mini ? 'text-lg' : 'text-2xl', 'font-semibold')} id={yearString}>
+                <h2
+                  className={twMerge(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}
+                  id={yearString}
+                >
                   {yearString}
                 </h2>
                 <div className="text-xs font-semibold">
                   {pluralize('action', actions.length, true)}
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 {shownActions.map((action) => (
-                  <Link
-                    key={action.id}
-                    href={makeContextualHref({ [dialogKey]: action.slug })}
-                    as={actionUrl(action)}
-                    shallow
-                  >
+                  <Link key={action.id} href={action.path} as={action.path} shallow>
                     <div className="transition cursor-pointer group" id={action.slug}>
-                      <EventItem data={action} />
+                      {fullDisplay ? (
+                        <EventCard data={action} hoverable />
+                      ) : (
+                        <EventItem data={action} hoverable />
+                      )}
                     </div>
                   </Link>
                 ))}
-                <div className={cx(hiddenActionsOpen ? 'space-y-4' : 'hidden')}>
+                <div className={twMerge(hiddenActionsOpen ? 'flex flex-col gap-4' : 'hidden')}>
                   {hiddenActions.map((action) => (
-                    <Link
-                      key={action.id}
-                      href={makeContextualHref({ [dialogKey]: action.slug })}
-                      as={actionUrl(action)}
-                      shallow
-                    >
+                    <Link key={action.id} href={action.path} as={action.path} shallow>
                       <div className="transition cursor-pointer group" id={action.slug}>
-                        <EventItem data={action} />
+                        {fullDisplay ? (
+                          <EventCard data={action} hoverable />
+                        ) : (
+                          <EventItem data={action} hoverable />
+                        )}
                       </div>
                     </Link>
                   ))}
@@ -259,83 +181,29 @@ export function EventsList({
   )
 }
 
-function groupBy<T>(arr: T[], getGroupKey: (i: T) => string) {
-  return arr.reduce(
-    (groups, i) => {
-      groups[getGroupKey(i)] ??= []
-      groups[getGroupKey(i)].push(i)
-      return groups
-    },
-    {} as { [key: string]: T[] },
-  )
-}
-
-function getChunks(array: Fuse.FuseResultMatch[]) {
-  return array.reduce((indicies, d) => {
-    return indicies.concat(d.indices.map(([start, end]) => ({ start, end: end + 1 })))
-  }, [] as Chunk[])
-}
-
-function highlightHTML(html: string, search: string, className: string) {
-  return html.replace(
-    new RegExp(`(${search})` || '', 'gim'),
-    `<mark class='${className}'>$1</mark>`,
-  )
-}
-
-export function EventItem({ data }: { data: Event }) {
-  const { search } = useContext(FilterContext)
-
-  const isFeatured = data.fields.DisplayStyle === 'Featured'
-
+export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolean }) {
   return (
-    <article className={cx('bg-white rounded-xl p-4 text-sm glowable')}>
+    <article
+      className={twMerge(
+        'event-item bg-white rounded-md p-4 text-sm glowable',
+        hoverable && 'hover:bg-snot-300',
+      )}
+    >
       <ActionMetadata data={data} />
       <div>
-        {isFeatured ? (
-          <>
-            <h2 className="text-3xl leading-tight font-semibold max-w-3xl mt-3">
-              <Highlighter
-                highlightClassName="bg-gwYellow"
-                searchWords={[search || '']}
-                autoEscape={true}
-                textToHighlight={data.fields.Name}
-              />
-            </h2>
-            {data.fields.Summary && (
-              <div className="w-full pt-4 text-base">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: !search
-                      ? data.summary.html
-                      : highlightHTML(data.summary.html, search, 'bg-gwYellow'),
-                  }}
-                />
-              </div>
-            )}
-          </>
-        ) : (
-          <h3 className="text-2xl leading-tight font-semibold max-w-3xl mt-3">
-            <Highlighter
-              highlightClassName="bg-gwYellow"
-              searchWords={[search || '']}
-              autoEscape={true}
-              textToHighlight={data.fields.Name}
-            />
-          </h3>
-        )}
+        <h3 className="text-2xl leading-tight font-semibold max-w-3xl mt-3">{data.name}</h3>
         <div className="flex flex-row mt-3 flex-wrap">
-          {data.fields.Link && (
-            <a href={data.fields.Link} className="block my-1 mr-2">
+          {data.link && (
+            <a href={data.link} className="block my-1 mr-2">
               <Emoji symbol="🔗" label="Link" className="align-baseline" />
               &nbsp;
               <span className="align-baseline underline text-inherit">
-                {new URL(data.fields.Link).hostname}
+                {new URL(data.link).hostname}
               </span>
             </a>
           )}
-          {data.cdnMap.map((doc) => (
-            <DocumentLink key={doc.airtableDocID} {...doc} />
+          {data.documents?.map((doc) => (
+            <DocumentLink key={(doc as Media).id} document={doc as unknown as Media} />
           ))}
         </div>
       </div>
@@ -351,8 +219,8 @@ export function DocumentLink({
   withPreview?: boolean
 }) {
   return (
-    <a href={document.url} className="block my-1 mr-2">
-      <span className={cx(withPreview && 'block')}>
+    <a href={document.url || ''} className="block my-1 mr-2">
+      <span className={twMerge(withPreview && 'block')}>
         <Emoji symbol="📑" label="File attachment" className="align-baseline" />
         &nbsp;
         <span className="align-baseline underline text-inherit">{document.filename}</span>
@@ -381,40 +249,49 @@ export function ActionMetadata({ data }: { data: Event }) {
       </span>
       {data.location ? <span className="pr-1">{data.location}</span> : null}
       {data.countries?.map((country) => (
-        <span className="pr-3" key={country.id}>
-          <Emoji symbol={country.emoji.emoji} label={`Flag of ${country.name}`} className="pr-1" />
-          <span>{country.name}</span>
+        <span className="pr-3" key={(country as Country).id}>
+          <Emoji
+            symbol={(country as Country).emoji || ''}
+            label={`Flag of ${(country as Country).name}`}
+            className="pr-1"
+          />
+          <span>{(country as Country).name}</span>
         </span>
       ))}
       {data.categories?.map((category) => (
-        <span className="capitalize block pr-3" key={category.id}>
-          {category.name}
+        <span className="capitalize block pr-3" key={(category as Category).id}>
+          {(category as Category).name}
         </span>
       ))}
       {data.companies?.map((company) => (
-        <span className="capitalize block pr-3" key={company.id}>
-          {company.name}
+        <span className="capitalize block pr-3" key={(company as Company).id}>
+          {(company as Company).name}
         </span>
       ))}
       {data.organisingGroups?.map((organisingGroup) => (
-        <span className="capitalize block pr-3" key={organisingGroup.id}>
-          {organisingGroup.name}
+        <span className="capitalize block pr-3" key={(organisingGroup as OrganisingGroup).id}>
+          {(organisingGroup as OrganisingGroup).name}
         </span>
       ))}
     </div>
   )
 }
 
-export function EventCard({ data, withContext }: CardProps) {
+export function EventCard({
+  data,
+  withContext,
+  hoverable,
+  displayStandaloneInfo = false,
+}: CardProps) {
   return (
     <>
       <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
-        <div className="p-4 md:px-8 bg-white">
+        <div className={twMerge('p-4 md:px-8 bg-white', hoverable && 'hover:bg-snot-300')}>
           <div className="text-sm">
             <ActionMetadata data={data} />
           </div>
           <div className="pb-4" />
-          <h3 className={cx('text-3xl leading-tight font-semibold max-w-3xl')}>{data.name}</h3>
+          <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>{data.name}</h3>
           {data.description && (
             <LexicalRenderer
               content={data.description}
@@ -433,58 +310,65 @@ export function EventCard({ data, withContext }: CardProps) {
             )}
           </div>
         </div>
-        {data.documents > 0 && (
+        {!!data.documents && data.documents.length > 0 && (
           <div className="p-4 md:px-8 bg-white text-sm">
             <div className="font-semibold pb-2">Attachments</div>
             <div className="grid gap-4">
-              {data.document.map((doc) => (
-                <DocumentLink key={doc.id} {...doc} withPreview />
+              {data.documents?.map((doc) => (
+                <DocumentLink
+                  key={(doc as Media).id}
+                  document={doc as unknown as Media}
+                  withPreview
+                />
               ))}
             </div>
           </div>
         )}
-        <div className="p-4 md:px-8 bg-white">
-          Have more info about this action?{' '}
-          <a className="link" href={`mailto:${projectStrings.email}`}>
-            Let us know &rarr;
-          </a>
-        </div>
+        {displayStandaloneInfo && (
+          <div className="p-4 md:px-8 bg-white">
+            Have more info about this action?{' '}
+            <a className="link" href={`mailto:${projectStrings.email}`}>
+              Let us know &rarr;
+            </a>
+          </div>
+        )}
         {withContext && (
           <div className="grid gap-[2px] grid-cols-2">
-            {data.fields.countryCode?.map((code) => (
-              <div className="p-4 md:px-8 bg-white" key={code}>
-                <EventCountryRelatedActions countryCode={code} />
+            {data.countries?.map((country) => (
+              <div className="p-4 md:px-8 bg-white" key={(country as Country).id}>
+                <EventCountryRelatedActions isoA2={(country as Country).isoA2} />
               </div>
             ))}
-            {data.fields.CategoryName?.map((categoryName, i) => (
-              <div className="p-4 md:px-8 bg-white" key={categoryName}>
+            {data.categories?.map((category) => (
+              <div className="p-4 md:px-8 bg-white" key={(category as Category).id}>
                 <EventRelatedActions
                   subtitle="Category"
-                  url={`/?category=${categoryName}`}
+                  url={`/?category=${(category as Category).name}`}
                   name={
                     <span className="capitalize">
-                      <Emoji symbol={data.fields.CategoryEmoji![i]} /> {categoryName}
+                      <Emoji symbol={(category as Category).emoji || ''} />{' '}
+                      {(category as Category).name}
                     </span>
                   }
                 />
               </div>
             ))}
-            {data.fields['Organising Groups']?.map((organisingGroupId, i) => (
-              <div className="p-4 md:px-8 bg-white" key={organisingGroupId}>
+            {data.organisingGroups?.map((organisingGroup) => (
+              <div className="p-4 md:px-8 bg-white" key={(organisingGroup as OrganisingGroup).id}>
                 <EventRelatedActions
                   subtitle="Organising group"
-                  url={`/group/${organisingGroupId}`}
-                  name={data.fields.organisingGroupName![i]}
+                  url={`/group/${(organisingGroup as OrganisingGroup).slug}`}
+                  name={(organisingGroup as OrganisingGroup).name}
                   buttonLabel={<span>Learn more &rarr;</span>}
                 />
               </div>
             ))}
-            {data.fields.companyName?.map((companyName, i) => (
-              <div className="p-4 md:px-8 bg-white" key={companyName}>
+            {data.companies?.map((company) => (
+              <div className="p-4 md:px-8 bg-white" key={(company as Company).id}>
                 <EventRelatedActions
                   subtitle="Company"
-                  url={`/?company=${companyName}`}
-                  name={<span>{companyName}</span>}
+                  url={`/?company=${(company as Company).slug}`}
+                  name={<span>{(company as Company).name}</span>}
                 />
               </div>
             ))}
@@ -495,33 +379,65 @@ export function EventCard({ data, withContext }: CardProps) {
   )
 }
 
-export function EventCountryRelatedActions({ countryCode }: { countryCode }) {
-  const { data } = useSWR<Country>(
+export function EventCountryRelatedActions({ isoA2 }: { isoA2: string }) {
+  const eventsForCountryData = useSWR(
     qs.stringifyUrl({
-      url: `/api/country`,
+      url: `/api/country-related-actions`,
       query: {
-        iso2: countryCode,
+        isoA2: isoA2,
       },
     }),
+    () => {
+      return payloadClient.find({
+        collection: 'events',
+        where: {
+          countries: {
+            in: {
+              isoA2: {
+                equals: isoA2,
+              },
+            },
+          },
+        },
+        limit: 1,
+      })
+    },
     { revalidateOnMount: true },
   )
 
-  const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
+  const countryData = useSWR(
+    qs.stringifyUrl({
+      url: `/api/country`,
+      query: {
+        iso2: isoA2,
+      },
+    }),
+    () => {
+      return payloadClient.find({
+        collection: 'countries',
+        where: {
+          isoA2: {
+            equals: isoA2,
+          },
+        },
+        limit: 1,
+      })
+    },
+  )
+
+  const eventCount = eventsForCountryData?.data?.totalDocs || 0
+  const country = countryData?.data?.docs?.[0]
 
   return (
     <EventRelatedActions
       subtitle={'Country'}
-      url={`/?country=${data?.fields?.Slug}`}
+      url={`/countries/${isoA2}`}
       name={
-        data?.fields ? (
-          <span>
-            <Emoji symbol={data?.emoji?.emoji} label="flag" /> {data?.fields.Name}
-          </span>
-        ) : (
-          countryCode
-        )
+        <span>
+          <Emoji symbol={country?.emoji || ''} label={`Flag of ${country?.name}`} /> {country?.name}
+        </span>
       }
-      metadata={actionCount ? pluralize('action', actionCount, true) : undefined}
+      metadata={eventCount ? pluralize('event', eventCount, true) : undefined}
     />
   )
 }
