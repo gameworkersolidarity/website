@@ -21,6 +21,7 @@ import {
   useUnionFilter,
   useCountryFilter,
 } from '@/utils/global-state'
+import { twMerge } from 'tailwind-merge'
 
 interface EventFilterProps {
   countries: Country[]
@@ -52,55 +53,81 @@ export function EventFilter({
 
   return (
     <div className="homepage-filters">
-      <span className="filter-label">Filter by</span>
-      <div className="flex flex-row gap-2 w-full flex-wrap">
-        <div className="filter-group">
+      <h2 className="filter-label mb-2 font-bold">Filter by</h2>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 w-full">
+        <div className="filter-group w-full">
           <Select
             placeholder="Filter country..."
             options={countries.map((country) => ({
               label: country.name,
-              value: country.id.toString(),
+              value: country.slug,
             }))}
             value={countryFilter || ''}
-            onChange={(value) => setCountryFilter(value || null)}
+            onChange={(value) =>
+              value === countryFilter ? setCountryFilter(null) : setCountryFilter(value || null)
+            }
           />
+          {countryFilter && (
+            <div className="link text-xs mt-1" onClick={() => setCountryFilter(null)}>
+              Reset ⤬
+            </div>
+          )}
         </div>
-        <div className="filter-group">
+        <div className="filter-group w-full">
           <Select
             placeholder="Filter category..."
             options={categories.map((category) => ({
               label: (category.emoji && `${category.emoji} ` + category.name) || category.name,
-              value: category.id.toString(),
+              value: category.slug,
             }))}
             value={categoryFilter || ''}
-            onChange={(value) => setCategoryFilter(value || null)}
+            onChange={(value) =>
+              value === categoryFilter ? setCategoryFilter(null) : setCategoryFilter(value || null)
+            }
           />
+          {categoryFilter && (
+            <div className="link text-xs mt-1" onClick={() => setCategoryFilter(null)}>
+              Reset ⤬
+            </div>
+          )}
         </div>
-        <div className="filter-group">
+        <div className="filter-group w-full">
           <Select
             placeholder="Filter company..."
             options={companies.map((company) => ({
               label: company.name,
-              value: company.id.toString(),
+              value: company.slug,
             }))}
             value={companyFilter || ''}
-            onChange={(value) => setCompanyFilter(value || null)}
+            onChange={(value) =>
+              value === companyFilter ? setCompanyFilter(null) : setCompanyFilter(value || null)
+            }
           />
+          {companyFilter && (
+            <div className="link text-xs mt-1" onClick={() => setCompanyFilter(null)}>
+              Reset ⤬
+            </div>
+          )}
         </div>
-        <div className="filter-group">
+        <div className="filter-group w-full">
           <Select
             placeholder="Filter union..."
-            options={organisingGroups
-              .filter((group) => group.isUnion)
-              .map((group) => ({
-                label: group.name,
-                value: group.id.toString(),
-              }))}
+            options={organisingGroups.map((group) => ({
+              label: group.name,
+              value: group.slug,
+            }))}
             value={unionFilter || ''}
-            onChange={(value) => setUnionFilter(value || null)}
+            onChange={(value) =>
+              value === unionFilter ? setUnionFilter(null) : setUnionFilter(value || null)
+            }
           />
+          {unionFilter && (
+            <div className="link text-xs mt-1" onClick={() => setUnionFilter(null)}>
+              Reset ⤬
+            </div>
+          )}
         </div>
-        <div className="filter-group">
+        <div className="filter-group w-full">
           <Select
             placeholder="Filter year..."
             options={years.map((year) => ({
@@ -108,8 +135,15 @@ export function EventFilter({
               value: year.toString(),
             }))}
             value={yearFilter || ''}
-            onChange={(value) => setYearFilter(value || null)}
+            onChange={(value) =>
+              value === yearFilter ? setYearFilter(null) : setYearFilter(value || null)
+            }
           />
+          {yearFilter && (
+            <div className="link text-xs mt-1" onClick={() => setYearFilter(null)}>
+              Reset ⤬
+            </div>
+          )}
         </div>
       </div>
       {/* <div>
@@ -150,13 +184,13 @@ function Select({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className={twMerge('w-full justify-between overflow-hidden', value && 'bg-snot-300')}
         >
           {selectedItem ? renderLabel(selectedItem) : placeholder}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-full p-0">
         <Command value={value}>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandList>

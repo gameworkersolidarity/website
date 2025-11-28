@@ -4,9 +4,10 @@ import * as fs from 'fs'
 import * as path from 'path'
 import config from '../src/payload.config'
 import { EventInitiator } from '@/collections/enums'
-import { Event } from '@/payload-types'
+import { Company, Event } from '@/payload-types'
 import { parseHTMLAsLexicalRichText } from '@/utils/payload'
 import { slugify } from 'payload/shared'
+import { payloadGetOrCreateModel } from '@/utils/payloadServer'
 
 interface CsvRow {
   Studio: string
@@ -30,7 +31,7 @@ function normalizeName(name: string): string {
 
 // Find best matching company using fuzzy matching
 async function findCompany(
-  payload: any,
+  payload: Awaited<ReturnType<typeof getPayload>>,
   name: string,
   threshold: number = 0.6,
 ): Promise<{ id: number | string } | null> {
@@ -42,7 +43,7 @@ async function findCompany(
   const exactMatch = await payload.find({
     collection: 'companies',
     where: {
-      Name: {
+      name: {
         like: name.trim(),
       },
     },
@@ -86,7 +87,7 @@ async function findCompany(
 
 // Find best matching country using fuzzy matching
 async function findCountry(
-  payload: any,
+  payload: Awaited<ReturnType<typeof getPayload>>,
   name: string,
   threshold: number = 0.6,
 ): Promise<{ id: number | string } | null> {
@@ -98,7 +99,7 @@ async function findCountry(
   const exactMatch = await payload.find({
     collection: 'countries',
     where: {
-      Name: {
+      name: {
         like: name.trim(),
       },
     },
@@ -224,7 +225,7 @@ function parseCsvLine(line: string): string[] {
 
 // Create or get company
 async function getOrCreateCompany(
-  payload: any,
+  payload: Awaited<ReturnType<typeof getPayload>>,
   name: string,
 ): Promise<{ id: number | string } | null> {
   if (!name || !name.trim()) return null
@@ -235,7 +236,7 @@ async function getOrCreateCompany(
   const existing = await payload.find({
     collection: 'companies',
     where: {
-      Name: {
+      name: {
         equals: normalizedName,
       },
     },
@@ -247,12 +248,14 @@ async function getOrCreateCompany(
   }
 
   // Create new company
+  const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
+    name: normalizedName,
+    slug: slugify(normalizedName) || normalizedName,
+  }
   try {
     const newCompany = await payload.create({
       collection: 'companies',
-      data: {
-        Name: normalizedName,
-      },
+      data: companyData,
     })
     console.log(`  ✓ Created new company: "${normalizedName}"`)
     return { id: newCompany.id }
@@ -275,16 +278,28 @@ async function getOrCreateCompany(
     }
 
     console.error(`  ✗ Error creating company "${normalizedName}":`, error.message)
+    console.error(JSON.stringify({ companyData }, null, 2))
     return null
   }
 }
 
 // Process redundancies from CSV and create Events
-async function processRedundancies(filePath: string, payload: any) {
+async function processRedundancies(
+  filePath: string,
+  payload: Awaited<ReturnType<typeof getPayload>>,
+) {
   console.log(`\n📂 Processing redundancies from ${path.basename(filePath)} and creating Events...`)
 
   const rows = parseCsv(filePath)
   console.log(`\n📊 Found ${rows.length} redundancy records to process`)
+
+  // Get Or Create Redundancy Category
+  const REDUNDANCY_CATEGORY = await payloadGetOrCreateModel(
+    payload,
+    'categories',
+    { name: 'Redundancy', slug: 'redundancy' },
+    { name: 'Redundancy', slug: 'redundancy' },
+  )
 
   if (rows.length === 0) {
     console.log('  ⚠️  No rows to process, skipping file')
@@ -314,231 +329,229 @@ async function processRedundancies(filePath: string, payload: any) {
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]
+    // console.log(`\n[${i + 1}/${rows.length}] Processing row:`, {
+    //   Studio: row.Studio,
+    //   Date: row.Date,
+    //   Headcount: row.Headcount,
+    //   Parent: row.Parent,
+    // })
+
+    // Skip empty rows
+    if (!row.Studio || !row.Date) {
+      console.log(`  ⏭️  Skipping row ${i + 1}: missing Studio or Date`)
+      stats.skipped++
+      continue
+    }
+
+    const studioName = row.Studio.trim()
+    const dateStr = row.Date.trim()
+    console.log(`  Studio: "${studioName}", Date (raw): "${dateStr}"`)
+
+    // Parse and normalize date format (Payload expects YYYY-MM-DD)
+    let normalizedDate: string = dateStr
     try {
-      console.log(`\n[${i + 1}/${rows.length}] Processing row:`, {
-        Studio: row.Studio,
-        Date: row.Date,
-        Headcount: row.Headcount,
-        Parent: row.Parent,
-      })
+      // Try to parse the date and convert to ISO format
+      const dateObj = new Date(dateStr)
+      if (isNaN(dateObj.getTime())) {
+        // If parsing fails, try common date formats
+        // Example: "1/15/2024" or "15/1/2024" or "2024-01-15"
+        const parts = dateStr.split(/[-\/]/)
+        if (parts.length === 3) {
+          // Assume MM/DD/YYYY or DD/MM/YYYY format
+          let year = parseInt(parts[2])
+          let month = parseInt(parts[0])
+          let day = parseInt(parts[1])
 
-      // Skip empty rows
-      if (!row.Studio || !row.Date) {
-        console.log(`  ⏭️  Skipping row ${i + 1}: missing Studio or Date`)
-        stats.skipped++
-        continue
-      }
-
-      const studioName = row.Studio.trim()
-      const dateStr = row.Date.trim()
-      console.log(`  Studio: "${studioName}", Date (raw): "${dateStr}"`)
-
-      // Parse and normalize date format (Payload expects YYYY-MM-DD)
-      let normalizedDate: string = dateStr
-      try {
-        // Try to parse the date and convert to ISO format
-        const dateObj = new Date(dateStr)
-        if (isNaN(dateObj.getTime())) {
-          // If parsing fails, try common date formats
-          // Example: "1/15/2024" or "15/1/2024" or "2024-01-15"
-          const parts = dateStr.split(/[-\/]/)
-          if (parts.length === 3) {
-            // Assume MM/DD/YYYY or DD/MM/YYYY format
-            let year = parseInt(parts[2])
-            let month = parseInt(parts[0])
-            let day = parseInt(parts[1])
-
-            // If year is 2 digits, assume 20XX
-            if (year < 100) {
-              year += 2000
-            }
-
-            // If first part > 12, counterintuitively it's DD/MM format (European)
-            if (month > 12) {
-              // It's DD/MM/YYYY
-              day = parseInt(parts[0])
-              month = parseInt(parts[1])
-              year = parseInt(parts[2])
-              if (year < 100) year += 2000
-            }
-
-            normalizedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-          } else {
-            throw new Error(`Unable to parse date: ${dateStr}`)
+          // If year is 2 digits, assume 20XX
+          if (year < 100) {
+            year += 2000
           }
+
+          // If first part > 12, counterintuitively it's DD/MM format (European)
+          if (month > 12) {
+            // It's DD/MM/YYYY
+            day = parseInt(parts[0])
+            month = parseInt(parts[1])
+            year = parseInt(parts[2])
+            if (year < 100) year += 2000
+          }
+
+          normalizedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
         } else {
-          // Use ISO format
-          normalizedDate = dateObj.toISOString().split('T')[0]
+          throw new Error(`Unable to parse date: ${dateStr}`)
         }
-        console.log(`  ✓ Normalized date: "${normalizedDate}"`)
-      } catch (error: any) {
-        console.error(
-          `  ⚠️  Warning: Could not parse date "${dateStr}", using as-is:`,
-          error.message,
-        )
-        // Try to continue with original date string
+      } else {
+        // Use ISO format
+        normalizedDate = dateObj.toISOString().split('T')[0]
+      }
+      console.log(`  ✓ Normalized date: "${normalizedDate}"`)
+    } catch (error: any) {
+      console.error(`  ⚠️  Warning: Could not parse date "${dateStr}", using as-is:`, error.message)
+      // Try to continue with original date string
+    }
+
+    // Check if event already exists (same title + date)
+    const eventTitle = `Redundancies at ${studioName}`
+    console.log(`  🔍 Checking for existing event...`)
+    const existing = await payload.find({
+      collection: 'events',
+      where: {
+        and: [{ name: { equals: eventTitle } }, { date: { equals: normalizedDate } }],
+      },
+      limit: 1,
+    })
+
+    if (existing.docs.length > 0) {
+      console.log(
+        `  ⏭️  Skipping duplicate: ${eventTitle} on ${normalizedDate} (found existing: ${existing.docs[0].id})`,
+      )
+      stats.skipped++
+      continue
+    }
+    console.log(`  ✓ No existing event found, proceeding...`)
+
+    // Parse headcount
+    let headcount: number | undefined
+    if (row.Headcount && row.Headcount.trim()) {
+      const parsed = parseInt(row.Headcount.trim(), 10)
+      if (!isNaN(parsed)) {
+        headcount = parsed
+        console.log(`  ✓ Parsed headcount: ${headcount}`)
+      } else {
+        console.log(`  ⚠️  Could not parse headcount: "${row.Headcount}"`)
+      }
+    }
+
+    // Match or create company for studio
+    let companyId: { id: number | string } | null = null
+    if (studioName) {
+      console.log(`  🔍 Looking up company for studio: "${studioName}"`)
+      companyId = await findCompany(payload, studioName)
+      if (!companyId) {
+        console.log(`  ➕ Company not found, creating new company: "${studioName}"`)
+        companyId = await getOrCreateCompany(payload, studioName)
+        if (companyId) {
+          stats.companiesCreated++
+          console.log(`  ✓ Created company with ID: ${companyId.id}`)
+        } else {
+          console.log(`  ✗ Failed to create company: "${studioName}"`)
+        }
+      } else {
+        stats.companiesMatched++
+        console.log(`  ✓ Matched company with ID: ${companyId.id}`)
+      }
+    }
+
+    // Match or create company for parent
+    let parentCompanyId: { id: number | string } | null = null
+    if (row.Parent && row.Parent.trim()) {
+      const parentName = row.Parent.trim()
+      console.log(`  🔍 Looking up company for parent: "${parentName}"`)
+      parentCompanyId = await findCompany(payload, parentName)
+      if (!parentCompanyId) {
+        console.log(`  ➕ Parent company not found, creating new company: "${parentName}"`)
+        parentCompanyId = await getOrCreateCompany(payload, parentName)
+        if (parentCompanyId) {
+          stats.companiesCreated++
+          console.log(`  ✓ Created parent company with ID: ${parentCompanyId.id}`)
+        } else {
+          console.log(`  ✗ Failed to create parent company: "${parentName}"`)
+        }
+      } else {
+        stats.companiesMatched++
+        console.log(`  ✓ Matched parent company with ID: ${parentCompanyId.id}`)
       }
 
-      // Check if event already exists (same title + date)
-      const eventTitle = `Redundancies at ${studioName}`
-      console.log(`  🔍 Checking for existing event...`)
-      const existing = await payload.find({
-        collection: 'events',
-        where: {
-          and: [{ title: { equals: eventTitle } }, { date: { equals: normalizedDate } }],
-        },
-        limit: 1,
-      })
+      // Collect parent-child relationship for later processing
+      if (companyId && parentCompanyId) {
+        const parentId = parentCompanyId.id.toString()
+        const childId = companyId.id.toString()
 
-      if (existing.docs.length > 0) {
+        if (!parentChildRelationships[parentId]) {
+          parentChildRelationships[parentId] = new Set<string>()
+        }
+        parentChildRelationships[parentId].add(childId)
         console.log(
-          `  ⏭️  Skipping duplicate: ${eventTitle} on ${normalizedDate} (found existing: ${existing.docs[0].id})`,
+          `  📝 Collected relationship: ${parentName} (${parentId}) → ${studioName} (${childId})`,
         )
-        stats.skipped++
-        continue
       }
-      console.log(`  ✓ No existing event found, proceeding...`)
+    } else {
+      console.log(`  ℹ️  No parent company specified`)
+    }
 
-      // Parse headcount
-      let headcount: number | undefined
-      if (row.Headcount && row.Headcount.trim()) {
-        const parsed = parseInt(row.Headcount.trim(), 10)
-        if (!isNaN(parsed)) {
-          headcount = parsed
-          console.log(`  ✓ Parsed headcount: ${headcount}`)
-        } else {
-          console.log(`  ⚠️  Could not parse headcount: "${row.Headcount}"`)
-        }
-      }
-
-      // Match or create company for studio
-      let companyId: { id: number | string } | null = null
-      if (studioName) {
-        console.log(`  🔍 Looking up company for studio: "${studioName}"`)
-        companyId = await findCompany(payload, studioName)
-        if (!companyId) {
-          console.log(`  ➕ Company not found, creating new company: "${studioName}"`)
-          companyId = await getOrCreateCompany(payload, studioName)
-          if (companyId) {
-            stats.companiesCreated++
-            console.log(`  ✓ Created company with ID: ${companyId.id}`)
-          } else {
-            console.log(`  ✗ Failed to create company: "${studioName}"`)
-          }
-        } else {
-          stats.companiesMatched++
-          console.log(`  ✓ Matched company with ID: ${companyId.id}`)
-        }
-      }
-
-      // Match or create company for parent
-      let parentCompanyId: { id: number | string } | null = null
-      if (row.Parent && row.Parent.trim()) {
-        const parentName = row.Parent.trim()
-        console.log(`  🔍 Looking up company for parent: "${parentName}"`)
-        parentCompanyId = await findCompany(payload, parentName)
-        if (!parentCompanyId) {
-          console.log(`  ➕ Parent company not found, creating new company: "${parentName}"`)
-          parentCompanyId = await getOrCreateCompany(payload, parentName)
-          if (parentCompanyId) {
-            stats.companiesCreated++
-            console.log(`  ✓ Created parent company with ID: ${parentCompanyId.id}`)
-          } else {
-            console.log(`  ✗ Failed to create parent company: "${parentName}"`)
-          }
-        } else {
-          stats.companiesMatched++
-          console.log(`  ✓ Matched parent company with ID: ${parentCompanyId.id}`)
-        }
-
-        // Collect parent-child relationship for later processing
-        if (companyId && parentCompanyId) {
-          const parentId = parentCompanyId.id.toString()
-          const childId = companyId.id.toString()
-
-          if (!parentChildRelationships[parentId]) {
-            parentChildRelationships[parentId] = new Set<string>()
-          }
-          parentChildRelationships[parentId].add(childId)
-          console.log(
-            `  📝 Collected relationship: ${parentName} (${parentId}) → ${studioName} (${childId})`,
-          )
-        }
-      } else {
-        console.log(`  ℹ️  No parent company specified`)
-      }
-
-      // Match country from Studio Location or Parent Location
-      let countryId: { id: number | string } | null = null
-      const locationToMatch = row['Studio Location']?.trim() || row['Parent Location']?.trim()
-      if (locationToMatch) {
-        console.log(`  🔍 Looking up country for location: "${locationToMatch}"`)
-        countryId = await findCountry(payload, locationToMatch)
-        if (countryId) {
-          console.log(`  ✓ Matched country with ID: ${countryId.id}`)
-        } else {
-          console.log(`  ⚠️  Could not match country for location: "${locationToMatch}"`)
-        }
-      } else {
-        console.log(`  ℹ️  No location specified for country matching`)
-      }
-
-      // Build description from redundancy data
-      const descriptionParts: string[] = []
-      if (headcount) {
-        descriptionParts.push(`${headcount} workers affected`)
-      }
-      if (row.Type?.trim()) {
-        descriptionParts.push(`Type: ${row.Type.trim()}`)
-      }
-      if (row.Parent?.trim()) {
-        descriptionParts.push(`Parent company: ${row.Parent.trim()}`)
-      }
-      if (row['Studio Location']?.trim()) {
-        descriptionParts.push(`Studio location: ${row['Studio Location'].trim()}`)
-      }
-      const descriptionText = descriptionParts.join('. ') + (descriptionParts.length > 0 ? '.' : '')
-
-      // Collect company IDs for the companies relationship (only studio company, not parent)
-      const companyIds: string[] = []
-      if (companyId) {
-        companyIds.push(companyId.id.toString())
-      }
-      // Note: Parent companies are linked via the company's Parents relationship, not added to event
-
-      // Collect country IDs
-      const countryIds: string[] = []
+    // Match country from Studio Location or Parent Location
+    let countryId: { id: number | string } | null = null
+    const locationToMatch = row['Studio Location']?.trim() || row['Parent Location']?.trim()
+    if (locationToMatch) {
+      console.log(`  🔍 Looking up country for location: "${locationToMatch}"`)
+      countryId = await findCountry(payload, locationToMatch)
       if (countryId) {
-        countryIds.push(countryId.id.toString())
+        console.log(`  ✓ Matched country with ID: ${countryId.id}`)
+      } else {
+        console.log(`  ⚠️  Could not match country for location: "${locationToMatch}"`)
       }
+    } else {
+      console.log(`  ℹ️  No location specified for country matching`)
+    }
 
-      // Determine location (prefer studio location, fallback to parent location)
-      const eventLocation =
-        row['Studio Location']?.trim() || row['Parent Location']?.trim() || undefined
+    // Build description from redundancy data
+    const descriptionParts: string[] = []
+    if (headcount) {
+      descriptionParts.push(`${headcount} workers affected`)
+    }
+    if (row.Type?.trim()) {
+      descriptionParts.push(`Type: ${row.Type.trim()}`)
+    }
+    if (row.Parent?.trim()) {
+      descriptionParts.push(`Parent company: ${row.Parent.trim()}`)
+    }
+    if (row['Studio Location']?.trim()) {
+      descriptionParts.push(`Studio location: ${row['Studio Location'].trim()}`)
+    }
+    const descriptionText = descriptionParts.join('. ') + (descriptionParts.length > 0 ? '.' : '')
 
-      // Create event record
-      const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
-        name: eventTitle,
-        slug: slugify(eventTitle) || eventTitle,
-        date: normalizedDate,
-        headcount: headcount || undefined,
-        location: eventLocation,
-        description: parseHTMLAsLexicalRichText(descriptionText),
-        source: 'https://publish.obsidian.md/vg-layoffs/Archive/2025',
-        companies: companyIds.length > 0 ? companyIds : undefined,
-        countries: countryIds.length > 0 ? countryIds : undefined,
-        initiator: EventInitiator.BOSS_LED,
-      }
+    // Collect company IDs for the companies relationship (only studio company, not parent)
+    const companyIds: string[] = []
+    if (companyId) {
+      companyIds.push(companyId.id.toString())
+    }
+    // Note: Parent companies are linked via the company's Parents relationship, not added to event
 
-      console.log(`  💾 Creating event record with data:`, {
-        name: eventData.name,
-        date: eventData.date,
-        headcount: eventData.headcount,
-        location: eventData.location,
-        companyIds: companyIds.length > 0 ? companyIds : 'none',
-        countryIds: countryIds.length > 0 ? countryIds : 'none',
-      })
+    // Collect country IDs
+    const countryIds: string[] = []
+    if (countryId) {
+      countryIds.push(countryId.id.toString())
+    }
 
+    // Determine location (prefer studio location, fallback to parent location)
+    const eventLocation =
+      row['Studio Location']?.trim() || row['Parent Location']?.trim() || undefined
+
+    // Create event record
+    const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
+      name: eventTitle,
+      slug: slugify(eventTitle) || eventTitle,
+      date: normalizedDate,
+      headcount: headcount || undefined,
+      location: eventLocation,
+      description: parseHTMLAsLexicalRichText(descriptionText),
+      source: 'https://publish.obsidian.md/vg-layoffs/Archive/2025',
+      companies: companyIds.length > 0 ? companyIds : undefined,
+      countries: countryIds.length > 0 ? countryIds : undefined,
+      initiator: EventInitiator.BOSS_LED,
+      categories: [REDUNDANCY_CATEGORY.id],
+    }
+
+    console.log(`  💾 Creating event record with data:`, {
+      name: eventData.name,
+      date: eventData.date,
+      headcount: eventData.headcount,
+      location: eventData.location,
+      companyIds: companyIds.length > 0 ? companyIds : 'none',
+      countryIds: countryIds.length > 0 ? countryIds : 'none',
+    })
+
+    try {
       const created = await payload.create({
         collection: 'events',
         data: eventData,
@@ -550,6 +563,7 @@ async function processRedundancies(filePath: string, payload: any) {
       )
     } catch (error: any) {
       console.error(`  ❌ Error processing row ${i + 1}:`, error.message)
+      console.error(JSON.stringify({ eventData }, null, 2))
       console.error(`  Error details:`, error)
       if (error.stack) {
         console.error(`  Stack trace:`, error.stack)
@@ -572,7 +586,7 @@ async function processRedundancies(filePath: string, payload: any) {
           collection: 'companies',
           id: parentId,
         })
-        const existingChildren = parentCompany.Children || []
+        const existingChildren = parentCompany.children || []
         const existingChildIds = Array.isArray(existingChildren)
           ? new Set(existingChildren.map((c: any) => (typeof c === 'string' ? c : c.id)))
           : new Set()
@@ -585,7 +599,7 @@ async function processRedundancies(filePath: string, payload: any) {
           collection: 'companies',
           id: parentId,
           data: {
-            Children: allChildIds,
+            children: allChildIds,
           },
         })
 

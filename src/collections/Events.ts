@@ -1,6 +1,9 @@
-import { slugField, type CollectionConfig } from 'payload'
+import { getPayload, slugField, type CollectionConfig } from 'payload'
 import { EventInitiator } from './enums'
 import { projectStrings } from '@/project-strings'
+import { Country } from '@/payload-types'
+import { getLatLngForCountry } from '@/utils/geo'
+import config from '@/payload.config'
 
 function getPath(siblingData: { slug: string }) {
   return `/events/${siblingData.slug}`
@@ -132,6 +135,51 @@ export const Events: CollectionConfig = {
       type: 'relationship',
       relationTo: 'countries',
       hasMany: true,
+    },
+    {
+      name: 'coordinates',
+      type: 'json',
+      virtual: 'true',
+      hidden: true,
+      typescriptSchema: [
+        ({ jsonSchema }) => ({
+          ...jsonSchema,
+          type: 'object',
+          properties: {
+            latitude: { type: 'number', required: true },
+            longitude: { type: 'number', required: true },
+          },
+          required: ['latitude', 'longitude'],
+        }),
+      ],
+      hooks: {
+        afterRead: [
+          async ({ siblingData }) => {
+            const countries = siblingData.countries
+            if (!countries?.length) {
+              return null
+            }
+            const country0 = countries[0]
+            const payloadConfig = await config
+            const payload = await getPayload({ config: payloadConfig })
+            const country0Data = await payload.find({
+              collection: 'countries',
+              where: {
+                id: {
+                  equals: country0,
+                },
+              },
+              limit: 1,
+              depth: 0,
+            })
+            const country0isoA2 = country0Data.docs?.[0]?.isoA2
+            if (!country0isoA2) {
+              return null
+            }
+            return getLatLngForCountry(country0isoA2)
+          },
+        ],
+      },
     },
     {
       name: 'companies',

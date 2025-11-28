@@ -20,8 +20,10 @@
     "test": "pnpm run test:int && pnpm run test:e2e"
   },
   "dependencies": {
+    "@custom-react-hooks/use-element-size": "^1.5.1",
     "@headlessui/react": "^2.2.9",
     "@math.gl/web-mercator": "^4.1.0",
+    "@observablehq/plot": "^0.6.17",
     "@payloadcms/db-mongodb": "^3.65.0",
     "@payloadcms/live-preview-react": "^3.65.0",
     "@payloadcms/next": "^3.65.0",

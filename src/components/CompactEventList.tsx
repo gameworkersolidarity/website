@@ -47,7 +47,7 @@ export const columns: ColumnDef<Event>[] = [
     cell: ({ row }) => <div>{format(row.getValue('date'), 'dd MMM yyyy')}</div>,
   },
   {
-    accessorKey: 'country',
+    accessorKey: 'countries',
     header: ({ column }) => {
       return (
         <Button

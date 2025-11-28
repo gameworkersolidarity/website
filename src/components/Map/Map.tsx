@@ -1,3 +1,5 @@
+'use client'
+
 import bbox from '@turf/bbox'
 import combine from '@turf/combine'
 import ReactMapGL, {
@@ -10,21 +12,18 @@ import ReactMapGL, {
 } from '@urbica/react-map-gl'
 import Cluster from '@urbica/react-map-gl-cluster'
 import Emoji from 'a11y-react-emoji'
-import cx from 'classnames'
 import { max, median, min } from 'd3-array'
 import { scalePow } from 'd3-scale'
 import { format } from 'date-fns'
 import env from 'env-var'
 import { Dictionary, groupBy, merge } from 'lodash'
-import { Map as MapboxMap } from 'mapbox-gl'
+import { Map as MapboxMap, MapMouseEvent } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { useContextualRouting } from 'next-use-contextual-routing'
 import { useRouter } from 'next/dist/client/router'
 import pluralize from 'pluralize'
 import {
   createContext,
   Dispatch,
-  memo,
   SetStateAction,
   useCallback,
   useContext,
@@ -34,11 +33,12 @@ import {
   useState,
 } from 'react'
 import Supercluster from 'supercluster'
-import { theme } from 'twin.macro'
 import { bboxToBounds, getViewportForFeatures } from '@/utils/geo'
 import { ActionMetadata } from '@/components/EventCard'
 import { useCountryFilter } from '@/utils/global-state'
-import { Country, Event } from '@/payload-types'
+import { Category, Country, Event } from '@/payload-types'
+import MapGL from '@urbica/react-map-gl'
+import { getCSSVariable } from '@/utils/css'
 
 const defaultViewport = {
   latitude: 15,
@@ -97,7 +97,7 @@ export function Map({
 
   const updateViewport = useCallback((nextViewport: Viewport) => setViewport(nextViewport), [])
 
-  const mapRef = useRef<{ _map: MapboxMap }>(null)
+  const mapRef = useRef<MapGL>(null)
 
   const countries = useCountryFilter()
   const displayStyle = !countries ? 'summary' : 'detail'
@@ -118,7 +118,11 @@ export function Map({
     const colorScale = scalePow()
       .exponent(0.5)
       .domain([min(domain), median(domain), max(domain)] as number[])
-      .range([theme`colors.gwBlue`, theme`colors.gwPink`, theme`colors.gwOrange`] as any)
+      .range([
+        getCSSVariable(`--color-gw-blue`),
+        getCSSVariable(`--color-gw-pink`),
+        getCSSVariable(`--color-gw-orange`),
+      ] as any)
 
     for (const code in counts) {
       const count = counts[code]
@@ -183,7 +187,7 @@ export function Map({
           properties: {},
           geometry: {
             type: 'Polygon',
-            coordinates: [bboxToBounds(bbox)],
+            coordinates: [bboxToBounds(bbox as [number, number, number, number])],
           },
         }
       }),
@@ -192,8 +196,8 @@ export function Map({
     const nextViewport = getViewportForFeatures(
       {
         ...viewport,
-        width: mapRef.current?._map.getCanvas().clientWidth || 0,
-        height: mapRef.current?._map.getCanvas().clientHeight || 0,
+        width: mapRef.current?.getMap()?.getCanvas().clientWidth || 0,
+        height: mapRef.current?.getMap()?.getCanvas().clientHeight || 0,
       },
       bbox(combine(FeatureCollection)) as any,
       { padding: 50 },
@@ -253,17 +257,23 @@ export function Map({
           {displayStyle === 'detail' &&
             Object.entries(nationalActionsByCountryNoLocation).map(([isoA2, actionsUnlocated]) => {
               const clusterMarkerId = createIdFromActions(actionsUnlocated)
+              if (
+                !actionsUnlocated[0].coordinates?.longitude ||
+                !actionsUnlocated[0].coordinates?.latitude
+              ) {
+                return null
+              }
               return (
                 <ClusterMarker
                   clusterMarkerId={clusterMarkerId}
                   key={clusterMarkerId}
-                  longitude={actionsUnlocated[0].geography.country[0].longitude}
-                  latitude={actionsUnlocated[0].geography.country[0].latitude}
+                  longitude={actionsUnlocated[0].coordinates?.longitude}
+                  latitude={actionsUnlocated[0].coordinates?.latitude}
                   actions={actionsUnlocated}
                   label={
                     <Emoji
-                      symbol={actionsUnlocated[0].geography.country[0].emoji.emoji}
-                      label={actionsUnlocated[0].geography.country[0].name}
+                      symbol={(actionsUnlocated[0].countries?.[0] as Country)?.emoji || ''}
+                      label={(actionsUnlocated[0].countries?.[0] as Country)?.name}
                     />
                   }
                   isSelected={clusterMarkerId === openPopupId}
@@ -278,11 +288,11 @@ export function Map({
               radius={50}
               extent={512}
               nodeSize={64}
-              component={(cluster) => {
+              component={(cluster: any) => {
                 const actions = _cluster.current?._cluster
                   .getLeaves(cluster.clusterId)
                   .map((p) => p.properties.props.data)
-                const clusterMarkerId = createIdFromActions(actions)
+                const clusterMarkerId = createIdFromActions(actions || [])
 
                 return (
                   <ClusterMarker
@@ -297,9 +307,9 @@ export function Map({
               }}
             >
               {data
-                .filter((d) => !!d.geography.location)
+                .filter((d) => !!d.coordinates?.longitude && !!d.coordinates?.latitude)
                 .map((d) => (
-                  <MapMarker {...getCoordinatesForAction(d)} data={d} key={d.id} />
+                  <MapMarker {...d.coordinates!} data={d} key={d.id} />
                 ))}
             </Cluster>
           )}
@@ -361,12 +371,12 @@ const CountryLayer = ({
     wikidata_id: string
     worldview: string
   }>()
-  const map = useContext<MapboxMap>(MapContext)
+  const map = useContext(MapContext) as MapboxMap
 
   // Reset the popup when you switch between summary and detail view
   const router = useRouter()
   useEffect(() => {
-    const handleChange = (url, obj) => {
+    const handleChange = (_url: string, _obj: any) => {
       setHoverCountry(undefined)
       setEvent(undefined)
     }
@@ -395,13 +405,13 @@ const CountryLayer = ({
             'fill-color': [
               'coalesce',
               ['get', ['get', 'iso_3166_1'], ['literal', countryCounts]],
-              theme`colors.gray.200`,
+              getCSSVariable(`--color-gray-200`),
             ],
           },
         }}
       />
       <Layer
-        onClick={(event) => {
+        onClick={(event: MapMouseEvent) => {
           const country = event.features?.[0]?.properties
           if (mode === 'summary') {
             if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
@@ -410,18 +420,20 @@ const CountryLayer = ({
                 setHoverCountry(undefined)
               } else {
                 setEvent(event.lngLat)
-                setHoverCountry(event.features?.[0]?.properties)
+                if (event.features?.[0]?.properties) {
+                  setHoverCountry(event.features?.[0]?.properties as any)
+                }
               }
             }
           }
         }}
-        onHover={(event) => {
+        onHover={(event: MapMouseEvent) => {
           const country = event.features?.[0]?.properties
           if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
             map.getCanvas().style.cursor = 'pointer'
           }
         }}
-        onLeave={(event) => {
+        onLeave={(event: MapMouseEvent) => {
           map.getCanvas().style.cursor = ''
         }}
         {...{
@@ -456,16 +468,20 @@ const CountryPopup = ({ lat, lng, actions }: { lat: number; lng: number; actions
       <div
         className="px-2 py-2"
         onClick={() =>
-          router.push(`/?country=${exampleAction.fields.countrySlug?.[0] || ''}`, undefined, {
-            shallow: false,
-            scroll: false,
-          })
+          router.push(
+            `/?country=${(exampleAction.countries?.[0] as Country)?.slug || ''}`,
+            undefined,
+            {
+              shallow: false,
+              scroll: false,
+            },
+          )
         }
       >
         <div className="text-base">
-          <Emoji symbol={exampleAction.geography.country[0].emoji?.emoji} label="flag" />
+          <Emoji symbol={(exampleAction.countries?.[0] as Country)?.emoji || ''} label="flag" />
           &nbsp;
-          {exampleAction.geography.country[0].name}
+          {(exampleAction.countries?.[0] as Country)?.name}
         </div>
         <div className="text-xl">{pluralize('action', actions.length, true)}</div>
         <div className="underline text-base">View</div>
@@ -476,39 +492,37 @@ const CountryPopup = ({ lat, lng, actions }: { lat: number; lng: number; actions
 
 function getCoordinatesForAction(data: Event) {
   let geoData = {
-    latitude: data.geography.country[0]?.latitude,
-    longitude: data.geography.country[0]?.longitude,
+    latitude: (data.countries?.[0] as Country)?.coordinates?.latitude,
+    longitude: (data.countries?.[0] as Country)?.coordinates?.longitude,
   }
-  if (data?.geography?.location) {
+  if (data?.coordinates?.longitude && data?.coordinates?.latitude) {
     geoData = {
-      latitude: parseFloat(data.geography.location.lat),
-      longitude: parseFloat(data.geography.location.lon),
+      latitude: data.coordinates.latitude,
+      longitude: data.coordinates.longitude,
     }
   }
   return geoData
 }
 
 const MapMarker = ({ data, ...coords }: { data: Event; latitude: number; longitude: number }) => {
-  const context = useContext(ViewportContext)
   const router = useRouter()
-  const { makeContextualHref, returnHref } = useContextualRouting()
 
   return (
     <Marker {...coords}>
       <div
         onClick={(e) => {
           e.preventDefault()
-          router.push(data.path, undefined, { shallow: false, scroll: false })
+          router.push(data.path!, undefined, { shallow: false, scroll: false })
         }}
       >
         <div className="space-x-1 text-center">
           <div className="transition duration-250 text-xs bg-white text-black inline capitalize font-bold tracking-tight  px-1 rounded-xl pointer-events-none">
-            {!!data.fields?.CategoryEmoji?.length && (
+            {!!data.categories?.length && (
               <span className="text-sm pr-1">
-                <Emoji symbol={data.fields.CategoryEmoji?.[0]} />
+                <Emoji symbol={(data.categories?.[0] as Category)?.emoji || ''} />
               </span>
             )}
-            {format(new Date(data.fields.Date), "MMM ''yy")}
+            {format(new Date(data.date), "MMM ''yy")}
           </div>
         </div>
       </div>
@@ -534,16 +548,15 @@ const ClusterMarker = ({
   setSelected: Dispatch<SetStateAction<string | null>>
 }) => {
   const router = useRouter()
-  const { makeContextualHref, returnHref } = useContextualRouting()
 
-  const marker = useRef<Marker>()
+  const marker = useRef<Marker>(null)
 
   useEffect(() => {
-    if (marker.current._el) {
+    if (marker.current?.getMarker()?._element) {
       if (isSelected) {
-        ;(marker.current._el as HTMLDivElement).classList.add('z-30')
+        ;(marker.current?.getMarker()?._element as HTMLDivElement).classList.add('z-30')
       } else {
-        ;(marker.current._el as HTMLDivElement).classList.remove('z-30')
+        ;(marker.current?.getMarker()?._element as HTMLDivElement).classList.remove('z-30')
       }
     }
   }, [isSelected])
@@ -554,7 +567,7 @@ const ClusterMarker = ({
       longitude={longitude}
       latitude={latitude}
       anchor="bottom"
-      className={isSelected ? 'z-30' : 'z-10'}
+      // className={isSelected ? 'z-30' : 'z-10'}
     >
       <div
         onClick={() => {
@@ -571,7 +584,14 @@ const ClusterMarker = ({
             {label ||
               actions
                 .reduce((categories, action) => {
-                  return Array.from(new Set(categories.concat(action.fields?.CategoryEmoji || [])))
+                  return Array.from(
+                    new Set(
+                      categories.concat(
+                        action.categories?.map((category) => (category as Category).emoji || '') ||
+                          [],
+                      ),
+                    ),
+                  )
                 }, [] as string[])
                 .map((emoji) => <Emoji symbol={emoji} key={emoji} className="leading-none" />)}
           </span>
@@ -583,7 +603,7 @@ const ClusterMarker = ({
               <div key={action.slug}>
                 <div
                   onClick={(e) => {
-                    router.push(action.path, undefined, { shallow: false, scroll: false })
+                    router.push(action.path!, undefined, { shallow: false, scroll: false })
                   }}
                   className="hover:bg-gwOrangeLight transition duration-75 p-1 rounded-md"
                 >

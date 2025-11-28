@@ -53,7 +53,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
           </div>
         </div>
       </header>
-      <nav className="pl-2 top-0 sticky z-40 py-3 bg-gw-pink" id="sticky-header">
+      <nav
+        className="pl-2 top-0 sticky z-40 py-3 bg-gw-pink h-[60px] flex flex-row items-center"
+        id="sticky-header"
+      >
         <div className="text-sm md:text-base content-wrapper w-full flex flex-row flex-wrap justify-start -mx-1 space-x-1 md:-mx-2 md:space-x-3 items-center">
           <ul className="list-none flex flex-row space-x-4">
             {_navigation.map((item, index) => (

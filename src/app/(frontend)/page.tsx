@@ -1,12 +1,13 @@
 import { getPayload } from 'payload'
 
 import { EventFilter } from './components/EventFilter'
-import { FilteredHomepageContent } from './components/FilteredHomepageContent'
 import config from '@/payload.config'
 import '@/app/globals.css'
 import { draftMode } from 'next/headers'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventList } from '@/components/EventList'
+import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
+import { EventStats } from '@/components/EventStats'
 
 export default async function HomePage() {
   const payloadConfig = await config
@@ -82,31 +83,33 @@ export default async function HomePage() {
     ])
 
   return (
-    <div className="homepage">
-      <div className="content-wrapper py-4 bg-white border-b border-gray-200">
-        <EventFilter
-          countries={countriesResult.docs}
-          categories={categoriesResult.docs}
-          companies={companiesResult.docs}
-          organisingGroups={organisingGroupsResult.docs}
-          // searchQuery={searchQuery}
-          // setSearchQuery={setSearchQuery}
-        />
-      </div>
+    <EventFilterContextProvider events={eventsResult.docs}>
+      <div className="homepage">
+        <div className="content-wrapper py-4 bg-white border-b border-gray-200">
+          <EventFilter
+            countries={countriesResult.docs}
+            categories={categoriesResult.docs}
+            companies={companiesResult.docs}
+            organisingGroups={organisingGroupsResult.docs}
+            // searchQuery={searchQuery}
+            // setSearchQuery={setSearchQuery}
+          />
+        </div>
 
-      <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
-        <ResizablePanel defaultSize={40}>
-          <div className="flex min-h-[200px] items-center justify-center p-6">
-            <span className="font-semibold">One</span>
-          </div>
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={60}>
-          <div>
-            <EventList events={eventsResult.docs} />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </div>
+        <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
+          <ResizablePanel defaultSize={40}>
+            <div className="sticky top-6 h-[calc(100vh-60px)]">
+              <EventStats />
+            </div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={60}>
+            <div>
+              <EventList />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+    </EventFilterContextProvider>
   )
 }

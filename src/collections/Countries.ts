@@ -111,7 +111,6 @@ export const Countries: CollectionConfig = {
       type: 'json',
       virtual: true,
       hidden: true,
-      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hooks: {
         afterRead: [
           ({ siblingData }) => {
@@ -139,7 +138,17 @@ export const Countries: CollectionConfig = {
       type: 'json',
       virtual: true,
       hidden: true,
-      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      typescriptSchema: [
+        ({ jsonSchema }) => ({
+          ...jsonSchema,
+          type: 'object',
+          properties: {
+            latitude: { type: 'number', required: true },
+            longitude: { type: 'number', required: true },
+          },
+          required: ['latitude', 'longitude'],
+        }),
+      ],
       hooks: {
         afterRead: [
           ({ siblingData }) => {

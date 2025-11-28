@@ -1,11 +1,11 @@
 'use client'
 
-import { Event } from '@/payload-types'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Newspaper, Rows2, Rows4 } from 'lucide-react'
 import { CompactEventList } from './CompactEventList'
 import { EventsList } from './EventCard'
 import { useZoomLevel, ZoomLevel } from '@/utils/global-state'
+import { useEventFilterContext } from './EventFilterContextProvider'
 
 function ZoomlevelSelector({
   value,
@@ -31,12 +31,13 @@ function ZoomlevelSelector({
   )
 }
 
-export function EventList({ events }: { events: Event[] }) {
+export function EventList() {
+  const { filteredEvents: events } = useEventFilterContext()
   const [zoomLevel, setZoomLevel] = useZoomLevel()
 
   return (
     <div className="flex flex-col gap-2 @container">
-      <header className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 mt-4">
+      <header className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 mt-4 sticky top-6 bg-background py-2">
         <div className="flex flex-col gap-2">
           <h2 className="text-4xl font-bold font-identity">{events.length} events found</h2>
         </div>

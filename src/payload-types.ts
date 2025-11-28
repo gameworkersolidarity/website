@@ -318,9 +318,21 @@ export interface Country {
   primaryColor?: string | null;
   isoA2: string;
   emoji?: string;
-  bbox?: string;
+  bbox?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   isoA3?: string;
-  coordinates?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+    [k: string]: unknown;
+  };
   path?: string;
   url?: string;
   updatedAt: string;
@@ -579,6 +591,11 @@ export interface Event {
   initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null;
   categories?: (string | Category)[] | null;
   countries?: (string | Country)[] | null;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+    [k: string]: unknown;
+  };
   companies?: (string | Company)[] | null;
   organisingGroups?: (string | OrganisingGroup)[] | null;
   /**
@@ -1024,6 +1041,7 @@ export interface EventsSelect<T extends boolean = true> {
   initiator?: T;
   categories?: T;
   countries?: T;
+  coordinates?: T;
   companies?: T;
   organisingGroups?: T;
   campaigns?: T;

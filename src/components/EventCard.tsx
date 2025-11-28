@@ -1,3 +1,5 @@
+'use client'
+
 import Emoji from 'a11y-react-emoji'
 import { getYear } from 'date-fns'
 import Image from 'next/image'
@@ -183,12 +185,7 @@ export function EventsList({
 
 export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolean }) {
   return (
-    <article
-      className={twMerge(
-        'event-item bg-white rounded-md p-4 text-sm glowable',
-        hoverable && 'hover:bg-snot-300',
-      )}
-    >
+    <article className={twMerge('event-item bg-white rounded-md p-4 text-sm glowable')}>
       <ActionMetadata data={data} />
       <div>
         <h3 className="text-2xl leading-tight font-semibold max-w-3xl mt-3">{data.name}</h3>
@@ -286,7 +283,7 @@ export function EventCard({
   return (
     <>
       <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
-        <div className={twMerge('p-4 md:px-8 bg-white', hoverable && 'hover:bg-snot-300')}>
+        <div className={twMerge('p-4 lg:px-8 bg-white')}>
           <div className="text-sm">
             <ActionMetadata data={data} />
           </div>
@@ -325,7 +322,7 @@ export function EventCard({
           </div>
         )}
         {displayStandaloneInfo && (
-          <div className="p-4 md:px-8 bg-white">
+          <div className="p-4 md:px-8 bg-white mt-[2px]">
             Have more info about this action?{' '}
             <a className="link" href={`mailto:${projectStrings.email}`}>
               Let us know &rarr;
@@ -333,7 +330,7 @@ export function EventCard({
           </div>
         )}
         {withContext && (
-          <div className="grid gap-[2px] grid-cols-2">
+          <div className="grid gap-[2px] grid-cols-2 mt-[2px]">
             {data.countries?.map((country) => (
               <div className="p-4 md:px-8 bg-white" key={(country as Country).id}>
                 <EventCountryRelatedActions isoA2={(country as Country).isoA2} />
