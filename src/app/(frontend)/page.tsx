@@ -43,6 +43,7 @@ export default async function HomePage() {
           id: true,
           isoA2: true,
         },
+        sort: ['name'],
       }),
       payload.find({
         collection: 'categories',
@@ -51,7 +52,9 @@ export default async function HomePage() {
           name: true,
           id: true,
           slug: true,
+          emoji: true,
         },
+        sort: ['name'],
       }),
       payload.find({
         collection: 'companies',
@@ -61,6 +64,7 @@ export default async function HomePage() {
           id: true,
           slug: true,
         },
+        sort: ['name'],
       }),
       payload.find({
         collection: 'organisingGroups',
@@ -70,6 +74,7 @@ export default async function HomePage() {
           id: true,
           slug: true,
         },
+        sort: ['name'],
       }),
       payload.find({
         collection: 'campaigns',
@@ -79,6 +84,7 @@ export default async function HomePage() {
           id: true,
           slug: true,
         },
+        sort: ['name'],
       }),
     ])
 

@@ -22,6 +22,7 @@ import {
   useCountryISOA2Filter,
 } from '@/utils/global-state'
 import { twMerge } from 'tailwind-merge'
+import Emoji from 'a11y-react-emoji'
 
 interface EventFilterProps {
   countries: Country[]
@@ -79,9 +80,16 @@ export function EventFilter({
           <Select
             placeholder="Filter category..."
             options={categories.map((category) => ({
-              label: (category.emoji && `${category.emoji} ` + category.name) || category.name,
+              label: category.name,
               value: category.slug,
+              emoji: category.emoji,
             }))}
+            renderLabel={(d) => (
+              <span className="flex items-center gap-1 capitalize">
+                {d.emoji && <Emoji symbol={d.emoji} />}
+                {d.label}
+              </span>
+            )}
             value={categoryFilter || ''}
             onChange={(value) =>
               value === categoryFilter ? setCategoryFilter(null) : setCategoryFilter(value || null)
@@ -164,17 +172,17 @@ function defaultRenderLabel(item: { label: string; value: string }) {
   return item.label
 }
 
-function Select({
+function Select<T extends { label: string; value: string }>({
   options,
   value,
   renderLabel = defaultRenderLabel,
   onChange,
   placeholder = 'Select...',
 }: {
-  options: { label: string; value: string }[]
+  options: T[]
   value: string
   onChange: (value: string) => void
-  renderLabel?: (item: { label: string; value: string }) => string
+  renderLabel?: (item: T) => React.ReactNode
   placeholder?: string
 }) {
   const [open, setOpen] = useState(false)
@@ -206,7 +214,7 @@ function Select({
                     setOpen(false)
                   }}
                 >
-                  {option.label}
+                  {renderLabel(option)}
                   <Check
                     className={cn('ml-auto', value === option.value ? 'opacity-100' : 'opacity-0')}
                   />
