@@ -1,3 +1,4 @@
+import { SortingState } from '@tanstack/react-table'
 import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
 import { useQueryState } from 'nuqs'
@@ -9,6 +10,13 @@ export enum ZoomLevel {
 }
 
 export const zoomLevelAtom = atomWithStorage<ZoomLevel>('zoomLevel', ZoomLevel.Compact)
+
+export const sortOrderAtom = atomWithStorage<SortingState>('sortOrder', [
+  {
+    id: 'date',
+    desc: false,
+  },
+])
 
 export function useZoomLevel() {
   return useAtom(zoomLevelAtom)

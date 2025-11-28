@@ -27,6 +27,8 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import Emoji from 'a11y-react-emoji'
 import chroma from 'chroma-js'
+import { useAtom } from 'jotai/react'
+import { sortOrderAtom } from '@/utils/global-state'
 
 export const columns: ColumnDef<Event>[] = [
   {
@@ -229,7 +231,7 @@ export const columns: ColumnDef<Event>[] = [
 ]
 
 export function CompactEventList({ events }: { events: Event[] }) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = useAtom(sortOrderAtom)
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
