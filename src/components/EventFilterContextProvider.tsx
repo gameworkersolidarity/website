@@ -6,7 +6,7 @@ import {
   useYearFilter,
   useUnionFilter,
   useCompanyFilter,
-  useCountryFilter,
+  useCountryISOA2Filter,
 } from '@/utils/global-state'
 import { payloadClient } from '@/utils/payload'
 import { getYear } from 'date-fns'
@@ -31,16 +31,16 @@ export function EventFilterContextProvider({
   events: Event[]
   children: React.ReactNode
 }) {
-  const [filteredCountrySlug, setFilteredCountry] = useCountryFilter()
+  const [filteredCountryISOA2, setFilteredCountry] = useCountryISOA2Filter()
   const [filteredCategorySlug, setFilteredCategory] = useCategoryFilter()
   const [filteredCompanySlug, setFilteredCompany] = useCompanyFilter()
   const [filteredUnionSlug, setFilteredUnion] = useUnionFilter()
   const [filteredYear, setFilteredYear] = useYearFilter()
 
-  const filteredCountry = useSWR(`/api/countries/${filteredCountrySlug}`, () =>
+  const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () =>
     payloadClient.find({
       collection: 'countries',
-      where: { slug: { equals: filteredCountrySlug } },
+      where: { isoA2: { equals: filteredCountryISOA2 } },
     }),
   )
 
@@ -67,9 +67,9 @@ export function EventFilterContextProvider({
 
   const filteredEvents = useMemo(() => {
     let filtered = [...events]
-    if (filteredCountrySlug) {
+    if (filteredCountryISOA2) {
       filtered = filtered.filter((event) =>
-        event.countries?.some((country) => (country as Country).slug === filteredCountrySlug),
+        event.countries?.some((country) => (country as Country).isoA2 === filteredCountryISOA2),
       )
     }
     if (filteredCategorySlug) {
@@ -97,7 +97,7 @@ export function EventFilterContextProvider({
     return filtered
   }, [
     events,
-    filteredCountrySlug,
+    filteredCountryISOA2,
     filteredCategorySlug,
     filteredCompanySlug,
     filteredUnionSlug,
@@ -121,5 +121,23 @@ export function EventFilterContextProvider({
 }
 
 export function useEventFilterContext() {
-  return useContext(EventFilterContext)
+  const context = useContext(EventFilterContext)
+  const [countryFilter, setCountryISOA2Filter] = useCountryISOA2Filter()
+  const [categoryFilter, setCategoryFilter] = useCategoryFilter()
+  const [companyFilter, setCompanyFilter] = useCompanyFilter()
+  const [unionFilter, setUnionFilter] = useUnionFilter()
+  const [yearFilter, setYearFilter] = useYearFilter()
+  return {
+    ...context,
+    countryFilter,
+    categoryFilter,
+    companyFilter,
+    unionFilter,
+    yearFilter,
+    setCountryISOA2Filter,
+    setCategoryFilter,
+    setCompanyFilter,
+    setUnionFilter,
+    setYearFilter,
+  }
 }

@@ -14,7 +14,7 @@ export function useZoomLevel() {
   return useAtom(zoomLevelAtom)
 }
 
-export function useCountryFilter() {
+export function useCountryISOA2Filter() {
   return useQueryState('country', { clearOnDefault: true })
 }
 

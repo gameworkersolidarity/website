@@ -19,7 +19,7 @@ import env from 'env-var'
 import { Dictionary, groupBy, merge } from 'lodash'
 import { Map as MapboxMap, MapMouseEvent } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { useRouter } from 'next/dist/client/router'
+import { useRouter } from 'next/navigation'
 import pluralize from 'pluralize'
 import {
   createContext,
@@ -35,10 +35,12 @@ import {
 import Supercluster from 'supercluster'
 import { bboxToBounds, getViewportForFeatures } from '@/utils/geo'
 import { ActionMetadata } from '@/components/EventCard'
-import { useCountryFilter } from '@/utils/global-state'
+import { useCountryISOA2Filter } from '@/utils/global-state'
 import { Category, Country, Event } from '@/payload-types'
 import MapGL from '@urbica/react-map-gl'
 import { getCSSVariable } from '@/utils/css'
+import { useElementSize } from '@custom-react-hooks/use-element-size'
+import { useEventFilterContext } from '../EventFilterContextProvider'
 
 const defaultViewport = {
   latitude: 15,
@@ -47,34 +49,6 @@ const defaultViewport = {
 }
 
 const ViewportContext = createContext(defaultViewport)
-
-const OpenFullScreenSVG = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    enableBackground="new 0 0 24 24"
-    height="24px"
-    viewBox="0 0 24 24"
-    width="24px"
-    fill="#000000"
-  >
-    <rect fill="none" height="24" width="24" />
-    <polygon points="21,11 21,3 13,3 16.29,6.29 6.29,16.29 3,13 3,21 11,21 7.71,17.71 17.71,7.71" />
-  </svg>
-)
-
-const CloseFullScreenSVG = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    enableBackground="new 0 0 24 24"
-    height="24px"
-    viewBox="0 0 24 24"
-    width="24px"
-    fill="#000000"
-  >
-    <rect fill="none" height="24" width="24" />
-    <path d="M22,3.41l-5.29,5.29L20,12h-8V4l3.29,3.29L20.59,2L22,3.41z M3.41,22l5.29-5.29L12,20v-8H4l3.29,3.29L2,20.59L3.41,22z" />
-  </svg>
-)
 
 function createIdFromActions(actions: Event[]) {
   return actions.map(({ id }) => id).join('-')
@@ -99,8 +73,8 @@ export function Map({
 
   const mapRef = useRef<MapGL>(null)
 
-  const countries = useCountryFilter()
-  const displayStyle = !countries ? 'summary' : 'detail'
+  const [countryFilter, setCountryFilter] = useCountryISOA2Filter()
+  const displayStyle = !countryFilter ? 'summary' : 'detail'
 
   const countryCounts = useMemo(() => {
     const counts = data.reduce((countries, action) => {
@@ -119,9 +93,9 @@ export function Map({
       .exponent(0.5)
       .domain([min(domain), median(domain), max(domain)] as number[])
       .range([
-        getCSSVariable(`--color-gw-blue`),
-        getCSSVariable(`--color-gw-pink`),
-        getCSSVariable(`--color-gw-orange`),
+        getCSSVariable(`--color-gw-blue`, true),
+        getCSSVariable(`--color-gw-pink`, true),
+        getCSSVariable(`--color-gw-orange`, true),
       ] as any)
 
     for (const code in counts) {
@@ -163,7 +137,9 @@ export function Map({
   }
 
   const nationalActionsByCountryNoLocation = useMemo(() => {
-    return groupActionsByCountry(data.filter((d) => !d.location))
+    return groupActionsByCountry(
+      data.filter((d) => !d.coordinates?.longitude && !d.coordinates?.latitude),
+    )
   }, [data])
 
   const nationalActionsByCountry = useMemo(() => {
@@ -174,23 +150,31 @@ export function Map({
     return Object.values(nationalActionsByCountry).reduce((arr, a) => arr.concat(a), [])
   }, [nationalActionsByCountry])
 
-  function calculateViewportForActions() {
+  const calculateViewportForActions = useCallback(() => {
     const setOfCountryBBOXes = Array.from(
       new Set(allActionsSingleCountry.map((d) => (d.countries?.[0] as Country)?.bbox)),
     )
 
     const FeatureCollection: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
       type: 'FeatureCollection',
-      features: setOfCountryBBOXes.map((bbox) => {
-        return {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Polygon',
-            coordinates: [bboxToBounds(bbox as [number, number, number, number])],
-          },
-        }
-      }),
+      features: setOfCountryBBOXes
+        .filter(
+          (bbox) =>
+            !!bbox &&
+            Array.isArray(bbox) &&
+            bbox.length === 4 &&
+            bbox.every((n) => !isNaN(n as number)),
+        )
+        .map((bbox) => {
+          return {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [bboxToBounds(bbox as [number, number, number, number])],
+            },
+          }
+        }),
     }
 
     const nextViewport = getViewportForFeatures(
@@ -208,13 +192,19 @@ export function Map({
         zoom: Math.min(10, nextViewport.zoom),
       })
     }
-  }
+  }, [allActionsSingleCountry, viewport, setViewport])
 
-  useEffect(() => {
-    calculateViewportForActions()
-  }, [allActionsSingleCountry, nationalActionsByCountry, data])
+  // useEffect(() => {
+  //   calculateViewportForActions()
+  // }, [calculateViewportForActions])
 
   const [openPopupId, setSelectedPopup] = useState<null | string>(null)
+
+  const [elementRef, elementDimensions] = useElementSize()
+
+  useEffect(() => {
+    mapRef.current?.getMap()?.resize()
+  }, [elementDimensions, updateViewport])
 
   const el = (
     <ViewportContext.Provider value={viewport}>
@@ -224,6 +214,7 @@ export function Map({
           height: '100%',
           width: '100%',
         }}
+        ref={elementRef}
       >
         <ReactMapGL
           style={{
@@ -251,7 +242,9 @@ export function Map({
             mode={displayStyle}
             countryCounts={countryCounts}
             countryActions={nationalActionsByCountry}
-            onSelectCountry={onSelectCountry}
+            onSelectCountry={(iso2id) =>
+              iso2id ? setCountryFilter(iso2id) : setCountryFilter(null)
+            }
           />
           {/* National events */}
           {displayStyle === 'detail' &&
@@ -356,33 +349,38 @@ const CountryLayer = ({
   mode: 'summary' | 'detail'
   countryCounts: CountryCounts
   countryActions: Dictionary<Event[]>
-  onSelectCountry: any
+  onSelectCountry: (iso2id: string | null) => void
 }) => {
-  const [event, setEvent] = useState<{ lng: number; lat: number }>()
-  const [hoverCountry, setHoverCountry] = useState<{
-    color_group: number
-    disputed: string
-    iso_3166_1: string
-    iso_3166_1_alpha_3: string
-    name: string
-    name_en: string
-    region: string
-    subregion: string
-    wikidata_id: string
-    worldview: string
-  }>()
+  // const [event, setEvent] = useState<{ lng: number; lat: number }>()
+  // const [hoverCountry, setHoverCountry] = useState<{
+  //   color_group: number
+  //   disputed: string
+  //   iso_3166_1: string
+  //   iso_3166_1_alpha_3: string
+  //   name: string
+  //   name_en: string
+  //   region: string
+  //   subregion: string
+  //   wikidata_id: string
+  //   worldview: string
+  // }>()
+  const { countryFilter, filteredCountry, setCountryISOA2Filter } = useEventFilterContext()
   const map = useContext(MapContext) as MapboxMap
 
-  // Reset the popup when you switch between summary and detail view
-  const router = useRouter()
-  useEffect(() => {
-    const handleChange = (_url: string, _obj: any) => {
-      setHoverCountry(undefined)
-      setEvent(undefined)
-    }
-    router.events.on('routeChangeComplete', handleChange)
-    return () => router.events.off('routeChangeComplete', handleChange)
-  }, [])
+  const BACKGROUND_LAYER_IDS = useMemo(
+    () => [
+      'land',
+      'landcover',
+      'national-park',
+      'landuse',
+      'land-structure-polygon',
+      'land-structure-line',
+      'building-outline',
+      'building',
+      'undisputed country boundary fill hoverable',
+    ],
+    [],
+  )
 
   return (
     <>
@@ -393,6 +391,20 @@ const CountryLayer = ({
           url: 'mapbox://mapbox.country-boundaries-v1',
         }}
       />
+      {BACKGROUND_LAYER_IDS.map((layer) => (
+        <Layer
+          key={layer}
+          {...{
+            id: layer,
+            source: 'mapbox',
+            'source-layer': layer,
+            type: 'fill',
+            paint: {
+              'fill-color': getCSSVariable(`--color-gray-200`, true),
+            },
+          }}
+        />
+      ))}
       <Layer
         before="settlement-subdivision-label"
         {...{
@@ -405,7 +417,7 @@ const CountryLayer = ({
             'fill-color': [
               'coalesce',
               ['get', ['get', 'iso_3166_1'], ['literal', countryCounts]],
-              getCSSVariable(`--color-gray-200`),
+              'transparent',
             ],
           },
         }}
@@ -413,17 +425,16 @@ const CountryLayer = ({
       <Layer
         onClick={(event: MapMouseEvent) => {
           const country = event.features?.[0]?.properties
-          if (mode === 'summary') {
-            if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
-              if (country.iso_3166_1 === hoverCountry?.iso_3166_1) {
-                setEvent(undefined)
-                setHoverCountry(undefined)
-              } else {
-                setEvent(event.lngLat)
-                if (event.features?.[0]?.properties) {
-                  setHoverCountry(event.features?.[0]?.properties as any)
-                }
-              }
+          if (country?.iso_3166_1) {
+            if (country.iso_3166_1 === countryFilter) {
+              // setEvent(undefined)
+              // setHoverCountry(undefined)
+              setCountryISOA2Filter(null)
+            } else if (
+              Object.keys(countryCounts).includes(country.iso_3166_1) &&
+              event.features?.[0]?.properties
+            ) {
+              setCountryISOA2Filter(country.iso_3166_1)
             }
           }
         }}
@@ -447,46 +458,7 @@ const CountryLayer = ({
           },
         }}
       />
-      {event && event.lat && event.lng && hoverCountry && (
-        <CountryPopup {...event} actions={countryActions[hoverCountry.iso_3166_1]} />
-      )}
     </>
-  )
-}
-
-const CountryPopup = ({ lat, lng, actions }: { lat: number; lng: number; actions: Event[] }) => {
-  const router = useRouter()
-  const exampleAction = actions?.[0]
-  return !exampleAction ? null : (
-    <Popup
-      latitude={lat}
-      longitude={lng}
-      closeButton={false}
-      closeOnClick={false}
-      className="min-w-[170px] country-popup"
-    >
-      <div
-        className="px-2 py-2"
-        onClick={() =>
-          router.push(
-            `/?country=${(exampleAction.countries?.[0] as Country)?.slug || ''}`,
-            undefined,
-            {
-              shallow: false,
-              scroll: false,
-            },
-          )
-        }
-      >
-        <div className="text-base">
-          <Emoji symbol={(exampleAction.countries?.[0] as Country)?.emoji || ''} label="flag" />
-          &nbsp;
-          {(exampleAction.countries?.[0] as Country)?.name}
-        </div>
-        <div className="text-xl">{pluralize('action', actions.length, true)}</div>
-        <div className="underline text-base">View</div>
-      </div>
-    </Popup>
   )
 }
 
@@ -512,7 +484,10 @@ const MapMarker = ({ data, ...coords }: { data: Event; latitude: number; longitu
       <div
         onClick={(e) => {
           e.preventDefault()
-          router.push(data.path!, undefined, { shallow: false, scroll: false })
+          router.push(
+            data.path!,
+            // , undefined, { shallow: false, scroll: false }
+          )
         }}
       >
         <div className="space-x-1 text-center">
@@ -603,7 +578,10 @@ const ClusterMarker = ({
               <div key={action.slug}>
                 <div
                   onClick={(e) => {
-                    router.push(action.path!, undefined, { shallow: false, scroll: false })
+                    router.push(
+                      action.path!,
+                      // , undefined, { shallow: false, scroll: false }
+                    )
                   }}
                   className="hover:bg-gwOrangeLight transition duration-75 p-1 rounded-md"
                 >

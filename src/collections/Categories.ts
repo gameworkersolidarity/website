@@ -1,6 +1,8 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
+import ColorHash from 'color-hash'
+const colorHash = new ColorHash()
 
 function getPath(siblingData: { slug: string }) {
   return `/categories/${siblingData.slug}`
@@ -82,6 +84,19 @@ export const Categories: CollectionConfig = {
         description: 'Choose a color for this page',
       },
     }),
+    {
+      name: 'color',
+      type: 'text',
+      virtual: true,
+      hidden: true,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return siblingData.primaryColor || colorHash.hex(siblingData.slug)
+          },
+        ],
+      },
+    },
     {
       name: 'path',
       type: 'text',

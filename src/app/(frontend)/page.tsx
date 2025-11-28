@@ -41,7 +41,7 @@ export default async function HomePage() {
         select: {
           name: true,
           id: true,
-          slug: true,
+          isoA2: true,
         },
       }),
       payload.find({
@@ -104,9 +104,7 @@ export default async function HomePage() {
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={60}>
-            <div>
-              <EventList />
-            </div>
+            <EventList />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

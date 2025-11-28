@@ -2,13 +2,15 @@
 
 import { useCallback, useMemo } from 'react'
 import { useEventFilterContext } from './EventFilterContextProvider'
-import { RenderPlot, usePlotConfig } from './Plot'
+import { usePlotConfig } from './Plot'
+import dynamic from 'next/dynamic'
+const RenderPlot = dynamic(() => import('./Plot').then((mod) => mod.RenderPlot), { ssr: false })
 import { getCSSVariable } from '@/utils/css'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { EventInitiator } from '@/collections/enums'
 import { range } from 'd3-array'
 import { Category, Event } from '@/payload-types'
-// import { Map } from './Map/Map'
+import { Map } from './Map/Map'
 
 export function EventStats() {
   const [elementRef, size] = useElementSize()
@@ -27,7 +29,9 @@ export function EventStats() {
   )
   return (
     <div className="h-full grid grid-rows-5 gap-4 p-4">
-      <div className="row-span-3">{/* <Map data={filteredEvents} /> */}</div>
+      <div className="row-span-3">
+        <Map data={filteredEvents} />
+      </div>
       <div className="bg-white rounded-xl p-2">
         <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
         <div ref={elementRef} className="h-full w-full">
@@ -62,7 +66,7 @@ function FrequencyChart({
 }) {
   const { filteredEvents } = useEventFilterContext()
 
-  const workerActions = useMemo(() => {
+  const extraFilteredEvents = useMemo(() => {
     return filteredEvents.filter(eventFilter)
   }, [filteredEvents, eventFilter])
 
@@ -71,11 +75,11 @@ function FrequencyChart({
     const eventsPerYear = fullDomainOfYears.reduce(
       (acc, year) => {
         if (countBy === 'headcount') {
-          acc[year] = workerActions
+          acc[year] = extraFilteredEvents
             .filter((event) => new Date(event.date).getFullYear() === year)
             .reduce((acc, event) => acc + (event.headcount || 0), 0)
         } else {
-          acc[year] = workerActions.filter(
+          acc[year] = extraFilteredEvents.filter(
             (event) => new Date(event.date).getFullYear() === year,
           ).length
         }
@@ -87,7 +91,7 @@ function FrequencyChart({
       year: new Date(Number(year), 0, 1),
       [countBy]: events,
     }))
-  }, [workerActions, countBy])
+  }, [extraFilteredEvents, countBy])
 
   const plotConfig = usePlotConfig(
     (Plot) => {
@@ -114,6 +118,14 @@ function FrequencyChart({
     },
     [eventsPerYear, size.width, size.height, countBy],
   )
+
+  if (extraFilteredEvents.length === 0) {
+    return (
+      <div className="pt-5 w-full flex items-center justify-center">
+        <p className="text-gray-400 text-xs font-semibold">No events found</p>
+      </div>
+    )
+  }
 
   return <RenderPlot config={plotConfig} />
 }

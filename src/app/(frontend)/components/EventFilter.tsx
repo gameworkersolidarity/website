@@ -19,7 +19,7 @@ import {
   useYearFilter,
   useCompanyFilter,
   useUnionFilter,
-  useCountryFilter,
+  useCountryISOA2Filter,
 } from '@/utils/global-state'
 import { twMerge } from 'tailwind-merge'
 
@@ -40,7 +40,7 @@ export function EventFilter({
   // searchQuery,
   // setSearchQuery,
 }: EventFilterProps) {
-  const [countryFilter, setCountryFilter] = useCountryFilter()
+  const [countryISOA2Filter, setCountryISOA2Filter] = useCountryISOA2Filter()
   const [categoryFilter, setCategoryFilter] = useCategoryFilter()
   const [companyFilter, setCompanyFilter] = useCompanyFilter()
   const [unionFilter, setUnionFilter] = useUnionFilter()
@@ -60,15 +60,17 @@ export function EventFilter({
             placeholder="Filter country..."
             options={countries.map((country) => ({
               label: country.name,
-              value: country.slug,
+              value: country.isoA2,
             }))}
-            value={countryFilter || ''}
+            value={countryISOA2Filter || ''}
             onChange={(value) =>
-              value === countryFilter ? setCountryFilter(null) : setCountryFilter(value || null)
+              value === countryISOA2Filter
+                ? setCountryISOA2Filter(null)
+                : setCountryISOA2Filter(value || null)
             }
           />
-          {countryFilter && (
-            <div className="link text-xs mt-1" onClick={() => setCountryFilter(null)}>
+          {countryISOA2Filter && (
+            <div className="link text-xs mt-1" onClick={() => setCountryISOA2Filter(null)}>
               Reset ⤬
             </div>
           )}
@@ -199,7 +201,6 @@ function Select({
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
                   onSelect={() => {
                     onChange(option.value)
                     setOpen(false)
