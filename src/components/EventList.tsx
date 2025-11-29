@@ -37,7 +37,7 @@ export function EventList() {
 
   return (
     <div className="flex flex-col gap-2 @container">
-      <header className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 mt-4 sticky top-6 bg-background pt-3 pb-2 z-10">
+      <header className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 mt-1 sticky top-6 bg-background pt-3 pb-2 z-10">
         <div className="flex flex-col gap-2">
           <h2 className="text-4xl font-bold font-identity">{events.length} events</h2>
         </div>

@@ -12,7 +12,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import type { Country, Category, Company, OrganisingGroup } from '@/payload-types'
+import type { Country, Category, Company, OrganisingGroup, Campaign } from '@/payload-types'
 import { useState } from 'react'
 import {
   useCategoryFilter,
@@ -20,6 +20,7 @@ import {
   useCompanyFilter,
   useUnionFilter,
   useCountryISOA2Filter,
+  useCampaignFilter,
 } from '@/utils/global-state'
 import { twMerge } from 'tailwind-merge'
 import Emoji from 'a11y-react-emoji'
@@ -29,6 +30,7 @@ interface EventFilterProps {
   categories: Category[]
   companies: Company[]
   organisingGroups: OrganisingGroup[]
+  campaigns: Campaign[]
   // searchQuery: string
   // setSearchQuery: (value: string) => void
 }
@@ -38,6 +40,7 @@ export function EventFilter({
   categories,
   companies,
   organisingGroups,
+  campaigns,
   // searchQuery,
   // setSearchQuery,
 }: EventFilterProps) {
@@ -45,6 +48,7 @@ export function EventFilter({
   const [categoryFilter, setCategoryFilter] = useCategoryFilter()
   const [companyFilter, setCompanyFilter] = useCompanyFilter()
   const [unionFilter, setUnionFilter] = useUnionFilter()
+  const [campaignFilter, setCampaignFilter] = useCampaignFilter()
   const [yearFilter, setYearFilter] = useYearFilter()
 
   // Get unique years from all actions (we'll calculate this from context or pass as prop)
@@ -55,7 +59,7 @@ export function EventFilter({
   return (
     <div className="homepage-filters">
       <h2 className="filter-label mb-2 font-bold">Filter by</h2>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
         <div className="filter-group w-full">
           <Select
             placeholder="Filter country..."
@@ -133,6 +137,24 @@ export function EventFilter({
           />
           {unionFilter && (
             <div className="link text-xs mt-1" onClick={() => setUnionFilter(null)}>
+              Reset ⤬
+            </div>
+          )}
+        </div>
+        <div className="filter-group w-full">
+          <Select
+            placeholder="Filter campaign..."
+            options={campaigns.map((campaign) => ({
+              label: campaign.name,
+              value: campaign.slug,
+            }))}
+            value={campaignFilter || ''}
+            onChange={(value) =>
+              value === campaignFilter ? setCampaignFilter(null) : setCampaignFilter(value || null)
+            }
+          />
+          {campaignFilter && (
+            <div className="link text-xs mt-1" onClick={() => setCampaignFilter(null)}>
               Reset ⤬
             </div>
           )}

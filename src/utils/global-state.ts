@@ -38,6 +38,10 @@ export function useUnionFilter() {
   return useQueryState('union', { clearOnDefault: true })
 }
 
+export function useCampaignFilter() {
+  return useQueryState('campaign', { clearOnDefault: true })
+}
+
 export function useYearFilter() {
   return useQueryState('year', { clearOnDefault: true })
 }

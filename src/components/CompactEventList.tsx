@@ -12,7 +12,7 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Star, StarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -22,13 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import Emoji from 'a11y-react-emoji'
 import chroma from 'chroma-js'
 import { useAtom } from 'jotai/react'
 import { sortOrderAtom } from '@/utils/global-state'
+import pluralize from 'pluralize'
 
 export const columns: ColumnDef<Event>[] = [
   {
@@ -72,9 +73,25 @@ export const columns: ColumnDef<Event>[] = [
     cell: ({ cell, row }) => (
       <TableCell
         key={cell.id}
-        className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-sm font-medium"
+        className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-sm"
       >
-        <Link href={row.original.path!}>{row.getValue('name')}</Link>
+        <Link href={row.original.path!}>
+          <div className="font-medium">{row.getValue('name')}</div>
+          {row.original.campaigns?.docs?.length ? (
+            <div className="text-xs text-gray-500 flex items-center gap-1">
+              <Star fill="currentColor" className="w-3 h-3 text-snot-400" />
+              <span className="text-xs">Part of the</span>
+              <span className="italic font-medium">
+                {row.original.campaigns?.docs
+                  ?.map((campaign) => (campaign as Campaign).name)
+                  .join(', ')}
+              </span>{' '}
+              <span className="text-xs">
+                {pluralize('campaign', row.original.campaigns?.docs?.length)}
+              </span>
+            </div>
+          ) : null}
+        </Link>
       </TableCell>
     ),
   },

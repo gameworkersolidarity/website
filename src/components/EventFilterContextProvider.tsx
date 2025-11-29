@@ -1,12 +1,13 @@
 'use client'
 
-import type { Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import {
   useCategoryFilter,
   useYearFilter,
   useUnionFilter,
   useCompanyFilter,
   useCountryISOA2Filter,
+  useCampaignFilter,
 } from '@/utils/global-state'
 import { payloadClient } from '@/utils/payload'
 import { getYear } from 'date-fns'
@@ -18,6 +19,7 @@ export const EventFilterContext = createContext<{
   filteredCountry?: Country | null
   filteredCategory?: Category | null
   filteredCompany?: Company | null
+  filteredCampaign?: Campaign | null
   filteredUnion?: OrganisingGroup | null
   filteredYear?: number | null
 }>({
@@ -35,6 +37,7 @@ export function EventFilterContextProvider({
   const [filteredCategorySlug, setFilteredCategory] = useCategoryFilter()
   const [filteredCompanySlug, setFilteredCompany] = useCompanyFilter()
   const [filteredUnionSlug, setFilteredUnion] = useUnionFilter()
+  const [filteredCampaignSlug, setFilteredCampaign] = useCampaignFilter()
   const [filteredYear, setFilteredYear] = useYearFilter()
 
   const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () =>
@@ -55,6 +58,13 @@ export function EventFilterContextProvider({
     payloadClient.find({
       collection: 'companies',
       where: { slug: { equals: filteredCompanySlug } },
+    }),
+  )
+
+  const filteredCampaign = useSWR(`/api/campaigns/${filteredCampaignSlug}`, () =>
+    payloadClient.find({
+      collection: 'campaigns',
+      where: { slug: { equals: filteredCampaignSlug } },
     }),
   )
 
@@ -89,6 +99,13 @@ export function EventFilterContextProvider({
         ),
       )
     }
+    if (filteredCampaignSlug) {
+      filtered = filtered.filter((event) =>
+        event.campaigns?.docs?.some(
+          (campaign) => (campaign as Campaign).slug === filteredCampaignSlug,
+        ),
+      )
+    }
     if (filteredYear) {
       filtered = filtered.filter(
         (event) => getYear(new Date(event.date)) === parseInt(filteredYear),
@@ -101,6 +118,7 @@ export function EventFilterContextProvider({
     filteredCategorySlug,
     filteredCompanySlug,
     filteredUnionSlug,
+    filteredCampaignSlug,
     filteredYear,
   ])
 
@@ -112,6 +130,7 @@ export function EventFilterContextProvider({
         filteredCategory: filteredCategory.data?.docs?.[0] || null,
         filteredCompany: filteredCompany.data?.docs?.[0] || null,
         filteredUnion: filteredUnion.data?.docs?.[0] || null,
+        filteredCampaign: filteredCampaign.data?.docs?.[0] as Campaign | null,
         filteredYear: filteredYear ? parseInt(filteredYear) : null,
       }}
     >
@@ -126,6 +145,7 @@ export function useEventFilterContext() {
   const [categoryFilter, setCategoryFilter] = useCategoryFilter()
   const [companyFilter, setCompanyFilter] = useCompanyFilter()
   const [unionFilter, setUnionFilter] = useUnionFilter()
+  const [campaignFilter, setCampaignFilter] = useCampaignFilter()
   const [yearFilter, setYearFilter] = useYearFilter()
   return {
     ...context,
@@ -133,11 +153,13 @@ export function useEventFilterContext() {
     categoryFilter,
     companyFilter,
     unionFilter,
+    campaignFilter,
     yearFilter,
     setCountryISOA2Filter,
     setCategoryFilter,
     setCompanyFilter,
     setUnionFilter,
+    setCampaignFilter,
     setYearFilter,
   }
 }

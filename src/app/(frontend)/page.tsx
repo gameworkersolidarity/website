@@ -33,60 +33,65 @@ export default async function HomePage() {
   })
 
   // Fetch all filter options
-  const [countriesResult, categoriesResult, companiesResult, organisingGroupsResult] =
-    await Promise.all([
-      payload.find({
-        collection: 'countries',
-        pagination: false,
-        select: {
-          name: true,
-          id: true,
-          isoA2: true,
-        },
-        sort: ['name'],
-      }),
-      payload.find({
-        collection: 'categories',
-        pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-          emoji: true,
-        },
-        sort: ['name'],
-      }),
-      payload.find({
-        collection: 'companies',
-        pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-        },
-        sort: ['name'],
-      }),
-      payload.find({
-        collection: 'organisingGroups',
-        pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-        },
-        sort: ['name'],
-      }),
-      payload.find({
-        collection: 'campaigns',
-        pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-        },
-        sort: ['name'],
-      }),
-    ])
+  const [
+    countriesResult,
+    categoriesResult,
+    companiesResult,
+    organisingGroupsResult,
+    campaignResult,
+  ] = await Promise.all([
+    payload.find({
+      collection: 'countries',
+      pagination: false,
+      select: {
+        name: true,
+        id: true,
+        isoA2: true,
+      },
+      sort: ['name'],
+    }),
+    payload.find({
+      collection: 'categories',
+      pagination: false,
+      select: {
+        name: true,
+        id: true,
+        slug: true,
+        emoji: true,
+      },
+      sort: ['name'],
+    }),
+    payload.find({
+      collection: 'companies',
+      pagination: false,
+      select: {
+        name: true,
+        id: true,
+        slug: true,
+      },
+      sort: ['name'],
+    }),
+    payload.find({
+      collection: 'organisingGroups',
+      pagination: false,
+      select: {
+        name: true,
+        id: true,
+        slug: true,
+      },
+      sort: ['name'],
+    }),
+    payload.find({
+      collection: 'campaigns',
+      pagination: false,
+      select: {
+        name: true,
+        id: true,
+        slug: true,
+      },
+      sort: ['name'],
+    }),
+  ])
 
   return (
     <EventFilterContextProvider events={eventsResult.docs}>
@@ -97,6 +102,7 @@ export default async function HomePage() {
             categories={categoriesResult.docs}
             companies={companiesResult.docs}
             organisingGroups={organisingGroupsResult.docs}
+            campaigns={campaignResult.docs}
             // searchQuery={searchQuery}
             // setSearchQuery={setSearchQuery}
           />
