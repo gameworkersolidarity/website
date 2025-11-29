@@ -4,6 +4,8 @@ const coordsByCountry = coords.byCountry()
 import { toBBOX } from 'country-to-bbox'
 import countryFlagEmoji from 'country-flag-emoji'
 import i18nIsoCountries from 'i18n-iso-countries'
+import { projectStrings } from '@/project-strings'
+import qs from 'query-string'
 
 export const getViewportForFeatures = (
   viewport: ConstructorParameters<typeof WebMercatorViewport>[0],
@@ -87,4 +89,106 @@ export const getLatLngForCountry = (isoA2: string) => {
     latitude: result.latitude,
     longitude: result.longitude,
   }
+}
+
+export const geocodeOpenStreetMap = async (location: string, iso2: string) => {
+  const url = qs.stringifyUrl({
+    url: `https://nominatim.openstreetmap.org/search.php`,
+    query: {
+      q: location,
+      countrycodes: iso2,
+      format: 'jsonv2',
+      'accept-language': 'en-GB',
+      limit: 1,
+      email: projectStrings.email,
+    },
+  })
+  const res = await fetch(url)
+  const data = await res.json()
+  return data?.[0] as Promise<OpenStreetMapReverseGeocodeResponse | null>
+}
+
+export interface OpenStreetMapReverseGeocodeResponse {
+  place_id: number
+  licence: string
+  osm_type: string
+  osm_id: number
+  lat: string
+  lon: string
+  place_rank: number
+  category: string
+  type: string
+  importance: number
+  addresstype?: string
+  name?: string
+  display_name: string
+  address?: Address
+  boundingbox: string[]
+}
+
+export interface Address {
+  continent?: string
+
+  country?: string
+  country_code?: string
+
+  region?: string
+  state?: string
+  state_district?: string
+  county?: string
+
+  municipality?: string
+  city?: string
+  town?: string
+  village?: string
+
+  city_district?: string
+  district?: string
+  borough?: string
+  suburb?: string
+  subdivision?: string
+
+  hamlet?: string
+  croft?: string
+  isolated_dwelling?: string
+
+  neighbourhood?: string
+  allotments?: string
+  quarter?: string
+
+  city_block?: string
+  residental?: string
+  farm?: string
+  farmyard?: string
+  industrial?: string
+  commercial?: string
+  retail?: string
+
+  road?: string
+
+  house_number?: string
+  house_name?: string
+
+  emergency?: string
+  historic?: string
+  military?: string
+  natural?: string
+  landuse?: string
+  place?: string
+  railway?: string
+  man_made?: string
+  aerialway?: string
+  boundary?: string
+  amenity?: string
+  aeroway?: string
+  club?: string
+  craft?: string
+  leisure?: string
+  office?: string
+  mountain_pass?: string
+  shop?: string
+  tourism?: string
+  bridge?: string
+  tunnel?: string
+  waterway?: string
 }
