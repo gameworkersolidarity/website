@@ -12,6 +12,8 @@ import {
   useInitiatorFilter,
 } from '@/utils/global-state'
 import { payloadClient } from '@/utils/payload'
+import { ArchiveBreadcrumb } from '@/utils/payloadTree'
+import { getDescendants } from '@/utils/payloadTree.client'
 import { getYear } from 'date-fns'
 import { createContext, useContext, useMemo } from 'react'
 import useSWR from 'swr'
@@ -20,9 +22,9 @@ export const EventFilterContext = createContext<{
   filteredEvents: Event[]
   filteredCountry?: Country | null
   filteredCategory?: Category | null
-  filteredCompany?: Company | null
+  filteredCompany?: (Company & { descendants: ArchiveBreadcrumb[] }) | null
   filteredCampaign?: Campaign | null
-  filteredUnion?: OrganisingGroup | null
+  filteredUnion?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] }) | null
   filteredInitiator?: EventInitiator | null
   filteredYear?: number | null
 }>({
@@ -44,40 +46,73 @@ export function EventFilterContextProvider({
   const [filteredInitiator, setFilteredInitiator] = useInitiatorFilter()
   const [filteredYear, setFilteredYear] = useYearFilter()
 
-  const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () =>
-    payloadClient.find({
+  const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () => {
+    if (!filteredCountryISOA2) {
+      return null
+    }
+
+    return payloadClient.find({
       collection: 'countries',
       where: { isoA2: { equals: filteredCountryISOA2 } },
-    }),
-  )
+    })
+  })
 
-  const filteredCategory = useSWR(`/api/categories/${filteredCategorySlug}`, () =>
-    payloadClient.find({
+  const filteredCategory = useSWR(`/api/categories/${filteredCategorySlug}`, () => {
+    if (!filteredCategorySlug) {
+      return null
+    }
+
+    return payloadClient.find({
       collection: 'categories',
       where: { slug: { equals: filteredCategorySlug } },
-    }),
-  )
+    })
+  })
 
-  const filteredCompany = useSWR(`/api/companies/${filteredCompanySlug}`, () =>
-    payloadClient.find({
+  const filteredCompany = useSWR(`/api/companies/${filteredCompanySlug}`, async () => {
+    if (!filteredCompanySlug) {
+      return null
+    }
+
+    const company = await payloadClient.find({
       collection: 'companies',
       where: { slug: { equals: filteredCompanySlug } },
-    }),
-  )
+    })
 
-  const filteredCampaign = useSWR(`/api/campaigns/${filteredCampaignSlug}`, () =>
-    payloadClient.find({
+    const descendants = await getDescendants('companies', company.docs?.[0]?.slug || '')
+
+    return {
+      ...company.docs?.[0],
+      descendants,
+    }
+  })
+
+  const filteredCampaign = useSWR(`/api/campaigns/${filteredCampaignSlug}`, () => {
+    if (!filteredCampaignSlug) {
+      return null
+    }
+    return payloadClient.find({
       collection: 'campaigns',
       where: { slug: { equals: filteredCampaignSlug } },
-    }),
-  )
+    })
+  })
 
-  const filteredUnion = useSWR(`/api/organising-groups/${filteredUnionSlug}`, () =>
-    payloadClient.find({
+  const filteredUnion = useSWR(`/api/organising-groups/${filteredUnionSlug}`, async () => {
+    if (!filteredUnionSlug) {
+      return null
+    }
+
+    const union = await payloadClient.find({
       collection: 'organisingGroups',
       where: { slug: { equals: filteredUnionSlug } },
-    }),
-  )
+    })
+
+    const descendants = await getDescendants('organisingGroups', union.docs?.[0]?.slug || '')
+
+    return {
+      ...union.docs?.[0],
+      descendants,
+    }
+  })
 
   const filteredEvents = useMemo(() => {
     let filtered = [...events]
@@ -136,8 +171,8 @@ export function EventFilterContextProvider({
         filteredEvents,
         filteredCountry: filteredCountry.data?.docs?.[0] || null,
         filteredCategory: filteredCategory.data?.docs?.[0] || null,
-        filteredCompany: filteredCompany.data?.docs?.[0] || null,
-        filteredUnion: filteredUnion.data?.docs?.[0] || null,
+        filteredCompany: filteredCompany.data || null,
+        filteredUnion: filteredUnion.data || null,
         filteredCampaign: filteredCampaign.data?.docs?.[0] as Campaign | null,
         filteredInitiator: filteredInitiator || null,
         filteredYear: filteredYear ? parseInt(filteredYear) : null,

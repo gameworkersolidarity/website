@@ -377,15 +377,20 @@ export interface Company {
    */
   primaryColor?: string | null;
   /**
-   * Child/subsidiary companies
-   */
-  children?: (string | Company)[] | null;
-  /**
    * Countries where this company has workers.
    */
   countries?: (string | Country)[] | null;
   path?: string;
   url?: string;
+  parent?: (string | null) | Company;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Company;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -428,6 +433,7 @@ export interface Category {
    * Choose a color for this page
    */
   primaryColor?: string | null;
+  color?: string;
   path?: string;
   url?: string;
   updatedAt: string;
@@ -484,12 +490,17 @@ export interface OrganisingGroup {
   website?: string | null;
   bluesky?: string | null;
   twitter?: string | null;
-  /**
-   * Child/sub-organising groups
-   */
-  children?: (string | OrganisingGroup)[] | null;
   path?: string;
   url?: string;
+  parent?: (string | null) | OrganisingGroup;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | OrganisingGroup;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -558,10 +569,6 @@ export interface Event {
    * Legacy Airtable ID for url redirects.
    */
   airtableId?: string | null;
-  /**
-   * Source of this event.
-   */
-  source?: string | null;
   description?: {
     root: {
       type: string;
@@ -577,20 +584,33 @@ export interface Event {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Internal notes on where this data came from. Will be prefilled in the case of automatic ingestions from other datasets.
+   */
+  source?: string | null;
   date: string;
-  location?: string | null;
+  /**
+   * What kind of event is this?
+   */
+  categories?: (string | Category)[] | null;
   /**
    * How many workers were involved in, or affected by, this event.
    */
   headcount?: number | null;
-  link?: string | null;
-  documents?: (string | Media)[] | null;
   /**
    * Who led this? Used to decide whether to display the event on timelines and so on.
    */
   initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null;
-  categories?: (string | Category)[] | null;
+  /**
+   * Third party URL that evidences this event.
+   */
+  link?: string | null;
+  documents?: (string | Media)[] | null;
+  location?: string | null;
   countries?: (string | Country)[] | null;
+  /**
+   * Coordinates of the event. Will be automatically populated if the location, or country, is provided.
+   */
   coordinates?: {
     latitude: number;
     longitude: number;
@@ -946,10 +966,18 @@ export interface CompaniesSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
-  children?: T;
   countries?: T;
   path?: T;
   url?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -968,6 +996,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  color?: T;
   path?: T;
   url?: T;
   updatedAt?: T;
@@ -994,9 +1023,17 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   website?: T;
   bluesky?: T;
   twitter?: T;
-  children?: T;
   path?: T;
   url?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1031,15 +1068,15 @@ export interface EventsSelect<T extends boolean = true> {
   slug?: T;
   name?: T;
   airtableId?: T;
-  source?: T;
   description?: T;
+  source?: T;
   date?: T;
-  location?: T;
+  categories?: T;
   headcount?: T;
+  initiator?: T;
   link?: T;
   documents?: T;
-  initiator?: T;
-  categories?: T;
+  location?: T;
   countries?: T;
   coordinates?: T;
   companies?: T;

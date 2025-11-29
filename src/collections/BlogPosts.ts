@@ -1,9 +1,6 @@
 import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
-
-function getPath(siblingData: { slug: string }) {
-  return `/blog/${siblingData.slug}`
-}
+import { getPath } from '@/utils/payloadPath'
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blogPosts',
@@ -17,7 +14,7 @@ export const BlogPosts: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'blogPosts',
-        path: getPath({ slug }),
+        path: getPath('blogPosts', { slug }),
         previewSecret,
       })
 
@@ -90,7 +87,7 @@ export const BlogPosts: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath(siblingData as unknown as { slug: string })
+            return getPath('blogPosts', { slug: siblingData.slug })
           },
         ],
       },
@@ -105,7 +102,7 @@ export const BlogPosts: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath(siblingData as unknown as { slug: string }),
+              getPath('blogPosts', { slug: siblingData.slug }),
               projectStrings.baseUrl,
             ).toString()
           },

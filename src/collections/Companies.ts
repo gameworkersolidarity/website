@@ -1,10 +1,7 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
-
-function getPath(siblingData: { slug: string }) {
-  return `/companies/${siblingData.slug}`
-}
+import { getPath } from '@/utils/payloadPath'
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
@@ -21,7 +18,7 @@ export const Companies: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'companies',
-        path: getPath({ slug }),
+        path: getPath('companies', { slug }),
         previewSecret,
       })
 
@@ -40,6 +37,41 @@ export const Companies: CollectionConfig = {
     },
   },
   fields: [
+    // {
+    //   name: 'descendants',
+    //   virtual: true,
+    //   type: 'json',
+    //   hooks: {
+    //     afterRead: [
+    //       async ({ siblingData }) => {
+    //         const breadcrumbDictionary = new Map<string, Omit<Breadcrumb, 'doc'>>()
+    //         for (const breadcrumb of siblingData.breadcrumbs) {
+    //           breadcrumbDictionary.set(breadcrumb.doc, breadcrumb)
+    //         }
+    //         const payloadConfig = await config
+    //         const payload = await getPayload({ config: payloadConfig })
+    //         const instances = await payload.find({
+    //           collection: 'companies',
+    //           where: {
+    //             'breadcrumbs.url': {
+    //               contains: `/${siblingData.slug}`,
+    //             },
+    //           },
+    //         })
+    //         // const instances = { docs: [] as any }
+    //         for (const instance of instances.docs) {
+    //           for (const breadcrumb of instance.breadcrumbs || []) {
+    //             const docId = typeof breadcrumb.doc === 'string' ? breadcrumb.doc : breadcrumb.id
+    //             if (docId) {
+    //               breadcrumbDictionary.set(docId, breadcrumb as any)
+    //             }
+    //           }
+    //         }
+    //         return Array.from(breadcrumbDictionary.values())
+    //       },
+    //     ],
+    //   },
+    // },
     {
       name: 'airtableId',
       type: 'text',
@@ -81,15 +113,6 @@ export const Companies: CollectionConfig = {
       },
     }),
     {
-      name: 'children',
-      type: 'relationship',
-      relationTo: 'companies',
-      hasMany: true,
-      admin: {
-        description: 'Child/subsidiary companies',
-      },
-    },
-    {
       name: 'countries',
       type: 'relationship',
       relationTo: 'countries',
@@ -107,7 +130,7 @@ export const Companies: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath(siblingData as unknown as { slug: string })
+            return getPath('companies', { slug: siblingData.slug })
           },
         ],
       },
@@ -122,7 +145,7 @@ export const Companies: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath(siblingData as unknown as { slug: string }),
+              getPath('companies', { slug: siblingData.slug }),
               projectStrings.baseUrl,
             ).toString()
           },

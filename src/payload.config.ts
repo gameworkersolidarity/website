@@ -21,6 +21,9 @@ import env from 'env-var'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { openapi, scalar } from 'payload-oapi'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
+import { Company, OrganisingGroup } from './payload-types'
+import { projectStrings } from './project-strings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -99,12 +102,17 @@ export default buildConfig({
     url: env.get('MONGODB_URL').required().asString(),
   }),
   plugins: [
+    nestedDocsPlugin({
+      collections: ['companies', 'organisingGroups'],
+      // For querying descendants and ascendants
+      generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
+    }),
     openapi({
       openapiVersion: '3.0',
       metadata: {
         title: 'Game Workers Solidarity Platform API',
         version: '1.0.0',
-        description: 'OpenAPI specification for the Game Workers Solidarity Platform',
+        description: `Free, public API for querying the Game Workers Solidarity archival database. Please let us know how you use it! ${projectStrings.email}`,
       },
     }),
     scalar({

@@ -1,10 +1,7 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
-
-function getPath(siblingData: { slug: string }) {
-  return `/campaigns/${siblingData.slug}`
-}
+import { getPath } from '@/utils/payloadPath'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
@@ -22,7 +19,7 @@ export const Campaigns: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'campaigns',
-        path: getPath({ slug }),
+        path: getPath('campaigns', { slug }),
         previewSecret,
       })
 
@@ -109,7 +106,7 @@ export const Campaigns: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath(siblingData as unknown as { slug: string })
+            return getPath('campaigns', { slug: siblingData.slug })
           },
         ],
       },
@@ -124,7 +121,7 @@ export const Campaigns: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath(siblingData as unknown as { slug: string }),
+              getPath('campaigns', { slug: siblingData.slug }),
               projectStrings.baseUrl,
             ).toString()
           },

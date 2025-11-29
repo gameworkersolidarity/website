@@ -8,6 +8,7 @@ import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Country, OrganisingGroup } from '@/payload-types'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
+import { getDescendants } from '@/utils/payloadTree.server'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -178,8 +179,20 @@ export default async function CompanyPage({ params }: Props) {
   const uniqueCountries = Array.from(countriesSet.values())
   const uniqueOrganisingGroups = Array.from(organisingGroupsSet.values())
 
+  const descendants = await getDescendants('companies', company.slug)
+
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+      <pre>DESCENDANTS: {JSON.stringify(descendants, null, 2)}</pre>
+
+      <h3>Company tree</h3>
+      <pre>{JSON.stringify(company.breadcrumbs, null, 2)}</pre>
+      {company.breadcrumbs?.map((breadcrumb) => (
+        <Link href={breadcrumb.url!} key={breadcrumb.id}>
+          {breadcrumb.url}
+        </Link>
+      ))}
+
       <Link
         href="/companies"
         style={{

@@ -1,12 +1,7 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
-import ColorHash from 'color-hash'
-const colorHash = new ColorHash()
-
-function getPath(siblingData: { slug: string }) {
-  return `/categories/${siblingData.slug}`
-}
+import { getPath } from '@/utils/payloadPath'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -23,7 +18,7 @@ export const Categories: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'categories',
-        path: getPath({ slug }),
+        path: getPath('categories', { slug }),
         previewSecret,
       })
 
@@ -96,7 +91,7 @@ export const Categories: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return siblingData.primaryColor || colorHash.hex(siblingData.slug)
+            return siblingData.primaryColor
           },
         ],
       },
@@ -110,7 +105,7 @@ export const Categories: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath(siblingData as unknown as { slug: string })
+            return getPath('categories', { slug: siblingData.slug })
           },
         ],
       },
@@ -125,7 +120,7 @@ export const Categories: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath(siblingData as unknown as { slug: string }),
+              getPath('categories', { slug: siblingData.slug }),
               projectStrings.baseUrl,
             ).toString()
           },

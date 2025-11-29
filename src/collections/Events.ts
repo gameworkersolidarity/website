@@ -1,13 +1,9 @@
 import { getPayload, slugField, type CollectionConfig } from 'payload'
 import { EventInitiator } from './enums'
 import { projectStrings } from '@/project-strings'
-import { Country } from '@/payload-types'
-import { geocodeOpenStreetMap, getLatLngForCountry } from '@/utils/geo'
+import { geocodeOpenStreetMap } from '@/utils/geo'
 import config from '@/payload.config'
-
-function getPath(siblingData: { slug: string }) {
-  return `/events/${siblingData.slug}`
-}
+import { getPath } from '@/utils/payloadPath'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -25,7 +21,7 @@ export const Events: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'events',
-        path: getPath({ slug }),
+        path: getPath('events', { slug }),
         previewSecret,
       })
 
@@ -265,7 +261,7 @@ export const Events: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath(siblingData as unknown as { slug: string })
+            return getPath('events', { slug: siblingData.slug })
           },
         ],
       },
@@ -280,7 +276,7 @@ export const Events: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath(siblingData as unknown as { slug: string }),
+              getPath('events', { slug: siblingData.slug }),
               projectStrings.baseUrl,
             ).toString()
           },

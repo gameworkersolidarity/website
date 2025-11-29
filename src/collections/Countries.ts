@@ -4,10 +4,7 @@ import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { getCountryFlag } from '@/utils/iso'
 import { projectStrings } from '@/project-strings'
 import { getBboxForCountry, getIsoA3ForCountry, getLatLngForCountry } from '@/utils/geo'
-
-function getPath(siblingData: { slug: string }) {
-  return `/countries/${siblingData.slug}`
-}
+import { getPath } from '@/utils/payloadPath'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -24,7 +21,7 @@ export const Countries: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'countries',
-        path: getPath({ slug }),
+        path: getPath('countries', { slug }),
         previewSecret,
       })
 
@@ -166,7 +163,7 @@ export const Countries: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath(siblingData as unknown as { slug: string })
+            return getPath('countries', { slug: siblingData.slug })
           },
         ],
       },
@@ -181,7 +178,7 @@ export const Countries: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath(siblingData as unknown as { slug: string }),
+              getPath('countries', { slug: siblingData.slug }),
               projectStrings.baseUrl,
             ).toString()
           },
