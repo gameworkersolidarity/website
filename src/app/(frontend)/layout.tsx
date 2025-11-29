@@ -4,6 +4,7 @@ import config from '@/payload.config'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
+import '@/app/globals.css'
 
 export const metadata = {
   description:
@@ -42,10 +43,24 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="flex flex-col min-h-screen">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={
+            <div>
+              <Header navigation={headerData?.navigation || []} />
+              <main className="min-h-[75vh]">
+                <div className="flex flex-col min-h-screen items-center justify-center bg-snot-200">
+                  <div className="text-base font-semibold opacity-75">Loading...</div>
+                </div>
+              </main>
+              <div className="margin-top">
+                <Footer navigation={footerData?.navigation || []} />
+              </div>
+            </div>
+          }
+        >
           <NuqsAdapter>
             <Header navigation={headerData?.navigation || []} />
-            <main className="min-h-[85vh]">{children}</main>
+            <main className="min-h-[75vh]">{children}</main>
             <div className="margin-top">
               <Footer navigation={footerData?.navigation || []} />
             </div>

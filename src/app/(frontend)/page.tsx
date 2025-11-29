@@ -2,7 +2,6 @@ import { getPayload } from 'payload'
 
 import { EventFilter } from './components/EventFilter'
 import config from '@/payload.config'
-import '@/app/globals.css'
 import { draftMode } from 'next/headers'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventList } from '@/components/EventList'
