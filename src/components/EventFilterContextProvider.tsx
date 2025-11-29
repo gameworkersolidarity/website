@@ -1,5 +1,6 @@
 'use client'
 
+import { EventInitiator } from '@/collections/enums'
 import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import {
   useCategoryFilter,
@@ -8,6 +9,7 @@ import {
   useCompanyFilter,
   useCountryISOA2Filter,
   useCampaignFilter,
+  useInitiatorFilter,
 } from '@/utils/global-state'
 import { payloadClient } from '@/utils/payload'
 import { getYear } from 'date-fns'
@@ -21,6 +23,7 @@ export const EventFilterContext = createContext<{
   filteredCompany?: Company | null
   filteredCampaign?: Campaign | null
   filteredUnion?: OrganisingGroup | null
+  filteredInitiator?: EventInitiator | null
   filteredYear?: number | null
 }>({
   filteredEvents: [],
@@ -38,6 +41,7 @@ export function EventFilterContextProvider({
   const [filteredCompanySlug, setFilteredCompany] = useCompanyFilter()
   const [filteredUnionSlug, setFilteredUnion] = useUnionFilter()
   const [filteredCampaignSlug, setFilteredCampaign] = useCampaignFilter()
+  const [filteredInitiator, setFilteredInitiator] = useInitiatorFilter()
   const [filteredYear, setFilteredYear] = useYearFilter()
 
   const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () =>
@@ -106,6 +110,9 @@ export function EventFilterContextProvider({
         ),
       )
     }
+    if (filteredInitiator) {
+      filtered = filtered.filter((event) => event.initiator === filteredInitiator)
+    }
     if (filteredYear) {
       filtered = filtered.filter(
         (event) => getYear(new Date(event.date)) === parseInt(filteredYear),
@@ -119,6 +126,7 @@ export function EventFilterContextProvider({
     filteredCompanySlug,
     filteredUnionSlug,
     filteredCampaignSlug,
+    filteredInitiator,
     filteredYear,
   ])
 
@@ -131,6 +139,7 @@ export function EventFilterContextProvider({
         filteredCompany: filteredCompany.data?.docs?.[0] || null,
         filteredUnion: filteredUnion.data?.docs?.[0] || null,
         filteredCampaign: filteredCampaign.data?.docs?.[0] as Campaign | null,
+        filteredInitiator: filteredInitiator || null,
         filteredYear: filteredYear ? parseInt(filteredYear) : null,
       }}
     >
@@ -146,6 +155,7 @@ export function useEventFilterContext() {
   const [companyFilter, setCompanyFilter] = useCompanyFilter()
   const [unionFilter, setUnionFilter] = useUnionFilter()
   const [campaignFilter, setCampaignFilter] = useCampaignFilter()
+  const [initiatorFilter, setInitiatorFilter] = useInitiatorFilter()
   const [yearFilter, setYearFilter] = useYearFilter()
   return {
     ...context,
@@ -155,11 +165,13 @@ export function useEventFilterContext() {
     unionFilter,
     campaignFilter,
     yearFilter,
+    initiatorFilter,
     setCountryISOA2Filter,
     setCategoryFilter,
     setCompanyFilter,
     setUnionFilter,
     setCampaignFilter,
     setYearFilter,
+    setInitiatorFilter,
   }
 }

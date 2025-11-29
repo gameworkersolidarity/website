@@ -88,7 +88,11 @@ export const Categories: CollectionConfig = {
       name: 'color',
       type: 'text',
       virtual: true,
-      hidden: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
       hooks: {
         afterRead: [
           ({ siblingData }) => {

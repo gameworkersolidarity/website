@@ -1,7 +1,8 @@
+import { EventInitiator } from '@/collections/enums'
 import { SortingState } from '@tanstack/react-table'
 import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
-import { useQueryState } from 'nuqs'
+import { parseAsStringEnum, useQueryState } from 'nuqs'
 
 export enum ZoomLevel {
   Compact = 'compact',
@@ -40,6 +41,15 @@ export function useUnionFilter() {
 
 export function useCampaignFilter() {
   return useQueryState('campaign', { clearOnDefault: true })
+}
+
+export function useInitiatorFilter() {
+  return useQueryState(
+    'initiator',
+    parseAsStringEnum<EventInitiator>(Object.values(EventInitiator)).withOptions({
+      clearOnDefault: true,
+    }),
+  )
 }
 
 export function useYearFilter() {

@@ -11,15 +11,17 @@ import { EventInitiator } from '@/collections/enums'
 import { range } from 'd3-array'
 import { Category, Event } from '@/payload-types'
 import { Map } from './Map/Map'
+import { twMerge } from 'tailwind-merge'
 
 export function EventStats() {
   const [elementRef, size] = useElementSize()
-  const { filteredEvents } = useEventFilterContext()
+  const { filteredEvents, initiatorFilter } = useEventFilterContext()
 
   const workerEventsFilter = useCallback(
     (event: Event) => event.initiator === EventInitiator.WORKER_LED,
     [],
   )
+
   const redundancyFilter = useCallback(
     (event: Event) =>
       (event.initiator === EventInitiator.BOSS_LED &&
@@ -27,28 +29,56 @@ export function EventStats() {
       false,
     [],
   )
+
+  const extraFilteredEvents = useMemo(() => {
+    if (initiatorFilter === EventInitiator.BOSS_LED) {
+      return filteredEvents.filter(redundancyFilter)
+    } else {
+      return filteredEvents.filter(workerEventsFilter)
+    }
+  }, [filteredEvents, workerEventsFilter, redundancyFilter, initiatorFilter])
+
   return (
     <div className="h-full grid grid-rows-5 gap-4 p-4">
-      <div className="row-span-3">
-        <Map data={filteredEvents} />
+      <div className={twMerge(initiatorFilter ? 'row-span-4' : 'row-span-3')}>
+        <Map
+          data={extraFilteredEvents}
+          colorRange={
+            initiatorFilter === EventInitiator.BOSS_LED
+              ? [
+                  getCSSVariable(`--color-orange-50`, true),
+                  getCSSVariable(`--color-orange-200`, true),
+                  getCSSVariable(`--color-gw-orange`, true),
+                ]
+              : [
+                  getCSSVariable(`--color-blue-50`, true),
+                  getCSSVariable(`--color-blue-200`, true),
+                  getCSSVariable(`--color-gw-blue`, true),
+                ]
+          }
+        />
       </div>
-      <div className="bg-white rounded-xl p-2">
-        <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
-        <div ref={elementRef} className="h-full w-full">
-          <FrequencyChart size={size} eventFilter={workerEventsFilter} color="--color-gw-pink" />
+      {(initiatorFilter === EventInitiator.WORKER_LED || !initiatorFilter) && (
+        <div className="bg-white rounded-xl p-2">
+          <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
+          <div ref={elementRef} className="h-full w-full">
+            <FrequencyChart size={size} eventFilter={workerEventsFilter} color="--color-gw-blue" />
+          </div>
         </div>
-      </div>
-      <div className="bg-white rounded-xl p-2">
-        <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
-        <div ref={elementRef} className="h-full w-full">
-          <FrequencyChart
-            size={size}
-            countBy="headcount"
-            eventFilter={redundancyFilter}
-            color="--color-gw-blue"
-          />
+      )}
+      {(initiatorFilter === EventInitiator.BOSS_LED || !initiatorFilter) && (
+        <div className="bg-white rounded-xl p-2">
+          <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
+          <div ref={elementRef} className="h-full w-full">
+            <FrequencyChart
+              size={size}
+              countBy="headcount"
+              eventFilter={redundancyFilter}
+              color="--color-gw-orange"
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

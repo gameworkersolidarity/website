@@ -57,12 +57,14 @@ function createIdFromActions(actions: Event[]) {
 export function Map({
   data,
   onSelectCountry,
+  colorRange,
   ...initialViewport
 }: {
   data: Event[]
   width?: any
   height?: any
   onSelectCountry?: (iso2id: string | null) => void
+  colorRange?: string[]
 }) {
   const [viewport, setViewport] = useState({
     ...defaultViewport,
@@ -92,11 +94,7 @@ export function Map({
     const colorScale = scalePow()
       .exponent(0.5)
       .domain([min(domain), median(domain), max(domain)] as number[])
-      .range([
-        getCSSVariable(`--color-gw-blue`, true),
-        getCSSVariable(`--color-gw-pink`, true),
-        getCSSVariable(`--color-gw-orange`, true),
-      ] as any)
+      .range(colorRange as any)
 
     for (const code in counts) {
       const count = counts[code]
@@ -194,9 +192,9 @@ export function Map({
     }
   }, [allActionsSingleCountry, viewport, setViewport])
 
-  // useEffect(() => {
-  //   calculateViewportForActions()
-  // }, [calculateViewportForActions])
+  useEffect(() => {
+    calculateViewportForActions()
+  }, [calculateViewportForActions, data])
 
   const [openPopupId, setSelectedPopup] = useState<null | string>(null)
 

@@ -21,9 +21,12 @@ import {
   useUnionFilter,
   useCountryISOA2Filter,
   useCampaignFilter,
+  useInitiatorFilter,
 } from '@/utils/global-state'
 import { twMerge } from 'tailwind-merge'
 import Emoji from 'a11y-react-emoji'
+import { EventInitiator } from '@/collections/enums'
+import { DisplayInitiator } from '@/utils/displayInitiator'
 
 interface EventFilterProps {
   countries: Country[]
@@ -49,6 +52,7 @@ export function EventFilter({
   const [companyFilter, setCompanyFilter] = useCompanyFilter()
   const [unionFilter, setUnionFilter] = useUnionFilter()
   const [campaignFilter, setCampaignFilter] = useCampaignFilter()
+  const [initiatorFilter, setInitiatorFilter] = useInitiatorFilter()
   const [yearFilter, setYearFilter] = useYearFilter()
 
   // Get unique years from all actions (we'll calculate this from context or pass as prop)
@@ -58,11 +62,35 @@ export function EventFilter({
 
   return (
     <div className="homepage-filters">
-      <h2 className="filter-label mb-2 font-bold">Filter by</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
+      <div className="flex flex-row items-baseline gap-2 mb-2">
+        <h2 className="font-bold">Filter by</h2>
+        {(countryISOA2Filter ||
+          categoryFilter ||
+          companyFilter ||
+          unionFilter ||
+          campaignFilter ||
+          initiatorFilter ||
+          yearFilter) && (
+          <div
+            className="link"
+            onClick={() => {
+              setCountryISOA2Filter(null)
+              setCategoryFilter(null)
+              setCompanyFilter(null)
+              setUnionFilter(null)
+              setCampaignFilter(null)
+              setInitiatorFilter(null)
+              setYearFilter(null)
+            }}
+          >
+            clear filters ⤬
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 w-full">
         <div className="filter-group w-full">
           <Select
-            placeholder="Filter country..."
+            placeholder="country..."
             options={countries.map((country) => ({
               label: country.name,
               value: country.isoA2,
@@ -74,15 +102,10 @@ export function EventFilter({
                 : setCountryISOA2Filter(value || null)
             }
           />
-          {countryISOA2Filter && (
-            <div className="link text-xs mt-1" onClick={() => setCountryISOA2Filter(null)}>
-              Reset ⤬
-            </div>
-          )}
         </div>
         <div className="filter-group w-full">
           <Select
-            placeholder="Filter category..."
+            placeholder="category..."
             options={categories.map((category) => ({
               label: category.name,
               value: category.slug,
@@ -99,15 +122,10 @@ export function EventFilter({
               value === categoryFilter ? setCategoryFilter(null) : setCategoryFilter(value || null)
             }
           />
-          {categoryFilter && (
-            <div className="link text-xs mt-1" onClick={() => setCategoryFilter(null)}>
-              Reset ⤬
-            </div>
-          )}
         </div>
         <div className="filter-group w-full">
           <Select
-            placeholder="Filter company..."
+            placeholder="company..."
             options={companies.map((company) => ({
               label: company.name,
               value: company.slug,
@@ -117,15 +135,10 @@ export function EventFilter({
               value === companyFilter ? setCompanyFilter(null) : setCompanyFilter(value || null)
             }
           />
-          {companyFilter && (
-            <div className="link text-xs mt-1" onClick={() => setCompanyFilter(null)}>
-              Reset ⤬
-            </div>
-          )}
         </div>
         <div className="filter-group w-full">
           <Select
-            placeholder="Filter union..."
+            placeholder="union..."
             options={organisingGroups.map((group) => ({
               label: group.name,
               value: group.slug,
@@ -135,15 +148,10 @@ export function EventFilter({
               value === unionFilter ? setUnionFilter(null) : setUnionFilter(value || null)
             }
           />
-          {unionFilter && (
-            <div className="link text-xs mt-1" onClick={() => setUnionFilter(null)}>
-              Reset ⤬
-            </div>
-          )}
         </div>
         <div className="filter-group w-full">
           <Select
-            placeholder="Filter campaign..."
+            placeholder="campaign..."
             options={campaigns.map((campaign) => ({
               label: campaign.name,
               value: campaign.slug,
@@ -153,15 +161,10 @@ export function EventFilter({
               value === campaignFilter ? setCampaignFilter(null) : setCampaignFilter(value || null)
             }
           />
-          {campaignFilter && (
-            <div className="link text-xs mt-1" onClick={() => setCampaignFilter(null)}>
-              Reset ⤬
-            </div>
-          )}
         </div>
         <div className="filter-group w-full">
           <Select
-            placeholder="Filter year..."
+            placeholder="year..."
             options={years.map((year) => ({
               label: year.toString(),
               value: year.toString(),
@@ -171,11 +174,22 @@ export function EventFilter({
               value === yearFilter ? setYearFilter(null) : setYearFilter(value || null)
             }
           />
-          {yearFilter && (
-            <div className="link text-xs mt-1" onClick={() => setYearFilter(null)}>
-              Reset ⤬
-            </div>
-          )}
+        </div>
+        <div className="filter-group w-full">
+          <Select
+            placeholder="initiator..."
+            options={Object.values(EventInitiator).map((initiator) => ({
+              label: initiator.charAt(0).toUpperCase() + initiator.slice(1),
+              value: initiator,
+            }))}
+            renderLabel={(d) => <DisplayInitiator initiator={d.value as EventInitiator} />}
+            value={initiatorFilter || ''}
+            onChange={(value) =>
+              value === initiatorFilter
+                ? setInitiatorFilter(null)
+                : setInitiatorFilter(value as EventInitiator)
+            }
+          />
         </div>
       </div>
       {/* <div>

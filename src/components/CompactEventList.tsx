@@ -30,6 +30,9 @@ import chroma from 'chroma-js'
 import { useAtom } from 'jotai/react'
 import { sortOrderAtom } from '@/utils/global-state'
 import pluralize from 'pluralize'
+import { DisplayInitiator } from '@/utils/displayInitiator'
+import { EventInitiator } from '@/collections/enums'
+import { twMerge } from 'tailwind-merge'
 
 export const columns: ColumnDef<Event>[] = [
   {
@@ -64,6 +67,15 @@ export const columns: ColumnDef<Event>[] = [
         className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-8 font-mono text-xs opacity-50 uppercase"
       >
         <Link href={row.original.path!}>{format(row.getValue('date'), 'dd MMM yyyy')}</Link>
+      </TableCell>
+    ),
+  },
+  {
+    accessorKey: 'initiator',
+    header: 'Actor',
+    cell: ({ cell, row }) => (
+      <TableCell key={cell.id} className="text-xs uppercase">
+        <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} />
       </TableCell>
     ),
   },
@@ -294,7 +306,12 @@ export function CompactEventList({ events }: { events: Event[] }) {
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() && 'selected'}
-              className="bg-white hover:bg-snot-300"
+              className={twMerge(
+                'bg-white hover:bg-snot-300',
+                row.getIsSelected() && 'bg-snot-300',
+                row.original.initiator === EventInitiator.WORKER_LED && 'bg-blue-50',
+                row.original.initiator === EventInitiator.BOSS_LED && 'bg-orange-50',
+              )}
             >
               {row
                 .getVisibleCells()
