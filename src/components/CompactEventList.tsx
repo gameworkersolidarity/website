@@ -75,7 +75,9 @@ export const columns: ColumnDef<Event>[] = [
     header: 'Actor',
     cell: ({ cell, row }) => (
       <TableCell key={cell.id} className="text-xs uppercase">
-        <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} />
+        <Link href={row.original.path!}>
+          <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} />
+        </Link>
       </TableCell>
     ),
   },
