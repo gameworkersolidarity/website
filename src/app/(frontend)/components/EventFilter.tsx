@@ -27,6 +27,8 @@ import { twMerge } from 'tailwind-merge'
 import Emoji from 'a11y-react-emoji'
 import { EventInitiator } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
+import { useEventFilterContext } from '@/components/EventFilterContextProvider'
+import Link from 'next/link'
 
 interface EventFilterProps {
   countries: Country[]
@@ -47,13 +49,28 @@ export function EventFilter({
   // searchQuery,
   // setSearchQuery,
 }: EventFilterProps) {
-  const [countryISOA2Filter, setCountryISOA2Filter] = useCountryISOA2Filter()
-  const [categoryFilter, setCategoryFilter] = useCategoryFilter()
-  const [companyFilter, setCompanyFilter] = useCompanyFilter()
-  const [unionFilter, setUnionFilter] = useUnionFilter()
-  const [campaignFilter, setCampaignFilter] = useCampaignFilter()
-  const [initiatorFilter, setInitiatorFilter] = useInitiatorFilter()
-  const [yearFilter, setYearFilter] = useYearFilter()
+  const {
+    countryFilter,
+    filteredCountry,
+    setCountryISOA2Filter,
+    categoryFilter,
+    filteredCategory,
+    setCategoryFilter,
+    companyFilter,
+    filteredCompany,
+    setCompanyFilter,
+    unionFilter,
+    filteredUnion,
+    setUnionFilter,
+    campaignFilter,
+    filteredCampaign,
+    setCampaignFilter,
+    initiatorFilter,
+    filteredInitiator,
+    setInitiatorFilter,
+    yearFilter,
+    setYearFilter,
+  } = useEventFilterContext()
 
   // Get unique years from all actions (we'll calculate this from context or pass as prop)
   // For now, we'll generate years from 2018 to current year
@@ -64,7 +81,7 @@ export function EventFilter({
     <div className="homepage-filters">
       <div className="flex flex-row items-baseline gap-2 mb-2">
         <h2 className="font-bold">Filter by</h2>
-        {(countryISOA2Filter ||
+        {(countryFilter ||
           categoryFilter ||
           companyFilter ||
           unionFilter ||
@@ -95,13 +112,29 @@ export function EventFilter({
               label: country.name,
               value: country.isoA2,
             }))}
-            value={countryISOA2Filter || ''}
+            value={countryFilter || ''}
             onChange={(value) =>
-              value === countryISOA2Filter
+              value === countryFilter
                 ? setCountryISOA2Filter(null)
                 : setCountryISOA2Filter(value || null)
             }
           />
+          {filteredCountry && (
+            <div className="flex flex-row items-center justify-between gap-2 mt-1">
+              <Link href={filteredCountry.path!} className="text-xs">
+                See{' '}
+                <span className="font-medium link hover:bg-snot-300">{filteredCountry.name}</span> →
+              </Link>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setCountryISOA2Filter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
         </div>
         <div className="filter-group w-full">
           <Select
@@ -122,6 +155,24 @@ export function EventFilter({
               value === categoryFilter ? setCategoryFilter(null) : setCategoryFilter(value || null)
             }
           />
+
+          {filteredCategory && (
+            <div className="flex flex-row items-center justify-between gap-2 mt-1">
+              <Link href={filteredCategory.path!} className="text-xs">
+                See{' '}
+                <span className="font-medium link hover:bg-snot-300">{filteredCategory.name}</span>{' '}
+                →
+              </Link>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setCategoryFilter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
         </div>
         <div className="filter-group w-full">
           <Select
@@ -135,6 +186,22 @@ export function EventFilter({
               value === companyFilter ? setCompanyFilter(null) : setCompanyFilter(value || null)
             }
           />
+          {filteredCompany && (
+            <div className="flex flex-row items-center justify-between gap-2 mt-1">
+              <Link href={filteredCompany.path!} className="text-xs">
+                See{' '}
+                <span className="font-medium link hover:bg-snot-300">{filteredCompany.name}</span> →
+              </Link>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setCompanyFilter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
         </div>
         <div className="filter-group w-full">
           <Select
@@ -148,6 +215,22 @@ export function EventFilter({
               value === unionFilter ? setUnionFilter(null) : setUnionFilter(value || null)
             }
           />
+          {filteredUnion && (
+            <div className="flex flex-row items-center justify-between gap-2 mt-1">
+              <Link href={filteredUnion.path!} className="text-xs">
+                See <span className="font-medium link hover:bg-snot-300">{filteredUnion.name}</span>{' '}
+                →
+              </Link>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setUnionFilter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
         </div>
         <div className="filter-group w-full">
           <Select
@@ -161,6 +244,23 @@ export function EventFilter({
               value === campaignFilter ? setCampaignFilter(null) : setCampaignFilter(value || null)
             }
           />
+          {filteredCampaign && (
+            <div className="flex flex-row items-center justify-between gap-2 mt-1">
+              <Link href={filteredCampaign.path!} className="text-xs">
+                See{' '}
+                <span className="font-medium link hover:bg-snot-300">{filteredCampaign.name}</span>{' '}
+                →
+              </Link>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setCampaignFilter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
         </div>
         <div className="filter-group w-full">
           <Select
