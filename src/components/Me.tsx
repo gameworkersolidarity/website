@@ -8,9 +8,21 @@ export function LoggedIn({ children }: { children: React.ReactNode }) {
     payloadClient.me({ collection: 'users' }).then((res) => res.user),
   )
 
-  if (client.data?.id) {
-    return <>{children}</>
+  if (!client.data?.id) {
+    return null
   }
 
-  return null
+  return <>{children}</>
+}
+
+export function Username() {
+  const client = useSWR('/me', () =>
+    payloadClient.me({ collection: 'users' }).then((res) => res.user),
+  )
+
+  if (!client.data?.id) {
+    return null
+  }
+
+  return <>{client.data?.email}</>
 }
