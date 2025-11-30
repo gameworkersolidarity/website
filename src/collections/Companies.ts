@@ -2,6 +2,7 @@ import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
+import { createBreadcrumbsField } from '@payloadcms/plugin-nested-docs'
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
@@ -37,41 +38,6 @@ export const Companies: CollectionConfig = {
     },
   },
   fields: [
-    // {
-    //   name: 'descendants',
-    //   virtual: true,
-    //   type: 'json',
-    //   hooks: {
-    //     afterRead: [
-    //       async ({ siblingData }) => {
-    //         const breadcrumbDictionary = new Map<string, Omit<Breadcrumb, 'doc'>>()
-    //         for (const breadcrumb of siblingData.breadcrumbs) {
-    //           breadcrumbDictionary.set(breadcrumb.doc, breadcrumb)
-    //         }
-    //         const payloadConfig = await config
-    //         const payload = await getPayload({ config: payloadConfig })
-    //         const instances = await payload.find({
-    //           collection: 'companies',
-    //           where: {
-    //             'breadcrumbs.url': {
-    //               contains: `/${siblingData.slug}`,
-    //             },
-    //           },
-    //         })
-    //         // const instances = { docs: [] as any }
-    //         for (const instance of instances.docs) {
-    //           for (const breadcrumb of instance.breadcrumbs || []) {
-    //             const docId = typeof breadcrumb.doc === 'string' ? breadcrumb.doc : breadcrumb.id
-    //             if (docId) {
-    //               breadcrumbDictionary.set(docId, breadcrumb as any)
-    //             }
-    //           }
-    //         }
-    //         return Array.from(breadcrumbDictionary.values())
-    //       },
-    //     ],
-    //   },
-    // },
     {
       name: 'airtableId',
       type: 'text',
@@ -152,5 +118,12 @@ export const Companies: CollectionConfig = {
         ],
       },
     },
+    createBreadcrumbsField('companies', {
+      name: 'parents',
+      admin: {
+        description: 'Parents of this company.',
+        hidden: true,
+      },
+    }),
   ],
 }

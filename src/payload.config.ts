@@ -106,6 +106,7 @@ export default buildConfig({
       collections: ['companies', 'organisingGroups'],
       // For querying descendants and ascendants
       generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
+      breadcrumbsFieldSlug: 'parents',
     }),
     openapi({
       openapiVersion: '3.0',

@@ -2,6 +2,7 @@ import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
+import { createBreadcrumbsField } from '@payloadcms/plugin-nested-docs'
 
 export const OrganisingGroups: CollectionConfig = {
   slug: 'organisingGroups',
@@ -146,5 +147,12 @@ export const OrganisingGroups: CollectionConfig = {
         ],
       },
     },
+    createBreadcrumbsField('organisingGroups', {
+      name: 'parents',
+      admin: {
+        description: 'Parents of this organising group.',
+        hidden: true,
+      },
+    }),
   ],
 }

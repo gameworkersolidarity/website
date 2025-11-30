@@ -322,7 +322,7 @@ async function processRedundancies(
 
   // Map to collect parent-child relationships: parentId -> Set of childIds
   const parentChildRelationships: {
-    [parentId: string]: Set<string>
+    [childId: string]: string
   } = {}
 
   console.log(`\n🔄 Processing ${rows.length} rows...\n`)
@@ -463,14 +463,10 @@ async function processRedundancies(
       }
 
       // Collect parent-child relationship for later processing
-      if (companyId && parentCompanyId) {
+      if (companyId && parentCompanyId && parentCompanyId.id !== companyId.id) {
         const parentId = parentCompanyId.id.toString()
         const childId = companyId.id.toString()
-
-        if (!parentChildRelationships[parentId]) {
-          parentChildRelationships[parentId] = new Set<string>()
-        }
-        parentChildRelationships[parentId].add(childId)
+        parentChildRelationships[childId] = parentId
         console.log(
           `  📝 Collected relationship: ${parentName} (${parentId}) → ${studioName} (${childId})`,
         )
@@ -572,53 +568,32 @@ async function processRedundancies(
     }
   }
 
-  // Set children relationships on parent companies after all companies are created
+  // Set parent company on child companies
   if (Object.keys(parentChildRelationships).length > 0) {
-    console.log(`\n🔗 Setting parent-child relationships...`)
-    let relationshipsSet = 0
-    let relationshipsSkipped = 0
-
-    for (const parentId in parentChildRelationships) {
-      const childIds = parentChildRelationships[parentId]
-      try {
-        // Get current parent company to check existing children
-        const parentCompany = await payload.findByID({
+    console.log(`\n🔗 Setting parent company on childcompanies...`)
+    for (const childId in parentChildRelationships) {
+      const parentId = parentChildRelationships[childId]
+      console.log(`  🔍 Setting parent company on child company: "${childId}"`, { parentId })
+      if (childId && parentId) {
+        const updateOp = {
           collection: 'companies',
-          id: parentId,
-        })
-        const existingChildren = parentCompany.children || []
-        const existingChildIds = Array.isArray(existingChildren)
-          ? new Set(existingChildren.map((c: any) => (typeof c === 'string' ? c : c.id)))
-          : new Set()
-
-        // Merge with new children
-        const allChildIds = Array.from(new Set([...existingChildIds, ...childIds]))
-
-        // Update parent company with all children
-        await payload.update({
-          collection: 'companies',
-          id: parentId,
+          id: childId,
           data: {
-            children: allChildIds,
+            parent: { id: parentId },
           },
-        })
-
-        const newChildrenCount = Array.from(childIds).filter(
-          (id) => !existingChildIds.has(id),
-        ).length
-        relationshipsSet += newChildrenCount
-        console.log(
-          `  ✓ Updated parent company ${parentId}: added ${newChildrenCount} child${newChildrenCount !== 1 ? 'ren' : ''} (total: ${allChildIds.length})`,
-        )
-      } catch (error: any) {
-        console.warn(`  ⚠️  Could not update parent company ${parentId}:`, error.message)
-        relationshipsSkipped += childIds.size
+        } as any
+        try {
+          await payload.update(updateOp)
+        } catch (error: any) {
+          console.error(
+            `  ❌ Error setting parent company on child company: "${childId}"`,
+            error.message,
+          )
+          console.error(JSON.stringify({ updateOp }, null, 2))
+          stats.errors++
+        }
       }
     }
-
-    console.log(
-      `  ✅ Set ${relationshipsSet} parent-child relationship${relationshipsSet !== 1 ? 's' : ''}${relationshipsSkipped > 0 ? ` (${relationshipsSkipped} skipped)` : ''}`,
-    )
   }
 
   console.log(`\n📊 Statistics:`)

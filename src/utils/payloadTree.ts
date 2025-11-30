@@ -7,6 +7,8 @@ export type ArchiveBreadcrumb = {
   id: string
   // Known as 'url' in nested plugin
   breadcrumbPath: string
+  // Split breadcrumbPath
+  slugPath: string[]
   // Derived from 'url' from nested plugin and collection name
   path: string
 }

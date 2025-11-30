@@ -18,8 +18,7 @@ export async function generateStaticParams() {
         equals: 'published',
       },
     },
-    limit: 100,
-    depth: 0,
+    pagination: false,
   })
 
   return categoriesResult.docs.map((category) => ({

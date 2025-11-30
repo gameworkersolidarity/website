@@ -22,8 +22,7 @@ export async function generateStaticParams() {
         equals: 'published',
       },
     },
-    limit: 100,
-    depth: 1,
+    pagination: false,
   })
 
   return countriesResult.docs.map((country) => ({

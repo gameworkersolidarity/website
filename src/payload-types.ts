@@ -382,8 +382,10 @@ export interface Company {
   countries?: (string | Country)[] | null;
   path?: string;
   url?: string;
-  parent?: (string | null) | Company;
-  breadcrumbs?:
+  /**
+   * Parents of this company.
+   */
+  parents?:
     | {
         doc?: (string | null) | Company;
         url?: string | null;
@@ -391,6 +393,7 @@ export interface Company {
         id?: string | null;
       }[]
     | null;
+  parent?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -492,8 +495,10 @@ export interface OrganisingGroup {
   twitter?: string | null;
   path?: string;
   url?: string;
-  parent?: (string | null) | OrganisingGroup;
-  breadcrumbs?:
+  /**
+   * Parents of this organising group.
+   */
+  parents?:
     | {
         doc?: (string | null) | OrganisingGroup;
         url?: string | null;
@@ -501,6 +506,7 @@ export interface OrganisingGroup {
         id?: string | null;
       }[]
     | null;
+  parent?: (string | null) | OrganisingGroup;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -969,8 +975,7 @@ export interface CompaniesSelect<T extends boolean = true> {
   countries?: T;
   path?: T;
   url?: T;
-  parent?: T;
-  breadcrumbs?:
+  parents?:
     | T
     | {
         doc?: T;
@@ -978,6 +983,7 @@ export interface CompaniesSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  parent?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1025,8 +1031,7 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   twitter?: T;
   path?: T;
   url?: T;
-  parent?: T;
-  breadcrumbs?:
+  parents?:
     | T
     | {
         doc?: T;
@@ -1034,6 +1039,7 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  parent?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

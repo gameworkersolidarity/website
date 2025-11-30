@@ -9,6 +9,7 @@ import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Country, OrganisingGroup } from '@/payload-types'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { getDescendants } from '@/utils/payloadTree.server'
+import { Descendants } from '../../components/Descendants'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -21,8 +22,7 @@ export async function generateStaticParams() {
         equals: 'published',
       },
     },
-    limit: 100,
-    depth: 0,
+    pagination: false,
   })
 
   return companiesResult.docs.map((company) => ({
@@ -183,15 +183,7 @@ export default async function CompanyPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <pre>DESCENDANTS: {JSON.stringify(descendants, null, 2)}</pre>
-
-      <h3>Company tree</h3>
-      <pre>{JSON.stringify(company.breadcrumbs, null, 2)}</pre>
-      {company.breadcrumbs?.map((breadcrumb) => (
-        <Link href={breadcrumb.url!} key={breadcrumb.id}>
-          {breadcrumb.url}
-        </Link>
-      ))}
+      <Descendants breadcrumbs={descendants} />
 
       <Link
         href="/companies"

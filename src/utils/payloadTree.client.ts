@@ -10,21 +10,23 @@ export async function getDescendants<T extends CollectionSlug>(collection: T, sl
   const breadcrumbs = await payloadClient.find({
     collection: collection,
     where: {
-      'breadcrumbs.url': {
+      'parents.url': {
         contains: `/${slug}`,
       },
     },
   })
   const breadcrumbDictionary = new Map<string, ArchiveBreadcrumb>()
   for (const modelInstance of breadcrumbs.docs || []) {
-    for (const breadcrumb of (modelInstance as { breadcrumbs: Breadcrumb[] }).breadcrumbs || []) {
+    for (const breadcrumb of (modelInstance as { parents: Breadcrumb[] }).parents || []) {
       const docId = typeof breadcrumb === 'string' ? breadcrumb : breadcrumb.doc
       if (docId) {
+        const slug = breadcrumb.url!.split('/').pop()!
         breadcrumbDictionary.set(docId, {
           name: breadcrumb.label,
-          slug: breadcrumb.url!.split('/').pop()!,
+          slug: slug,
           id: breadcrumb.doc,
           breadcrumbPath: breadcrumb.url!,
+          slugPath: breadcrumb.url?.split('/') || [],
           path: getPath(collection, { slug }),
         })
       }

@@ -53,8 +53,6 @@ export default async function BlogPost({ params }: Props) {
     },
     sort: 'createdAt', // Sort by createdAt, newest first
     pagination: false,
-    limit: 1000,
-    depth: 0,
   })
 
   // Find current post index and get previous/next
