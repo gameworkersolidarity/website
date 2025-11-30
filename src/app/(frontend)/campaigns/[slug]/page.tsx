@@ -11,6 +11,7 @@ import { ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { EventList } from '@/components/EventList'
 import { CollectiveActionStats } from '@/app/(frontend)/components/CollectiveActionStats'
+import { EventTimeline } from '@/components/EventsTimeline'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -125,6 +126,9 @@ export default async function CampaignPage({ params }: { params: { slug: string 
           </div>
         )}
       </article>
+
+      <EventTimeline events={events} />
+
       <EventFilterContextProvider events={events}>
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
