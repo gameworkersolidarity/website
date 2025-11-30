@@ -1,12 +1,16 @@
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { Event } from '@/payload-types'
-import { CampaignTimeline } from '../../components/CampaignTimeline'
-import { RichText } from '../../components/RichText'
+import { LexicalRenderer } from '../../components/LexicalRenderer'
+import chroma from 'chroma-js'
+import { twMerge } from 'tailwind-merge'
+import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
+import { ResizablePanelGroup } from '@/components/ui/resizable'
+import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
+import { EventList } from '@/components/EventList'
+import { CollectiveActionStats } from '@/app/(frontend)/components/CollectiveActionStats'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -97,68 +101,93 @@ export default async function CampaignPage({ params }: { params: { slug: string 
   }
 
   const campaign = campaignResult.docs[0]
+  const events = campaign.events?.map((event) => event as Event) || []
 
-  // Sort by displayOrder, then by date
-  const sortedTimelineEvents = campaignResult.docs[0].events?.sort((a, b) => {
-    return new Date((a as Event).date).getTime() - new Date((b as Event).date).getTime()
-    return 0
-  })
-
-  // const featuredImage =
-  //   typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
-  //     ? campaign.featuredImage.url
-  //     : null
+  const textColor =
+    chroma.contrast(campaign.primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
 
   return (
-    <div className="campaign-page">
-      <div className="campaign-container">
-        <Link
-          href="/campaigns"
-          style={{
-            display: 'inline-block',
-            marginBottom: '1rem',
-            color: '#4A90E2',
-            textDecoration: 'none',
-          }}
-        >
-          ← Back to Campaigns
-        </Link>
-
-        <article className="campaign-article">
-          {campaign.featuredImage && (
-            <div className="campaign-featured-image">
-              <img src={campaign.featuredImage as string} alt={campaign.name} />
+    <div
+      style={{
+        backgroundColor: campaign.primaryColor,
+      }}
+    >
+      <article
+        className={twMerge(
+          'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',
+          textColor === 'white' && 'text-white',
+        )}
+      >
+        <h1 className="text-5xl font-bold font-identity">{campaign.name}</h1>
+        {campaign.description && (
+          <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
+            <LexicalRenderer content={campaign.description} />
+          </div>
+        )}
+      </article>
+      <EventFilterContextProvider events={events}>
+        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
+          <ResizablePanel defaultSize={40}>
+            <div className="sticky top-6 h-[calc(100vh-60px)]">
+              <CollectiveActionStats color={campaign.primaryColor} />
             </div>
-          )}
-
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            {campaign.name}
-          </h1>
-
-          {campaign.description && (
-            <div className="campaign-description">
-              <RichText data={campaign.description} />
-            </div>
-          )}
-
-          {sortedTimelineEvents && sortedTimelineEvents.length > 0 && (
-            <>
-              <div style={{ marginTop: '3rem' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Events</h2>
-                <ActionsTimeline
-                  events={sortedTimelineEvents
-                    .map((event) => event as Event)
-                    .sort(
-                      (a, b) =>
-                        new Date((b as Event).date).getTime() -
-                        new Date((a as Event).date).getTime(),
-                    )}
-                />
-              </div>
-            </>
-          )}
-        </article>
-      </div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={60}>
+            <EventList />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </EventFilterContextProvider>
     </div>
+    // <div className="campaign-page">
+    //   <div className="campaign-container">
+    //     <Link
+    //       href="/campaigns"
+    //       style={{
+    //         display: 'inline-block',
+    //         marginBottom: '1rem',
+    //         color: '#4A90E2',
+    //         textDecoration: 'none',
+    //       }}
+    //     >
+    //       ← Back to Campaigns
+    //     </Link>
+
+    //     <article className="campaign-article">
+    //       {campaign.featuredImage && (
+    //         <div className="campaign-featured-image">
+    //           <img src={campaign.featuredImage as string} alt={campaign.name} />
+    //         </div>
+    //       )}
+
+    //       <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+    //         {campaign.name}
+    //       </h1>
+
+    //       {campaign.description && (
+    //         <div className="campaign-description">
+    //           <RichText data={campaign.description} />
+    //         </div>
+    //       )}
+
+    //       {sortedTimelineEvents && sortedTimelineEvents.length > 0 && (
+    //         <>
+    //           <div style={{ marginTop: '3rem' }}>
+    //             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Events</h2>
+    //             <ActionsTimeline
+    //               events={sortedTimelineEvents
+    //                 .map((event) => event as Event)
+    //                 .sort(
+    //                   (a, b) =>
+    //                     new Date((b as Event).date).getTime() -
+    //                     new Date((a as Event).date).getTime(),
+    //                 )}
+    //             />
+    //           </div>
+    //         </>
+    //       )}
+    //     </article>
+    //   </div>
+    // </div>
   )
 }

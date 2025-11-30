@@ -10,6 +10,7 @@ import { Country, OrganisingGroup } from '@/payload-types'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { getDescendants } from '@/utils/payloadTree.server'
 import { Descendants } from '../../components/Descendants'
+import Image from 'next/image'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -182,12 +183,39 @@ export default async function CompanyPage({ params }: Props) {
   const uniqueOrganisingGroups = Array.from(organisingGroupsSet.values())
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <Descendants breadcrumbs={descendants} />
+    <div>
+      <h1 className="text-2xl font-bold font-identity">{company.name}</h1>
+      {company.description && (
+        <div className="mt-4">
+          <LexicalRenderer content={company.description} />
+        </div>
+      )}
+      {/* <Descendants breadcrumbs={descendants} />
 
       <Link
         href="/companies"
         style={{
+      {uniqueCountries.length > 0 && (
+        <div className="mt-4">
+          <h2 className="text-lg font-bold">Related Countries</h2>
+          <div className="flex flex-wrap gap-2">
+            {uniqueCountries.map((country) => (
+              <Link
+                key={country.id}
+                href={`/countries/${country.slug}`}
+                className="text-blue-500 hover:text-blue-700"
+              >
+                {country.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      {uniqueOrganisingGroups.length > 0 && (
+        <div className="mt-4">
+          <h2 className="text-lg font-bold">Related Organising Groups</h2>
+          <div className="flex flex-wrap gap-2">
+            {uniqueOrganisingGroups.map((group) => (
           display: 'inline-block',
           marginBottom: '1rem',
           color: '#4A90E2',
@@ -266,7 +294,7 @@ export default async function CompanyPage({ params }: Props) {
             )}
           />
         </div>
-      )}
+      )} */}
     </div>
   )
 }

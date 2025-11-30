@@ -159,6 +159,7 @@ export const Events: CollectionConfig = {
           name: 'coordinates',
           type: 'json',
           admin: {
+            hidden: true,
             readOnly: true,
             description:
               'Coordinates of the event. Will be automatically populated if the location, or country, is provided.',
