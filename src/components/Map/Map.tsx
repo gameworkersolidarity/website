@@ -338,6 +338,18 @@ function ActionSource({ data }: { data: Event[] }) {
 
 type CountryCounts = { [iso2: string]: number }
 
+const BACKGROUND_LAYER_IDS = [
+  'land',
+  'landcover',
+  'national-park',
+  'landuse',
+  'land-structure-polygon',
+  'land-structure-line',
+  'building-outline',
+  'building',
+  'undisputed country boundary fill hoverable',
+]
+
 const CountryLayer = ({
   mode,
   countryCounts,
@@ -364,21 +376,6 @@ const CountryLayer = ({
   // }>()
   const { countryFilter, filteredCountry, setCountryISOA2Filter } = useEventFilterContext()
   const map = useContext(MapContext) as MapboxMap
-
-  const BACKGROUND_LAYER_IDS = useMemo(
-    () => [
-      'land',
-      'landcover',
-      'national-park',
-      'landuse',
-      'land-structure-polygon',
-      'land-structure-line',
-      'building-outline',
-      'building',
-      'undisputed country boundary fill hoverable',
-    ],
-    [],
-  )
 
   return (
     <>

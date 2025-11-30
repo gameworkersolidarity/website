@@ -128,14 +128,25 @@ export function EventFilterContextProvider({
     }
     if (filteredCompanySlug) {
       filtered = filtered.filter((event) =>
-        event.companies?.some((company) => (company as Company).slug === filteredCompanySlug),
+        event.companies?.some((company) => {
+          console.log('company', company)
+          return (
+            filteredCompanySlug === (company as Company).slug ||
+            (company as Company).parents?.some((parent) => parent.url === `/${filteredCompanySlug}`)
+          )
+        }),
       )
     }
     if (filteredUnionSlug) {
       filtered = filtered.filter((event) =>
-        event.organisingGroups?.some(
-          (organisingGroup) => (organisingGroup as OrganisingGroup).slug === filteredUnionSlug,
-        ),
+        event.organisingGroups?.some((organisingGroup) => {
+          return (
+            filteredUnionSlug === (organisingGroup as OrganisingGroup).slug ||
+            (filteredUnion.data?.descendants || []).some(
+              (descendant) => descendant.slug === (organisingGroup as OrganisingGroup).slug,
+            )
+          )
+        }),
       )
     }
     if (filteredCampaignSlug) {

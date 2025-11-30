@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Company } from '@/payload-types'
+import { getDescendants } from '@/utils/payloadTree.server'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -102,6 +103,8 @@ export default async function OrganisingGroupPage({ params }: Props) {
     notFound()
   }
 
+  const descendants = await getDescendants('organisingGroups', group.slug)
+
   // Query solidarity actions directly where this organising group is related
   const actionsResult = await payload.find({
     collection: 'events',
@@ -109,7 +112,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
       and: [
         {
           organisingGroups: {
-            in: [group.id],
+            in: descendants.map((descendant) => descendant.id),
           },
         },
         ...(!isDraftMode

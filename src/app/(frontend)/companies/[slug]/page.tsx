@@ -105,6 +105,8 @@ export default async function CompanyPage({ params }: Props) {
     notFound()
   }
 
+  const descendants = await getDescendants('companies', company.slug)
+
   // Query solidarity actions and redundancies directly where this company is related
   const [actionsResult] = await Promise.all([
     payload.find({
@@ -113,7 +115,7 @@ export default async function CompanyPage({ params }: Props) {
         and: [
           {
             companies: {
-              in: [company.id],
+              in: descendants.map((descendant) => descendant.id),
             },
           },
           ...(!isDraftMode
@@ -178,8 +180,6 @@ export default async function CompanyPage({ params }: Props) {
 
   const uniqueCountries = Array.from(countriesSet.values())
   const uniqueOrganisingGroups = Array.from(organisingGroupsSet.values())
-
-  const descendants = await getDescendants('companies', company.slug)
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>

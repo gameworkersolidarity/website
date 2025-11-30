@@ -187,12 +187,10 @@ export function EventFilter({
           />
           {!!filteredCompany && (
             <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              {filteredCompany.descendants.map((descendant) => (
-                <Link href={descendant.path!} className="text-xs" key={descendant.id}>
-                  See <span className="font-medium link hover:bg-snot-300">{descendant.name}</span>{' '}
-                  →{JSON.stringify(descendant)}
-                </Link>
-              ))}
+              <Link href={filteredCompany.path!} className="text-xs" key={filteredCompany.id}>
+                See{' '}
+                <span className="font-medium link hover:bg-snot-300">{filteredCompany.name}</span> →
+              </Link>
               <span
                 className="text-xs link"
                 onClick={() => {
@@ -218,12 +216,10 @@ export function EventFilter({
           />
           {!!filteredUnion && (
             <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              {filteredUnion.descendants.map((descendant) => (
-                <Link href={descendant.path!} className="text-xs" key={descendant.id}>
-                  See <span className="font-medium link hover:bg-snot-300">{descendant.name}</span>{' '}
-                  →
-                </Link>
-              ))}
+              <Link href={filteredUnion.path!} className="text-xs" key={filteredUnion.id}>
+                See <span className="font-medium link hover:bg-snot-300">{filteredUnion.name}</span>{' '}
+                →
+              </Link>
               <span
                 className="text-xs link"
                 onClick={() => {

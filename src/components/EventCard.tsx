@@ -340,7 +340,7 @@ export function EventCard({
               <div className="p-4 md:px-8 bg-white" key={(category as Category).id}>
                 <EventRelatedActions
                   subtitle="Category"
-                  url={`/?category=${(category as Category).name}`}
+                  url={(category as Category).path}
                   name={
                     <span className="capitalize">
                       <Emoji symbol={(category as Category).emoji || ''} />{' '}
@@ -354,7 +354,7 @@ export function EventCard({
               <div className="p-4 md:px-8 bg-white" key={(organisingGroup as OrganisingGroup).id}>
                 <EventRelatedActions
                   subtitle="Organising group"
-                  url={`/group/${(organisingGroup as OrganisingGroup).slug}`}
+                  url={(organisingGroup as OrganisingGroup).path}
                   name={(organisingGroup as OrganisingGroup).name}
                   buttonLabel={<span>Learn more &rarr;</span>}
                 />
@@ -364,7 +364,7 @@ export function EventCard({
               <div className="p-4 md:px-8 bg-white" key={(company as Company).id}>
                 <EventRelatedActions
                   subtitle="Company"
-                  url={`/?company=${(company as Company).slug}`}
+                  url={(company as Company).path}
                   name={<span>{(company as Company).name}</span>}
                 />
               </div>
@@ -428,7 +428,7 @@ export function EventCountryRelatedActions({ isoA2 }: { isoA2: string }) {
   return (
     <EventRelatedActions
       subtitle={'Country'}
-      url={`/countries/${isoA2}`}
+      url={country?.path}
       name={
         <span>
           <Emoji symbol={country?.emoji || ''} label={`Flag of ${country?.name}`} /> {country?.name}
