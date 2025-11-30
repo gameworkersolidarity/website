@@ -9,7 +9,15 @@ import qs from 'query-string'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { DateTime } from '@/components/DateTime'
-import { Category, Country, Event, Media, OrganisingGroup, Company } from '@/payload-types'
+import {
+  Category,
+  Country,
+  Event,
+  Media,
+  OrganisingGroup,
+  Company,
+  Campaign,
+} from '@/payload-types'
 import { LexicalRenderer } from '@/app/(frontend)/components/LexicalRenderer'
 import { projectStrings } from '@/project-strings'
 import { twMerge } from 'tailwind-merge'
@@ -331,6 +339,15 @@ export function EventCard({
         )}
         {withContext && (
           <div className="grid gap-[2px] grid-cols-2 mt-[2px]">
+            {data.campaigns?.docs?.map((campaign) => (
+              <div className="p-4 md:px-8 bg-white" key={(campaign as Campaign).id}>
+                <EventRelatedActions
+                  subtitle="Campaign"
+                  url={(campaign as Campaign).path}
+                  name={<span>{(campaign as Campaign).name}</span>}
+                />
+              </div>
+            ))}
             {data.countries?.map((country) => (
               <div className="p-4 md:px-8 bg-white" key={(country as Country).id}>
                 <EventCountryRelatedActions isoA2={(country as Country).isoA2} />
