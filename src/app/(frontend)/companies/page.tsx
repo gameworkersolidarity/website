@@ -36,6 +36,7 @@ export default async function CompaniesPage() {
             in: [company.id],
           },
         },
+        sort: 'date:desc',
       })
       return {
         company,
@@ -88,7 +89,7 @@ export default async function CompaniesPage() {
           {filteredCompanies.map(({ company, actionCount }) => (
             <Link
               key={company.id}
-              href={`/companies/${company.slug}`}
+              href={company.path!}
               style={{
                 display: 'block',
                 padding: '1.5rem',

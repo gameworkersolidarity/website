@@ -41,6 +41,7 @@ import MapGL from '@urbica/react-map-gl'
 import { getCSSVariable } from '@/utils/css'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { useEventFilterContext } from '../EventFilterContextProvider'
+import { getSlug } from '@/utils/payloadPath'
 
 const defaultViewport = {
   latitude: 15,
@@ -58,6 +59,7 @@ export function Map({
   data,
   onSelectCountry,
   colorRange,
+  countryFilter,
   ...initialViewport
 }: {
   data: Event[]
@@ -65,17 +67,15 @@ export function Map({
   height?: any
   onSelectCountry?: (iso2id: string | null) => void
   colorRange?: string[]
+  countryFilter?: string | null
 }) {
   const [viewport, setViewport] = useState({
     ...defaultViewport,
     ...initialViewport,
   })
 
-  const updateViewport = useCallback((nextViewport: Viewport) => setViewport(nextViewport), [])
-
   const mapRef = useRef<MapGL>(null)
 
-  const [countryFilter, setCountryFilter] = useCountryISOA2Filter()
   const displayStyle = !countryFilter ? 'summary' : 'detail'
 
   const countryCounts = useMemo(() => {
@@ -120,7 +120,7 @@ export function Map({
             fields: {
               isoA2: [country.isoA2],
               countryName: [country.name],
-              countrySlug: [country.slug],
+              countrySlug: [getSlug('countries', country)],
               Country: [country],
             },
           } as Partial<Event>),
@@ -175,26 +175,31 @@ export function Map({
         }),
     }
 
-    const nextViewport = getViewportForFeatures(
-      {
-        ...viewport,
-        width: mapRef.current?.getMap()?.getCanvas().clientWidth || 0,
-        height: mapRef.current?.getMap()?.getCanvas().clientHeight || 0,
-      },
-      bbox(combine(FeatureCollection)) as any,
-      { padding: 50 },
-    )
-    if (nextViewport) {
-      setViewport({
+    setViewport((viewport) => {
+      const nextViewport = getViewportForFeatures(
+        {
+          ...viewport,
+          width: mapRef.current?.getMap()?.getCanvas().clientWidth || 0,
+          height: mapRef.current?.getMap()?.getCanvas().clientHeight || 0,
+        },
+        bbox(combine(FeatureCollection)) as [number, number, number, number],
+        { padding: 50 },
+      )
+
+      if (!nextViewport) {
+        return viewport
+      }
+
+      return {
         ...nextViewport,
         zoom: Math.min(10, nextViewport.zoom),
-      })
-    }
-  }, [allActionsSingleCountry, viewport, setViewport])
+      }
+    })
+  }, [allActionsSingleCountry, setViewport])
 
   useEffect(() => {
     calculateViewportForActions()
-  }, [calculateViewportForActions, data])
+  }, [calculateViewportForActions])
 
   const [openPopupId, setSelectedPopup] = useState<null | string>(null)
 
@@ -202,7 +207,7 @@ export function Map({
 
   useEffect(() => {
     mapRef.current?.getMap()?.resize()
-  }, [elementDimensions, updateViewport])
+  }, [elementDimensions, setViewport])
 
   const el = (
     <ViewportContext.Provider value={viewport}>
@@ -230,18 +235,17 @@ export function Map({
             .get('NEXT_PUBLIC_MAPBOX_STYLE_URL')
             .default('mapbox://styles/commonknowledge/ckqsa4g09145h17p84g69t7ns')
             .asString()}
-          onViewportChange={updateViewport}
+          onViewportChange={setViewport}
           className="rounded-xl"
           ref={mapRef}
           viewportChangeMethod="flyTo"
         >
           <ActionSource data={data} />
           <CountryLayer
-            mode={displayStyle}
+            countryFilter={countryFilter}
             countryCounts={countryCounts}
-            countryActions={nationalActionsByCountry}
             onSelectCountry={(iso2id) =>
-              iso2id ? setCountryFilter(iso2id) : setCountryFilter(null)
+              iso2id ? onSelectCountry?.(iso2id) : onSelectCountry?.(null)
             }
           />
           {/* National events */}
@@ -351,14 +355,12 @@ const BACKGROUND_LAYER_IDS = [
 ]
 
 const CountryLayer = ({
-  mode,
   countryCounts,
-  countryActions,
+  countryFilter,
   onSelectCountry,
 }: {
-  mode: 'summary' | 'detail'
   countryCounts: CountryCounts
-  countryActions: Dictionary<Event[]>
+  countryFilter?: string | null
   onSelectCountry: (iso2id: string | null) => void
 }) => {
   // const [event, setEvent] = useState<{ lng: number; lat: number }>()
@@ -374,7 +376,6 @@ const CountryLayer = ({
   //   wikidata_id: string
   //   worldview: string
   // }>()
-  const { countryFilter, filteredCountry, setCountryISOA2Filter } = useEventFilterContext()
   const map = useContext(MapContext) as MapboxMap
 
   return (
@@ -424,12 +425,12 @@ const CountryLayer = ({
             if (country.iso_3166_1 === countryFilter) {
               // setEvent(undefined)
               // setHoverCountry(undefined)
-              setCountryISOA2Filter(null)
+              onSelectCountry(null)
             } else if (
               Object.keys(countryCounts).includes(country.iso_3166_1) &&
               event.features?.[0]?.properties
             ) {
-              setCountryISOA2Filter(country.iso_3166_1)
+              onSelectCountry(country.iso_3166_1)
             }
           }
         }}

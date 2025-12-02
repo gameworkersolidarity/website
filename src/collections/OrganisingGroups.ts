@@ -3,6 +3,7 @@ import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
 import { createBreadcrumbsField } from '@payloadcms/plugin-nested-docs'
+import { OrganisingGroup } from '@/payload-types'
 
 export const OrganisingGroups: CollectionConfig = {
   slug: 'organisingGroups',
@@ -19,7 +20,7 @@ export const OrganisingGroups: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'organisingGroups',
-        path: getPath('organisingGroups', { slug }),
+        path: getPath('organisingGroups', doc as unknown as OrganisingGroup),
         previewSecret,
       })
 
@@ -79,6 +80,23 @@ export const OrganisingGroups: CollectionConfig = {
       },
     }),
     {
+      name: 'color',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return siblingData.primaryColor || '#EEE'
+          },
+        ],
+      },
+    },
+    {
       name: 'fullName',
       type: 'text',
     },
@@ -125,7 +143,7 @@ export const OrganisingGroups: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('organisingGroups', { slug: siblingData.slug })
+            return getPath('organisingGroups', siblingData as unknown as OrganisingGroup)
           },
         ],
       },
@@ -140,7 +158,7 @@ export const OrganisingGroups: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('organisingGroups', { slug: siblingData.slug }),
+              getPath('organisingGroups', siblingData as unknown as OrganisingGroup),
               projectStrings.baseUrl,
             ).toString()
           },

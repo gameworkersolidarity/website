@@ -111,7 +111,7 @@ export default async function BlogPost({ params }: Props) {
         >
           {previousPost ? (
             <Link
-              href={`/blog/${previousPost.slug}`}
+              href={previousPost.path!}
               style={{
                 flex: 1,
                 padding: '1rem',
@@ -133,7 +133,7 @@ export default async function BlogPost({ params }: Props) {
 
           {nextPost ? (
             <Link
-              href={`/blog/${nextPost.slug}`}
+              href={nextPost.path!}
               style={{
                 flex: 1,
                 padding: '1rem',

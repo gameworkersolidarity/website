@@ -66,11 +66,7 @@ export default async function CampaignsPage() {
                   : null
 
               return (
-                <Link
-                  key={campaign.id}
-                  href={`/campaigns/${campaign.slug}`}
-                  className="campaign-card"
-                >
+                <Link key={campaign.id} href={campaign.path!} className="campaign-card">
                   {featuredImage && (
                     <div className="campaign-card-image">
                       <img src={featuredImage} alt={campaign.name} />

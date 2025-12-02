@@ -1,12 +1,7 @@
 import { getPayload } from 'payload'
-
-import { EventFilter } from './components/EventFilter'
 import config from '@/payload.config'
 import { draftMode } from 'next/headers'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventList } from '@/components/EventList'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { EventStats } from '@/components/EventStats'
+import { HomepageClient } from './Homepage.client'
 
 export default async function HomePage() {
   const payloadConfig = await config
@@ -27,6 +22,7 @@ export default async function HomePage() {
           }
         : {}),
     },
+    sort: ['date:desc'],
     depth: 1, // Include related data (countries, categories, companies, organising groups)
     pagination: false,
   })
@@ -93,32 +89,13 @@ export default async function HomePage() {
   ])
 
   return (
-    <EventFilterContextProvider events={eventsResult.docs}>
-      <div className="homepage">
-        <div className="content-wrapper py-4 bg-white border-b border-gray-200">
-          <EventFilter
-            countries={countriesResult.docs}
-            categories={categoriesResult.docs}
-            companies={companiesResult.docs}
-            organisingGroups={organisingGroupsResult.docs}
-            campaigns={campaignResult.docs}
-            // searchQuery={searchQuery}
-            // setSearchQuery={setSearchQuery}
-          />
-        </div>
-
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-    </EventFilterContextProvider>
+    <HomepageClient
+      events={eventsResult.docs}
+      countries={countriesResult.docs}
+      categories={categoriesResult.docs}
+      companies={companiesResult.docs}
+      organisingGroups={organisingGroupsResult.docs}
+      campaigns={campaignResult.docs}
+    />
   )
 }

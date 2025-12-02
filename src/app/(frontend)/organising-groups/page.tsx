@@ -31,6 +31,7 @@ export default async function OrganisingGroupsPage() {
     groupsResult.docs.map(async (group) => {
       const actionsResult = await payload.find({
         collection: 'events',
+        sort: 'date:desc',
         where: {
           and: [
             {

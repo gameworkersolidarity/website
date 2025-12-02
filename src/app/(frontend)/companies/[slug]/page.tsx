@@ -2,15 +2,9 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import React from 'react'
-import Link from 'next/link'
-import { LexicalRenderer } from '../../components/LexicalRenderer'
-import { CollapsibleSection } from '../../components/CollapsibleSection'
-import { Country, OrganisingGroup } from '@/payload-types'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
 import { getDescendants } from '@/utils/payloadTree.server'
-import { Descendants } from '../../components/Descendants'
-import Image from 'next/image'
+import { CompanyPage } from './CompanyPage'
+import { getSlug } from '@/utils/payloadPath'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -27,7 +21,7 @@ export async function generateStaticParams() {
   })
 
   return companiesResult.docs.map((company) => ({
-    slug: company.slug,
+    slug: getSlug('companies', company),
   }))
 }
 
@@ -73,7 +67,7 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-export default async function CompanyPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { slug } = await params
   const isDraftMode = (await draftMode()).isEnabled
 
@@ -106,195 +100,42 @@ export default async function CompanyPage({ params }: Props) {
     notFound()
   }
 
-  const descendants = await getDescendants('companies', company.slug)
+  const descendants = await getDescendants('companies', getSlug('companies', company))
 
   // Query solidarity actions and redundancies directly where this company is related
-  const [actionsResult] = await Promise.all([
-    payload.find({
-      collection: 'events',
-      where: {
-        and: [
-          {
-            companies: {
-              in: descendants.map((descendant) => descendant.id),
-            },
+  const eventResults = await payload.find({
+    collection: 'events',
+    where: {
+      and: [
+        {
+          companies: {
+            in: descendants.map((descendant) => descendant.id),
           },
-          ...(!isDraftMode
-            ? [
-                {
-                  _status: {
-                    equals: 'published',
-                  },
+        },
+        ...(!isDraftMode
+          ? [
+              {
+                _status: {
+                  equals: 'published',
                 },
-              ]
-            : []),
-        ],
-      },
-      depth: 2, // Include related entities
-      draft: isDraftMode,
-      pagination: false,
-    }),
-  ])
-
-  const solidarityActions = actionsResult.docs
-
-  // Extract unique countries and organising groups from solidarity actions
-  const countriesSet = new Map<string, Country>()
-  const organisingGroupsSet = new Map<string, OrganisingGroup>()
-
-  solidarityActions.forEach((action) => {
-    // Extract countries
-    if (action.countries && Array.isArray(action.countries)) {
-      action.countries.forEach((country) => {
-        if (
-          typeof country === 'object' &&
-          country !== null &&
-          'id' in country &&
-          'slug' in country &&
-          'name' in country
-        ) {
-          const countryId = String(country.id)
-          if (!countriesSet.has(countryId)) {
-            countriesSet.set(countryId, country)
-          }
-        }
-      })
-    }
-    // Extract organising groups
-    if (action.organisingGroups && Array.isArray(action.organisingGroups)) {
-      action.organisingGroups.forEach((group) => {
-        if (
-          typeof group === 'object' &&
-          group !== null &&
-          'id' in group &&
-          'slug' in group &&
-          'name' in group
-        ) {
-          const groupId = String(group.id)
-          if (!organisingGroupsSet.has(groupId)) {
-            organisingGroupsSet.set(groupId, group)
-          }
-        }
-      })
-    }
+              },
+            ]
+          : []),
+      ],
+    },
+    sort: 'date:desc',
+    depth: 2, // Include related entities
+    draft: isDraftMode,
+    pagination: false,
   })
 
-  const uniqueCountries = Array.from(countriesSet.values())
-  const uniqueOrganisingGroups = Array.from(organisingGroupsSet.values())
+  const events = eventResults.docs
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold font-identity">{company.name}</h1>
-      {company.description && (
-        <div className="mt-4">
-          <LexicalRenderer content={company.description} />
-        </div>
-      )}
-      {/* <Descendants breadcrumbs={descendants} />
-
-      <Link
-        href="/companies"
-        style={{
-      {uniqueCountries.length > 0 && (
-        <div className="mt-4">
-          <h2 className="text-lg font-bold">Related Countries</h2>
-          <div className="flex flex-wrap gap-2">
-            {uniqueCountries.map((country) => (
-              <Link
-                key={country.id}
-                href={`/countries/${country.slug}`}
-                className="text-blue-500 hover:text-blue-700"
-              >
-                {country.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-      {uniqueOrganisingGroups.length > 0 && (
-        <div className="mt-4">
-          <h2 className="text-lg font-bold">Related Organising Groups</h2>
-          <div className="flex flex-wrap gap-2">
-            {uniqueOrganisingGroups.map((group) => (
-          display: 'inline-block',
-          marginBottom: '1rem',
-          color: '#4A90E2',
-          textDecoration: 'none',
-        }}
-      >
-        ← Back to Companies
-      </Link>
-
-      <h1>{company.name}</h1>
-      {company.description && (
-        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={company.description} />
-        </div>
-      )}
-      {uniqueCountries.length > 0 && (
-        <CollapsibleSection title={`Related Countries (${uniqueCountries.length})`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {uniqueCountries.map((country) => (
-              <Link
-                key={country.id}
-                href={`/countries/${country.slug}`}
-                style={{
-                  color: '#4A90E2',
-                  textDecoration: 'none',
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                {country.name}
-              </Link>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-      {uniqueOrganisingGroups.length > 0 && (
-        <CollapsibleSection title={`Related Organising Groups (${uniqueOrganisingGroups.length})`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {uniqueOrganisingGroups.map((group) => (
-              <Link
-                key={group.id}
-                href={`/organising-groups/${group.slug}`}
-                style={{
-                  color: '#4A90E2',
-                  textDecoration: 'none',
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                {group.fullName || group.name}
-              </Link>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-      {solidarityActions.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Timeline</h2>
-          <ActionsTimeline
-            events={solidarityActions.sort(
-              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-            )}
-          />
-        </div>
-      )} */}
-    </div>
+    <CompanyPage
+      initialCompany={company}
+      descendants={descendants.length > 1 ? descendants : null}
+      events={events}
+    />
   )
 }

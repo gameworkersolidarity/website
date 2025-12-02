@@ -9,15 +9,16 @@ import { useElementSize } from '@custom-react-hooks/use-element-size'
 
 export function CollectiveActionStats({ color }: { color: string }) {
   const [elementRef, size] = useElementSize()
-  const { filteredEvents, initiatorFilter } = useEventFilterContext()
+  const { filteredEvents, filteredInitiator, filteredCountryISOA2 } = useEventFilterContext()
 
   return (
     <div className="h-full grid grid-rows-3 gap-4 p-4">
       <div className="row-span-2">
         <Map
           data={filteredEvents}
+          countryFilter={filteredCountryISOA2}
           colorRange={
-            initiatorFilter === EventInitiator.BOSS_LED
+            filteredInitiator === EventInitiator.BOSS_LED
               ? [
                   getCSSVariable(`--color-orange-50`, true),
                   getCSSVariable(`--color-orange-200`, true),

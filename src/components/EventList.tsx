@@ -45,7 +45,7 @@ export function EventList() {
       </header>
       {zoomLevel === ZoomLevel.Compact ? (
         <div>
-          <CompactEventList events={events} />
+          <CompactEventList events={events} hardLinks={false} />
         </div>
       ) : zoomLevel === ZoomLevel.Preview ? (
         <div className="flex flex-col gap-4 px-4 pb-4">

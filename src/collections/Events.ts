@@ -4,6 +4,7 @@ import { projectStrings } from '@/project-strings'
 import { geocodeOpenStreetMap } from '@/utils/geo'
 import config from '@/payload.config'
 import { getPath } from '@/utils/payloadPath'
+import { Event } from '@/payload-types'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -21,7 +22,7 @@ export const Events: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'events',
-        path: getPath('events', { slug }),
+        path: getPath('events', doc as unknown as Event),
         previewSecret,
       })
 
@@ -262,7 +263,7 @@ export const Events: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('events', { slug: siblingData.slug })
+            return getPath('events', siblingData as unknown as Event)
           },
         ],
       },
@@ -277,7 +278,7 @@ export const Events: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('events', { slug: siblingData.slug }),
+              getPath('events', siblingData as unknown as Event),
               projectStrings.baseUrl,
             ).toString()
           },

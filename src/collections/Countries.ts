@@ -5,6 +5,7 @@ import { getCountryFlag } from '@/utils/iso'
 import { projectStrings } from '@/project-strings'
 import { getBboxForCountry, getIsoA3ForCountry, getLatLngForCountry } from '@/utils/geo'
 import { getPath } from '@/utils/payloadPath'
+import { Country } from '@/payload-types'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -21,7 +22,7 @@ export const Countries: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'countries',
-        path: getPath('countries', { slug }),
+        path: getPath('countries', doc as unknown as Country),
         previewSecret,
       })
 
@@ -80,6 +81,23 @@ export const Countries: CollectionConfig = {
         description: 'Choose a color for this page',
       },
     }),
+    {
+      name: 'color',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return siblingData.primaryColor || '#EEE'
+          },
+        ],
+      },
+    },
     {
       name: 'isoA2',
       type: 'text',
@@ -163,7 +181,7 @@ export const Countries: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('countries', { slug: siblingData.slug })
+            return getPath('countries', siblingData as unknown as Country)
           },
         ],
       },
@@ -178,7 +196,7 @@ export const Countries: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('countries', { slug: siblingData.slug }),
+              getPath('countries', siblingData as unknown as Country),
               projectStrings.baseUrl,
             ).toString()
           },

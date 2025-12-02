@@ -5,6 +5,7 @@ import { Breadcrumb } from 'node_modules/@payloadcms/plugin-nested-docs/dist/typ
 import { payloadClient } from './payload'
 import { ArchiveBreadcrumb } from './payloadTree'
 import { getPath } from '@/utils/payloadPath'
+import { Config } from '@/payload-types'
 
 export async function getDescendants<T extends CollectionSlug>(collection: T, slug: string) {
   const breadcrumbs = await payloadClient.find({
@@ -27,7 +28,7 @@ export async function getDescendants<T extends CollectionSlug>(collection: T, sl
           id: breadcrumb.doc,
           breadcrumbPath: breadcrumb.url!,
           slugPath: breadcrumb.url?.split('/') || [],
-          path: getPath(collection, { slug }),
+          path: getPath(collection, modelInstance as unknown as Config['collections'][T]),
         })
       }
     }

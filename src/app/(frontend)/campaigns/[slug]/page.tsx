@@ -2,16 +2,9 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
+import { CampaignPage } from './CampaignPage'
+import { getSlug } from '@/utils/payloadPath'
 import { Event } from '@/payload-types'
-import { LexicalRenderer } from '../../components/LexicalRenderer'
-import chroma from 'chroma-js'
-import { twMerge } from 'tailwind-merge'
-import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
-import { ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { EventList } from '@/components/EventList'
-import { CollectiveActionStats } from '@/app/(frontend)/components/CollectiveActionStats'
-// import { EventTimeline } from '@/components/EventsTimeline'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -28,11 +21,11 @@ export async function generateStaticParams() {
   })
 
   return pagesResult.docs.map((page) => ({
-    slug: page.slug,
+    slug: getSlug('campaigns', page),
   }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const isDraftMode = (await draftMode()).isEnabled
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -71,7 +64,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function CampaignPage({ params }: { params: { slug: string } }) {
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const isDraftMode = (await draftMode()).isEnabled
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -92,7 +85,8 @@ export default async function CampaignPage({ params }: { params: { slug: string 
           }
         : {}),
     },
-    depth: 3, // Deep depth to get all event relationships
+    depth: 1,
+    pagination: false,
     draft: isDraftMode,
     limit: 1,
   })
@@ -101,46 +95,17 @@ export default async function CampaignPage({ params }: { params: { slug: string 
     notFound()
   }
 
-  const page = result.docs[0]
-  const events = page.events?.map((event) => event as Event) || []
+  const campaign = result.docs[0]
 
-  const textColor = chroma.contrast(page.primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
+  const events = await payload.find({
+    collection: 'events',
+    where: {
+      campaigns: {
+        equals: campaign.id,
+      },
+    },
+    depth: 1,
+  })
 
-  return (
-    <div
-      style={{
-        backgroundColor: page.primaryColor,
-      }}
-    >
-      <article
-        className={twMerge(
-          'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',
-          textColor === 'white' && 'text-white',
-        )}
-      >
-        <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
-        {page.description && (
-          <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
-            <LexicalRenderer content={page.description} />
-          </div>
-        )}
-      </article>
-
-      {/* <EventTimeline events={events} /> */}
-
-      <EventFilterContextProvider events={events}>
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <CollectiveActionStats color={page.primaryColor} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </EventFilterContextProvider>
-    </div>
-  )
+  return <CampaignPage initialCampaign={campaign} events={events.docs} />
 }

@@ -316,6 +316,7 @@ export interface Country {
    * Choose a color for this page
    */
   primaryColor?: string | null;
+  color?: string;
   isoA2: string;
   emoji?: string;
   bbox?:
@@ -376,6 +377,7 @@ export interface Company {
    * Choose a color for this page
    */
   primaryColor?: string | null;
+  color?: string;
   /**
    * Countries where this company has workers.
    */
@@ -480,6 +482,7 @@ export interface OrganisingGroup {
    * Choose a color for this page
    */
   primaryColor?: string | null;
+  color?: string;
   fullName?: string | null;
   /**
    * Countries where this group organises.
@@ -547,6 +550,7 @@ export interface Campaign {
    * Choose a color for this page
    */
   primaryColor: string;
+  color?: string;
   /**
    * Used to illustrate the campaign label.
    */
@@ -948,6 +952,7 @@ export interface CountriesSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  color?: T;
   isoA2?: T;
   emoji?: T;
   bbox?: T;
@@ -972,6 +977,7 @@ export interface CompaniesSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  color?: T;
   countries?: T;
   path?: T;
   url?: T;
@@ -1022,6 +1028,7 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  color?: T;
   fullName?: T;
   countries?: T;
   companies?: T;
@@ -1056,6 +1063,7 @@ export interface CampaignsSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   primaryColor?: T;
+  color?: T;
   emoji?: T;
   events?: T;
   path?: T;

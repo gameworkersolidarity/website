@@ -4,7 +4,6 @@ import { useEventFilterContext } from './EventFilterContextProvider'
 import { Event } from '@/payload-types'
 import { useMemo } from 'react'
 import { range } from 'd3-array'
-import { getCSSVariable } from '@/utils/css'
 import dynamic from 'next/dynamic'
 const RenderPlot = dynamic(() => import('./Plot').then((mod) => mod.RenderPlot), { ssr: false })
 import { usePlotConfig } from './Plot'

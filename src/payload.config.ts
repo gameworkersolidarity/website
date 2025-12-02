@@ -24,6 +24,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { Company, OrganisingGroup } from './payload-types'
 import { projectStrings } from './project-strings'
+import { getPath, getSlug } from './utils/payloadPath'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -44,14 +45,31 @@ export default buildConfig({
           }
         : undefined,
     livePreview: {
-      url: ({ data }) => {
-        const baseURL = process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'
-        if (data?.slug) {
-          return `${baseURL}/events/${data.slug}`
+      url: ({ data, collectionConfig }) => {
+        if (!data?.slug || !collectionConfig) {
+          return null
         }
-        return baseURL
+
+        const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+        const baseURL = projectStrings.baseUrl
+        const encodedParams = new URLSearchParams({
+          slug: getSlug(collectionConfig.slug, data as any),
+          collection: collectionConfig.slug,
+          path: getPath(collectionConfig.slug, data as any),
+          previewSecret,
+        })
+        return `${baseURL}/preview?${encodedParams.toString()}`
       },
-      collections: ['events'],
+      collections: [
+        'events',
+        'campaigns',
+        'categories',
+        'companies',
+        'organisingGroups',
+        'countries',
+        'staticPages',
+        'blogPosts',
+      ],
       breakpoints: [
         {
           label: 'Mobile',

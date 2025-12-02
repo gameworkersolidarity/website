@@ -16,6 +16,7 @@ export const getStaticPaths: GetStaticPaths<PageParams> = async (context) => {
   const events = await payload.find({
     collection: 'events',
     depth: 0,
+    sort: 'date:desc',
   })
 
   return {
@@ -36,6 +37,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   const events = await payload.find({
     collection: 'events',
+    sort: 'date:desc',
     depth: 2,
     draft: isDraftMode,
     limit: 1,

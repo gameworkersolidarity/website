@@ -9,6 +9,6 @@ export function DisplayInitiator({ initiator }: { initiator: EventInitiator }) {
     case EventInitiator.OTHER:
       return <span className="text-gray-400 font-semibold">Other</span>
     default:
-      return null
+      return <span className="text-gray-400 font-semibold">All</span>
   }
 }

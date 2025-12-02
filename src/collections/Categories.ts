@@ -91,7 +91,7 @@ export const Categories: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return siblingData.primaryColor || '#CCC'
+            return siblingData.primaryColor || '#EEE'
           },
         ],
       },

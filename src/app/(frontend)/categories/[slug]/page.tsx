@@ -2,10 +2,8 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import React from 'react'
-import Link from 'next/link'
-import { LexicalRenderer } from '../../components/LexicalRenderer'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
+import { CategoryPage } from './CategoryPage'
+import { getSlug } from '@/utils/payloadPath'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -22,7 +20,7 @@ export async function generateStaticParams() {
   })
 
   return categoriesResult.docs.map((category) => ({
-    slug: category.slug,
+    slug: getSlug('categories', category),
   }))
 }
 
@@ -68,7 +66,7 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { slug } = await params
   const isDraftMode = (await draftMode()).isEnabled
 
@@ -122,6 +120,7 @@ export default async function CategoryPage({ params }: Props) {
           : []),
       ],
     },
+    sort: ['date:desc'],
     depth: 2, // Include related entities
     draft: isDraftMode,
     pagination: false,
@@ -129,43 +128,5 @@ export default async function CategoryPage({ params }: Props) {
 
   const events = actionsResult.docs
 
-  return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <Link
-        href="/"
-        style={{
-          display: 'inline-block',
-          marginBottom: '1rem',
-          color: '#4A90E2',
-          textDecoration: 'none',
-        }}
-      >
-        ← Back to Home
-      </Link>
-
-      <h1>
-        {category.emoji && <span style={{ marginRight: '0.5rem' }}>{category.emoji}</span>}
-        {category.name}
-      </h1>
-
-      {category.description && (
-        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={category.description} />
-        </div>
-      )}
-
-      {events.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-            Related Solidarity Actions ({events.length})
-          </h2>
-          <ActionsTimeline
-            events={events
-              .slice()
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
-          />
-        </div>
-      )}
-    </div>
-  )
+  return <CategoryPage initialCategory={category} events={events} />
 }

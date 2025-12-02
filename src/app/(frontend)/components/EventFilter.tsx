@@ -14,21 +14,15 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { Country, Category, Company, OrganisingGroup, Campaign } from '@/payload-types'
 import { useState } from 'react'
-import {
-  useCategoryFilter,
-  useYearFilter,
-  useCompanyFilter,
-  useUnionFilter,
-  useCountryISOA2Filter,
-  useCampaignFilter,
-  useInitiatorFilter,
-} from '@/utils/global-state'
 import { twMerge } from 'tailwind-merge'
 import Emoji from 'a11y-react-emoji'
 import { EventInitiator } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { useEventFilterContext } from '@/components/EventFilterContextProvider'
 import Link from 'next/link'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 
 interface EventFilterProps {
   countries: Country[]
@@ -50,24 +44,24 @@ export function EventFilter({
   // setSearchQuery,
 }: EventFilterProps) {
   const {
-    countryFilter,
+    filteredCountryISOA2,
     filteredCountry,
     setCountryISOA2Filter,
-    categoryFilter,
+    filteredCategorySlug,
     filteredCategory,
     setCategoryFilter,
-    companyFilter,
+    filteredCompanySlug,
     filteredCompany,
     setCompanyFilter,
-    unionFilter,
-    filteredUnion,
-    setUnionFilter,
-    campaignFilter,
+    filteredOrganisingGroupSlug,
+    filteredOrganisingGroup,
+    setOrganisingGroupFilter,
+    filteredCampaignSlug,
     filteredCampaign,
     setCampaignFilter,
-    initiatorFilter,
+    filteredInitiator,
     setInitiatorFilter,
-    yearFilter,
+    filteredYear,
     setYearFilter,
   } = useEventFilterContext()
 
@@ -78,32 +72,54 @@ export function EventFilter({
 
   return (
     <div className="homepage-filters">
-      <div className="flex flex-row items-baseline gap-2 mb-2">
-        <h2 className="font-bold">Filter by</h2>
-        {(countryFilter ||
-          categoryFilter ||
-          companyFilter ||
-          unionFilter ||
-          campaignFilter ||
-          initiatorFilter ||
-          yearFilter) && (
-          <div
-            className="link"
-            onClick={() => {
-              setCountryISOA2Filter(null)
-              setCategoryFilter(null)
-              setCompanyFilter(null)
-              setUnionFilter(null)
-              setCampaignFilter(null)
-              setInitiatorFilter(null)
-              setYearFilter(null)
-            }}
-          >
-            clear filters ⤬
-          </div>
-        )}
+      <div className="flex flex-row items-center justify-between gap-2 mb-2">
+        <div className="flex flex-row items-baseline gap-2">
+          <h2 className="font-bold">Filter by</h2>
+          {(filteredCountryISOA2 ||
+            filteredCategorySlug ||
+            filteredCompanySlug ||
+            filteredOrganisingGroupSlug ||
+            filteredCampaignSlug ||
+            filteredInitiator ||
+            filteredYear) && (
+            <div
+              className="link"
+              onClick={() => {
+                setCountryISOA2Filter(null)
+                setCategoryFilter(null)
+                setCompanyFilter(null)
+                setOrganisingGroupFilter(null)
+                setCampaignFilter(null)
+                setInitiatorFilter(null)
+                setYearFilter(null)
+              }}
+            >
+              clear filters ⤬
+            </div>
+          )}
+        </div>
+        <RadioGroup
+          value={filteredInitiator || ''}
+          onValueChange={(value) => setInitiatorFilter(value as EventInitiator)}
+          className="hidden md:flex flex-row items-right gap-3"
+        >
+          {[
+            { label: 'All', value: null },
+            ...Object.values(EventInitiator).map((initiator) => ({
+              label: initiator.charAt(0).toUpperCase() + initiator.slice(1),
+              value: initiator,
+            })),
+          ].map((initiator) => (
+            <div key={initiator.label} className="flex items-center gap-2">
+              <Label htmlFor={initiator.label} className="text-xs uppercase">
+                <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
+                <DisplayInitiator initiator={initiator.value as EventInitiator} />
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
         <div className="filter-group w-full">
           <Select
             placeholder="country..."
@@ -111,9 +127,9 @@ export function EventFilter({
               label: country.name,
               value: country.isoA2,
             }))}
-            value={countryFilter || ''}
+            value={filteredCountryISOA2 || ''}
             onChange={(value) =>
-              value === countryFilter
+              value === filteredCountryISOA2
                 ? setCountryISOA2Filter(null)
                 : setCountryISOA2Filter(value || null)
             }
@@ -149,9 +165,11 @@ export function EventFilter({
                 {d.label}
               </span>
             )}
-            value={categoryFilter || ''}
+            value={filteredCategorySlug || ''}
             onChange={(value) =>
-              value === categoryFilter ? setCategoryFilter(null) : setCategoryFilter(value || null)
+              value === filteredCategorySlug
+                ? setCategoryFilter(null)
+                : setCategoryFilter(value || null)
             }
           />
 
@@ -180,9 +198,11 @@ export function EventFilter({
               label: company.name,
               value: company.slug,
             }))}
-            value={companyFilter || ''}
+            value={filteredCompanySlug || ''}
             onChange={(value) =>
-              value === companyFilter ? setCompanyFilter(null) : setCompanyFilter(value || null)
+              value === filteredCompanySlug
+                ? setCompanyFilter(null)
+                : setCompanyFilter(value || null)
             }
           />
           {!!filteredCompany && (
@@ -209,21 +229,30 @@ export function EventFilter({
               label: group.name,
               value: group.slug,
             }))}
-            value={unionFilter || ''}
+            value={filteredOrganisingGroupSlug || ''}
             onChange={(value) =>
-              value === unionFilter ? setUnionFilter(null) : setUnionFilter(value || null)
+              value === filteredOrganisingGroupSlug
+                ? setOrganisingGroupFilter(null)
+                : setOrganisingGroupFilter(value || null)
             }
           />
-          {!!filteredUnion && (
+          {!!filteredOrganisingGroup && (
             <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              <Link href={filteredUnion.path!} className="text-xs" key={filteredUnion.id}>
-                See <span className="font-medium link hover:bg-snot-300">{filteredUnion.name}</span>{' '}
+              <Link
+                href={filteredOrganisingGroup.path!}
+                className="text-xs"
+                key={filteredOrganisingGroup.id}
+              >
+                See{' '}
+                <span className="font-medium link hover:bg-snot-300">
+                  {filteredOrganisingGroup.name}
+                </span>{' '}
                 →
               </Link>
               <span
                 className="text-xs link"
                 onClick={() => {
-                  setUnionFilter(null)
+                  setOrganisingGroupFilter(null)
                 }}
               >
                 clear filter ⤬
@@ -238,9 +267,11 @@ export function EventFilter({
               label: campaign.name,
               value: campaign.slug,
             }))}
-            value={campaignFilter || ''}
+            value={filteredCampaignSlug || ''}
             onChange={(value) =>
-              value === campaignFilter ? setCampaignFilter(null) : setCampaignFilter(value || null)
+              value === filteredCampaignSlug
+                ? setCampaignFilter(null)
+                : setCampaignFilter(value || null)
             }
           />
           {filteredCampaign && (
@@ -268,25 +299,11 @@ export function EventFilter({
               label: year.toString(),
               value: year.toString(),
             }))}
-            value={yearFilter || ''}
+            value={filteredYear?.toString() || ''}
             onChange={(value) =>
-              value === yearFilter ? setYearFilter(null) : setYearFilter(value || null)
-            }
-          />
-        </div>
-        <div className="filter-group w-full">
-          <Select
-            placeholder="initiator..."
-            options={Object.values(EventInitiator).map((initiator) => ({
-              label: initiator.charAt(0).toUpperCase() + initiator.slice(1),
-              value: initiator,
-            }))}
-            renderLabel={(d) => <DisplayInitiator initiator={d.value as EventInitiator} />}
-            value={initiatorFilter || ''}
-            onChange={(value) =>
-              value === initiatorFilter
-                ? setInitiatorFilter(null)
-                : setInitiatorFilter(value as EventInitiator)
+              value === filteredYear?.toString()
+                ? setYearFilter(null)
+                : setYearFilter(value || null)
             }
           />
         </div>

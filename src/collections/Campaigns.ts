@@ -2,6 +2,7 @@ import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
+import { Campaign } from '@/payload-types'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
@@ -19,7 +20,7 @@ export const Campaigns: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'campaigns',
-        path: getPath('campaigns', { slug }),
+        path: getPath('campaigns', doc as unknown as Campaign),
         previewSecret,
       })
 
@@ -73,6 +74,23 @@ export const Campaigns: CollectionConfig = {
       },
     }),
     {
+      name: 'color',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return siblingData.primaryColor || '#EEE'
+          },
+        ],
+      },
+    },
+    {
       name: 'emoji',
       type: 'text',
       admin: {
@@ -106,7 +124,7 @@ export const Campaigns: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('campaigns', { slug: siblingData.slug })
+            return getPath('campaigns', siblingData as unknown as Campaign)
           },
         ],
       },
@@ -121,7 +139,7 @@ export const Campaigns: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('campaigns', { slug: siblingData.slug }),
+              getPath('campaigns', siblingData as unknown as Campaign),
               projectStrings.baseUrl,
             ).toString()
           },

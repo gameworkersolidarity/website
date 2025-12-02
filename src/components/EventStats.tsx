@@ -12,7 +12,7 @@ import { FrequencyChart } from './FrequencyChart'
 
 export function EventStats() {
   const [elementRef, size] = useElementSize()
-  const { filteredEvents, initiatorFilter } = useEventFilterContext()
+  const { filteredEvents, filteredInitiator } = useEventFilterContext()
 
   const workerEventsFilter = useCallback(
     (event: Event) => event.initiator === EventInitiator.WORKER_LED,
@@ -28,20 +28,24 @@ export function EventStats() {
   )
 
   const extraFilteredEvents = useMemo(() => {
-    if (initiatorFilter === EventInitiator.BOSS_LED) {
+    if (filteredInitiator === EventInitiator.BOSS_LED) {
       return filteredEvents.filter(redundancyFilter)
     } else {
       return filteredEvents.filter(workerEventsFilter)
     }
-  }, [filteredEvents, workerEventsFilter, redundancyFilter, initiatorFilter])
+  }, [filteredEvents, workerEventsFilter, redundancyFilter, filteredInitiator])
+
+  const { filteredCountryISOA2, setCountryISOA2Filter } = useEventFilterContext()
 
   return (
     <div className="h-full grid grid-rows-5 gap-4 p-4">
-      <div className={twMerge(initiatorFilter ? 'row-span-4' : 'row-span-3')}>
+      <div className={twMerge(filteredInitiator ? 'row-span-4' : 'row-span-3')}>
         <Map
+          countryFilter={filteredCountryISOA2}
+          onSelectCountry={setCountryISOA2Filter}
           data={extraFilteredEvents}
           colorRange={
-            initiatorFilter === EventInitiator.BOSS_LED
+            filteredInitiator === EventInitiator.BOSS_LED
               ? [
                   getCSSVariable(`--color-orange-50`, true),
                   getCSSVariable(`--color-orange-200`, true),
@@ -55,7 +59,7 @@ export function EventStats() {
           }
         />
       </div>
-      {(initiatorFilter === EventInitiator.WORKER_LED || !initiatorFilter) && (
+      {(filteredInitiator === EventInitiator.WORKER_LED || !filteredInitiator) && (
         <div className="bg-white rounded-xl p-2">
           <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
           <div ref={elementRef} className="h-full w-full">
@@ -67,7 +71,7 @@ export function EventStats() {
           </div>
         </div>
       )}
-      {(initiatorFilter === EventInitiator.BOSS_LED || !initiatorFilter) && (
+      {(filteredInitiator === EventInitiator.BOSS_LED || !filteredInitiator) && (
         <div className="bg-white rounded-xl p-2">
           <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
           <div ref={elementRef} className="h-full w-full">

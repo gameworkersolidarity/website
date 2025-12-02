@@ -2,12 +2,9 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import React from 'react'
-import Link from 'next/link'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
-import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Company } from '@/payload-types'
 import { getDescendants } from '@/utils/payloadTree.server'
+import { OrganisingGroupPage } from './OrganisingGroupPage'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -70,7 +67,7 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-export default async function OrganisingGroupPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { slug } = await params
   const isDraftMode = (await draftMode()).isEnabled
 
@@ -108,6 +105,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
   // Query solidarity actions directly where this organising group is related
   const actionsResult = await payload.find({
     collection: 'events',
+    sort: 'date:desc',
     where: {
       and: [
         {
@@ -145,7 +143,7 @@ export default async function OrganisingGroupPage({ params }: Props) {
           company !== null &&
           'id' in company &&
           'slug' in company &&
-          'Name' in company
+          'name' in company
         ) {
           const companyId = String(company.id)
           if (!companiesSet.has(companyId)) {
@@ -158,152 +156,5 @@ export default async function OrganisingGroupPage({ params }: Props) {
 
   const uniqueCompanies = Array.from(companiesSet.values())
 
-  return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <Link
-        href="/organising-groups"
-        style={{
-          display: 'inline-block',
-          marginBottom: '1rem',
-          color: '#4A90E2',
-          textDecoration: 'none',
-        }}
-      >
-        ← Back to Organising Groups
-      </Link>
-
-      <h1>{group.fullName || group.name}</h1>
-      {group.name !== group.fullName && group.name && (
-        <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
-          Also known as: {group.name}
-        </p>
-      )}
-      {group.isUnion && (
-        <p
-          style={{ fontSize: '0.9rem', color: '#4A90E2', marginBottom: '1rem', fontWeight: 'bold' }}
-        >
-          Union
-        </p>
-      )}
-      {group.website && (
-        <p style={{ marginBottom: '0.5rem' }}>
-          <a
-            href={group.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#4A90E2' }}
-          >
-            Website
-          </a>
-        </p>
-      )}
-      {group.twitter && (
-        <p style={{ marginBottom: '0.5rem' }}>
-          <a
-            href={group.twitter}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#4A90E2' }}
-          >
-            Twitter
-          </a>
-        </p>
-      )}
-      {group.bluesky && (
-        <p style={{ marginBottom: '1rem' }}>
-          <a
-            href={group.bluesky}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#4A90E2' }}
-          >
-            Bluesky
-          </a>
-        </p>
-      )}
-      {uniqueCompanies.length > 0 && (
-        <CollapsibleSection title={`Related Companies (${uniqueCompanies.length})`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {uniqueCompanies.map((company) => (
-              <Link
-                key={company.id}
-                href={`/companies/${company.slug}`}
-                style={{
-                  color: '#4A90E2',
-                  textDecoration: 'none',
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                {company.name}
-              </Link>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-      {group.countries && Array.isArray(group.countries) && group.countries.length > 0 && (
-        <CollapsibleSection title={`Countries (${group.countries.length})`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {group.countries.map((country, index) => (
-              <div key={index}>
-                {typeof country === 'object' && country !== null && 'slug' in country ? (
-                  <Link
-                    href={`/countries/${country.slug}`}
-                    style={{
-                      color: '#4A90E2',
-                      textDecoration: 'none',
-                      padding: '0.5rem',
-                      borderRadius: '4px',
-                      display: 'block',
-                      transition: 'background-color 0.2s',
-                    }}
-                  >
-                    {typeof country === 'object' && 'name' in country
-                      ? country.name
-                      : 'Unknown Country'}
-                  </Link>
-                ) : (
-                  <span
-                    style={{
-                      padding: '0.5rem',
-                      display: 'block',
-                      color: '#666',
-                    }}
-                  >
-                    {typeof country === 'object' &&
-                    country !== null &&
-                    'name' in country &&
-                    typeof (country as { name?: unknown }).name === 'string'
-                      ? (country as { name: string }).name
-                      : 'Unknown Country'}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-      {events.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Related Solidarity Actions</h2>
-          <ActionsTimeline
-            events={events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
-          />
-        </div>
-      )}
-    </div>
-  )
+  return <OrganisingGroupPage initialGroup={group} events={events} companies={uniqueCompanies} />
 }

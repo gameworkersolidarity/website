@@ -2,7 +2,9 @@ import { EventInitiator } from '@/collections/enums'
 import { SortingState } from '@tanstack/react-table'
 import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
+import { noop } from 'lodash'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
+import qs from 'query-string'
 
 export enum ZoomLevel {
   Compact = 'compact',
@@ -23,35 +25,66 @@ export function useZoomLevel() {
   return useAtom(zoomLevelAtom)
 }
 
-export function useCountryISOA2Filter() {
-  return useQueryState('country', { clearOnDefault: true })
+export enum EventFilterKey {
+  Country = 'country',
+  Category = 'category',
+  Company = 'company',
+  OrganisingGroup = 'organisingGroup',
+  Campaign = 'campaign',
+  Initiator = 'initiator',
+  Year = 'year',
 }
 
-export function useCategoryFilter() {
-  return useQueryState('category', { clearOnDefault: true })
+export function getFilterPath(
+  filter: { [key in EventFilterKey]?: string | number },
+  keepExistingQuery: boolean = true,
+) {
+  return qs.stringifyUrl({
+    url: keepExistingQuery && typeof document !== 'undefined' ? document.location.href : '/',
+    query: filter,
+  })
 }
 
-export function useCompanyFilter() {
-  return useQueryState('company', { clearOnDefault: true })
+export function useCountryISOA2Filter(override?: string | null) {
+  const [countryISOA2, setCountryISOA2] = useQueryState(EventFilterKey.Country, {
+    clearOnDefault: true,
+  })
+  return override ? ([override, noop] as const) : ([countryISOA2, setCountryISOA2] as const)
 }
 
-export function useUnionFilter() {
-  return useQueryState('union', { clearOnDefault: true })
+export function useCategoryFilter(override?: string | null) {
+  const [category, setCategory] = useQueryState(EventFilterKey.Category, { clearOnDefault: true })
+  return override ? ([override, noop] as const) : ([category, setCategory] as const)
 }
 
-export function useCampaignFilter() {
-  return useQueryState('campaign', { clearOnDefault: true })
+export function useCompanyFilter(override?: string | null) {
+  const [company, setCompany] = useQueryState(EventFilterKey.Company, { clearOnDefault: true })
+  return override ? ([override, noop] as const) : ([company, setCompany] as const)
 }
 
-export function useInitiatorFilter() {
-  return useQueryState(
-    'initiator',
+export function useOrganisingGroupFilter(override?: string | null) {
+  const [organisingGroup, setOrganisingGroup] = useQueryState(EventFilterKey.OrganisingGroup, {
+    clearOnDefault: true,
+  })
+  return override ? ([override, noop] as const) : ([organisingGroup, setOrganisingGroup] as const)
+}
+
+export function useCampaignFilter(override?: string | null) {
+  const [campaign, setCampaign] = useQueryState(EventFilterKey.Campaign, { clearOnDefault: true })
+  return override ? ([override, noop] as const) : ([campaign, setCampaign] as const)
+}
+
+export function useInitiatorFilter(override?: EventInitiator | null) {
+  const [initiator, setInitiator] = useQueryState(
+    EventFilterKey.Initiator,
     parseAsStringEnum<EventInitiator>(Object.values(EventInitiator)).withOptions({
       clearOnDefault: true,
     }),
   )
+  return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }
 
-export function useYearFilter() {
-  return useQueryState('year', { clearOnDefault: true })
+export function useYearFilter(override?: string | number | null) {
+  const [year, setYear] = useQueryState(EventFilterKey.Year, { clearOnDefault: true })
+  return override ? ([override, noop] as const) : ([Number(year), setYear] as const)
 }

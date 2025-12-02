@@ -3,6 +3,7 @@ import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
 import { createBreadcrumbsField } from '@payloadcms/plugin-nested-docs'
+import { Company } from '@/payload-types'
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
@@ -19,7 +20,7 @@ export const Companies: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'companies',
-        path: getPath('companies', { slug }),
+        path: getPath('companies', doc as unknown as Company),
         previewSecret,
       })
 
@@ -79,6 +80,23 @@ export const Companies: CollectionConfig = {
       },
     }),
     {
+      name: 'color',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return siblingData.primaryColor || '#EEE'
+          },
+        ],
+      },
+    },
+    {
       name: 'countries',
       type: 'relationship',
       relationTo: 'countries',
@@ -96,7 +114,7 @@ export const Companies: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('companies', { slug: siblingData.slug })
+            return getPath('companies', siblingData as unknown as Company)
           },
         ],
       },
@@ -111,7 +129,7 @@ export const Companies: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('companies', { slug: siblingData.slug }),
+              getPath('companies', siblingData as unknown as Company),
               projectStrings.baseUrl,
             ).toString()
           },

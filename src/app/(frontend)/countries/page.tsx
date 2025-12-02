@@ -45,6 +45,7 @@ export default async function CountriesPage() {
             },
           ],
         },
+        sort: 'date:desc',
         limit: 1,
         depth: 0,
       })

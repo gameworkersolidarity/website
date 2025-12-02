@@ -28,7 +28,7 @@ export async function getDescendants<T extends CollectionSlug>(collection: T, sl
         id: breadcrumb.doc,
         breadcrumbPath: breadcrumb.url!,
         slugPath: breadcrumb.url?.split('/') || [],
-        path: getPath(collection, { slug }),
+        path: getPath(collection, modelInstance),
       })
     }
   }

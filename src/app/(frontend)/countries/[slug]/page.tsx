@@ -2,14 +2,8 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import Link from 'next/link'
-import { LexicalRenderer } from '../../components/LexicalRenderer'
-import { ActionsTimeline } from '../../components/ActionsTimeline'
-import { CollapsibleSection } from '../../components/CollapsibleSection'
-import { Company } from '@/payload-types'
-import useSWR from 'swr'
-import { payloadClient } from '@/utils/payload'
-import { CountryQuery } from './CountryQuery'
+import { Company, OrganisingGroup } from '@/payload-types'
+import { CountryPage } from './CountryPage'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -72,7 +66,7 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-export default async function CountryPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { slug } = await params
   const isDraftMode = (await draftMode()).isEnabled
 
@@ -112,7 +106,7 @@ export default async function CountryPage({ params }: Props) {
       and: [
         {
           countries: {
-            in: [country.id],
+            equals: country.id,
           },
         },
         ...(!isDraftMode
@@ -126,6 +120,7 @@ export default async function CountryPage({ params }: Props) {
           : []),
       ],
     },
+    sort: 'date:desc',
     depth: 2, // Include related entities
     draft: isDraftMode,
     pagination: false,
@@ -144,7 +139,7 @@ export default async function CountryPage({ params }: Props) {
           company !== null &&
           'id' in company &&
           'slug' in company &&
-          'Name' in company
+          'name' in company
         ) {
           const companyId = String(company.id)
           if (!companiesSet.has(companyId)) {
@@ -157,7 +152,7 @@ export default async function CountryPage({ params }: Props) {
 
   const uniqueCompanies = Array.from(companiesSet.values())
 
-  const organisingGroups = await payload.find({
+  const organisingGroupsResult = await payload.find({
     collection: 'organisingGroups',
     where: {
       countries: {
@@ -166,97 +161,14 @@ export default async function CountryPage({ params }: Props) {
     },
   })
 
+  const organisingGroups = organisingGroupsResult.docs as OrganisingGroup[]
+
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <Link
-        href="/countries"
-        style={{
-          display: 'inline-block',
-          marginBottom: '1rem',
-          color: '#4A90E2',
-          textDecoration: 'none',
-        }}
-      >
-        ← Back to Countries
-      </Link>
-
-      <CountryQuery countryId={country.id} />
-
-      <h1>{country.name}</h1>
-      {country.isoA2 && (
-        <p style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
-          Country Code: {country.isoA2.toUpperCase()}
-        </p>
-      )}
-      {country.description && (
-        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <LexicalRenderer content={country.description} />
-        </div>
-      )}
-      {uniqueCompanies.length > 0 && (
-        <CollapsibleSection title={`Related Companies (${uniqueCompanies.length})`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {uniqueCompanies.map((company) => (
-              <Link
-                key={company.id}
-                href={`/companies/${company.slug}`}
-                style={{
-                  color: '#4A90E2',
-                  textDecoration: 'none',
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                {company.name}
-              </Link>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-      {organisingGroups && Array.isArray(organisingGroups) && organisingGroups.length > 0 && (
-        <CollapsibleSection title={`Unions & Organising Groups (${organisingGroups.length})`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {organisingGroups.map((organisingGroup, index) => (
-              <div key={index}>
-                <Link
-                  href={`/organising-groups/${(organisingGroup as { slug: string }).slug}`}
-                  style={{
-                    color: '#4A90E2',
-                    textDecoration: 'none',
-                    padding: '0.5rem',
-                    borderRadius: '4px',
-                    display: 'block',
-                    transition: 'background-color 0.2s',
-                  }}
-                >
-                  {organisingGroup.fullName || organisingGroup.name}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-      {events.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Related Solidarity Actions</h2>
-          <ActionsTimeline
-            events={events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
-          />
-        </div>
-      )}
-    </div>
+    <CountryPage
+      initialCountry={country}
+      events={events}
+      companies={uniqueCompanies}
+      organisingGroups={organisingGroups}
+    />
   )
 }

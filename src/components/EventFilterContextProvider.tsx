@@ -5,7 +5,7 @@ import type { Campaign, Category, Company, Country, Event, OrganisingGroup } fro
 import {
   useCategoryFilter,
   useYearFilter,
-  useUnionFilter,
+  useOrganisingGroupFilter,
   useCompanyFilter,
   useCountryISOA2Filter,
   useCampaignFilter,
@@ -15,47 +15,74 @@ import { payloadClient } from '@/utils/payload'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { getDescendants } from '@/utils/payloadTree.client'
 import { getYear } from 'date-fns'
+import { noop } from 'lodash'
 import { createContext, useContext, useMemo } from 'react'
 import useSWR from 'swr'
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
+  filteredCountryISOA2?: string | null
+  filteredCategorySlug?: string | null
+  filteredCompanySlug?: string | null
+  filteredOrganisingGroupSlug?: string | null
+  filteredCampaignSlug?: string | null
   filteredCountry?: Country | null
   filteredCategory?: Category | null
   filteredCompany?: (Company & { descendants: ArchiveBreadcrumb[] }) | null
   filteredCampaign?: Campaign | null
-  filteredUnion?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] }) | null
+  filteredOrganisingGroup?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] }) | null
   filteredInitiator?: EventInitiator | null
   filteredYear?: number | null
+  setCountryISOA2Filter: (value: string | null) => void
+  setCategoryFilter: (value: string | null) => void
+  setCompanyFilter: (value: string | null) => void
+  setOrganisingGroupFilter: (value: string | null) => void
+  setCampaignFilter: (value: string | null) => void
+  setInitiatorFilter: (value: EventInitiator | null) => void
+  setYearFilter: (value: string | number | null) => void
 }>({
   filteredEvents: [],
+  setCountryISOA2Filter: noop,
+  setCategoryFilter: noop,
+  setCompanyFilter: noop,
+  setOrganisingGroupFilter: noop,
+  setCampaignFilter: noop,
+  setInitiatorFilter: noop,
+  setYearFilter: noop,
 })
 
 export function EventFilterContextProvider({
   events,
   children,
+  overrideFilteredCountryISOA2,
+  overrideFilteredCategorySlug,
+  overrideFilteredCompanySlug,
+  overrideFilteredOrganisingGroupSlug,
+  overrideFilteredCampaignSlug,
+  overrideFilteredInitiator,
+  overrideFilteredYear,
 }: {
   events: Event[]
   children: React.ReactNode
+  overrideFilteredCountryISOA2?: string | null
+  overrideFilteredCategorySlug?: string | null
+  overrideFilteredCompanySlug?: string | null
+  overrideFilteredOrganisingGroupSlug?: string | null
+  overrideFilteredCampaignSlug?: string | null
+  overrideFilteredInitiator?: EventInitiator | null
+  overrideFilteredYear?: string | number | null
 }) {
-  const [filteredCountryISOA2, setFilteredCountry] = useCountryISOA2Filter()
-  const [filteredCategorySlug, setFilteredCategory] = useCategoryFilter()
-  const [filteredCompanySlug, setFilteredCompany] = useCompanyFilter()
-  const [filteredUnionSlug, setFilteredUnion] = useUnionFilter()
-  const [filteredCampaignSlug, setFilteredCampaign] = useCampaignFilter()
-  const [filteredInitiator, setFilteredInitiator] = useInitiatorFilter()
-  const [filteredYear, setFilteredYear] = useYearFilter()
-
-  const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () => {
-    if (!filteredCountryISOA2) {
-      return null
-    }
-
-    return payloadClient.find({
-      collection: 'countries',
-      where: { isoA2: { equals: filteredCountryISOA2 } },
-    })
-  })
+  const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
+    overrideFilteredCountryISOA2,
+  )
+  const [filteredCategorySlug, setCategoryFilter] = useCategoryFilter(overrideFilteredCategorySlug)
+  const [filteredCompanySlug, setCompanyFilter] = useCompanyFilter(overrideFilteredCompanySlug)
+  const [filteredOrganisingGroupSlug, setOrganisingGroupFilter] = useOrganisingGroupFilter(
+    overrideFilteredOrganisingGroupSlug,
+  )
+  const [filteredCampaignSlug, setCampaignFilter] = useCampaignFilter(overrideFilteredCampaignSlug)
+  const [filteredInitiator, setInitiatorFilter] = useInitiatorFilter(overrideFilteredInitiator)
+  const [filteredYear, setYearFilter] = useYearFilter(overrideFilteredYear)
 
   const filteredCategory = useSWR(`/api/categories/${filteredCategorySlug}`, () => {
     if (!filteredCategorySlug) {
@@ -86,6 +113,16 @@ export function EventFilterContextProvider({
     }
   })
 
+  const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () => {
+    if (!filteredCountryISOA2) {
+      return null
+    }
+    return payloadClient.find({
+      collection: 'countries',
+      where: { isoA2: { equals: filteredCountryISOA2 } },
+    })
+  })
+
   const filteredCampaign = useSWR(`/api/campaigns/${filteredCampaignSlug}`, () => {
     if (!filteredCampaignSlug) {
       return null
@@ -96,25 +133,31 @@ export function EventFilterContextProvider({
     })
   })
 
-  const filteredUnion = useSWR(`/api/organising-groups/${filteredUnionSlug}`, async () => {
-    if (!filteredUnionSlug) {
-      return null
-    }
+  const filteredOrganisingGroup = useSWR(
+    `/api/organising-groups/${filteredOrganisingGroupSlug}`,
+    async () => {
+      if (!filteredOrganisingGroupSlug) {
+        return null
+      }
 
-    const union = await payloadClient.find({
-      collection: 'organisingGroups',
-      where: { slug: { equals: filteredUnionSlug } },
-    })
+      const union = await payloadClient.find({
+        collection: 'organisingGroups',
+        where: { slug: { equals: filteredOrganisingGroupSlug } },
+      })
 
-    const descendants = await getDescendants('organisingGroups', union.docs?.[0]?.slug || '')
+      const descendants = await getDescendants('organisingGroups', union.docs?.[0]?.slug || '')
 
-    return {
-      ...union.docs?.[0],
-      descendants,
-    }
-  })
+      return {
+        ...union.docs?.[0],
+        descendants,
+      }
+    },
+  )
 
   const filteredEvents = useMemo(() => {
+    if (!events?.length) {
+      return []
+    }
     let filtered = [...events]
     if (filteredCountryISOA2) {
       filtered = filtered.filter((event) =>
@@ -137,13 +180,13 @@ export function EventFilterContextProvider({
         }),
       )
     }
-    if (filteredUnionSlug) {
+    if (filteredOrganisingGroupSlug) {
       filtered = filtered.filter((event) =>
         event.organisingGroups?.some((organisingGroup) => {
           return (
-            filteredUnionSlug === (organisingGroup as OrganisingGroup).slug ||
-            (filteredUnion.data?.descendants || []).some(
-              (descendant) => descendant.slug === (organisingGroup as OrganisingGroup).slug,
+            filteredOrganisingGroupSlug === (organisingGroup as OrganisingGroup).slug ||
+            (organisingGroup as OrganisingGroup).parents?.some(
+              (parent) => parent.url === `/${filteredOrganisingGroupSlug}`,
             )
           )
         }),
@@ -160,9 +203,7 @@ export function EventFilterContextProvider({
       filtered = filtered.filter((event) => event.initiator === filteredInitiator)
     }
     if (filteredYear) {
-      filtered = filtered.filter(
-        (event) => getYear(new Date(event.date)) === parseInt(filteredYear),
-      )
+      filtered = filtered.filter((event) => getYear(new Date(event.date)) === Number(filteredYear))
     }
     return filtered
   }, [
@@ -170,7 +211,7 @@ export function EventFilterContextProvider({
     filteredCountryISOA2,
     filteredCategorySlug,
     filteredCompanySlug,
-    filteredUnionSlug,
+    filteredOrganisingGroupSlug,
     filteredCampaignSlug,
     filteredInitiator,
     filteredYear,
@@ -180,13 +221,25 @@ export function EventFilterContextProvider({
     <EventFilterContext.Provider
       value={{
         filteredEvents,
+        filteredCountryISOA2,
+        filteredCategorySlug,
+        filteredCompanySlug,
+        filteredOrganisingGroupSlug,
+        filteredCampaignSlug,
+        filteredInitiator,
         filteredCountry: filteredCountry.data?.docs?.[0] || null,
         filteredCategory: filteredCategory.data?.docs?.[0] || null,
         filteredCompany: filteredCompany.data || null,
-        filteredUnion: filteredUnion.data || null,
+        filteredOrganisingGroup: filteredOrganisingGroup.data || null,
         filteredCampaign: filteredCampaign.data?.docs?.[0] as Campaign | null,
-        filteredInitiator: filteredInitiator || null,
-        filteredYear: filteredYear ? parseInt(filteredYear) : null,
+        filteredYear: filteredYear ? Number(filteredYear) : null,
+        setCountryISOA2Filter,
+        setCategoryFilter,
+        setCompanyFilter,
+        setOrganisingGroupFilter,
+        setCampaignFilter,
+        setInitiatorFilter,
+        setYearFilter,
       }}
     >
       {children}
@@ -195,29 +248,5 @@ export function EventFilterContextProvider({
 }
 
 export function useEventFilterContext() {
-  const context = useContext(EventFilterContext)
-  const [countryFilter, setCountryISOA2Filter] = useCountryISOA2Filter()
-  const [categoryFilter, setCategoryFilter] = useCategoryFilter()
-  const [companyFilter, setCompanyFilter] = useCompanyFilter()
-  const [unionFilter, setUnionFilter] = useUnionFilter()
-  const [campaignFilter, setCampaignFilter] = useCampaignFilter()
-  const [initiatorFilter, setInitiatorFilter] = useInitiatorFilter()
-  const [yearFilter, setYearFilter] = useYearFilter()
-  return {
-    ...context,
-    countryFilter,
-    categoryFilter,
-    companyFilter,
-    unionFilter,
-    campaignFilter,
-    yearFilter,
-    initiatorFilter,
-    setCountryISOA2Filter,
-    setCategoryFilter,
-    setCompanyFilter,
-    setUnionFilter,
-    setCampaignFilter,
-    setYearFilter,
-    setInitiatorFilter,
-  }
+  return useContext(EventFilterContext)
 }
