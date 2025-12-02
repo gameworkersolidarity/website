@@ -11,13 +11,13 @@ import { ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { EventList } from '@/components/EventList'
 import { CollectiveActionStats } from '@/app/(frontend)/components/CollectiveActionStats'
-import { EventTimeline } from '@/components/EventsTimeline'
+// import { EventTimeline } from '@/components/EventsTimeline'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  const campaignsResult = await payload.find({
+  const pagesResult = await payload.find({
     collection: 'campaigns',
     where: {
       _status: {
@@ -27,8 +27,8 @@ export async function generateStaticParams() {
     pagination: false,
   })
 
-  return campaignsResult.docs.map((campaign) => ({
-    slug: campaign.slug,
+  return pagesResult.docs.map((page) => ({
+    slug: page.slug,
   }))
 }
 
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
 
-  const campaignResult = await payload.find({
+  const result = await payload.find({
     collection: 'campaigns',
     where: {
       slug: {
@@ -58,16 +58,16 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     limit: 1,
   })
 
-  if (campaignResult.docs.length === 0) {
+  if (result.docs.length === 0) {
     return {
-      title: 'Campaign Not Found',
+      title: 'Not found',
     }
   }
 
-  const campaign = campaignResult.docs[0]
+  const page = result.docs[0]
   return {
-    title: `${campaign.name} - Campaigns - Game Workers Solidarity Platform`,
-    description: `Learn about the ${campaign.name} campaign and its timeline of solidarity actions.`,
+    title: `${page.name} - Game Workers Solidarity Platform`,
+    description: `Learn about ${page.name} and its timeline of solidarity actions.`,
   }
 }
 
@@ -77,7 +77,7 @@ export default async function CampaignPage({ params }: { params: { slug: string 
   const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
 
-  const campaignResult = await payload.find({
+  const result = await payload.find({
     collection: 'campaigns',
     where: {
       slug: {
@@ -97,20 +97,19 @@ export default async function CampaignPage({ params }: { params: { slug: string 
     limit: 1,
   })
 
-  if (campaignResult.docs.length === 0) {
+  if (result.docs.length === 0) {
     notFound()
   }
 
-  const campaign = campaignResult.docs[0]
-  const events = campaign.events?.map((event) => event as Event) || []
+  const page = result.docs[0]
+  const events = page.events?.map((event) => event as Event) || []
 
-  const textColor =
-    chroma.contrast(campaign.primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
+  const textColor = chroma.contrast(page.primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
 
   return (
     <div
       style={{
-        backgroundColor: campaign.primaryColor,
+        backgroundColor: page.primaryColor,
       }}
     >
       <article
@@ -119,21 +118,21 @@ export default async function CampaignPage({ params }: { params: { slug: string 
           textColor === 'white' && 'text-white',
         )}
       >
-        <h1 className="text-5xl font-bold font-identity">{campaign.name}</h1>
-        {campaign.description && (
+        <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
+        {page.description && (
           <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
-            <LexicalRenderer content={campaign.description} />
+            <LexicalRenderer content={page.description} />
           </div>
         )}
       </article>
 
-      <EventTimeline events={events} />
+      {/* <EventTimeline events={events} /> */}
 
       <EventFilterContextProvider events={events}>
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <CollectiveActionStats color={campaign.primaryColor} />
+              <CollectiveActionStats color={page.primaryColor} />
             </div>
           </ResizablePanel>
           <ResizableHandle />
@@ -143,55 +142,5 @@ export default async function CampaignPage({ params }: { params: { slug: string 
         </ResizablePanelGroup>
       </EventFilterContextProvider>
     </div>
-    // <div className="campaign-page">
-    //   <div className="campaign-container">
-    //     <Link
-    //       href="/campaigns"
-    //       style={{
-    //         display: 'inline-block',
-    //         marginBottom: '1rem',
-    //         color: '#4A90E2',
-    //         textDecoration: 'none',
-    //       }}
-    //     >
-    //       ← Back to Campaigns
-    //     </Link>
-
-    //     <article className="campaign-article">
-    //       {campaign.featuredImage && (
-    //         <div className="campaign-featured-image">
-    //           <img src={campaign.featuredImage as string} alt={campaign.name} />
-    //         </div>
-    //       )}
-
-    //       <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-    //         {campaign.name}
-    //       </h1>
-
-    //       {campaign.description && (
-    //         <div className="campaign-description">
-    //           <RichText data={campaign.description} />
-    //         </div>
-    //       )}
-
-    //       {sortedTimelineEvents && sortedTimelineEvents.length > 0 && (
-    //         <>
-    //           <div style={{ marginTop: '3rem' }}>
-    //             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Events</h2>
-    //             <ActionsTimeline
-    //               events={sortedTimelineEvents
-    //                 .map((event) => event as Event)
-    //                 .sort(
-    //                   (a, b) =>
-    //                     new Date((b as Event).date).getTime() -
-    //                     new Date((a as Event).date).getTime(),
-    //                 )}
-    //             />
-    //           </div>
-    //         </>
-    //       )}
-    //     </article>
-    //   </div>
-    // </div>
   )
 }
