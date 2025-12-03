@@ -22,7 +22,7 @@ export default async function HomePage() {
           }
         : {}),
     },
-    sort: ['date:desc'],
+    sort: '-date',
     depth: 1, // Include related data (countries, categories, companies, organising groups)
     pagination: false,
   })

@@ -53,6 +53,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
           <Link href={`/admin/collections/events/${event.id}`}>
             <Button>Edit this page</Button>
           </Link>
+          <code>{event.id}</code>
           <div>
             Logged in as <Username />
           </div>

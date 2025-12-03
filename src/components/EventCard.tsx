@@ -431,7 +431,7 @@ export function EventCountryRelatedActions({ isoA2 }: { isoA2: string }) {
     () => {
       return payloadClient.find({
         collection: 'events',
-        sort: 'date:desc',
+        sort: '-date',
         where: {
           countries: {
             in: {

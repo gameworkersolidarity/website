@@ -23,7 +23,7 @@ export default async function CampaignsPage() {
     },
     depth: 2,
     pagination: false,
-    sort: 'createdAt',
+    sort: '-createdAt',
   })
 
   return (

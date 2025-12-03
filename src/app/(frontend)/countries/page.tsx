@@ -29,7 +29,7 @@ export default async function CountriesPage() {
   // Count actions for each country and filter out countries with no actions
   const countriesWithActions = await Promise.all(
     countriesResult.docs.map(async (country) => {
-      const actionsResult = await payload.find({
+      const eventResults = await payload.find({
         collection: 'events',
         where: {
           and: [
@@ -45,13 +45,13 @@ export default async function CountriesPage() {
             },
           ],
         },
-        sort: 'date:desc',
+        sort: '-date',
         limit: 1,
         depth: 0,
       })
       return {
         country,
-        actionCount: actionsResult.totalDocs,
+        actionCount: eventResults.totalDocs,
       }
     }),
   )

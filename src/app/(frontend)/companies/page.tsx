@@ -36,7 +36,7 @@ export default async function CompaniesPage() {
             in: [company.id],
           },
         },
-        sort: 'date:desc',
+        sort: '-date',
       })
       return {
         company,

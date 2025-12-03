@@ -105,7 +105,7 @@ export default async function Page({ params }: Props) {
   // Query solidarity actions directly where this organising group is related
   const actionsResult = await payload.find({
     collection: 'events',
-    sort: 'date:desc',
+    sort: '-date',
     where: {
       and: [
         {

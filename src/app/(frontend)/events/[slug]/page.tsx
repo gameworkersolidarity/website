@@ -18,7 +18,7 @@ export const getStaticPaths: GetStaticPaths<PageParams> = async (context) => {
   const events = await payload.find({
     collection: 'events',
     depth: 0,
-    sort: 'date:desc',
+    sort: '-date',
   })
 
   return {
@@ -39,7 +39,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   const events = await payload.find({
     collection: 'events',
-    sort: 'date:desc',
+    sort: '-date',
     depth: 2,
     draft: isDraftMode,
     limit: 1,
@@ -69,7 +69,11 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   for (const country of event?.countries ?? []) {
     if (typeof country === 'string') continue
-    const prevEvent = await getNearestEvent(event, { countries: { in: [country.id] } }, 'previous')
+    const prevEvent = await getNearestEvent(
+      event,
+      { countries: { equals: country.id } },
+      'previous',
+    )
     if (prevEvent && prevEvent.id !== event.id) {
       eventNav.previousInCountry![getSlug('countries', country)] = prevEvent
     }
@@ -97,11 +101,15 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   for (const company of event?.companies ?? []) {
     if (typeof company === 'string') continue
-    const prevEvent = await getNearestEvent(event, { companies: { in: [company.id] } }, 'previous')
+    const prevEvent = await getNearestEvent(
+      event,
+      { companies: { equals: company.id } },
+      'previous',
+    )
     if (prevEvent && prevEvent.id !== event.id) {
       eventNav.previousInCompany![getSlug('companies', company)] = prevEvent
     }
-    const nextEvent = await getNearestEvent(event, { companies: { in: [company.id] } }, 'next')
+    const nextEvent = await getNearestEvent(event, { companies: { equals: company.id } }, 'next')
     if (nextEvent && nextEvent.id !== event.id) {
       eventNav.nextInCompany![getSlug('companies', company)] = nextEvent
     }
@@ -111,7 +119,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (typeof organisingGroup === 'string') continue
     const prevEvent = await getNearestEvent(
       event,
-      { organisingGroups: { in: [organisingGroup.id] } },
+      { organisingGroups: { equals: organisingGroup.id } },
       'previous',
     )
     if (prevEvent && prevEvent.id !== event.id) {
@@ -129,7 +137,11 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   for (const campaign of event?.campaigns?.docs ?? []) {
     if (typeof campaign === 'string') continue
-    const prevEvent = await getNearestEvent(event, { campaigns: { in: [campaign.id] } }, 'previous')
+    const prevEvent = await getNearestEvent(
+      event,
+      { campaigns: { equals: campaign.id } },
+      'previous',
+    )
     if (prevEvent && prevEvent.id !== event.id) {
       eventNav.previousInCampaign![getSlug('campaigns', campaign)] = prevEvent
     }
@@ -142,7 +154,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
   return <EventPage initialEvent={event} eventNav={eventNav} />
 
   async function getNearestEvent(event: Event, filter: any, direction: 'previous' | 'next') {
-    const config = {
+    const events = await payload.find({
       collection: 'events',
       where: {
         ...filter,
@@ -154,11 +166,9 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
         },
       },
       depth: 1,
-      sort: direction === 'previous' ? 'date:desc' : 'date:asc',
+      sort: direction === 'previous' ? '-date' : 'date',
       limit: 1,
-    }
-    console.log('config', JSON.stringify(config, null, 2))
-    const events = await payload.find(config)
+    })
     return events.docs[0]
   }
 }

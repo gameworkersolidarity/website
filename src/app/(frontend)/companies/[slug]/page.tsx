@@ -124,7 +124,7 @@ export default async function Page({ params }: Props) {
           : []),
       ],
     },
-    sort: 'date:desc',
+    sort: '-date',
     depth: 2, // Include related entities
     draft: isDraftMode,
     pagination: false,

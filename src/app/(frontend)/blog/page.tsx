@@ -22,7 +22,7 @@ export default async function BlogPage() {
     },
     depth: 2, // Include image relation
     pagination: false,
-    sort: 'createdAt', // Sort by createdAt, newest first
+    sort: '-createdAt', // Sort by createdAt, newest first
   })
 
   return (
