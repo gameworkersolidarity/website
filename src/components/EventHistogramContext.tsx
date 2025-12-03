@@ -54,7 +54,7 @@ export const EventHistogramContext = ({ event }: { event: Event }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl p-4">
+    <div className="rounded-xl">
       <h2 className="text-xl font-bold font-identity mb-2">{eventType}</h2>
       <div ref={elementRef} className="h-[200px] w-full">
         <EventFilterContextProvider events={events.data?.docs || []}>
