@@ -203,5 +203,22 @@ export const Countries: CollectionConfig = {
         ],
       },
     },
+    {
+      name: 'adminPath',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string', required: true })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return `/admin/collections/countries/${siblingData.id}`
+          },
+        ],
+      },
+    },
   ],
 }

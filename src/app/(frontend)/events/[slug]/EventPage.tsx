@@ -3,9 +3,8 @@
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { EventCard } from '@/components/EventCard'
 import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
-import { LoggedIn, Username } from '@/components/Me'
+import { AdminEditBanner } from '@/components/Me'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { notFound } from 'next/navigation'
 import { projectStrings } from '@/project-strings'
 import { CountryLabel } from '@/components/CountryLabel'
@@ -48,17 +47,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
 
   return (
     <div className="bg-gwBackground" style={{ minHeight: '66vh' }}>
-      <LoggedIn>
-        <div className="flex flex-row items-center justify-between gap-4 bg-snot-300 p-4 text-black font-mono text-sm uppercase">
-          <Link href={`/admin/collections/events/${event.id}`}>
-            <Button>Edit this page</Button>
-          </Link>
-          <code>{event.id}</code>
-          <div>
-            Logged in as <Username />
-          </div>
-        </div>
-      </LoggedIn>
+      <AdminEditBanner page={event} />
       <div className="mx-auto py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
           {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Previous events</div>}

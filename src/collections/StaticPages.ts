@@ -1,6 +1,7 @@
 import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
+import { StaticPage } from '@/payload-types'
 
 export const StaticPages: CollectionConfig = {
   slug: 'staticPages',
@@ -13,7 +14,7 @@ export const StaticPages: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'staticPages',
-        path: getPath('staticPages', { slug }),
+        path: getPath('staticPages', doc as unknown as StaticPage),
         previewSecret,
       })
 
@@ -64,7 +65,7 @@ export const StaticPages: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('staticPages', { slug: siblingData.slug })
+            return getPath('staticPages', siblingData as unknown as StaticPage)
           },
         ],
       },
@@ -79,9 +80,27 @@ export const StaticPages: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('staticPages', { slug: siblingData.slug }),
+              getPath('staticPages', siblingData as unknown as StaticPage),
               projectStrings.baseUrl,
             ).toString()
+          },
+        ],
+      },
+    },
+
+    {
+      name: 'adminPath',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string', required: true })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return `/admin/collections/staticPages/${siblingData.id}`
           },
         ],
       },

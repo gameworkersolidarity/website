@@ -4,7 +4,7 @@ import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import type { Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { notFound } from 'next/navigation'
-import { LoggedIn, Username } from '@/components/Me'
+import { AdminEditBanner, LoggedIn, Username } from '@/components/Me'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import chroma from 'chroma-js'
@@ -49,16 +49,7 @@ export function CountryPage({
         backgroundColor: primaryColor,
       }}
     >
-      <LoggedIn>
-        <div className="flex flex-row items-center justify-between gap-4 bg-snot-300 p-4 text-black font-mono text-sm uppercase">
-          <Link href={`/admin/collections/countries/${page.id}`}>
-            <Button>Edit this page</Button>
-          </Link>
-          <div>
-            Logged in as <Username />
-          </div>
-        </div>
-      </LoggedIn>
+      <AdminEditBanner page={page} />
       <article
         className={twMerge(
           'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',

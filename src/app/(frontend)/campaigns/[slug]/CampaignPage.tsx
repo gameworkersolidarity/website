@@ -10,7 +10,7 @@ import { EventFilterContextProvider } from '@/components/EventFilterContextProvi
 import { EventList } from '@/components/EventList'
 import type { Campaign, Event } from '@/payload-types'
 import { notFound } from 'next/navigation'
-import { LoggedIn, Username } from '@/components/Me'
+import { AdminEditBanner, LoggedIn, Username } from '@/components/Me'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { projectStrings } from '@/project-strings'
@@ -43,16 +43,7 @@ export function CampaignPage({
         backgroundColor: primaryColor,
       }}
     >
-      <LoggedIn>
-        <div className="flex flex-row items-center justify-between gap-4 bg-snot-300 p-4 text-black font-mono text-sm uppercase">
-          <Link href={`/admin/collections/campaigns/${page.id}`}>
-            <Button>Edit this page</Button>
-          </Link>
-          <div>
-            Logged in as <Username />
-          </div>
-        </div>
-      </LoggedIn>
+      <AdminEditBanner page={page} />
       {/*       
       {page.featuredImage &&
           typeof page.featuredImage === 'object' &&

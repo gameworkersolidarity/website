@@ -228,6 +228,7 @@ export interface StaticPage {
   };
   path?: string;
   url?: string;
+  adminPath?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -239,6 +240,7 @@ export interface StaticPage {
  */
 export interface BlogPost {
   id: string;
+  adminPath?: string;
   /**
    * When the post was published.
    */
@@ -336,6 +338,7 @@ export interface Country {
   };
   path?: string;
   url?: string;
+  adminPath?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -395,6 +398,7 @@ export interface Company {
         id?: string | null;
       }[]
     | null;
+  adminPath?: string;
   parent?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
@@ -441,6 +445,7 @@ export interface Category {
   color?: string;
   path?: string;
   url?: string;
+  adminPath?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -512,6 +517,7 @@ export interface OrganisingGroup {
         id?: string | null;
       }[]
     | null;
+  adminPath?: string;
   parent?: (string | null) | OrganisingGroup;
   updatedAt: string;
   createdAt: string;
@@ -561,6 +567,7 @@ export interface Campaign {
   events?: (string | Event)[] | null;
   path?: string;
   url?: string;
+  adminPath?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -661,6 +668,7 @@ export interface Event {
     | null;
   path?: string;
   url?: string;
+  adminPath?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -918,6 +926,7 @@ export interface StaticPagesSelect<T extends boolean = true> {
   body?: T;
   path?: T;
   url?: T;
+  adminPath?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -928,6 +937,7 @@ export interface StaticPagesSelect<T extends boolean = true> {
  * via the `definition` "blogPosts_select".
  */
 export interface BlogPostsSelect<T extends boolean = true> {
+  adminPath?: T;
   date?: T;
   airtableId?: T;
   generateSlug?: T;
@@ -963,6 +973,7 @@ export interface CountriesSelect<T extends boolean = true> {
   coordinates?: T;
   path?: T;
   url?: T;
+  adminPath?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -992,6 +1003,7 @@ export interface CompaniesSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  adminPath?: T;
   parent?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1014,6 +1026,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   color?: T;
   path?: T;
   url?: T;
+  adminPath?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1052,6 +1065,7 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  adminPath?: T;
   parent?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1074,6 +1088,7 @@ export interface CampaignsSelect<T extends boolean = true> {
   events?: T;
   path?: T;
   url?: T;
+  adminPath?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1112,6 +1127,7 @@ export interface EventsSelect<T extends boolean = true> {
       };
   path?: T;
   url?: T;
+  adminPath?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

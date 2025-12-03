@@ -2,6 +2,7 @@ import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
+import { Category } from '@/payload-types'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -18,7 +19,7 @@ export const Categories: CollectionConfig = {
       const encodedParams = new URLSearchParams({
         slug,
         collection: 'categories',
-        path: getPath('categories', { slug }),
+        path: getPath('categories', doc as unknown as Category),
         previewSecret,
       })
 
@@ -105,7 +106,7 @@ export const Categories: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('categories', { slug: siblingData.slug })
+            return getPath('categories', siblingData as unknown as Category)
           },
         ],
       },
@@ -120,9 +121,26 @@ export const Categories: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('categories', { slug: siblingData.slug }),
+              getPath('categories', siblingData as unknown as Category),
               projectStrings.baseUrl,
             ).toString()
+          },
+        ],
+      },
+    },
+    {
+      name: 'adminPath',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string', required: true })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return `/admin/collections/categories/${siblingData.id}`
           },
         ],
       },

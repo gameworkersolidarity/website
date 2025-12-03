@@ -35,6 +35,23 @@ export const BlogPosts: CollectionConfig = {
   },
   fields: [
     {
+      name: 'adminPath',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string', required: true })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return `/admin/collections/blogPosts/${siblingData.id}`
+          },
+        ],
+      },
+    },
+    {
       name: 'date',
       type: 'date',
       required: true,

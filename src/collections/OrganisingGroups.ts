@@ -226,5 +226,22 @@ export const OrganisingGroups: CollectionConfig = {
         hidden: true,
       },
     }),
+    {
+      name: 'adminPath',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string', required: true })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return `/admin/collections/organisingGroups/${siblingData.id}`
+          },
+        ],
+      },
+    },
   ],
 }
