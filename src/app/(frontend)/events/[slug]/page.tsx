@@ -159,7 +159,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       where: {
         ...filter,
         date: {
-          [direction === 'previous' ? 'less_than_equal' : 'greater_than_equal']: event.date,
+          [direction === 'previous' ? 'less_than' : 'greater_than']: event.date,
         },
         id: {
           not_equals: event.id,

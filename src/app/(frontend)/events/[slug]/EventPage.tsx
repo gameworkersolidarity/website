@@ -16,6 +16,7 @@ import { CompanyLabel } from '@/components/CompanyLabel'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CampaignLabel } from '@/components/CampaignLabel'
 import { twMerge } from 'tailwind-merge'
+import { EventHistogramContext } from '@/components/EventHistogramContext'
 
 export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eventNav: EventNav }) {
   if (!initialEvent) notFound()
@@ -112,8 +113,9 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
               ),
           )}
         </aside>
-        <main className="col-span-2 lg:col-span-1">
+        <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
           <EventCard data={event} withContext displayStandaloneInfo />
+          <EventHistogramContext event={event} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
           {hasNextEvents && <div className="text-sm font-semibold">Next events</div>}
@@ -198,7 +200,7 @@ function EventBreadcrumbNavLink({
             <DateTime date={event.date} />
           </span>
         )}
-        <div className="text-xs flex flex-wrap gap-1">
+        <div className="text-sm flex flex-wrap gap-1">
           {label === 'countries'
             ? event.countries?.map((country) => (
                 <CountryLabel
@@ -236,7 +238,7 @@ function EventBreadcrumbNavLink({
                       ))
                     : null}
         </div>
-        <div className="text-sm link">{event.name}</div>
+        <div className="text-xs link">{event.name}</div>
       </div>
     </Link>
   )

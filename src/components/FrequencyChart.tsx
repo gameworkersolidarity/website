@@ -8,12 +8,17 @@ import dynamic from 'next/dynamic'
 const RenderPlot = dynamic(() => import('./Plot').then((mod) => mod.RenderPlot), { ssr: false })
 import { usePlotConfig } from './Plot'
 import { getYear } from 'date-fns'
+import { PlotOptions } from '@observablehq/plot'
+import * as Plot from '@observablehq/plot'
 
 export function FrequencyChart({
   size,
   eventFilter,
   color,
   minYear,
+  transformPlotConfig,
+  highlightDate,
+  highlightColor,
   countBy = 'events',
 }: {
   size: { width: number; height: number }
@@ -21,6 +26,9 @@ export function FrequencyChart({
   color: string
   minYear?: number
   countBy?: 'headcount' | 'events'
+  transformPlotConfig?: (config: PlotOptions, plot: typeof Plot) => PlotOptions
+  highlightDate?: Date
+  highlightColor?: string
 }) {
   const { filteredEvents } = useEventFilterContext()
 
@@ -57,12 +65,13 @@ export function FrequencyChart({
 
   const plotConfig = usePlotConfig(
     (Plot) => {
-      return Plot.plot({
+      let config: PlotOptions = {
         width: size.width,
         height: size.height,
         marginBottom: 60,
         y: {
           tickSize: 0,
+          grid: true,
         },
         x: {
           tickSize: 0,
@@ -73,10 +82,23 @@ export function FrequencyChart({
           Plot.barY(eventsPerYear, {
             x: 'year',
             y: countBy,
-            fill: color,
+            fill: (d) => {
+              if (
+                highlightDate &&
+                new Date(d.year).getFullYear() === new Date(highlightDate).getFullYear()
+              ) {
+                console.log('highlighted')
+                return highlightColor
+              }
+              return color
+            },
           }),
         ],
-      })
+      }
+      if (transformPlotConfig) {
+        config = transformPlotConfig(config, Plot)
+      }
+      return Plot.plot(config)
     },
     [eventsPerYear, size.width, size.height, countBy],
   )
