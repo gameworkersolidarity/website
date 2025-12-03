@@ -49,6 +49,7 @@ interface CardProps {
   withContext?: boolean
   contextProps?: Partial<ContextProps>
   displayStandaloneInfo?: boolean
+  linkStyle?: 'soft' | boolean
 }
 
 interface ContextProps {
@@ -252,43 +253,53 @@ export function DocumentLink({
   )
 }
 
-export function ActionMetadata({ data }: { data: Event }) {
+export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: 'soft' | boolean }) {
   return (
     <div className="flex flex-wrap tracking-tight gap-4 gap-y-1">
       <span className="font-semibold">
         <DateTime date={data.date} />
       </span>
       {!!data.countries?.length && (
-        <div className="flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-2">
           {data.countries.slice(0, 3).map((country) => (
-            <CountryLabel country={country as Country} key={(country as Country).id} />
+            <CountryLabel
+              country={country as Country}
+              key={(country as Country).id}
+              link={linkStyle}
+            />
           ))}
         </div>
       )}
       {data.location ? <span>{data.location}</span> : null}
       {!!data.categories?.length && (
-        <div className="flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-2">
           {data.categories.slice(0, 3).map((category) => (
             <CategoryLabel
               category={category as unknown as Category}
               key={(category as Category).id}
+              link={linkStyle}
             />
           ))}
         </div>
       )}
       {!!data.companies?.length && (
-        <div className="flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-2">
           {data.companies.slice(0, 3).map((company) => (
-            <CompanyLabel company={company as Company} key={(company as Company).id} />
+            <CompanyLabel
+              company={company as Company}
+              key={(company as Company).id}
+              link={linkStyle}
+            />
           ))}
         </div>
       )}
       {!!data.organisingGroups?.length && (
-        <div className="flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-2">
           {data.organisingGroups.slice(0, 3).map((organisingGroup) => (
             <OrganisingGroupLabel
               organisingGroup={organisingGroup as OrganisingGroup}
               key={(organisingGroup as OrganisingGroup).id}
+              link={linkStyle}
             />
           ))}
         </div>
@@ -302,13 +313,14 @@ export function EventCard({
   withContext,
   hoverable,
   displayStandaloneInfo = false,
+  linkStyle = true,
 }: CardProps) {
   return (
     <>
       <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
         <div className={twMerge('p-4 lg:px-8 bg-white')}>
           <div className="text-sm">
-            <ActionMetadata data={data} />
+            <ActionMetadata data={data} linkStyle={linkStyle} />
           </div>
           <div className="pb-4" />
           <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>{data.name}</h3>
