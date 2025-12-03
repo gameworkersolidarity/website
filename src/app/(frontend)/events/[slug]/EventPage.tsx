@@ -198,20 +198,43 @@ function EventBreadcrumbNavLink({
             <DateTime date={event.date} />
           </span>
         )}
-        <div className="text-xs">
-          {label === 'countries' ? (
-            <CountryLabel country={event.countries?.[0] as Country} />
-          ) : label === 'categories' ? (
-            <CategoryLabel category={event.categories?.[0] as Category} />
-          ) : label === 'companies' ? (
-            <CompanyLabel company={event.companies?.[0] as Company} />
-          ) : label === 'organisingGroups' ? (
-            <OrganisingGroupLabel
-              organisingGroup={event.organisingGroups?.[0] as OrganisingGroup}
-            />
-          ) : label === 'campaigns' ? (
-            <CampaignLabel campaign={event.campaigns?.docs?.[0] as Campaign} />
-          ) : null}
+        <div className="text-xs flex flex-wrap gap-1">
+          {label === 'countries'
+            ? event.countries?.map((country) => (
+                <CountryLabel
+                  country={country as unknown as Country}
+                  key={(country as Country).id}
+                />
+              ))
+            : label === 'categories'
+              ? event.categories?.map((category) => (
+                  <CategoryLabel
+                    category={category as unknown as Category}
+                    key={(category as Category).id}
+                  />
+                ))
+              : label === 'companies'
+                ? event.companies?.map((company) => (
+                    <CompanyLabel
+                      company={company as unknown as Company}
+                      key={(company as Company).id}
+                    />
+                  ))
+                : label === 'organisingGroups'
+                  ? event.organisingGroups?.map((organisingGroup) => (
+                      <OrganisingGroupLabel
+                        organisingGroup={organisingGroup as unknown as OrganisingGroup}
+                        key={(organisingGroup as OrganisingGroup).id}
+                      />
+                    ))
+                  : label === 'campaigns'
+                    ? event.campaigns?.docs?.map((campaign) => (
+                        <CampaignLabel
+                          campaign={campaign as unknown as Campaign}
+                          key={(campaign as Campaign).id}
+                        />
+                      ))
+                    : null}
         </div>
         <div className="text-sm link">{event.name}</div>
       </div>
