@@ -46,7 +46,7 @@ export function HomepageClient({
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={60}>
-            <EventList />
+            <EventList linkStyle="soft" />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

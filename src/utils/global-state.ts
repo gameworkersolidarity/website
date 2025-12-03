@@ -1,4 +1,5 @@
 import { EventInitiator } from '@/collections/enums'
+import { projectStrings } from '@/project-strings'
 import { SortingState } from '@tanstack/react-table'
 import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
@@ -38,9 +39,20 @@ export enum EventFilterKey {
 export function getFilterPath(
   filter: { [key in EventFilterKey]?: string | number },
   keepExistingQuery: boolean = true,
+  keepExistingPath: boolean = false,
 ) {
+  const url = new URL(
+    keepExistingPath && typeof document !== 'undefined'
+      ? document.location.href
+      : projectStrings.baseUrl,
+  )
+  if (!keepExistingQuery) {
+    url.searchParams.forEach((value, key) => {
+      url.searchParams.delete(key)
+    })
+  }
   return qs.stringifyUrl({
-    url: keepExistingQuery && typeof document !== 'undefined' ? document.location.href : '/',
+    url: url.toString(),
     query: filter,
   })
 }
@@ -77,9 +89,11 @@ export function useCampaignFilter(override?: string | null) {
 export function useInitiatorFilter(override?: EventInitiator | null) {
   const [initiator, setInitiator] = useQueryState(
     EventFilterKey.Initiator,
-    parseAsStringEnum<EventInitiator>(Object.values(EventInitiator)).withOptions({
-      clearOnDefault: true,
-    }),
+    parseAsStringEnum<EventInitiator>(Object.values(EventInitiator))
+      .withOptions({
+        clearOnDefault: true,
+      })
+      .withDefault(EventInitiator.ALL),
   )
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }

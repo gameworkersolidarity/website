@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { getDescendants } from '@/utils/payloadTree.server'
 import { CompanyPage } from './CompanyPage'
 import { getSlug } from '@/utils/payloadPath'
+import { Country, OrganisingGroup } from '@/payload-types'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -131,11 +132,25 @@ export default async function Page({ params }: Props) {
 
   const events = eventResults.docs
 
+  const uniqueOrganisingGroups = Array.from(
+    new Set(events.flatMap((event) => event.organisingGroups as OrganisingGroup[])),
+  )
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  const uniqueCountries = Array.from(
+    new Set(events.flatMap((event) => event.countries as Country[])),
+  )
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name))
+
   return (
     <CompanyPage
       initialCompany={company}
       descendants={descendants.length > 1 ? descendants : null}
       events={events}
+      organisingGroups={uniqueOrganisingGroups}
+      countries={uniqueCountries}
     />
   )
 }

@@ -2,7 +2,7 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
-import { Company } from '@/payload-types'
+import { Company, Country } from '@/payload-types'
 import { getDescendants } from '@/utils/payloadTree.server'
 import { OrganisingGroupPage } from './OrganisingGroupPage'
 
@@ -155,6 +155,22 @@ export default async function Page({ params }: Props) {
   })
 
   const uniqueCompanies = Array.from(companiesSet.values())
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name))
 
-  return <OrganisingGroupPage initialGroup={group} events={events} companies={uniqueCompanies} />
+  const uniqueCountries = Array.from(
+    new Set(events.flatMap((event) => event.countries as Country[])),
+  )
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  return (
+    <OrganisingGroupPage
+      initialGroup={group}
+      events={events}
+      companies={uniqueCompanies}
+      descendants={descendants}
+      countries={uniqueCountries}
+    />
+  )
 }

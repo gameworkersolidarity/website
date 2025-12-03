@@ -20,9 +20,13 @@ import { EventInitiator } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { useEventFilterContext } from '@/components/EventFilterContextProvider'
 import Link from 'next/link'
-import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
+import { CategoryLabel } from '@/components/CategoryLabel'
+import { CompanyLabel } from '@/components/CompanyLabel'
+import { CountryLabel } from '@/components/CountryLabel'
+import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
+import { CampaignLabel } from '@/components/CampaignLabel'
 
 interface EventFilterProps {
   countries: Country[]
@@ -104,7 +108,6 @@ export function EventFilter({
           className="hidden md:flex flex-row items-right gap-3"
         >
           {[
-            { label: 'All', value: null },
             ...Object.values(EventInitiator).map((initiator) => ({
               label: initiator.charAt(0).toUpperCase() + initiator.slice(1),
               value: initiator,
@@ -113,7 +116,7 @@ export function EventFilter({
             <div key={initiator.label} className="flex items-center gap-2">
               <Label htmlFor={initiator.label} className="text-xs uppercase">
                 <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
-                <DisplayInitiator initiator={initiator.value as EventInitiator} />
+                <DisplayInitiator initiator={initiator.value as EventInitiator} link="soft" />
               </Label>
             </div>
           ))}
@@ -123,16 +126,15 @@ export function EventFilter({
         <div className="filter-group w-full">
           <Select
             placeholder="country..."
-            options={countries.map((country) => ({
-              label: country.name,
-              value: country.isoA2,
-            }))}
+            options={countries}
             value={filteredCountryISOA2 || ''}
             onChange={(value) =>
               value === filteredCountryISOA2
                 ? setCountryISOA2Filter(null)
-                : setCountryISOA2Filter(value || null)
+                : setCountryISOA2Filter(value as string | null)
             }
+            valueKey="isoA2"
+            renderLabel={(d) => <CountryLabel country={d} />}
           />
           {filteredCountry && (
             <div className="flex flex-row items-center justify-between gap-2 mt-1">
@@ -154,17 +156,9 @@ export function EventFilter({
         <div className="filter-group w-full">
           <Select
             placeholder="category..."
-            options={categories.map((category) => ({
-              label: category.name,
-              value: category.slug,
-              emoji: category.emoji,
-            }))}
-            renderLabel={(d) => (
-              <span className="flex items-center gap-1 capitalize">
-                {d.emoji && <Emoji symbol={d.emoji} />}
-                {d.label}
-              </span>
-            )}
+            options={categories}
+            valueKey="slug"
+            renderLabel={(d) => <CategoryLabel category={d} />}
             value={filteredCategorySlug || ''}
             onChange={(value) =>
               value === filteredCategorySlug
@@ -194,16 +188,15 @@ export function EventFilter({
         <div className="filter-group w-full">
           <Select
             placeholder="company..."
-            options={companies.map((company) => ({
-              label: company.name,
-              value: company.slug,
-            }))}
+            options={companies}
             value={filteredCompanySlug || ''}
             onChange={(value) =>
               value === filteredCompanySlug
                 ? setCompanyFilter(null)
                 : setCompanyFilter(value || null)
             }
+            valueKey="slug"
+            renderLabel={(d) => <CompanyLabel company={d} />}
           />
           {!!filteredCompany && (
             <div className="flex flex-row items-center justify-between gap-2 mt-1">
@@ -225,10 +218,9 @@ export function EventFilter({
         <div className="filter-group w-full">
           <Select
             placeholder="union..."
-            options={organisingGroups.map((group) => ({
-              label: group.name,
-              value: group.slug,
-            }))}
+            options={organisingGroups}
+            valueKey="slug"
+            renderLabel={(d) => <OrganisingGroupLabel organisingGroup={d} />}
             value={filteredOrganisingGroupSlug || ''}
             onChange={(value) =>
               value === filteredOrganisingGroupSlug
@@ -263,10 +255,9 @@ export function EventFilter({
         <div className="filter-group w-full">
           <Select
             placeholder="campaign..."
-            options={campaigns.map((campaign) => ({
-              label: campaign.name,
-              value: campaign.slug,
-            }))}
+            options={campaigns}
+            valueKey="slug"
+            renderLabel={(d) => <CampaignLabel campaign={d} />}
             value={filteredCampaignSlug || ''}
             onChange={(value) =>
               value === filteredCampaignSlug
@@ -295,6 +286,8 @@ export function EventFilter({
         <div className="filter-group w-full">
           <Select
             placeholder="year..."
+            valueKey="value"
+            renderLabel={(d) => <span>{d.value.toString()}</span>}
             options={years.map((year) => ({
               label: year.toString(),
               value: year.toString(),
@@ -306,6 +299,16 @@ export function EventFilter({
                 : setYearFilter(value || null)
             }
           />
+          {filteredYear && (
+            <span
+              className="text-xs link"
+              onClick={() => {
+                setYearFilter(null)
+              }}
+            >
+              clear filter ⤬
+            </span>
+          )}
         </div>
       </div>
       {/* <div>
@@ -320,25 +323,23 @@ export function EventFilter({
   )
 }
 
-function defaultRenderLabel(item: { label: string; value: string }) {
-  return item.label
-}
-
-function Select<T extends { label: string; value: string }>({
+function Select<T, K extends keyof T>({
   options,
   value,
-  renderLabel = defaultRenderLabel,
   onChange,
+  valueKey,
+  renderLabel,
   placeholder = 'Select...',
 }: {
   options: T[]
-  value: string
-  onChange: (value: string) => void
-  renderLabel?: (item: T) => React.ReactNode
+  value: string | null
+  valueKey: K
+  onChange: (value: T[K]) => void
+  renderLabel: (item: T) => React.ReactNode
   placeholder?: string
 }) {
   const [open, setOpen] = useState(false)
-  const selectedItem = options.find((option) => option.value === value)
+  const selectedItem = options.find((option) => option[valueKey] === value)
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -353,22 +354,25 @@ function Select<T extends { label: string; value: string }>({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command value={value}>
+        <Command value={value || undefined}>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
-                  key={option.value}
+                  key={option[valueKey]?.toString() || ''}
                   onSelect={() => {
-                    onChange(option.value)
+                    onChange(option[valueKey])
                     setOpen(false)
                   }}
                 >
                   {renderLabel(option)}
                   <Check
-                    className={cn('ml-auto', value === option.value ? 'opacity-100' : 'opacity-0')}
+                    className={cn(
+                      'ml-auto',
+                      value === option[valueKey] ? 'opacity-100' : 'opacity-0',
+                    )}
                   />
                 </CommandItem>
               ))}

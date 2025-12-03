@@ -7,7 +7,7 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const treeVariants = cva(
-  'group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 px-2 before:w-full before:opacity-0 before:bg-accent/70 before:h-[2rem] before:-z-10',
+  'group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 before:w-full before:opacity-0 before:bg-accent/70 before:h-[2rem] before:-z-10',
 )
 
 const selectedTreeVariants = cva('before:opacity-100 before:bg-accent/70 text-accent-foreground')
@@ -123,7 +123,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
     }, [data, expandAll, initialSelectedItemId])
 
     return (
-      <div className={cn('overflow-hidden relative p-2', className)}>
+      <div className={cn('overflow-hidden relative ', className)}>
         <TreeItem
           data={data}
           ref={ref}
@@ -140,7 +140,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
           {...props}
         />
         <div
-          className="w-full h-[48px]"
+          className="w-full"
           onDrop={() => {
             handleDrop({ id: '', name: 'parent_div' })
           }}
@@ -329,7 +329,7 @@ const TreeNode = ({
             </>
           )}
         </AccordionTrigger>
-        <AccordionContent className="ml-4 pl-1 border-l">
+        <AccordionContent className="ml-2 pl-1 border-l">
           <TreeItem
             data={item.children ? item.children : item}
             selectedItemId={selectedItemId}
@@ -413,7 +413,7 @@ const TreeLeaf = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'flex text-left items-center py-2 cursor-pointer before:right-1',
+          'flex text-left items-center cursor-pointer before:right-1',
           treeVariants(),
           className,
           isSelected && selectedTreeVariants(),
@@ -465,7 +465,7 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        'flex flex-1 w-full items-center py-2 transition-all first:[&[data-state=open]>svg]:first-of-type:rotate-90',
+        'flex flex-1 w-full items-center transition-all first:[&[data-state=open]>svg]:first-of-type:rotate-90',
         className,
       )}
       {...props}

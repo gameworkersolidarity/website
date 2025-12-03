@@ -1,4 +1,4 @@
-export type ArchiveBreadcrumb = {
+export interface ArchiveBreadcrumb {
   // Known as 'label' in nested plugin
   name: string
   // Extracted from 'url' from nested plugin

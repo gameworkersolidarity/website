@@ -31,7 +31,7 @@ function ZoomlevelSelector({
   )
 }
 
-export function EventList() {
+export function EventList({ linkStyle = 'hard' }: { linkStyle?: 'soft' | 'hard' }) {
   const { filteredEvents: events } = useEventFilterContext()
   const [zoomLevel, setZoomLevel] = useZoomLevel()
 
@@ -45,7 +45,7 @@ export function EventList() {
       </header>
       {zoomLevel === ZoomLevel.Compact ? (
         <div>
-          <CompactEventList events={events} hardLinks={false} />
+          <CompactEventList events={events} linkStyle={linkStyle} />
         </div>
       ) : zoomLevel === ZoomLevel.Preview ? (
         <div className="flex flex-col gap-4 px-4 pb-4">

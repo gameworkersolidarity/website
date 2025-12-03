@@ -31,13 +31,17 @@ import { DisplayInitiator } from '@/utils/displayInitiator'
 import { EventInitiator } from '@/collections/enums'
 import { twMerge } from 'tailwind-merge'
 import { useEventFilterContext } from './EventFilterContextProvider'
+import { CountryLabel } from './CountryLabel'
+import { CategoryLabel } from './CategoryLabel'
+import { CompanyLabel } from './CompanyLabel'
+import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 
 export function CompactEventList({
   events,
-  hardLinks = true,
+  linkStyle = 'hard',
 }: {
   events: Event[]
-  hardLinks?: boolean
+  linkStyle?: 'soft' | 'hard'
 }) {
   const { filteredCampaignSlug } = useEventFilterContext()
 
@@ -87,7 +91,7 @@ export function CompactEventList({
             <Link href={row.original.path!}>
               <div className="font-medium text-wrap w-[250px]">{row.getValue('name')}</div>
               {!filteredCampaignSlug && row.original.campaigns?.docs?.length ? (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
+                <div className="text-xs opacity-50 flex items-center gap-1">
                   <Star fill="currentColor" className="w-3 h-3 text-snot-400" />
                   <span className="text-xs">Part of the</span>
                   <span className="italic font-medium">
@@ -109,16 +113,7 @@ export function CompactEventList({
         header: 'Actor',
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="text-xs uppercase font-mono">
-            <Link
-              href={getFilterPath(
-                {
-                  [EventFilterKey.Initiator]: row.getValue('initiator') as EventInitiator,
-                },
-                false,
-              )}
-            >
-              <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} />
-            </Link>
+            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link />
           </TableCell>
         ),
       },
@@ -145,22 +140,17 @@ export function CompactEventList({
         cell: ({ cell, row }) => (
           <TableCell
             key={cell.id}
-            className="overflow-hidden text-ellipsis wrap-normal uppercase font-mono text-xs text-wrap w-[50px]"
+            className="text-ellipsis wrap-normal uppercase font-mono text-xs text-wrap"
           >
-            {(row.getValue('categories') as Category[])?.map((category) => (
-              <Link
-                href={
-                  hardLinks
-                    ? category.path!
-                    : getFilterPath({ [EventFilterKey.Category]: category.slug })
-                }
-                key={category.id}
-                className="inline-flex items-center gap-1 text-xs border py-0.5 rounded-sm px-1 link"
-              >
-                <Emoji symbol={category.emoji || ''} label={`Emoji for ${category.name}`} />
-                {category.name}
-              </Link>
-            ))}
+            <div className="flex flex-wrap gap-1">
+              {(row.getValue('categories') as Category[])?.map((category) => (
+                <CategoryLabel
+                  category={category as unknown as Category}
+                  key={(category as Category).id}
+                  link={linkStyle === 'soft' ? 'soft' : true}
+                />
+              ))}
+            </div>
           </TableCell>
         ),
       },
@@ -187,9 +177,15 @@ export function CompactEventList({
         cell: ({ cell, row }) => (
           <TableCell
             key={cell.id}
-            className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-12 uppercase font-mono text-xs"
+            className="text-ellipsis text-wrap wrap-normal max-w-12 uppercase font-mono text-xs"
           >
-            <Link href={row.original.path!}>{row.getValue('headcount')}</Link>
+            {row.getValue('headcount') ? (
+              <Link href={row.original.path!}>
+                <b>{row.getValue('headcount')}</b>
+                &nbsp;
+                {pluralize('worker', row.getValue('headcount'))}
+              </Link>
+            ) : null}
           </TableCell>
         ),
       },
@@ -208,29 +204,22 @@ export function CompactEventList({
                     : column.toggleSorting(false)
               }}
             >
-              Companies
+              Company
               <ArrowUpDown />
             </Button>
           )
         },
         cell: ({ cell, row }) => (
-          <TableCell
-            key={cell.id}
-            className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-12"
-          >
-            {(row.getValue('companies') as Company[])?.map((company) => (
-              <Link
-                href={
-                  hardLinks
-                    ? company.path!
-                    : getFilterPath({ [EventFilterKey.Company]: company.slug })
-                }
-                key={company.id}
-                className="link"
-              >
-                {company.name}
-              </Link>
-            ))}
+          <TableCell key={cell.id}>
+            <div className="flex flex-wrap gap-1">
+              {(row.getValue('companies') as Company[])?.map((company) => (
+                <CompanyLabel
+                  company={company as unknown as Company}
+                  key={(company as Company).id}
+                  link={linkStyle === 'soft' ? 'soft' : true}
+                />
+              ))}
+            </div>
           </TableCell>
         ),
       },
@@ -255,23 +244,16 @@ export function CompactEventList({
           )
         },
         cell: ({ cell, row }) => (
-          <TableCell
-            key={cell.id}
-            className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-12"
-          >
-            {(row.getValue('organisingGroups') as OrganisingGroup[])?.map((organisingGroup) => (
-              <Link
-                href={
-                  hardLinks
-                    ? organisingGroup.path!
-                    : getFilterPath({ [EventFilterKey.OrganisingGroup]: organisingGroup.slug })
-                }
-                key={organisingGroup.id}
-                className="link"
-              >
-                {organisingGroup.name}
-              </Link>
-            ))}
+          <TableCell key={cell.id}>
+            <div className="flex flex-wrap gap-1">
+              {(row.getValue('organisingGroups') as OrganisingGroup[])?.map((organisingGroup) => (
+                <OrganisingGroupLabel
+                  organisingGroup={organisingGroup as unknown as OrganisingGroup}
+                  key={(organisingGroup as OrganisingGroup).id}
+                  link={linkStyle === 'soft' ? 'soft' : true}
+                />
+              ))}
+            </div>
           </TableCell>
         ),
       },
@@ -300,25 +282,22 @@ export function CompactEventList({
             key={cell.id}
             className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-12"
           >
-            {(row.getValue('countries') as Country[])?.map((country) => (
-              <Link
-                href={
-                  hardLinks
-                    ? country.path!
-                    : getFilterPath({ [EventFilterKey.Country]: country.isoA2.toUpperCase() })
-                }
-                key={country.id}
-                className="link"
-              >
-                {country.name}
-              </Link>
-            ))}
+            <div className="flex flex-wrap gap-1">
+              {(row.getValue('countries') as Country[])?.map((country) => (
+                <CountryLabel
+                  key={country.id}
+                  country={country as Country}
+                  link={linkStyle === 'soft' ? 'soft' : true}
+                />
+              ))}
+            </div>
           </TableCell>
         ),
       },
     ]
     return columns
-  }, [hardLinks])
+  }, [linkStyle, filteredCampaignSlug])
+
   const [sorting, setSorting] = useAtom(sortOrderAtom)
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})

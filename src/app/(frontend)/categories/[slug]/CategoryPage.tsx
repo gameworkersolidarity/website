@@ -12,9 +12,10 @@ import { twMerge } from 'tailwind-merge'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventList } from '@/components/EventList'
-import { CollectiveActionStats } from '../../components/CollectiveActionStats'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
+import { EventStats } from '@/components/EventStats'
+import { EventInitiator } from '@/collections/enums'
 
 export function CategoryPage({
   initialCategory,
@@ -59,8 +60,8 @@ export function CategoryPage({
         )}
       >
         <header>
-          <div className="font-mono uppercase text-sm text-gray-500">Category</div>
-          <h1 className="text-5xl font-bold font-identity">
+          <div className="font-mono uppercase text-sm opacity-50">Category</div>
+          <h1 className="text-5xl font-bold font-identity capitalize">
             {page.emoji && <span style={{ marginRight: '0.5rem' }}>{page.emoji}</span>}
             {page.name}
           </h1>
@@ -75,11 +76,16 @@ export function CategoryPage({
       <EventFilterContextProvider
         events={events}
         overrideFilteredCategorySlug={getSlug('categories', page)}
+        overrideFilteredInitiator={
+          getSlug('categories', page) === 'redundancy'
+            ? EventInitiator.BOSS_LED
+            : EventInitiator.WORKER_LED
+        }
       >
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <CollectiveActionStats color={primaryColor} />
+              <EventStats />
             </div>
           </ResizablePanel>
           <ResizableHandle />

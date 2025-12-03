@@ -22,6 +22,10 @@ import { LexicalRenderer } from '@/app/(frontend)/components/LexicalRenderer'
 import { projectStrings } from '@/project-strings'
 import { twMerge } from 'tailwind-merge'
 import { payloadClient } from '@/utils/payload'
+import { CountryLabel } from './CountryLabel'
+import { CompanyLabel } from './CompanyLabel'
+import { OrganisingGroupLabel } from './OrganisingGroupLabel'
+import { CategoryLabel } from './CategoryLabel'
 
 interface ListProps {
   data: Event[]
@@ -193,10 +197,11 @@ export function EventsList({
 
 export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolean }) {
   return (
-    <article className={twMerge('event-item bg-white rounded-md p-4 text-sm glowable')}>
-      <ActionMetadata data={data} />
-      <div>
-        <h3 className="text-2xl leading-tight font-semibold max-w-3xl mt-3">{data.name}</h3>
+    <article
+      className={twMerge('event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2')}
+    >
+      <h3 className="text-2xl leading-tight font-semibold max-w-3xl">{data.name}</h3>
+      {(!!data.link || !!data.documents?.length) && (
         <div className="flex flex-row mt-3 flex-wrap">
           {data.link && (
             <a href={data.link} className="block my-1 mr-2">
@@ -211,7 +216,8 @@ export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolea
             <DocumentLink key={(doc as Media).id} document={doc as unknown as Media} />
           ))}
         </div>
-      </div>
+      )}
+      <ActionMetadata data={data} />
     </article>
   )
 }
@@ -248,36 +254,45 @@ export function DocumentLink({
 
 export function ActionMetadata({ data }: { data: Event }) {
   return (
-    <div className="flex flex-wrap tracking-tight">
-      <span className="font-semibold pr-3">
+    <div className="flex flex-wrap tracking-tight gap-4 gap-y-1">
+      <span className="font-semibold">
         <DateTime date={data.date} />
       </span>
-      {data.location ? <span className="pr-1">{data.location}</span> : null}
-      {data.countries?.map((country) => (
-        <span className="pr-3" key={(country as Country).id}>
-          <Emoji
-            symbol={(country as Country).emoji || ''}
-            label={`Flag of ${(country as Country).name}`}
-            className="pr-1"
-          />
-          <span>{(country as Country).name}</span>
-        </span>
-      ))}
-      {data.categories?.map((category) => (
-        <span className="capitalize block pr-3" key={(category as Category).id}>
-          {(category as Category).name}
-        </span>
-      ))}
-      {data.companies?.map((company) => (
-        <span className="capitalize block pr-3" key={(company as Company).id}>
-          {(company as Company).name}
-        </span>
-      ))}
-      {data.organisingGroups?.map((organisingGroup) => (
-        <span className="capitalize block pr-3" key={(organisingGroup as OrganisingGroup).id}>
-          {(organisingGroup as OrganisingGroup).name}
-        </span>
-      ))}
+      {!!data.countries?.length && (
+        <div className="flex flex-wrap gap-2">
+          {data.countries.slice(0, 3).map((country) => (
+            <CountryLabel country={country as Country} key={(country as Country).id} />
+          ))}
+        </div>
+      )}
+      {data.location ? <span>{data.location}</span> : null}
+      {!!data.categories?.length && (
+        <div className="flex flex-wrap gap-2">
+          {data.categories.slice(0, 3).map((category) => (
+            <CategoryLabel
+              category={category as unknown as Category}
+              key={(category as Category).id}
+            />
+          ))}
+        </div>
+      )}
+      {!!data.companies?.length && (
+        <div className="flex flex-wrap gap-2">
+          {data.companies.slice(0, 3).map((company) => (
+            <CompanyLabel company={company as Company} key={(company as Company).id} />
+          ))}
+        </div>
+      )}
+      {!!data.organisingGroups?.length && (
+        <div className="flex flex-wrap gap-2">
+          {data.organisingGroups.slice(0, 3).map((organisingGroup) => (
+            <OrganisingGroupLabel
+              organisingGroup={organisingGroup as OrganisingGroup}
+              key={(organisingGroup as OrganisingGroup).id}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

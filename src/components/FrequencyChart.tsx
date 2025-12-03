@@ -7,16 +7,19 @@ import { range } from 'd3-array'
 import dynamic from 'next/dynamic'
 const RenderPlot = dynamic(() => import('./Plot').then((mod) => mod.RenderPlot), { ssr: false })
 import { usePlotConfig } from './Plot'
+import { getYear } from 'date-fns'
 
 export function FrequencyChart({
   size,
   eventFilter,
   color,
+  minYear,
   countBy = 'events',
 }: {
   size: { width: number; height: number }
   eventFilter?: (event: Event) => boolean
   color: string
+  minYear?: number
   countBy?: 'headcount' | 'events'
 }) {
   const { filteredEvents } = useEventFilterContext()
@@ -25,8 +28,12 @@ export function FrequencyChart({
     return eventFilter ? filteredEvents.filter(eventFilter) : filteredEvents
   }, [filteredEvents, eventFilter])
 
+  const yearFrom = useMemo(() => {
+    return minYear || Math.min(...extraFilteredEvents.map((event) => getYear(new Date(event.date))))
+  }, [extraFilteredEvents, minYear])
+
   const eventsPerYear = useMemo(() => {
-    const fullDomainOfYears = range(2015, new Date().getFullYear() + 1)
+    const fullDomainOfYears = range(yearFrom, new Date().getFullYear() + 1)
     const eventsPerYear = fullDomainOfYears.reduce(
       (acc, year) => {
         if (countBy === 'headcount') {
@@ -46,7 +53,7 @@ export function FrequencyChart({
       year: new Date(Number(year), 0, 1),
       [countBy]: events,
     }))
-  }, [extraFilteredEvents, countBy])
+  }, [extraFilteredEvents, countBy, yearFrom])
 
   const plotConfig = usePlotConfig(
     (Plot) => {
@@ -59,7 +66,7 @@ export function FrequencyChart({
         },
         x: {
           tickSize: 0,
-          ticks: Plot.utcInterval('3 years'),
+          ticks: Plot.utcInterval(`${new Date().getFullYear() - yearFrom > 10 ? 5 : 3} years`),
           // tickFormat: (x) => `'${x.getFullYear().toString().slice(2, 4)}`,
         },
         marks: [
@@ -77,7 +84,7 @@ export function FrequencyChart({
   if (extraFilteredEvents.length === 0) {
     return (
       <div className="pt-5 w-full flex items-center justify-center">
-        <p className="text-gray-400 text-xs font-semibold">No events found</p>
+        <p className="opacity-50 text-sm">No data</p>
       </div>
     )
   }

@@ -494,8 +494,11 @@ export interface OrganisingGroup {
   companies?: (string | Company)[] | null;
   isUnion?: boolean | null;
   website?: string | null;
+  webshiteHostname?: string | null;
   bluesky?: string | null;
+  blueskyHandle?: string | null;
   twitter?: string | null;
+  twitterHandle?: string | null;
   path?: string;
   url?: string;
   /**
@@ -1034,8 +1037,11 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   companies?: T;
   isUnion?: T;
   website?: T;
+  webshiteHostname?: T;
   bluesky?: T;
+  blueskyHandle?: T;
   twitter?: T;
+  twitterHandle?: T;
   path?: T;
   url?: T;
   parents?:

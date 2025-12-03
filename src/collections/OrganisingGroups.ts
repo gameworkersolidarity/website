@@ -127,12 +127,66 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'webshiteHostname',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+      },
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            if (!siblingData.website) {
+              return null
+            }
+            return new URL(siblingData.website).hostname
+          },
+        ],
+      },
+    },
+    {
       name: 'bluesky',
       type: 'text',
     },
     {
+      name: 'blueskyHandle',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+      },
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            if (!siblingData.bluesky) {
+              return null
+            }
+            return new URL(siblingData.bluesky).pathname.replace(/\//gim, '')
+          },
+        ],
+      },
+    },
+    {
       name: 'twitter',
       type: 'text',
+    },
+    {
+      name: 'twitterHandle',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+      },
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            if (!siblingData.twitter) {
+              return null
+            }
+            return new URL(siblingData.twitter).pathname.replace(/\//gim, '')
+          },
+        ],
+      },
     },
     {
       name: 'path',

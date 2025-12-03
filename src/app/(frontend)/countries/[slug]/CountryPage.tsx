@@ -12,12 +12,18 @@ import { twMerge } from 'tailwind-merge'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventList } from '@/components/EventList'
-import { CollectiveActionStats } from '../../components/CollectiveActionStats'
 import { projectStrings } from '@/project-strings'
+import { ExpandableList } from '@/components/ExpandableList'
+import { CountryLabel } from '@/components/CountryLabel'
+import { EventStats } from '@/components/EventStats'
+import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
+import { CompanyLabel } from '@/components/CompanyLabel'
 
 export function CountryPage({
   initialCountry,
   events,
+  companies,
+  organisingGroups,
 }: {
   initialCountry: Country
   events: Event[]
@@ -60,22 +66,40 @@ export function CountryPage({
         )}
       >
         <header>
-          <div className="font-mono uppercase text-sm text-gray-500">Country</div>
-          <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
+          <div className="font-mono uppercase text-sm opacity-50">Country</div>
+          <h1 className="text-5xl font-bold font-identity">
+            <CountryLabel country={page} />
+          </h1>
         </header>
-        {page.isoA2 && (
-          <p
-            className={twMerge(
-              'text-base',
-              textColor === 'white' ? 'text-white/80' : 'text-gray-600',
-            )}
-          >
-            Country Code: {page.isoA2.toUpperCase()}
-          </p>
-        )}
         {page.description && (
           <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
             <LexicalRenderer content={page.description} />
+          </div>
+        )}
+        {organisingGroups.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold font-identity">Organising groups</h2>
+            <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
+            <div className="flex flex-row flex-wrap gap-2 mt-2">
+              {organisingGroups.map((organisingGroup) => (
+                <div key={organisingGroup.id}>
+                  <OrganisingGroupLabel organisingGroup={organisingGroup} link />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {companies.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold font-identity">Companies</h2>
+            <p className="text-sm opacity-50">Companies operating in {page.name}.</p>
+            <div className="flex flex-row flex-wrap gap-2 mt-2">
+              {companies.map((company) => (
+                <div key={company.id}>
+                  <CompanyLabel company={company as Company} link />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </article>
@@ -84,12 +108,12 @@ export function CountryPage({
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <CollectiveActionStats color={primaryColor} />
+              <EventStats />
             </div>
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={60}>
-            <EventList />
+            <EventList linkStyle="hard" />
           </ResizablePanel>
         </ResizablePanelGroup>
       </EventFilterContextProvider>

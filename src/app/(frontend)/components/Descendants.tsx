@@ -1,23 +1,22 @@
 'use client'
 
+import { CompanyLabel } from '@/components/CompanyLabel'
 import { TreeView, TreeDataItem } from '@/components/ui/tree-view'
+import { Company } from '@/payload-types'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
+import { Building } from 'lucide-react'
 import Link from 'next/link'
 import { useMemo } from 'react'
+import { twMerge } from 'tailwind-merge'
 
-export function Descendants({ breadcrumbs }: { breadcrumbs: ArchiveBreadcrumb[] }) {
+export function Descendants({
+  breadcrumbs,
+  initialSelectedItemId,
+}: {
+  breadcrumbs: ArchiveBreadcrumb[]
+  initialSelectedItemId?: string
+}) {
   const treeData = useMemo((): TreeDataItem[] => {
-    // return breadcrumbs.map((breadcrumb) => ({
-    //   id: breadcrumb.id,
-    //   name: breadcrumb.name,
-    //   children: breadcrumbs
-    //     .filter((b) => b.id !== breadcrumb.id)
-    //     .map((b) => ({
-    //       id: b.id,
-    //       name: b.name,
-    //     })),
-    // }))
-
     const sortedBreadcrumbs = breadcrumbs
       .slice()
       // Sort by depth (shallowest first)
@@ -72,16 +71,16 @@ export function Descendants({ breadcrumbs }: { breadcrumbs: ArchiveBreadcrumb[] 
     }
 
     // Recursively set disabled: false on all items with no children
-    const setDisabledOnLeaves = (items: TreeDataItem[]) => {
-      for (const item of items) {
-        if (!item.children || item.children.length === 0) {
-          item.disabled = true
-        } else {
-          // setDisabledOnLeaves(item.children)
-        }
-      }
-    }
-
+    // const setDisabledOnLeaves = (items: TreeDataItem[]) => {
+    //   for (const item of items) {
+    //     if (!item.children || item.children.length === 0) {
+    //       item.disabled = true
+    //     } else {
+    //       // setDisabledOnLeaves(item.children)
+    //     }
+    //   }
+    // }
+    //
     // setDisabledOnLeaves(treeData)
 
     return treeData
@@ -90,16 +89,25 @@ export function Descendants({ breadcrumbs }: { breadcrumbs: ArchiveBreadcrumb[] 
   return (
     <div className="flex flex-col gap-4">
       <TreeView
+        expandAll={breadcrumbs.length <= 4}
+        // initialSelectedItemId={breadcrumbs[0].id}
+        initialSelectedItemId={initialSelectedItemId}
         data={treeData}
         renderItem={({ item }) => {
           const originalItem = breadcrumbs.find((b) => b.id === item.id)!
           return (
-            <div>
-              {item.name} (
-              <Link href={originalItem.path} className="link">
+            <div className="flex items-center gap-2 text-base py-1">
+              <CompanyLabel
+                company={
+                  {
+                    id: item.id,
+                    name: item.name,
+                    slug: originalItem.slug,
+                    path: originalItem.path,
+                  } as Company
+                }
                 link
-              </Link>
-              )
+              />
             </div>
           )
         }}

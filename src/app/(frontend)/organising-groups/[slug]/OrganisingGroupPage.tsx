@@ -1,7 +1,7 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
-import type { OrganisingGroup, Event, Company } from '@/payload-types'
+import type { OrganisingGroup, Event, Company, Country } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { LoggedIn, Username } from '@/components/Me'
 import Link from 'next/link'
@@ -12,17 +12,29 @@ import { LexicalRenderer } from '../../components/LexicalRenderer'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventList } from '@/components/EventList'
-import { CollectiveActionStats } from '../../components/CollectiveActionStats'
 import { projectStrings } from '@/project-strings'
+import { Descendants } from '../../components/Descendants'
+import { ArchiveBreadcrumb } from '@/utils/payloadTree'
+import { CountryLabel } from '@/components/CountryLabel'
+import { ExpandableList } from '@/components/ExpandableList'
+import { CompanyLabel } from '@/components/CompanyLabel'
+import { EventInitiator } from '@/collections/enums'
+import { EventStats } from '@/components/EventStats'
+import { Link2 } from 'lucide-react'
+import XOutlinedIcon from '@/components/X.com'
 
 export function OrganisingGroupPage({
   initialGroup,
   events,
   companies,
+  descendants,
+  countries,
 }: {
   initialGroup: OrganisingGroup
   events: Event[]
   companies: Company[]
+  descendants?: ArchiveBreadcrumb[] | null
+  countries?: Country[] | null
 }) {
   if (!initialGroup) notFound()
 
@@ -35,6 +47,11 @@ export function OrganisingGroupPage({
 
   const primaryColor = page.color!
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
+  const metadataSectionCount = [
+    !!descendants?.length && descendants.length > 1,
+    !!companies?.length,
+    !!countries?.length,
+  ].filter(Boolean).length
 
   return (
     <div
@@ -59,67 +76,70 @@ export function OrganisingGroupPage({
         )}
       >
         <header>
-          <div className="font-mono uppercase text-sm text-gray-500">Organising Group</div>
+          <div className="font-mono uppercase text-sm opacity-50">Organising Group</div>
           <h1 className="text-5xl font-bold font-identity">{page.fullName || page.name}</h1>
         </header>
         {page.name !== page.fullName && page.name && (
           <p
-            className={twMerge(
-              'text-base',
-              textColor === 'white' ? 'text-white/80' : 'text-gray-600',
-            )}
+            className={twMerge('text-base', textColor === 'white' ? 'text-white/80' : 'opacity-50')}
           >
             Also known as: {page.name}
           </p>
         )}
-        {page.isUnion && (
-          <p
-            className={twMerge(
-              'text-sm font-bold',
-              textColor === 'white' ? 'text-white' : 'text-blue-500',
-            )}
-          >
-            Union
-          </p>
-        )}
         {(page.website || page.twitter || page.bluesky) && (
-          <div className="flex flex-wrap gap-4">
-            {page.website && (
-              <a
-                href={page.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={twMerge(
-                  textColor === 'white' ? 'text-white underline' : 'text-blue-500 underline',
-                )}
-              >
-                Website
-              </a>
-            )}
-            {page.twitter && (
-              <a
-                href={page.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={twMerge(
-                  textColor === 'white' ? 'text-white underline' : 'text-blue-500 underline',
-                )}
-              >
-                Twitter
-              </a>
-            )}
-            {page.bluesky && (
-              <a
-                href={page.bluesky}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={twMerge(
-                  textColor === 'white' ? 'text-white underline' : 'text-blue-500 underline',
-                )}
-              >
-                Bluesky
-              </a>
-            )}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-bold font-identity">Links</h2>
+            <div className="flex flex-wrap gap-4">
+              {page.website && (
+                <a
+                  href={page.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1"
+                >
+                  <Link2 className="w-4 h-4" />
+                  <span className="align-baseline underline text-inherit link">
+                    {page.webshiteHostname}
+                  </span>
+                </a>
+              )}
+              {page.twitter && (
+                <a
+                  href={page.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1"
+                >
+                  <XOutlinedIcon className="h-4 w-4" />
+                  <span className="align-baseline underline text-inherit link">
+                    @{page.twitterHandle}
+                  </span>
+                </a>
+              )}
+              {page.bluesky && (
+                <a
+                  href={page.bluesky}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1"
+                >
+                  <svg
+                    fill="none"
+                    viewBox="0 0 64 57"
+                    width="20"
+                    className="inline-block text-[#0085ff]"
+                  >
+                    <path
+                      fill="#0085ff"
+                      d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"
+                    ></path>
+                  </svg>
+                  <span className="align-baseline underline text-inherit link">
+                    @{page.blueskyHandle}
+                  </span>
+                </a>
+              )}
+            </div>
           </div>
         )}
         {page.description && (
@@ -127,32 +147,57 @@ export function OrganisingGroupPage({
             <LexicalRenderer content={page.description} />
           </div>
         )}
-        {companies.length > 0 && (
+        {!!descendants && descendants.length > 1 && (
           <div>
-            <h2 className="text-xl font-bold font-identity">
-              Companies this group organises workers within
-            </h2>
-            <div className="flex flex-col flex-wrap gap-4 mt-4">
+            <h2 className="text-xl font-bold font-identity">Worker organisation</h2>
+            <p className="text-sm opacity-50 mb-1">
+              How {page.name} fits into broader worker organisation.
+            </p>
+            <Descendants breadcrumbs={descendants} initialSelectedItemId={initialGroup.id} />
+          </div>
+        )}
+        {!!countries?.length && countries.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold font-identity">Active countries</h2>
+            <p className="text-sm opacity-50">Countries we know this group is organising in.</p>
+            <div className="flex flex-row flex-wrap gap-2 mt-2">
+              {countries.map((country) => (
+                <div key={country.id}>
+                  <CountryLabel country={country as Country} link />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {companies?.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold font-identity">Companies</h2>
+            <p className="text-sm opacity-50">Companies this group organises workers within.</p>
+            <div className="flex flex-row flex-wrap gap-2 mt-2">
               {companies.map((company) => (
-                <Link key={company.id} href={`/companies/${company.slug}`}>
-                  {company.name}
-                </Link>
+                <div key={company.id}>
+                  <CompanyLabel company={company as Company} link />
+                </div>
               ))}
             </div>
           </div>
         )}
       </article>
 
-      <EventFilterContextProvider events={events} overrideFilteredOrganisingGroupSlug={page.slug}>
+      <EventFilterContextProvider
+        events={events}
+        overrideFilteredOrganisingGroupSlug={page.slug}
+        overrideFilteredInitiator={EventInitiator.WORKER_LED}
+      >
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <CollectiveActionStats color={primaryColor} />
+              <EventStats color={primaryColor} />
             </div>
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={60}>
-            <EventList />
+            <EventList linkStyle="hard" />
           </ResizablePanel>
         </ResizablePanelGroup>
       </EventFilterContextProvider>

@@ -151,6 +151,8 @@ export default async function Page({ params }: Props) {
   })
 
   const uniqueCompanies = Array.from(companiesSet.values())
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   const organisingGroupsResult = await payload.find({
     collection: 'organisingGroups',
@@ -161,7 +163,9 @@ export default async function Page({ params }: Props) {
     },
   })
 
-  const organisingGroups = organisingGroupsResult.docs as OrganisingGroup[]
+  const organisingGroups = Array.from(new Set(organisingGroupsResult.docs as OrganisingGroup[]))
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <CountryPage

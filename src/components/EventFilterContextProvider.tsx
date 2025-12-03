@@ -199,7 +199,7 @@ export function EventFilterContextProvider({
         ),
       )
     }
-    if (filteredInitiator) {
+    if (filteredInitiator && filteredInitiator !== EventInitiator.ALL) {
       filtered = filtered.filter((event) => event.initiator === filteredInitiator)
     }
     if (filteredYear) {
