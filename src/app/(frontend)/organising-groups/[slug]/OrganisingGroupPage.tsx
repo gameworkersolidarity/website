@@ -19,6 +19,7 @@ import { EventInitiator } from '@/collections/enums'
 import { EventStats } from '@/components/EventStats'
 import { Link2 } from 'lucide-react'
 import XOutlinedIcon from '@/components/X.com'
+import Image from 'next/image'
 
 export function OrganisingGroupPage({
   initialGroup,
@@ -57,31 +58,53 @@ export function OrganisingGroupPage({
         style={{
           backgroundColor: primaryColor,
         }}
-        className="md:pt-6"
+        className="lg:pt-6"
       >
         <article
           className={twMerge(
             // 'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',
             // textColor === 'white' && 'text-white',
-            'max-w-4xl mx-auto flex flex-col gap-[2px]',
+            'lg:max-w-4xl mx-auto flex flex-col gap-[2px]',
           )}
         >
-          <header className="bg-white px-6 pt-6 pb-4 md:rounded-t-xl">
-            <div className="font-mono uppercase text-sm opacity-50">Organising Group</div>
-            <h1 className="text-5xl font-bold font-identity">{page.fullName || page.name}</h1>
-            {page.name !== page.fullName && page.name && (
-              <p
-                className={twMerge(
-                  'text-base mt-2',
-                  textColor === 'white' ? 'text-white/80' : 'opacity-50',
-                )}
-              >
-                Also known as: {page.name}
-              </p>
+          <header
+            className={twMerge(
+              'bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl',
+              page.featuredImage &&
+                typeof page.featuredImage === 'object' &&
+                page.featuredImage.url &&
+                'grid grid-cols-1 md:grid-cols-3 gap-4',
             )}
+          >
+            <div className="col-span-2">
+              <div className="font-mono uppercase text-sm opacity-50">Organising Group</div>
+              <h1 className="text-5xl font-bold font-identity">{page.fullName || page.name}</h1>
+              {page.name !== page.fullName && page.name && (
+                <p
+                  className={twMerge(
+                    'text-base mt-2',
+                    textColor === 'white' ? 'text-white/80' : 'opacity-50',
+                  )}
+                >
+                  Also known as: {page.name}
+                </p>
+              )}
+            </div>
+            {page.featuredImage &&
+              typeof page.featuredImage === 'object' &&
+              page.featuredImage.url && (
+                <div className="mb-4">
+                  <Image
+                    src={page.featuredImage.url}
+                    alt={page.featuredImage.alt}
+                    width={1000}
+                    height={1000}
+                  />
+                </div>
+              )}
           </header>
           {(page.website || page.twitter || page.bluesky) && (
-            <div className="bg-white px-6 py-4 flex flex-col gap-2">
+            <div className="bg-white px-4 md:px-6 py-4 flex flex-col gap-2">
               <h2 className="text-xl font-bold font-identity">Links</h2>
               <div className="flex flex-wrap gap-4">
                 {page.website && (
@@ -142,7 +165,7 @@ export function OrganisingGroupPage({
             </div>
           )}
           {!!descendants && descendants.length > 1 && (
-            <div className="bg-white px-6 py-4">
+            <div className="bg-white px-4 md:px-6 py-4">
               <h2 className="text-xl font-bold font-identity">Worker organisation</h2>
               <p className="text-sm opacity-50 mb-1">
                 How {page.name} fits into broader worker organisation.
@@ -151,7 +174,7 @@ export function OrganisingGroupPage({
             </div>
           )}
           {!!countries?.length && countries.length > 0 && (
-            <div className="bg-white px-6 py-4">
+            <div className="bg-white px-4 md:px-6 py-4">
               <h2 className="text-xl font-bold font-identity">Active countries</h2>
               <p className="text-sm opacity-50">Countries we know this group is organising in.</p>
               <div className="flex flex-row flex-wrap gap-2 mt-2">
@@ -164,7 +187,7 @@ export function OrganisingGroupPage({
             </div>
           )}
           {companies?.length > 0 && (
-            <div className="bg-white px-6 py-4">
+            <div className="bg-white px-4 md:px-6 py-4">
               <h2 className="text-xl font-bold font-identity">Companies</h2>
               <p className="text-sm opacity-50">Companies this group organises workers within.</p>
               <div className="flex flex-row flex-wrap gap-2 mt-2">
@@ -176,7 +199,7 @@ export function OrganisingGroupPage({
               </div>
             </div>
           )}
-          <div className="bg-white px-6 py-4 mb-[2px]">
+          <div className="bg-white px-4 md:px-6 py-4 mb-[2px]">
             Have more info about this union?{' '}
             <a href={`mailto:${projectStrings.email}`} className="link">
               Let us know →
