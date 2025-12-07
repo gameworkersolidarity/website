@@ -2,7 +2,15 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { EventCard } from '@/components/EventCard'
-import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import type {
+  Campaign,
+  Category,
+  Company,
+  Config,
+  Country,
+  Event,
+  OrganisingGroup,
+} from '@/payload-types'
 import { AdminEditBanner } from '@/components/Me'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -46,12 +54,35 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
       ...eventNav?.nextInCampaign,
     }).filter(Boolean).length > 0
 
+  const previousRelatedEvents = event.relatedEvents
+    ?.filter((relation) => relation.id !== event.id && (relation.event as Event).date < event.date)
+    .sort(
+      (b, a) =>
+        new Date((a.event as Event).date).getTime() - new Date((b.event as Event).date).getTime(),
+    )
+
+  const nextRelatedEvents = event.relatedEvents
+    ?.filter((relation) => relation.id !== event.id && (relation.event as Event).date > event.date)
+    .sort(
+      (a, b) =>
+        new Date((b.event as Event).date).getTime() - new Date((a.event as Event).date).getTime(),
+    )
+
   return (
     <div className="bg-gwBackground" style={{ minHeight: '66vh' }}>
       <AdminEditBanner page={event} />
       <div className="mx-auto py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
           {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Previous events</div>}
+          {previousRelatedEvents?.map((relation) => (
+            <EventBreadcrumbNavLink
+              label={relation.connectionType}
+              direction="previous"
+              event={relation.event as Event}
+              key={relation.id}
+              description={relation.description}
+            />
+          ))}
           {Object.values(eventNav?.previousInCountry ?? {}).map(
             (event) =>
               event &&
@@ -119,6 +150,15 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
           {hasNextEvents && <div className="text-sm font-semibold">Next events</div>}
+          {nextRelatedEvents?.map((relation) => (
+            <EventBreadcrumbNavLink
+              direction="next"
+              event={relation.event as Event}
+              key={relation.id}
+              label={relation.connectionType}
+              description={relation.description}
+            />
+          ))}
           {Object.values(eventNav?.nextInCountry ?? {}).map(
             (event) =>
               event &&
@@ -177,10 +217,14 @@ function EventBreadcrumbNavLink({
   event,
   label,
   direction,
+  description,
 }: {
   event: Event
-  label: CollectionSlug
+  label:
+    | CollectionSlug
+    | NonNullable<Config['collections']['events']['relatedEvents']>[0]['connectionType']
   direction: 'previous' | 'next'
+  description?: string
 }) {
   return (
     <Link
@@ -194,51 +238,50 @@ function EventBreadcrumbNavLink({
           direction === 'previous' ? 'rotate-0' : 'rotate-180',
         )}
       />
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-0.5">
         {event.date && (
           <span className="font-mono text-xs opacity-60 uppercase">
             <DateTime date={event.date} />
           </span>
         )}
         <div className="text-sm flex flex-wrap gap-1">
-          {label === 'countries'
-            ? event.countries?.map((country) => (
-                <CountryLabel
-                  country={country as unknown as Country}
-                  key={(country as Country).id}
-                />
-              ))
-            : label === 'categories'
-              ? event.categories?.map((category) => (
-                  <CategoryLabel
-                    category={category as unknown as Category}
-                    key={(category as Category).id}
-                  />
-                ))
-              : label === 'companies'
-                ? event.companies?.map((company) => (
-                    <CompanyLabel
-                      company={company as unknown as Company}
-                      key={(company as Company).id}
-                    />
-                  ))
-                : label === 'organisingGroups'
-                  ? event.organisingGroups?.map((organisingGroup) => (
-                      <OrganisingGroupLabel
-                        organisingGroup={organisingGroup as unknown as OrganisingGroup}
-                        key={(organisingGroup as OrganisingGroup).id}
-                      />
-                    ))
-                  : label === 'campaigns'
-                    ? event.campaigns?.docs?.map((campaign) => (
-                        <CampaignLabel
-                          campaign={campaign as unknown as Campaign}
-                          key={(campaign as Campaign).id}
-                        />
-                      ))
-                    : null}
+          {label === 'countries' ? (
+            event.countries?.map((country) => (
+              <CountryLabel country={country as unknown as Country} key={(country as Country).id} />
+            ))
+          ) : label === 'categories' ? (
+            event.categories?.map((category) => (
+              <CategoryLabel
+                category={category as unknown as Category}
+                key={(category as Category).id}
+              />
+            ))
+          ) : label === 'companies' ? (
+            event.companies?.map((company) => (
+              <CompanyLabel company={company as unknown as Company} key={(company as Company).id} />
+            ))
+          ) : label === 'organisingGroups' ? (
+            event.organisingGroups?.map((organisingGroup) => (
+              <OrganisingGroupLabel
+                organisingGroup={organisingGroup as unknown as OrganisingGroup}
+                key={(organisingGroup as OrganisingGroup).id}
+              />
+            ))
+          ) : label === 'campaigns' ? (
+            event.campaigns?.docs?.map((campaign) => (
+              <CampaignLabel
+                campaign={campaign as unknown as Campaign}
+                key={(campaign as Campaign).id}
+              />
+            ))
+          ) : label === 'INDIRECT' ? (
+            <div>Indirect connection</div>
+          ) : label === 'DIRECT' ? (
+            <div>Direct connection</div>
+          ) : null}
         </div>
         <div className="text-xs link">{event.name}</div>
+        {description && <div className="text-xs opacity-50 italic mt-0.5">{description}</div>}
       </div>
     </Link>
   )

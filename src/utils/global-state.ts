@@ -3,6 +3,7 @@ import { projectStrings } from '@/project-strings'
 import { SortingState } from '@tanstack/react-table'
 import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
+import { atom } from 'jotai/vanilla'
 import { noop } from 'lodash'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import qs from 'query-string'
@@ -18,7 +19,7 @@ export const zoomLevelAtom = atomWithStorage<ZoomLevel>('zoomLevel', ZoomLevel.C
 export const sortOrderAtom = atomWithStorage<SortingState>('sortOrder', [
   {
     id: 'date',
-    desc: false,
+    desc: true,
   },
 ])
 

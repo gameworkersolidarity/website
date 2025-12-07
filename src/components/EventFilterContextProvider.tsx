@@ -16,7 +16,7 @@ import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { getDescendants } from '@/utils/payloadTree.client'
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
 export const EventFilterContext = createContext<{
@@ -40,8 +40,11 @@ export const EventFilterContext = createContext<{
   setCampaignFilter: (value: string | null) => void
   setInitiatorFilter: (value: EventInitiator | null) => void
   setYearFilter: (value: string | number | null) => void
+  setSelectedPopupIds: (value: string[] | null) => void
+  selectedPopupIds: string[] | null
 }>({
   filteredEvents: [],
+  selectedPopupIds: null,
   setCountryISOA2Filter: noop,
   setCategoryFilter: noop,
   setCompanyFilter: noop,
@@ -49,6 +52,7 @@ export const EventFilterContext = createContext<{
   setCampaignFilter: noop,
   setInitiatorFilter: noop,
   setYearFilter: noop,
+  setSelectedPopupIds: noop,
 })
 
 export function EventFilterContextProvider({
@@ -72,6 +76,7 @@ export function EventFilterContextProvider({
   overrideFilteredInitiator?: EventInitiator | null
   overrideFilteredYear?: string | number | null
 }) {
+  const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
     overrideFilteredCountryISOA2,
   )
@@ -159,6 +164,9 @@ export function EventFilterContextProvider({
       return []
     }
     let filtered = [...events]
+    if (selectedPopupIds && selectedPopupIds.length > 0) {
+      filtered = filtered.filter((event) => selectedPopupIds.includes(event.id))
+    }
     if (filteredCountryISOA2) {
       filtered = filtered.filter((event) =>
         event.countries?.some((country) => (country as Country).isoA2 === filteredCountryISOA2),
@@ -172,7 +180,6 @@ export function EventFilterContextProvider({
     if (filteredCompanySlug) {
       filtered = filtered.filter((event) =>
         event.companies?.some((company) => {
-          console.log('company', company)
           return (
             filteredCompanySlug === (company as Company).slug ||
             (company as Company).parents?.some((parent) => parent.url === `/${filteredCompanySlug}`)
@@ -215,6 +222,7 @@ export function EventFilterContextProvider({
     filteredCampaignSlug,
     filteredInitiator,
     filteredYear,
+    selectedPopupIds,
   ])
 
   return (
@@ -240,6 +248,8 @@ export function EventFilterContextProvider({
         setCampaignFilter,
         setInitiatorFilter,
         setYearFilter,
+        setSelectedPopupIds,
+        selectedPopupIds,
       }}
     >
       {children}
@@ -248,5 +258,21 @@ export function EventFilterContextProvider({
 }
 
 export function useEventFilterContext() {
-  return useContext(EventFilterContext)
+  const context = useContext(EventFilterContext)
+
+  function clearAllFilters() {
+    context.setCountryISOA2Filter(null)
+    context.setCategoryFilter(null)
+    context.setCompanyFilter(null)
+    context.setOrganisingGroupFilter(null)
+    context.setCampaignFilter(null)
+    context.setInitiatorFilter(null)
+    context.setYearFilter(null)
+    context.setSelectedPopupIds(null)
+  }
+
+  return {
+    ...context,
+    clearAllFilters,
+  }
 }

@@ -130,6 +130,7 @@ export default async function Page({ params }: Props) {
 
   // Extract unique companies from solidarity actions
   const companiesSet = new Map<string, Company>()
+  const organisingGroupsSet = new Map<string, OrganisingGroup>()
 
   events.forEach((action) => {
     if (action.companies && Array.isArray(action.companies)) {
@@ -144,6 +145,22 @@ export default async function Page({ params }: Props) {
           const companyId = String(company.id)
           if (!companiesSet.has(companyId)) {
             companiesSet.set(companyId, company)
+          }
+        }
+      })
+    }
+    if (action.organisingGroups && Array.isArray(action.organisingGroups)) {
+      action.organisingGroups.forEach((organisingGroup) => {
+        if (
+          typeof organisingGroup === 'object' &&
+          organisingGroup !== null &&
+          'id' in organisingGroup &&
+          'slug' in organisingGroup &&
+          'name' in organisingGroup
+        ) {
+          const organisingGroupId = String(organisingGroup.id)
+          if (!organisingGroupsSet.has(organisingGroupId)) {
+            organisingGroupsSet.set(organisingGroupId, organisingGroup)
           }
         }
       })
@@ -163,8 +180,15 @@ export default async function Page({ params }: Props) {
     },
   })
 
-  const organisingGroups = Array.from(new Set(organisingGroupsResult.docs as OrganisingGroup[]))
+  for (const organisingGroup of organisingGroupsResult.docs) {
+    // add to organisingGroupsMap
+    organisingGroupsSet.set(organisingGroup.id, organisingGroup)
+  }
+
+  const organisingGroups = Array.from(organisingGroupsSet.values())
     .filter(Boolean)
+    // Only top level organising groups
+    .filter((organisingGroup) => !organisingGroup.parent)
     .sort((a, b) => a.name.localeCompare(b.name))
 
   return (

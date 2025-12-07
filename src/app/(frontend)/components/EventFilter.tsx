@@ -67,6 +67,7 @@ export function EventFilter({
     setInitiatorFilter,
     filteredYear,
     setYearFilter,
+    clearAllFilters,
   } = useEventFilterContext()
 
   // Get unique years from all actions (we'll calculate this from context or pass as prop)
@@ -86,18 +87,7 @@ export function EventFilter({
             filteredCampaignSlug ||
             filteredInitiator ||
             filteredYear) && (
-            <div
-              className="link"
-              onClick={() => {
-                setCountryISOA2Filter(null)
-                setCategoryFilter(null)
-                setCompanyFilter(null)
-                setOrganisingGroupFilter(null)
-                setCampaignFilter(null)
-                setInitiatorFilter(null)
-                setYearFilter(null)
-              }}
-            >
+            <div className="link" onClick={clearAllFilters}>
               clear filters ⤬
             </div>
           )}

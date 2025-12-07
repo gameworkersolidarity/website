@@ -284,11 +284,15 @@ export function CompactEventList({
           >
             <div className="flex flex-wrap gap-1">
               {(row.getValue('countries') as Country[])?.map((country) => (
-                <CountryLabel
-                  key={country.id}
-                  country={country as Country}
-                  link={linkStyle === 'soft' ? 'soft' : true}
-                />
+                <div key={country.id}>
+                  <CountryLabel
+                    country={country as Country}
+                    link={linkStyle === 'soft' ? 'soft' : true}
+                  />
+                  {row.original.location ? (
+                    <span className="text-xs opacity-50">{row.original.location}</span>
+                  ) : null}
+                </div>
               ))}
             </div>
           </TableCell>

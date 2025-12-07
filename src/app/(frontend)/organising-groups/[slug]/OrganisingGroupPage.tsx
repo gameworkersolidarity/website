@@ -17,7 +17,7 @@ import { CountryLabel } from '@/components/CountryLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
 import { EventInitiator } from '@/collections/enums'
 import { EventStats } from '@/components/EventStats'
-import { Link2 } from 'lucide-react'
+import { Link2, Users } from 'lucide-react'
 import XOutlinedIcon from '@/components/X.com'
 import Image from 'next/image'
 
@@ -77,7 +77,10 @@ export function OrganisingGroupPage({
             )}
           >
             <div className="col-span-2">
-              <div className="font-mono uppercase text-sm opacity-50">Organising Group</div>
+              <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                Organising Group
+              </div>
               <h1 className="text-5xl font-bold font-identity">{page.fullName || page.name}</h1>
               {page.name !== page.fullName && page.name && (
                 <p
