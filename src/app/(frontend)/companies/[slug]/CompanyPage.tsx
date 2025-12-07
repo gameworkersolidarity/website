@@ -2,7 +2,7 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import type { Company, Event, OrganisingGroup } from '@/payload-types'
+import type { Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
@@ -17,17 +17,20 @@ import { getSlug } from '@/utils/payloadPath'
 import { EventStats } from '@/components/EventStats'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { Building } from 'lucide-react'
+import { CountryLabel } from '@/components/CountryLabel'
 
 export function CompanyPage({
   initialCompany,
   descendants,
   events,
   organisingGroups,
+  countries,
 }: {
   initialCompany: Company
   descendants: ArchiveBreadcrumb[] | null
   events: Event[]
   organisingGroups: OrganisingGroup[]
+  countries: Country[]
 }) {
   if (!initialCompany) notFound()
 
@@ -80,6 +83,19 @@ export function CompanyPage({
                 {organisingGroups.map((organisingGroup) => (
                   <div key={organisingGroup.id}>
                     <OrganisingGroupLabel organisingGroup={organisingGroup} link />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {countries.length > 0 && (
+            <div className="bg-white px-4 md:px-6 py-4">
+              <h2 className="text-xl font-bold font-identity">Active countries</h2>
+              <p className="text-sm opacity-50">Countries we know this company is operating in.</p>
+              <div className="flex flex-row flex-wrap gap-2 mt-2">
+                {countries.map((country) => (
+                  <div key={country.id}>
+                    <CountryLabel country={country as Country} link />
                   </div>
                 ))}
               </div>
