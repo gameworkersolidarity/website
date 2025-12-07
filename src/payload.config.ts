@@ -15,6 +15,7 @@ import { Campaigns } from './collections/Campaigns'
 import { Events } from './collections/Events'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
+import { StartOrganising } from './globals/StartOrganising'
 import { cloudinaryStorage } from 'payload-cloudinary'
 import 'dotenv/config'
 import env from 'env-var'
@@ -110,7 +111,7 @@ export default buildConfig({
     Campaigns,
     Events,
   ],
-  globals: [Header, Footer],
+  globals: [Header, Footer, StartOrganising],
   editor: lexicalEditor(),
   secret: env.get('PAYLOAD_SECRET').required().asString(),
   typescript: {

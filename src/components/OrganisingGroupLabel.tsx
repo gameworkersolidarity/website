@@ -12,16 +12,8 @@ export function OrganisingGroupLabel({
   organisingGroup: OrganisingGroup
   link?: boolean | 'soft'
 }) {
-  const [_, setOrganisingGroupFilter] = useOrganisingGroupFilter()
   if (link === 'soft') {
-    return (
-      <div
-        onClick={() => setOrganisingGroupFilter(getSlug('organisingGroups', organisingGroup))}
-        className="cursor-pointer"
-      >
-        <RenderedOrganisingGroupLabel organisingGroup={organisingGroup} textClassName="link" />
-      </div>
-    )
+    return <SoftLinkOrganisingGroupLabel organisingGroup={organisingGroup} />
   } else if (link) {
     return (
       <Link href={organisingGroup.path!}>
@@ -33,6 +25,22 @@ export function OrganisingGroupLabel({
   }
 }
 
+export function SoftLinkOrganisingGroupLabel({
+  organisingGroup,
+}: {
+  organisingGroup: OrganisingGroup
+}) {
+  const [_, setOrganisingGroupFilter] = useOrganisingGroupFilter()
+  return (
+    <div
+      onClick={() => setOrganisingGroupFilter(getSlug('organisingGroups', organisingGroup))}
+      className="cursor-pointer"
+    >
+      <RenderedOrganisingGroupLabel organisingGroup={organisingGroup} textClassName="link" />
+    </div>
+  )
+}
+
 export function RenderedOrganisingGroupLabel({
   organisingGroup,
   textClassName,
@@ -41,7 +49,7 @@ export function RenderedOrganisingGroupLabel({
   textClassName?: string
 }) {
   return (
-    <span className="flex items-center gap-1 nowrap" key={organisingGroup.id}>
+    <span className="flex items-center gap-1 wrap-anywhere" key={organisingGroup.id}>
       <Users className={twMerge('text-gray-500', 'w-3 h-3')} />
       <span className={textClassName}>{organisingGroup.name}</span>
     </span>

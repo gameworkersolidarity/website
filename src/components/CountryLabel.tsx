@@ -2,16 +2,10 @@ import { Country } from '@/payload-types'
 import { useCountryISOA2Filter } from '@/utils/global-state'
 import Emoji from 'a11y-react-emoji'
 import Link from 'next/link'
-import { getSlug } from '@/utils/payloadPath'
 
 export function CountryLabel({ country, link }: { country: Country; link?: boolean | 'soft' }) {
-  const [_, setCountryISOA2Filter] = useCountryISOA2Filter()
   if (link === 'soft') {
-    return (
-      <div onClick={() => setCountryISOA2Filter(country.isoA2)} className="cursor-pointer">
-        <RenderedCountryLabel country={country} textClassName="link" />
-      </div>
-    )
+    return <SoftLinkCountryLabel country={country} />
   } else if (link) {
     return (
       <Link href={country.path!}>
@@ -21,6 +15,15 @@ export function CountryLabel({ country, link }: { country: Country; link?: boole
   } else {
     return <RenderedCountryLabel country={country} />
   }
+}
+
+export function SoftLinkCountryLabel({ country }: { country: Country }) {
+  const [_, setCountryISOA2Filter] = useCountryISOA2Filter()
+  return (
+    <div onClick={() => setCountryISOA2Filter(country.isoA2)} className="cursor-pointer">
+      <RenderedCountryLabel country={country} textClassName="link" />
+    </div>
+  )
 }
 
 export function RenderedCountryLabel({

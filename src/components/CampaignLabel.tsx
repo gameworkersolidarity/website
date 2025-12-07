@@ -5,16 +5,8 @@ import Emoji from 'a11y-react-emoji'
 import Link from 'next/link'
 
 export function CampaignLabel({ campaign, link }: { campaign: Campaign; link?: boolean | 'soft' }) {
-  const [_, setCampaignFilter] = useCampaignFilter()
   if (link === 'soft') {
-    return (
-      <div
-        onClick={() => setCampaignFilter(getSlug('campaigns', campaign))}
-        className="cursor-pointer"
-      >
-        <RenderedCampaignLabel campaign={campaign} textClassName="link" />
-      </div>
-    )
+    return <SoftLinkCampaignLabel campaign={campaign} />
   } else if (link) {
     return (
       <Link href={campaign.path!}>
@@ -24,6 +16,18 @@ export function CampaignLabel({ campaign, link }: { campaign: Campaign; link?: b
   } else {
     return <RenderedCampaignLabel campaign={campaign} />
   }
+}
+
+export function SoftLinkCampaignLabel({ campaign }: { campaign: Campaign }) {
+  const [_, setCampaignFilter] = useCampaignFilter()
+  return (
+    <div
+      onClick={() => setCampaignFilter(getSlug('campaigns', campaign))}
+      className="cursor-pointer"
+    >
+      <RenderedCampaignLabel campaign={campaign} textClassName="link" />
+    </div>
+  )
 }
 
 export function RenderedCampaignLabel({

@@ -109,57 +109,7 @@ export function OrganisingGroupPage({
           {(page.website || page.twitter || page.bluesky) && (
             <div className="bg-white px-4 md:px-6 py-4 flex flex-col gap-2">
               <h2 className="text-xl font-bold font-identity">Links</h2>
-              <div className="flex flex-wrap gap-4">
-                {page.website && (
-                  <a
-                    href={page.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1"
-                  >
-                    <Link2 className="w-4 h-4" />
-                    <span className="align-baseline underline text-inherit link">
-                      {page.webshiteHostname}
-                    </span>
-                  </a>
-                )}
-                {page.twitter && (
-                  <a
-                    href={page.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1"
-                  >
-                    <XOutlinedIcon className="h-4 w-4" />
-                    <span className="align-baseline underline text-inherit link">
-                      @{page.twitterHandle}
-                    </span>
-                  </a>
-                )}
-                {page.bluesky && (
-                  <a
-                    href={page.bluesky}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1"
-                  >
-                    <svg
-                      fill="none"
-                      viewBox="0 0 64 57"
-                      width="20"
-                      className="inline-block text-[#0085ff]"
-                    >
-                      <path
-                        fill="#0085ff"
-                        d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"
-                      ></path>
-                    </svg>
-                    <span className="align-baseline underline text-inherit link">
-                      @{page.blueskyHandle}
-                    </span>
-                  </a>
-                )}
-              </div>
+              <OrganisingGroupLinks page={page} />
             </div>
           )}
           {page.description && (
@@ -229,6 +179,53 @@ export function OrganisingGroupPage({
           </ResizablePanel>
         </ResizablePanelGroup>
       </EventFilterContextProvider>
+    </div>
+  )
+}
+
+export function OrganisingGroupLinks({ page }: { page: OrganisingGroup }) {
+  return (
+    <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+      {page.website && (
+        <a
+          href={page.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1"
+        >
+          <Link2 className="w-4 h-4" />
+          <span className="align-baseline underline text-inherit link">
+            {page.webshiteHostname}
+          </span>
+        </a>
+      )}
+      {page.twitter && (
+        <a
+          href={page.twitter}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1"
+        >
+          <XOutlinedIcon className="h-4 w-4" />
+          <span className="align-baseline underline text-inherit link">@{page.twitterHandle}</span>
+        </a>
+      )}
+      {page.bluesky && (
+        <a
+          href={page.bluesky}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1"
+        >
+          <svg fill="none" viewBox="0 0 64 57" width="20" className="inline-block text-[#0085ff]">
+            <path
+              fill="#0085ff"
+              d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"
+            ></path>
+          </svg>
+          <span className="align-baseline underline text-inherit link">@{page.blueskyHandle}</span>
+        </a>
+      )}
     </div>
   )
 }
