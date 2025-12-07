@@ -73,7 +73,7 @@ export default async function BlogPost({ params }: Props) {
       <RefreshRouteOnSave />
       <AdminEditBanner page={post} />
       <main className="max-w-2xl mx-auto py-5 px-4 flex flex-col gap-4">
-        <Link href="/blog">← Back to Blog</Link>
+        <Link href="/articles">← All articles</Link>
         <h1 className="text-5xl font-bold font-identity">{post.title}</h1>
         <div className="flex flex-row gap-4 font-mono">
           {post.createdAt && <DateTime date={post.createdAt} />}
@@ -91,7 +91,7 @@ export default async function BlogPost({ params }: Props) {
         )}
         <LexicalRenderer content={post.body} className="text-lg/relaxed" />
         <div className="mt-3 border-t border-gray-200 pt-3 italic opacity-60">
-          Want to discuss this post or publish a follow-up on the blog?{' '}
+          Want to discuss this post or publish a follow-up on the post?{' '}
           <Link className="link" href={`mailto:${projectStrings.email}`}>
             Contact us &rarr;
           </Link>

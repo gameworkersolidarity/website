@@ -49,7 +49,7 @@ export function getPath<C extends CollectionSlug>(collection: C, record: Config[
     case 'events':
       return `/events/${getSlug(collection, record)}`
     case 'blogPosts':
-      return `/blog/${getSlug(collection, record)}`
+      return `/articles/${getSlug(collection, record)}`
     case 'staticPages':
       return `/${getSlug(collection, record)}`
     default:

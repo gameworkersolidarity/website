@@ -7,8 +7,8 @@ import { Rss } from 'lucide-react'
 import { DateTime } from '@/components/DateTime'
 
 export const metadata = {
-  title: 'Blog - Game Workers Solidarity Platform',
-  description: 'Read the latest blog posts from the Game Workers Solidarity Platform.',
+  title: 'Articles - Game Workers Solidarity Project',
+  description: 'News & articles from the Game Workers Solidarity Project.',
 }
 
 export default async function BlogPage() {
@@ -32,7 +32,7 @@ export default async function BlogPage() {
     <main className="max-w-xl mx-auto py-5 px-4 flex flex-col gap-4">
       <header className="flex flex-col gap-4">
         <h1 className="text-5xl font-bold font-identity">Articles</h1>
-        <Link href="/blog/feed.xml" className="link flex flex-row items-center gap-2">
+        <Link href="/articles/feed.xml" className="link flex flex-row items-center gap-2">
           <Rss className="w-4 h-4 inline-block" />
           <span className="inline-block">RSS Feed</span>
         </Link>
@@ -40,7 +40,7 @@ export default async function BlogPage() {
 
       {blogPostsResult.docs.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
-          <p>No blog posts published yet. Check back soon!</p>
+          <p>No posts published yet. Check back soon!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
@@ -53,7 +53,7 @@ export default async function BlogPage() {
             return (
               <Link
                 key={post.id}
-                href={`/blog/${post.slug}`}
+                href={post.path!}
                 className="flex flex-col bg-white rounded-xl overflow-hidden"
               >
                 <header className="p-4">
