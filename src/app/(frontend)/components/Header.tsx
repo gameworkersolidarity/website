@@ -19,6 +19,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
     },
     ...navigation,
     {
+      label: 'Blog',
+      url: '/blog',
+    },
+    {
       label: 'API docs',
       url: '/api/docs',
     },
