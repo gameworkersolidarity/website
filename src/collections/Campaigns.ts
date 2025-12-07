@@ -1,12 +1,28 @@
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
-import { slugField, type CollectionConfig } from 'payload'
+import { getPayload, slugField, type CollectionConfig } from 'payload'
+import config from '@/payload.config'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
-import { Campaign } from '@/payload-types'
+import { Campaign, Event } from '@/payload-types'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
   trash: true,
+  defaultPopulate: {
+    name: true,
+    slug: true,
+    description: true,
+    featuredImage: true,
+    primaryColor: true,
+    color: true,
+    emoji: true,
+    events: {
+      name: true,
+      slug: true,
+      date: true,
+    },
+    adminPath: true,
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'createdAt', 'updatedAt'],
@@ -147,6 +163,68 @@ export const Campaigns: CollectionConfig = {
       },
     },
     {
+      name: 'eventDateRange',
+      type: 'json',
+      typescriptSchema: [
+        ({ jsonSchema }) => ({
+          ...jsonSchema,
+          type: 'object',
+          properties: {
+            start: { type: 'string' },
+            end: { type: 'string' },
+          },
+        }),
+      ],
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      hooks: {
+        afterRead: [
+          async ({ siblingData }) => {
+            console.log('siblingData.events', siblingData.events)
+            if (!siblingData.events || !Array.isArray(siblingData.events)) {
+              return {
+                start: null,
+                end: null,
+              }
+            }
+            const payloadConfig = await config
+            const payload = await getPayload({ config: payloadConfig })
+            const events = await payload.find({
+              collection: 'events',
+              where: {
+                id: {
+                  in: siblingData.events as string[],
+                },
+              },
+            })
+            const minDate = Math.min(
+              ...events.docs.map((event) => {
+                if (!event.date) {
+                  return Infinity
+                }
+                return new Date(event.date).getTime()
+              }),
+            )
+            const maxDate = Math.max(
+              ...events.docs.map((event) => {
+                if (!event.date) {
+                  return -Infinity
+                }
+                return new Date(event.date).getTime()
+              }),
+            )
+            return {
+              start: new Date(minDate).toISOString(),
+              end: new Date(maxDate).toISOString(),
+            }
+          },
+        ],
+      },
+    },
+    {
       name: 'adminPath',
       type: 'text',
       virtual: true,
@@ -161,6 +239,36 @@ export const Campaigns: CollectionConfig = {
             return `/admin/collections/campaigns/${siblingData.id}`
           },
         ],
+      },
+    },
+    {
+      name: 'apiPath',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => {
+            return `/api/${Campaigns.slug}/${siblingData.id}`
+          },
+        ],
+      },
+    },
+    {
+      name: 'collectionSlug',
+      type: 'text',
+      virtual: true,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
+      hooks: {
+        afterRead: [() => Campaigns.slug],
       },
     },
   ],

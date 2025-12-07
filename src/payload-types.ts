@@ -114,12 +114,14 @@ export interface Config {
     footer: Footer;
     startOrganising: StartOrganising;
     aboutPage: AboutPage;
+    campaignsPage: CampaignsPage;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     startOrganising: StartOrganisingSelect<false> | StartOrganisingSelect<true>;
     aboutPage: AboutPageSelect<false> | AboutPageSelect<true>;
+    campaignsPage: CampaignsPageSelect<false> | CampaignsPageSelect<true>;
   };
   locale: null;
   user: User & {
@@ -571,7 +573,14 @@ export interface Campaign {
   events?: (string | Event)[] | null;
   path?: string;
   url?: string;
+  eventDateRange?: {
+    start?: string;
+    end?: string;
+    [k: string]: unknown;
+  };
   adminPath?: string;
+  apiPath?: string;
+  collectionSlug?: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1092,7 +1101,10 @@ export interface CampaignsSelect<T extends boolean = true> {
   events?: T;
   path?: T;
   url?: T;
+  eventDateRange?: T;
   adminPath?: T;
+  apiPath?: T;
+  collectionSlug?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1274,7 +1286,34 @@ export interface StartOrganising {
 export interface AboutPage {
   id: string;
   /**
-   * Rich text description for the start organising page
+   * Rich text description for the about page
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaignsPage".
+ */
+export interface CampaignsPage {
+  id: string;
+  /**
+   * Rich text description for the campaigns page
    */
   description?: {
     root: {
@@ -1341,6 +1380,16 @@ export interface StartOrganisingSelect<T extends boolean = true> {
  * via the `definition` "aboutPage_select".
  */
 export interface AboutPageSelect<T extends boolean = true> {
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaignsPage_select".
+ */
+export interface CampaignsPageSelect<T extends boolean = true> {
   description?: T;
   updatedAt?: T;
   createdAt?: T;

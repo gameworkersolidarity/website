@@ -23,10 +23,10 @@ import { s3Storage } from '@payloadcms/storage-s3'
 import { openapi, scalar } from 'payload-oapi'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
-import { Company, OrganisingGroup } from './payload-types'
 import { projectStrings } from './project-strings'
 import { getPath, getSlug } from './utils/payloadPath'
 import { AboutPage } from './globals/AboutPage'
+import { CampaignsPage } from './globals/CampaignsPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -112,7 +112,7 @@ export default buildConfig({
     Campaigns,
     Events,
   ],
-  globals: [Header, Footer, StartOrganising, AboutPage],
+  globals: [Header, Footer, StartOrganising, AboutPage, CampaignsPage],
   editor: lexicalEditor(),
   secret: env.get('PAYLOAD_SECRET').required().asString(),
   typescript: {

@@ -19,6 +19,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
     },
     ...navigation,
     {
+      label: 'Campaigns',
+      url: '/campaigns',
+    },
+    {
       label: 'Organise!',
       url: '/start-organising',
     },

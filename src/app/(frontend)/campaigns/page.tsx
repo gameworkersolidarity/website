@@ -1,102 +1,118 @@
 import { getPayload } from 'payload'
-import React from 'react'
-import Link from 'next/link'
 import config from '@/payload.config'
+import { draftMode } from 'next/headers'
+import Link from 'next/link'
+import { LexicalRenderer } from '../components/LexicalRenderer'
+import type { Campaign } from '@/payload-types'
+import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
 
 export const metadata = {
-  title: 'Campaigns - Game Workers Solidarity Platform',
+  title: 'Start Organising - Game Workers Solidarity Platform',
   description:
-    'Learn about campaigns and timelines of solidarity actions across the global video game industry.',
+    'Find organising groups and unions by country to get started with worker organising.',
 }
 
-export default async function CampaignsPage() {
+export default async function StartOrganisingPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await draftMode()).isEnabled
 
-  // Fetch all published campaigns
-  const campaignsResult = await payload.find({
+  // Fetch the global data for the description
+  const campaignPageData = await payload.findGlobal({
+    slug: 'campaignsPage',
+    draft: isDraftMode,
+  })
+
+  // Fetch all published organising groups with their countries
+  const campaignResults = await payload.find({
     collection: 'campaigns',
     where: {
-      _status: {
-        equals: 'published',
-      },
+      ...(!isDraftMode
+        ? {
+            _status: {
+              equals: 'published',
+            },
+          }
+        : {}),
     },
-    depth: 2,
+    depth: 1, // Include countries
     pagination: false,
-    sort: '-createdAt',
+    sort: 'name',
+    draft: isDraftMode,
+  })
+
+  const __campaigns = campaignResults.docs as Campaign[]
+
+  const campaigns = __campaigns.sort((a, b) => {
+    if (a.eventDateRange?.start && b.eventDateRange?.start) {
+      return new Date(a.eventDateRange.start).getTime() - new Date(b.eventDateRange.start).getTime()
+    }
+    return 0
   })
 
   return (
-    <div className="campaigns-page">
-      <div className="campaigns-container">
-        <h1
-          style={{
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '2rem',
-            textAlign: 'center',
-          }}
-        >
-          Campaigns
-        </h1>
-        <p
-          style={{
-            fontSize: '1.125rem',
-            color: '#666',
-            marginBottom: '3rem',
-            textAlign: 'center',
-            maxWidth: '800px',
-            margin: '0 auto 3rem',
-          }}
-        >
-          Explore overarching campaigns and timelines of multiple solidarity actions. Learn about
-          how events connect and influence each other.
-        </p>
+    <main className="max-w-xl mx-auto py-5 px-4 flex flex-col gap-4">
+      <header className="flex flex-col gap-4">
+        <h1 className="text-5xl font-bold font-identity">Campaigns</h1>
+        {campaignPageData.description && <LexicalRenderer content={campaignPageData.description} />}
+      </header>
 
-        {campaignsResult.docs.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
-            <p>No campaigns published yet. Check back soon!</p>
-          </div>
-        ) : (
-          <div className="campaigns-grid">
-            {campaignsResult.docs.map((campaign) => {
-              const featuredImage =
-                typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
-                  ? campaign.featuredImage.url
-                  : null
+      {campaigns.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
+          <p>No campaigns published yet. Check back soon!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {campaigns.map((campaign) => {
+            const imageUrl =
+              typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
+                ? campaign.featuredImage.url
+                : null
 
-              return (
-                <Link key={campaign.id} href={campaign.path!} className="campaign-card">
-                  {featuredImage && (
-                    <div className="campaign-card-image">
-                      {campaign.featuredImage &&
-                        typeof campaign.featuredImage === 'object' &&
-                        campaign.featuredImage.url && (
-                          <Image
-                            src={featuredImage}
-                            alt={campaign.name || ''}
-                            width={campaign.featuredImage.width!}
-                            height={campaign.featuredImage.height!}
-                          />
-                        )}
+            if (
+              !campaign.featuredImage ||
+              typeof campaign.featuredImage !== 'object' ||
+              !campaign.featuredImage.url
+            )
+              return null
+
+            return (
+              <Link
+                key={campaign.id}
+                href={campaign.path!}
+                className="flex flex-col bg-white rounded-xl overflow-hidden"
+              >
+                <header className="p-4 flex flex-col gap-2">
+                  <h2 className="text-2xl font-bold font-identity">{campaign.name}</h2>
+                  {campaign.eventDateRange?.start && campaign.eventDateRange?.end && (
+                    <div className="flex flex-row gap-1">
+                      {campaign.eventDateRange?.start && (
+                        <DateTime date={campaign.eventDateRange.start} />
+                      )}
+                      <span>to</span>
+                      <DateTime date={campaign.eventDateRange.end} />
                     </div>
                   )}
-                  <div className="campaign-card-content">
-                    <h2>{campaign.name}</h2>
-                    {campaign.events && campaign.events.length > 0 && (
-                      <p className="campaign-card-meta">
-                        {campaign.events.length} event{campaign.events.length !== 1 ? 's' : ''} in
-                        timeline
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+                </header>
+                {imageUrl && (
+                  <Image
+                    src={imageUrl}
+                    alt={campaign.name || ''}
+                    width={campaign.featuredImage.width!}
+                    height={campaign.featuredImage.height!}
+                    objectFit="cover"
+                    className="w-full h-48 object-cover overflow-hidden"
+                  />
+                )}
+                {campaign.description && (
+                  <LexicalRenderer content={campaign.description} className="p-4" />
+                )}
+              </Link>
+            )
+          })}
+        </div>
+      )}
+    </main>
   )
 }

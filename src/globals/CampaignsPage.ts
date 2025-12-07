@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
-export const AboutPage: GlobalConfig = {
-  slug: 'aboutPage',
+export const CampaignsPage: GlobalConfig = {
+  slug: 'campaignsPage',
   access: {
     read: () => true,
   },
@@ -11,7 +11,7 @@ export const AboutPage: GlobalConfig = {
       type: 'richText',
       label: 'Description',
       admin: {
-        description: 'Rich text description for the about page',
+        description: 'Rich text description for the campaigns page',
       },
     },
   ],
