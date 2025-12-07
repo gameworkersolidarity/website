@@ -8,21 +8,6 @@ import { Campaign, Event } from '@/payload-types'
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
   trash: true,
-  defaultPopulate: {
-    name: true,
-    slug: true,
-    description: true,
-    featuredImage: true,
-    primaryColor: true,
-    color: true,
-    emoji: true,
-    events: {
-      name: true,
-      slug: true,
-      date: true,
-    },
-    adminPath: true,
-  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'createdAt', 'updatedAt'],
@@ -183,13 +168,13 @@ export const Campaigns: CollectionConfig = {
       hooks: {
         afterRead: [
           async ({ siblingData }) => {
-            console.log('siblingData.events', siblingData.events)
             if (!siblingData.events || !Array.isArray(siblingData.events)) {
               return {
                 start: null,
                 end: null,
               }
             }
+
             const payloadConfig = await config
             const payload = await getPayload({ config: payloadConfig })
             const events = await payload.find({
