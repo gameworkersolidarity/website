@@ -46,9 +46,7 @@ export default async function StaticPage({ params }: Props) {
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
       <h1>{page.title}</h1>
       {page.summary && <p style={{ fontSize: '1.2rem', color: '#666' }}>{page.summary}</p>}
-      <div style={{ marginTop: '2rem' }}>
-        <LexicalRenderer content={page.body} />
-      </div>
+      <LexicalRenderer content={page.body} />
     </div>
   )
 }

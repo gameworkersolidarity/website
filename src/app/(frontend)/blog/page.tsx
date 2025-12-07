@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
 import config from '@/payload.config'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Blog - Game Workers Solidarity Platform',
@@ -48,12 +49,19 @@ export default async function BlogPage() {
               const imageUrl =
                 typeof post.image === 'object' && post.image?.url ? post.image.url : null
 
+              if (!post.image || typeof post.image !== 'object' || !post.image.url) return null
+
               return (
                 <article key={post.id} className="blog-card">
                   <Link href={`/blog/${post.slug}`} className="blog-card-link">
                     {imageUrl && (
                       <div className="blog-card-image">
-                        <img src={imageUrl} alt={post.title} />
+                        <Image
+                          src={imageUrl}
+                          alt={post.title || ''}
+                          width={post.image.width!}
+                          height={post.image.height!}
+                        />
                       </div>
                     )}
                     <div className="blog-card-content">

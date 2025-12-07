@@ -5,6 +5,11 @@ import config from '@/payload.config'
 import React from 'react'
 import Link from 'next/link'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
+import Image from 'next/image'
+import { AdminEditBanner } from '@/components/Me'
+import { DateTime } from '@/components/DateTime'
+import { RefreshRouteOnSave } from '@/components/RefreshRouteOnSave'
+import { projectStrings } from '@/project-strings'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -64,97 +69,93 @@ export default async function BlogPost({ params }: Props) {
       : null
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <Link
-        href="/blog"
-        style={{
-          display: 'inline-block',
-          marginBottom: '1.5rem',
-          color: '#4A90E2',
-          textDecoration: 'none',
-        }}
-      >
-        ← Back to Blog
-      </Link>
+    <div>
+      <RefreshRouteOnSave />
+      <AdminEditBanner page={post} />
+      <main className="max-w-2xl mx-auto py-5 px-4 flex flex-col gap-4">
+        <Link href="/blog">← Back to Blog</Link>
+        <h1 className="text-5xl font-bold font-identity">{post.title}</h1>
+        <div className="flex flex-row gap-4 font-mono">
+          {post.createdAt && <DateTime date={post.createdAt} />}
+          {post.byline && <div>{post.byline}</div>}
+        </div>
+        {post.image && typeof post.image === 'object' && 'url' in post.image && (
+          <Image
+            src={post.image.url as string}
+            alt={post.title || ''}
+            width={post.image.width!}
+            height={post.image.height!}
+            objectFit="cover"
+            className="w-full max-h-48 md:h-auto object-cover"
+          />
+        )}
+        <LexicalRenderer content={post.body} className="text-lg/relaxed" />
+        <div className="mt-3 border-t border-gray-200 pt-3 italic opacity-60">
+          Want to discuss this post or publish a follow-up on the blog?{' '}
+          <Link className="link" href={`mailto:${projectStrings.email}`}>
+            Contact us &rarr;
+          </Link>
+        </div>
 
-      <h1>{post.title}</h1>
-      {post.byline && (
-        <p style={{ fontSize: '1rem', color: '#666', fontStyle: 'italic' }}>{post.byline}</p>
-      )}
-      {post.createdAt && (
-        <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem' }}>
-          {new Date(post.createdAt).toLocaleDateString()}
-        </p>
-      )}
-      {post.image && typeof post.image === 'object' && 'url' in post.image && (
-        <img
-          src={post.image.url as string}
-          alt={post.title}
-          style={{ width: '100%', height: 'auto', marginBottom: '2rem' }}
-        />
-      )}
-      <div style={{ marginTop: '2rem' }}>
-        <LexicalRenderer content={post.body} />
-      </div>
+        {/* Previous/Next Navigation */}
+        {(previousPost || nextPost) && (
+          <nav
+            style={{
+              marginTop: '4rem',
+              paddingTop: '2rem',
+              borderTop: '1px solid #e0e0e0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '2rem',
+            }}
+          >
+            {previousPost ? (
+              <Link
+                href={previousPost.path!}
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
+                  ← Previous Post
+                </div>
+                <div style={{ fontWeight: 600, color: '#333' }}>{previousPost.title as string}</div>
+              </Link>
+            ) : (
+              <div style={{ flex: 1 }} />
+            )}
 
-      {/* Previous/Next Navigation */}
-      {(previousPost || nextPost) && (
-        <nav
-          style={{
-            marginTop: '4rem',
-            paddingTop: '2rem',
-            borderTop: '1px solid #e0e0e0',
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '2rem',
-          }}
-        >
-          {previousPost ? (
-            <Link
-              href={previousPost.path!}
-              style={{
-                flex: 1,
-                padding: '1rem',
-                backgroundColor: '#f5f5f5',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: 'inherit',
-                transition: 'background-color 0.2s',
-              }}
-            >
-              <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
-                ← Previous Post
-              </div>
-              <div style={{ fontWeight: 600, color: '#333' }}>{previousPost.title as string}</div>
-            </Link>
-          ) : (
-            <div style={{ flex: 1 }} />
-          )}
-
-          {nextPost ? (
-            <Link
-              href={nextPost.path!}
-              style={{
-                flex: 1,
-                padding: '1rem',
-                backgroundColor: '#f5f5f5',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: 'inherit',
-                textAlign: 'right',
-                transition: 'background-color 0.2s',
-              }}
-            >
-              <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
-                Next Post →
-              </div>
-              <div style={{ fontWeight: 600, color: '#333' }}>{nextPost.title as string}</div>
-            </Link>
-          ) : (
-            <div style={{ flex: 1 }} />
-          )}
-        </nav>
-      )}
+            {nextPost ? (
+              <Link
+                href={nextPost.path!}
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  textAlign: 'right',
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
+                  Next Post →
+                </div>
+                <div style={{ fontWeight: 600, color: '#333' }}>{nextPost.title as string}</div>
+              </Link>
+            ) : (
+              <div style={{ flex: 1 }} />
+            )}
+          </nav>
+        )}
+      </main>
     </div>
   )
 }

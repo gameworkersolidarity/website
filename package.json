@@ -20,6 +20,7 @@
     "test": "pnpm run test:int && pnpm run test:e2e"
   },
   "dependencies": {
+    "@atelier-disko/payload-lexical-react-renderer": "^1.2.0",
     "@custom-react-hooks/use-element-size": "^1.5.1",
     "@headlessui/react": "^2.2.9",
     "@math.gl/web-mercator": "^4.1.0",

@@ -63,9 +63,10 @@ export function CountryPage({
           </h1>
         </header>
         {page.description && (
-          <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
-            <LexicalRenderer content={page.description} />
-          </div>
+          <LexicalRenderer
+            content={page.description}
+            className={twMerge(textColor === 'white' && 'prose-invert')}
+          />
         )}
         {organisingGroups.length > 0 && (
           <div>

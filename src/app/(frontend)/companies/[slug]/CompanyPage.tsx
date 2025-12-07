@@ -61,9 +61,10 @@ export function CompanyPage({
             </div>
             <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
             {page.description && (
-              <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
-                <LexicalRenderer content={page.description} />
-              </div>
+              <LexicalRenderer
+                content={page.description}
+                className={twMerge(textColor === 'white' && 'prose-invert')}
+              />
             )}
           </header>
           {!!descendants && descendants.length > 1 && (

@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
 import config from '@/payload.config'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Campaigns - Game Workers Solidarity Platform',
@@ -69,7 +70,16 @@ export default async function CampaignsPage() {
                 <Link key={campaign.id} href={campaign.path!} className="campaign-card">
                   {featuredImage && (
                     <div className="campaign-card-image">
-                      <img src={featuredImage} alt={campaign.name} />
+                      {campaign.featuredImage &&
+                        typeof campaign.featuredImage === 'object' &&
+                        campaign.featuredImage.url && (
+                          <Image
+                            src={featuredImage}
+                            alt={campaign.name || ''}
+                            width={campaign.featuredImage.width!}
+                            height={campaign.featuredImage.height!}
+                          />
+                        )}
                     </div>
                   )}
                   <div className="campaign-card-content">

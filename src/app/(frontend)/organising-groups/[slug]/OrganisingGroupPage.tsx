@@ -99,7 +99,7 @@ export function OrganisingGroupPage({
                 <div className="mb-4">
                   <Image
                     src={page.featuredImage.url}
-                    alt={page.featuredImage.alt}
+                    alt={page.featuredImage.alt || ''}
                     width={1000}
                     height={1000}
                   />
@@ -163,9 +163,10 @@ export function OrganisingGroupPage({
             </div>
           )}
           {page.description && (
-            <div className={twMerge('prose', textColor === 'white' && 'prose-invert')}>
-              <LexicalRenderer content={page.description} />
-            </div>
+            <LexicalRenderer
+              content={page.description}
+              className={twMerge(textColor === 'white' && 'prose-invert')}
+            />
           )}
           {!!descendants && descendants.length > 1 && (
             <div className="bg-white px-4 md:px-6 py-4">

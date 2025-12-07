@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@atelier-disko/payload-lexical-react-renderer':
+        specifier: ^1.2.0
+        version: 1.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@custom-react-hooks/use-element-size':
         specifier: ^1.5.1
         version: 1.5.1(react@19.1.0)
@@ -346,6 +349,12 @@ packages:
 
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
+
+  '@atelier-disko/payload-lexical-react-renderer@1.2.0':
+    resolution: {integrity: sha512-tdS1tpkXrK0DxQcqFO4wxCn6dVumc4zw6u3tJL6ipZxGriIEWsQPjfD943uJe7dUOUJs0yw/3iXh0qEgXhDRhA==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -5876,6 +5885,11 @@ snapshots:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
+
+  '@atelier-disko/payload-lexical-react-renderer@1.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
