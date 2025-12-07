@@ -121,6 +121,7 @@
     "@types/d3-array": "^3.2.2",
     "@types/pluralize": "^0.0.33",
     "@vitejs/plugin-react": "4.5.2",
+    "baseline-browser-mapping": "^2.9.4",
     "eslint": "^9.39.1",
     "eslint-config-next": "15.4.4",
     "jsdom": "26.1.0",
