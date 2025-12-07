@@ -93,15 +93,17 @@ export default async function StartOrganisingPage() {
         <div className="grid grid-cols-1 gap-4">
           {sortedCountries.map(({ country, groups }) => (
             <div key={country.id} className="grid gap-4">
-              <h2 className="text-2xl">
-                <CountryLabel country={country} />
-              </h2>
+              <header>
+                <h2 className="text-2xl">
+                  <CountryLabel country={country} link />
+                </h2>
+              </header>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {groups.map((group) => (
                   <div key={group.id} className="bg-white rounded-xl p-4">
                     <Link key={group.id} href={group.path!}>
                       <div className="font-bold">
-                        <OrganisingGroupLabel organisingGroup={group} />
+                        <OrganisingGroupLabel organisingGroup={group} link />
                       </div>
                       {group.fullName && (
                         <div className="text-sm text-gray-600 mt-1">{group.fullName}</div>

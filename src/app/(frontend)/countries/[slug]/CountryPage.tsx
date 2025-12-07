@@ -4,16 +4,13 @@ import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import type { Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { notFound } from 'next/navigation'
-import { AdminEditBanner, LoggedIn, Username } from '@/components/Me'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventList } from '@/components/EventList'
 import { projectStrings } from '@/project-strings'
-import { ExpandableList } from '@/components/ExpandableList'
 import { CountryLabel } from '@/components/CountryLabel'
 import { EventStats } from '@/components/EventStats'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
@@ -57,7 +54,6 @@ export function CountryPage({
         )}
       >
         <header>
-          <div className="font-mono uppercase text-sm opacity-50">Country</div>
           <h1 className="text-5xl font-bold font-identity">
             <CountryLabel country={page} />
           </h1>
