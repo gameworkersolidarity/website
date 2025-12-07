@@ -305,4 +305,23 @@ body {
   .rtl {
     direction: rtl;
   }
+
+  .prose blockquote {
+    border: none;
+    padding: 0;
+    font-style: initial !important;
+    font-weight: initial !important;
+    
+    @apply text-3xl font-identity ml-2 my-4!;
+
+    p:first-of-type:before {
+      content: "👾" !important;
+      float: left;
+      margin-left: -40px;
+    }
+
+    p {
+      @apply my-0!;
+    }
+  }
 }

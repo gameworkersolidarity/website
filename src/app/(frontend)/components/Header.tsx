@@ -30,6 +30,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
       label: 'API docs',
       url: '/api/docs',
     },
+    {
+      label: 'About',
+      url: '/about',
+    },
   ]
 
   const headerRef = useRef<HTMLDivElement>(null)

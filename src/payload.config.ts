@@ -26,6 +26,7 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { Company, OrganisingGroup } from './payload-types'
 import { projectStrings } from './project-strings'
 import { getPath, getSlug } from './utils/payloadPath'
+import { AboutPage } from './globals/AboutPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -111,7 +112,7 @@ export default buildConfig({
     Campaigns,
     Events,
   ],
-  globals: [Header, Footer, StartOrganising],
+  globals: [Header, Footer, StartOrganising, AboutPage],
   editor: lexicalEditor(),
   secret: env.get('PAYLOAD_SECRET').required().asString(),
   typescript: {
