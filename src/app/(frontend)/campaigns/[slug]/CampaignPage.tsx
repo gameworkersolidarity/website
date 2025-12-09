@@ -17,6 +17,7 @@ import { projectStrings } from '@/project-strings'
 import { getSlug } from '../../../../utils/payloadPath'
 import { EventStats } from '@/components/EventStats'
 import Image from 'next/image'
+import { EventTimeline } from '@/components/EventsTimeline'
 
 export function CampaignPage({
   initialCampaign,
@@ -99,6 +100,8 @@ export function CampaignPage({
           )}
         </article>
       )}
+
+      <EventTimeline events={events} />
 
       <EventFilterContextProvider
         events={events}

@@ -64,6 +64,7 @@ body {
   --color-gw-orange: #FF8038;
   --color-gw-orange-light: #FFC58E;
   --color-gw-blue: #3B97EC;
+  --color-gw-blue-light: #8ECAF2;
 
   --color-pink-50: oklch(0.96 0.026 312.66);
   --color-pink-100: oklch(0.927 0.049 313.44);

@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -333,9 +333,11 @@ export function CompactEventList({
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead key={header.id} className="border-b-3 border-b-gray-200">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                  {header.isPlaceholder ? null : (
+                    <Fragment key={header.id}>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </Fragment>
+                  )}
                 </TableHead>
               )
             })}
@@ -355,9 +357,11 @@ export function CompactEventList({
                 row.original.initiator === EventInitiator.BOSS_LED && 'bg-orange-50',
               )}
             >
-              {row
-                .getVisibleCells()
-                .map((cell) => flexRender(cell.column.columnDef.cell, cell.getContext()))}
+              {row.getVisibleCells().map((cell) => (
+                <Fragment key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Fragment>
+              ))}
             </TableRow>
           ))
         ) : (

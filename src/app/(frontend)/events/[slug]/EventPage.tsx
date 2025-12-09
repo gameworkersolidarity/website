@@ -73,7 +73,19 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
       <AdminEditBanner page={event} />
       <div className="mx-auto py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
-          {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Previous events</div>}
+          {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Past events</div>}
+          {Object.values(eventNav?.previousInCampaign ?? {}).map(
+            (event) =>
+              event &&
+              event.campaigns?.docs?.[0] && (
+                <EventBreadcrumbNavLink
+                  direction="previous"
+                  event={event}
+                  key={event.id}
+                  label="campaigns"
+                />
+              ),
+          )}
           {previousRelatedEvents?.map((relation) => (
             <EventBreadcrumbNavLink
               label={relation.connectionType}
@@ -131,25 +143,25 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
                 />
               ),
           )}
-          {Object.values(eventNav?.previousInCampaign ?? {}).map(
-            (event) =>
-              event &&
-              event.campaigns?.docs?.[0] && (
-                <EventBreadcrumbNavLink
-                  direction="previous"
-                  event={event}
-                  key={event.id}
-                  label="campaigns"
-                />
-              ),
-          )}
         </aside>
         <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
           <EventCard data={event} withContext displayStandaloneInfo />
           <EventHistogramContext event={event} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
-          {hasNextEvents && <div className="text-sm font-semibold">Next events</div>}
+          {hasNextEvents && <div className="text-sm font-semibold">Future events</div>}
+          {Object.values(eventNav?.nextInCampaign ?? {}).map(
+            (event) =>
+              event &&
+              event.campaigns?.docs?.[0] && (
+                <EventBreadcrumbNavLink
+                  direction="next"
+                  event={event}
+                  key={event.id}
+                  label="campaigns"
+                />
+              ),
+          )}
           {nextRelatedEvents?.map((relation) => (
             <EventBreadcrumbNavLink
               direction="next"
@@ -192,18 +204,6 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
                   event={event}
                   key={event.id}
                   label="organisingGroups"
-                />
-              ),
-          )}
-          {Object.values(eventNav?.nextInCampaign ?? {}).map(
-            (event) =>
-              event &&
-              event.campaigns?.docs?.[0] && (
-                <EventBreadcrumbNavLink
-                  direction="next"
-                  event={event}
-                  key={event.id}
-                  label="campaigns"
                 />
               ),
           )}

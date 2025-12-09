@@ -32,6 +32,8 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
   if (!event) notFound()
 
   const eventNav: EventNav = {
+    previousInCampaign: {},
+    nextInCampaign: {},
     previousInCountry: {},
     nextInCountry: {},
     previousInCategory: {},
@@ -40,8 +42,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     nextInCompany: {},
     previousInOrganisingGroup: {},
     nextInOrganisingGroup: {},
-    previousInCampaign: {},
-    nextInCampaign: {},
   }
 
   for (const country of event?.countries ?? []) {

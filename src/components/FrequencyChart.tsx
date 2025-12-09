@@ -111,5 +111,5 @@ export function FrequencyChart({
     )
   }
 
-  return <RenderPlot config={plotConfig} />
+  return <RenderPlot plot={plotConfig} />
 }
