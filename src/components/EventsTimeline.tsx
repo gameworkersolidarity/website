@@ -2,7 +2,6 @@
 
 import { Category, Event } from '@/payload-types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { RenderPlot, usePlotConfig } from '@/components/Plot'
 import {
   Carousel,
   CarouselApi,
@@ -12,13 +11,16 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { EventCard } from './EventCard'
-import { addDays, differenceInDays, formatDate } from 'date-fns'
+import { differenceInDays, formatDate } from 'date-fns'
 import { parseAsString, useQueryState } from 'nuqs'
-import qs from 'query-string'
 import { extent } from 'd3-array'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
-import { CategoryLabel } from './CategoryLabel'
 import { getCSSVariable } from '@/utils/css'
+import { scaleTime } from '@visx/scale'
+import { AxisBottom } from '@visx/axis'
+import { LinePath, Circle } from '@visx/shape'
+import { Group } from '@visx/group'
+import { Text } from '@visx/text'
 
 export function EventTimeline({ events }: { events: Event[] }) {
   const [currentEventId, setCurrentEventId] = useQueryState<string>(
@@ -26,17 +28,14 @@ export function EventTimeline({ events }: { events: Event[] }) {
     parseAsString.withOptions({ clearOnDefault: true }),
   )
 
-  const [elementRef, size] = useElementSize()
-
   return (
     <div>
-      <div className="px-8" ref={elementRef}>
+      <div className="px-8">
         <h2 className="text-2xl font-bold mb-4 font-identity">Timeline</h2>
         <Timeline
           events={events}
           currentEventId={currentEventId}
           setCurrentEventId={setCurrentEventId}
-          size={size}
         />
       </div>
       <Slideshow
@@ -50,7 +49,6 @@ export function EventTimeline({ events }: { events: Event[] }) {
 
 export function Slideshow({
   events,
-  currentEventId,
   setCurrentEventId,
 }: {
   events: Event[]
@@ -78,7 +76,7 @@ export function Slideshow({
     })
 
     return () => {
-      api.off('select', (e) => {
+      api.off('select', () => {
         const index = api.selectedScrollSnap() + 1
         const event = events[index]
         if (event) {
@@ -109,106 +107,171 @@ export function Timeline({
   events,
   currentEventId,
   setCurrentEventId,
-  size,
 }: {
   events: Event[]
   currentEventId: string | null
   setCurrentEventId: (id: string) => void
-  size: { width: number; height: number }
 }) {
-  const plotConfig = usePlotConfig(
-    (Plot) => {
-      const dateRange = extent(events.map((e) => new Date(e.date)))
-      const dayRange = differenceInDays(dateRange[1] || new Date(), dateRange[0] || new Date())
-      const plot = Plot.plot({
-        marginTop: 15,
-        marginBottom: 25,
-        marginLeft: 10,
-        marginRight: 10,
-        height: 120,
-        width: size.width,
-        axis: null,
-        style: {
-          overflow: 'visible',
-        },
-        x: {
-          axis: 'bottom',
-          grid: true,
-          tickFormat: (x) => formatDate(new Date(x), 'dd MMM yyyy'),
-          ticks: Plot.utcInterval(
-            dayRange < 7
-              ? '7 days'
-              : dayRange < 30
-                ? '1 week'
-                : dayRange < 90
-                  ? '1 month'
-                  : dayRange < 365
-                    ? '3 months'
-                    : dayRange < 365 * 10
-                      ? '1 years'
-                      : '5 years',
-          ),
-        },
-        marks: [
-          // Add x axis for dates
-          Plot.line(events, {
-            x: (d: Event) => new Date(d.date),
-            y: 25,
-            sort: { y: 'x' },
-          }),
-          Plot.dot(events, {
-            x: (d: Event) => new Date(d.date),
-            y: 25,
-            r: (d: Event) => Number(d.id === currentEventId ? 12 : 8),
-            fill: (d: Event) =>
-              d.initiator === 'WORKER_LED'
-                ? getCSSVariable('--color-gw-blue')
-                : getCSSVariable('--color-gw-orange'),
-          }),
-          Plot.text(events, {
-            x: (d: Event) => new Date(d.date),
-            // Alternate y between 10 and -10
-            dy: -25,
-            text: (d: Event) =>
-              d.categories
-                ?.map((c) => `${(c as Category).emoji || ''} ${capitalise((c as Category).name)}`)
-                .join(' '),
-            className: 'text-sm font-bold',
-            textAnchor: 'middle',
-          }),
-          Plot.text(events, {
-            x: (d: Event) => new Date(d.date),
-            dy: 25,
-            text: (d: Event) => formatDate(new Date(d.date), 'dd MMM'),
-            textAnchor: 'middle',
-            className: 'text-sm font-bold',
-          }),
-        ],
-      })
+  const [elementRef, size] = useElementSize()
+  const margin = { top: 15, right: 10, bottom: 25, left: 10 }
+  const width = size.width - margin.left - margin.right
+  const height = 120 - margin.top - margin.bottom
+  const timelineY = height / 2
 
-      return plot
-    },
-    [events, size.width, size.height, currentEventId],
+  // Calculate date range
+  const dateRange = useMemo(() => extent(events.map((e) => new Date(e.date))), [events])
+  const minDate = useMemo(() => dateRange[0] || new Date(), [dateRange])
+  const maxDate = useMemo(() => dateRange[1] || new Date(), [dateRange])
+  const dayRange = useMemo(() => differenceInDays(maxDate, minDate), [maxDate, minDate])
+
+  // Determine number of ticks based on date range
+  const numTicks = useMemo(() => {
+    if (dayRange < 7) return 7
+    if (dayRange < 30) return 5
+    if (dayRange < 90) return 4
+    if (dayRange < 365) return 4
+    if (dayRange < 365 * 10) return 5
+    return 6
+  }, [dayRange])
+
+  // Create time scale
+  const xScale = useMemo(
+    () =>
+      scaleTime({
+        domain: [minDate, maxDate],
+        range: [0, width],
+      }),
+    [minDate, maxDate, width],
   )
 
-  const handleMouseEvent = useCallback((value: any, event: MouseEvent) => {
-    function isEvent(value: any): value is Event {
-      return (
-        typeof value === 'object' &&
-        value !== null &&
-        typeof value.id === 'string' &&
-        typeof value.date === 'string' &&
-        Array.isArray(value.categories)
-      )
-    }
-    if (isEvent(value)) {
-      setCurrentEventId(value.id)
-    }
+  // Sort events by date
+  const sortedEvents = useMemo(
+    () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [events],
+  )
+
+  // Handle click on event
+  const handleClick = useCallback(
+    (event: Event) => {
+      setCurrentEventId(event.id)
+    },
+    [setCurrentEventId],
+  )
+
+  // Get color for event
+  const getEventColor = useCallback((event: Event) => {
+    return event.initiator === 'WORKER_LED'
+      ? getCSSVariable('--color-gw-blue')
+      : getCSSVariable('--color-gw-orange')
   }, [])
+
+  // Get radius for event
+  const getEventRadius = useCallback(
+    (event: Event) => {
+      return event.id === currentEventId ? 12 : 8
+    },
+    [currentEventId],
+  )
 
   return (
     <div className="bg-white rounded-xl px-6 py-4 my-4">
-      <RenderPlot plot={plotConfig} onMouseEvent={handleMouseEvent} />
+      <div ref={elementRef} className="h-full w-full">
+        <svg width={size.width} height={120} style={{ overflow: 'visible' }}>
+          <Group left={margin.left} top={margin.top}>
+            {/* Grid lines */}
+            {xScale.ticks(numTicks).map((tick, i) => {
+              const x = xScale(tick)
+              return (
+                <line key={i} x1={x} y1={0} x2={x} y2={height} stroke="#e5e7eb" strokeWidth={1} />
+              )
+            })}
+
+            {/* Timeline line */}
+            <LinePath
+              data={sortedEvents}
+              x={(d) => xScale(new Date(d.date))}
+              y={() => timelineY}
+              stroke="#9ca3af"
+              strokeWidth={2}
+            />
+
+            {/* Event dots */}
+            {sortedEvents.map((event) => {
+              const x = xScale(new Date(event.date))
+              const color = getEventColor(event)
+              const radius = getEventRadius(event)
+              return (
+                <Circle
+                  key={event.id}
+                  cx={x}
+                  cy={timelineY}
+                  r={radius}
+                  fill={color}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleClick(event)}
+                  onMouseEnter={() => handleClick(event)}
+                />
+              )
+            })}
+
+            {/* Category labels above timeline */}
+            {sortedEvents.map((event) => {
+              const x = xScale(new Date(event.date))
+              const categoryText =
+                event.categories
+                  ?.map((c) => `${(c as Category).emoji || ''} ${capitalise((c as Category).name)}`)
+                  .join(' ') || ''
+              return (
+                <Text
+                  key={`category-${event.id}`}
+                  x={x}
+                  y={timelineY - 20}
+                  textAnchor="middle"
+                  fontSize={14}
+                  fontWeight="bold"
+                  fill="currentColor"
+                >
+                  {categoryText}
+                </Text>
+              )
+            })}
+
+            {/* Date labels below timeline */}
+            {sortedEvents.map((event) => {
+              const x = xScale(new Date(event.date))
+              const dateText = formatDate(new Date(event.date), 'dd MMM')
+              return (
+                <Text
+                  key={`date-${event.id}`}
+                  x={x}
+                  y={timelineY + 30}
+                  textAnchor="middle"
+                  fontSize={14}
+                  fontWeight="bold"
+                  fill="currentColor"
+                >
+                  {dateText}
+                </Text>
+              )
+            })}
+
+            {/* X-axis */}
+            <AxisBottom
+              top={height}
+              scale={xScale}
+              numTicks={numTicks}
+              tickFormat={(d) => formatDate(d as Date, 'dd MMM yyyy')}
+              stroke="#6b7280"
+              tickStroke="#6b7280"
+              tickLabelProps={() => ({
+                fill: '#6b7280',
+                fontSize: 12,
+                textAnchor: 'middle',
+              })}
+            />
+          </Group>
+        </svg>
+      </div>
     </div>
   )
 }
