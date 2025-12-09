@@ -148,68 +148,6 @@ export const Campaigns: CollectionConfig = {
       },
     },
     {
-      name: 'eventDateRange',
-      type: 'json',
-      typescriptSchema: [
-        ({ jsonSchema }) => ({
-          ...jsonSchema,
-          type: 'object',
-          properties: {
-            start: { type: 'string' },
-            end: { type: 'string' },
-          },
-        }),
-      ],
-      virtual: true,
-      admin: {
-        hidden: true,
-        readOnly: true,
-      },
-      hooks: {
-        afterRead: [
-          async ({ siblingData }) => {
-            if (!siblingData.events || !Array.isArray(siblingData.events)) {
-              return {
-                start: null,
-                end: null,
-              }
-            }
-
-            const payloadConfig = await config
-            const payload = await getPayload({ config: payloadConfig })
-            const events = await payload.find({
-              collection: 'events',
-              where: {
-                id: {
-                  in: siblingData.events as string[],
-                },
-              },
-            })
-            const minDate = Math.min(
-              ...events.docs.map((event) => {
-                if (!event.date) {
-                  return Infinity
-                }
-                return new Date(event.date).getTime()
-              }),
-            )
-            const maxDate = Math.max(
-              ...events.docs.map((event) => {
-                if (!event.date) {
-                  return -Infinity
-                }
-                return new Date(event.date).getTime()
-              }),
-            )
-            return {
-              start: new Date(minDate).toISOString(),
-              end: new Date(maxDate).toISOString(),
-            }
-          },
-        ],
-      },
-    },
-    {
       name: 'adminPath',
       type: 'text',
       virtual: true,

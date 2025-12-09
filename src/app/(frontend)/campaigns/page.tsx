@@ -3,7 +3,7 @@ import config from '@/payload.config'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import { LexicalRenderer } from '../components/LexicalRenderer'
-import type { Campaign } from '@/payload-types'
+import type { Campaign, Event } from '@/payload-types'
 import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
 
@@ -45,10 +45,13 @@ export default async function StartOrganisingPage() {
   const __campaigns = campaignResults.docs as Campaign[]
 
   const campaigns = __campaigns.sort((a, b) => {
-    if (a.eventDateRange?.start && b.eventDateRange?.start) {
-      return new Date(a.eventDateRange.start).getTime() - new Date(b.eventDateRange.start).getTime()
-    }
-    return 0
+    const startA = Math.min(
+      ...(a.events as Event[])?.map((event) => new Date(event.date).getTime()),
+    )
+    const startB = Math.min(
+      ...(b.events as Event[])?.map((event) => new Date(event.date).getTime()),
+    )
+    return startA - startB
   })
 
   return (
@@ -85,13 +88,13 @@ export default async function StartOrganisingPage() {
               >
                 <header className="p-4 flex flex-col gap-2">
                   <h2 className="text-2xl font-bold font-identity">{campaign.name}</h2>
-                  {campaign.eventDateRange?.start && campaign.eventDateRange?.end && (
+                  {campaign.events && campaign.events.length > 0 && (
                     <div className="flex flex-row gap-1">
-                      {campaign.eventDateRange?.start && (
-                        <DateTime date={campaign.eventDateRange.start} />
-                      )}
+                      <DateTime date={(campaign.events[0] as Event).date} />
                       <span>to</span>
-                      <DateTime date={campaign.eventDateRange.end} />
+                      <DateTime
+                        date={(campaign.events[campaign.events.length - 1] as Event).date}
+                      />
                     </div>
                   )}
                 </header>

@@ -573,11 +573,6 @@ export interface Campaign {
   events?: (string | Event)[] | null;
   path?: string;
   url?: string;
-  eventDateRange?: {
-    start?: string;
-    end?: string;
-    [k: string]: unknown;
-  };
   adminPath?: string;
   apiPath?: string;
   collectionSlug?: string;
@@ -1101,7 +1096,6 @@ export interface CampaignsSelect<T extends boolean = true> {
   events?: T;
   path?: T;
   url?: T;
-  eventDateRange?: T;
   adminPath?: T;
   apiPath?: T;
   collectionSlug?: T;
