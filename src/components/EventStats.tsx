@@ -13,7 +13,7 @@ import { getYear } from 'date-fns'
 
 export function EventStats({ color }: { color?: string }) {
   const [elementRef, size] = useElementSize()
-  const { filteredEvents, filteredInitiator } = useEventFilterContext()
+  const { filteredEvents, filteredInitiator, filteredYear, setYearFilter } = useEventFilterContext()
 
   const workerEventsFilter = useCallback(
     (event: Event) => event.initiator === EventInitiator.WORKER_LED,
@@ -61,6 +61,20 @@ export function EventStats({ color }: { color?: string }) {
         ? 1
         : 2
 
+  const onMouseEvent = useCallback(
+    (value: any, event: MouseEvent) => {
+      console.log('mouse event', value, event)
+      if (value.year) {
+        if (filteredYear === value.year.getFullYear()) {
+          setYearFilter(null)
+        } else {
+          setYearFilter(value.year.getFullYear())
+        }
+      }
+    },
+    [filteredYear, setYearFilter],
+  )
+
   return (
     <div
       className={twMerge(
@@ -99,6 +113,7 @@ export function EventStats({ color }: { color?: string }) {
               eventFilter={workerEventsFilter}
               color={color || getCSSVariable(`--color-gw-blue`, true)}
               minYear={earliestYear}
+              onMouseEvent={onMouseEvent}
             />
           </div>
         </div>
@@ -115,6 +130,7 @@ export function EventStats({ color }: { color?: string }) {
               eventFilter={redundancyFilter}
               color={getCSSVariable(`--color-gw-orange`, true)}
               minYear={earliestYear}
+              onMouseEvent={onMouseEvent}
             />
           </div>
         </div>

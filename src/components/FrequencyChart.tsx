@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { range } from 'd3-array'
 import dynamic from 'next/dynamic'
 const RenderPlot = dynamic(() => import('./Plot').then((mod) => mod.RenderPlot), { ssr: false })
-import { usePlotConfig } from './Plot'
+import { PlotMouseEvent, usePlotConfig } from './Plot'
 import { getYear } from 'date-fns'
 import { PlotOptions } from '@observablehq/plot'
 import * as Plot from '@observablehq/plot'
@@ -19,6 +19,7 @@ export function FrequencyChart({
   transformPlotConfig,
   highlightDate,
   highlightColor,
+  onMouseEvent,
   countBy = 'events',
 }: {
   size: { width: number; height: number }
@@ -29,6 +30,7 @@ export function FrequencyChart({
   transformPlotConfig?: (config: PlotOptions, plot: typeof Plot) => PlotOptions
   highlightDate?: Date
   highlightColor?: string
+  onMouseEvent?: PlotMouseEvent<any>
 }) {
   const { filteredEvents } = useEventFilterContext()
 
@@ -111,5 +113,5 @@ export function FrequencyChart({
     )
   }
 
-  return <RenderPlot plot={plotConfig} />
+  return <RenderPlot plot={plotConfig} onMouseEvent={onMouseEvent} />
 }

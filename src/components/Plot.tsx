@@ -4,6 +4,8 @@ import * as Plot from '@observablehq/plot'
 import { useEffect, useMemo, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+export type PlotMouseEvent<T> = (value: T, event: MouseEvent) => void
+
 export function usePlotConfig(cb: (plot: typeof Plot) => HTMLElement | SVGElement, memoize: any[]) {
   return useMemo(() => {
     try {
@@ -29,13 +31,13 @@ export function RenderPlot({
 
   useEffect(() => {
     function handleMouseEvent(event: Event) {
+      console.log('mouse event checker', (plot as any).value, event)
       if (onMouseEvent && plot) {
         onMouseEvent((plot as any).value, event as MouseEvent)
       }
     }
 
     if (ref.current && plot) {
-      console.log('Rendering plot', plot)
       // replace children with plot
       ref.current.replaceChildren(plot)
 

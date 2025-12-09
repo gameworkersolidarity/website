@@ -1,15 +1,7 @@
 'use client'
 
 import { Category, Event } from '@/payload-types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { EventCard } from './EventCard'
 import { differenceInDays, formatDate } from 'date-fns'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -30,7 +22,7 @@ export function EventTimeline({ events }: { events: Event[] }) {
 
   return (
     <div>
-      <div className="px-8">
+      <div className="border-t border-b py-4 my-4">
         <h2 className="text-2xl font-bold mb-4 font-identity">Timeline</h2>
         <Timeline
           events={events}
@@ -49,56 +41,79 @@ export function EventTimeline({ events }: { events: Event[] }) {
 
 export function Slideshow({
   events,
+  currentEventId,
   setCurrentEventId,
 }: {
   events: Event[]
   currentEventId: string | null
   setCurrentEventId: (id: string) => void
 }) {
-  const [api, setApi] = useState<CarouselApi>()
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
-  // useEffect(() => {
-  //   if (!api) return
-  //   api.scrollTo(events.findIndex((event) => event.id === currentEventId))
-  // }, [api, events, currentEventId])
-
+  // Scroll to current event when it changes
   useEffect(() => {
-    if (!api) {
-      return
-    }
+    if (!currentEventId || !scrollContainerRef.current) return
 
-    api.on('select', () => {
-      const index = api.selectedScrollSnap() + 1
-      const event = events[index]
-      if (event) {
-        setCurrentEventId(event.id)
-      }
-    })
-
-    return () => {
-      api.off('select', () => {
-        const index = api.selectedScrollSnap() + 1
-        const event = events[index]
-        if (event) {
-          setCurrentEventId(event.id)
-        }
+    const itemElement = itemRefs.current.get(currentEventId)
+    if (itemElement) {
+      itemElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
       })
     }
-  }, [api, events, setCurrentEventId])
+  }, [currentEventId])
+
+  // Handle scroll events to update current event
+  const handleScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return
+
+    const container = scrollContainerRef.current
+    const containerRect = container.getBoundingClientRect()
+    const containerCenter = containerRect.left + containerRect.width / 2
+
+    // Find the item closest to the center
+    let closestItem: { id: string; distance: number } | null = null
+
+    for (const [id, element] of itemRefs.current.entries()) {
+      const rect = element.getBoundingClientRect()
+      const itemCenter = rect.left + rect.width / 2
+      const distance = Math.abs(itemCenter - containerCenter)
+
+      if (!closestItem || distance < closestItem.distance) {
+        closestItem = { id, distance }
+      }
+    }
+
+    if (closestItem && closestItem.id !== currentEventId) {
+      setCurrentEventId(closestItem.id)
+    }
+  }, [currentEventId, setCurrentEventId])
 
   return (
-    <div>
-      <Carousel setApi={setApi} opts={{ loop: true }}>
-        <CarouselContent>
-          {events.map((event) => (
-            <CarouselItem key={event.id} className="px-8">
-              <EventCard data={event} withContext displayStandaloneInfo />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
+    <div className="relative">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      >
+        {events.map((event) => (
+          <div
+            key={event.id}
+            ref={(el) => {
+              if (el) {
+                itemRefs.current.set(event.id, el)
+              } else {
+                itemRefs.current.delete(event.id)
+              }
+            }}
+            className="shrink-0 w-full snap-center px-8"
+          >
+            <EventCard data={event} withContext displayStandaloneInfo />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -209,7 +224,6 @@ export function Timeline({
                   fill={color}
                   style={{ cursor: 'pointer' }}
                   onClick={() => handleClick(event)}
-                  onMouseEnter={() => handleClick(event)}
                 />
               )
             })}
