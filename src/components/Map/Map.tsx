@@ -97,7 +97,7 @@ export function Map({
     }
 
     return counts
-  }, [data])
+  }, [data, colorRange])
 
   const _cluster = useRef<{ _cluster: Supercluster<{ props: Parameters<typeof MapMarker>[0] }> }>(
     null,

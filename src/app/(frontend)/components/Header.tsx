@@ -35,6 +35,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
       url: '/api/docs',
     },
     {
+      label: 'GraphQL',
+      url: '/api/graphql-playground',
+    },
+    {
       label: 'About',
       url: '/about',
     },
