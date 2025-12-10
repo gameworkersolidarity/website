@@ -1,7 +1,19 @@
 import { twMerge } from 'tailwind-merge'
-import { PayloadLexicalReactRenderer } from '@atelier-disko/payload-lexical-react-renderer'
+import {
+  PayloadLexicalReactRenderer,
+  PayloadLexicalReactRendererContent,
+} from '@atelier-disko/payload-lexical-react-renderer'
 
-export function LexicalRenderer({ content, className }: { content: any; className?: string }) {
+export function LexicalRenderer({
+  content,
+  className,
+}: {
+  content?: PayloadLexicalReactRendererContent
+  className?: string
+}) {
+  if (!content?.root?.children?.length) {
+    return null
+  }
   return (
     <div className={twMerge('lexical-content prose', className)}>
       <PayloadLexicalReactRenderer content={content} />
