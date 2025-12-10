@@ -119,7 +119,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: mongooseAdapter({
-    url: env.get('MONGODB_URL').required().asString(),
+    url: env.get('DATABASE_URL').required().asString(),
   }),
   plugins: [
     nestedDocsPlugin({

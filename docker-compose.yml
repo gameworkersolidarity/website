@@ -15,7 +15,7 @@ services:
   #   env_file:
   #     - .env
 
-  # MongoDB service - Ensure your MONGODB_URL uses 'mongodb://mongo:27017/gwsp' for Docker or 'mongodb://localhost:27017/gwsp' for localhost
+  # MongoDB service - Ensure your DATABASE_URL uses 'mongodb://mongo:27017/gwsp' for Docker or 'mongodb://localhost:27017/gwsp' for localhost
   mongo:
     restart: always
     image: mongo:latest
