@@ -3,12 +3,13 @@ import {
   PayloadLexicalReactRenderer,
   PayloadLexicalReactRendererContent,
 } from '@atelier-disko/payload-lexical-react-renderer'
+import { StaticPage } from '@/payload-types'
 
 export function LexicalRenderer({
   content,
   className,
 }: {
-  content?: PayloadLexicalReactRendererContent
+  content?: StaticPage['body'] | null
   className?: string
 }) {
   if (!content?.root?.children?.length) {
@@ -16,7 +17,7 @@ export function LexicalRenderer({
   }
   return (
     <div className={twMerge('lexical-content prose', className)}>
-      <PayloadLexicalReactRenderer content={content} />
+      <PayloadLexicalReactRenderer content={content as PayloadLexicalReactRendererContent} />
     </div>
   )
 }
