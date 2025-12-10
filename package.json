@@ -140,7 +140,8 @@
   },
   "packageManager": "pnpm@10.18.1",
   "engines": {
-    "node": ">=22.13.0"
+    "node": "22.x",
+    "pnpm": "10.18.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
