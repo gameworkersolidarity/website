@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [

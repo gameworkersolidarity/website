@@ -1,13 +1,18 @@
-import type { FieldClientComponent, StaticDescription, StaticLabel, TextFieldClient, TextFieldValidation } from 'payload'
+import type {
+  FieldClientComponent,
+  StaticDescription,
+  StaticLabel,
+  TextFieldClient,
+  TextFieldValidation,
+} from 'payload'
 import type { ChangeEvent } from 'react'
 import type React from 'react'
-import type { MarkOptional } from 'ts-essentials';
+import { MarkOptional } from 'ts-essentials'
 
-export type SharedColorPickerFieldProps =
-  | {
-    readonly hasMany?: false
-    readonly onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  }
+export type SharedColorPickerFieldProps = {
+  readonly hasMany?: false
+  readonly onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+}
 
 export type ColorPickerInputProps = {
   readonly AfterInput?: React.ReactNode
@@ -32,12 +37,15 @@ export type ColorPickerInputProps = {
   readonly value?: string
 } & SharedColorPickerFieldProps
 
-type ColorPickerFieldClientWithoutType = MarkOptional<TextFieldClient, 'type'>;
+type ColorPickerFieldClientWithoutType = MarkOptional<TextFieldClient, 'type'>
 type ColorPickerFieldBaseClientProps = {
-  readonly colors?: string[];
-  readonly inputRef?: React.RefObject<HTMLInputElement>;
-  readonly onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
-  readonly path: string;
-  readonly validate?: TextFieldValidation;
-};
-export type ColorPickerFieldClientComponent = FieldClientComponent<ColorPickerFieldClientWithoutType, ColorPickerFieldBaseClientProps>;
+  readonly colors?: string[]
+  readonly inputRef?: React.RefObject<HTMLInputElement>
+  readonly onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  readonly path: string
+  readonly validate?: TextFieldValidation
+}
+export type ColorPickerFieldClientComponent = FieldClientComponent<
+  ColorPickerFieldClientWithoutType,
+  ColorPickerFieldBaseClientProps
+>
