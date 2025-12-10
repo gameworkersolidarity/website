@@ -1,7 +1,7 @@
 'use client'
 
 import { CollectionSlug } from 'payload'
-import { Breadcrumb } from 'node_modules/@payloadcms/plugin-nested-docs/dist/types'
+import { Breadcrumb } from '@payloadcms/plugin-nested-docs/types'
 import { payloadClient } from './payload'
 import { ArchiveBreadcrumb } from './payloadTree'
 import { getPath } from '@/utils/payloadPath'

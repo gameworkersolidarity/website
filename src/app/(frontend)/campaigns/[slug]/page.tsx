@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import { CampaignPage } from './CampaignPage'
 import { getSlug } from '@/utils/payloadPath'
-import { Event } from '@/payload-types'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -12,11 +11,6 @@ export async function generateStaticParams() {
 
   const pagesResult = await payload.find({
     collection: 'campaigns',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
     pagination: false,
   })
 
@@ -97,15 +91,5 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   const campaign = result.docs[0]
 
-  const events = await payload.find({
-    collection: 'events',
-    where: {
-      campaigns: {
-        equals: campaign.id,
-      },
-    },
-    depth: 1,
-  })
-
-  return <CampaignPage initialCampaign={campaign} events={events.docs} />
+  return <CampaignPage initialCampaign={campaign} />
 }

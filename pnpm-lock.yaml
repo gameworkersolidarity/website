@@ -19,6 +19,9 @@ importers:
       '@custom-react-hooks/use-element-size':
         specifier: ^1.5.1
         version: 1.5.1(react@19.2.1)
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
       '@headlessui/react':
         specifier: ^2.2.9
         version: 2.2.9(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -103,6 +106,9 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@testing-library/react':
+        specifier: 16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@turf/bbox':
         specifier: ^7.3.1
         version: 7.3.1
@@ -175,12 +181,18 @@ importers:
       '@visx/tooltip':
         specifier: ^3.12.0
         version: 3.12.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@vitejs/plugin-react':
+        specifier: 4.5.2
+        version: 4.5.2(vite@7.2.4(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6))
       a11y-react-emoji:
         specifier: ^1.2.0
         version: 1.2.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       airtable:
         specifier: ^0.12.2
         version: 0.12.2
+      baseline-browser-mapping:
+        specifier: ^2.9.5
+        version: 2.9.5
       chroma-js:
         specifier: ^3.2.0
         version: 3.2.0
@@ -244,6 +256,12 @@ importers:
       env-var:
         specifier: ^7.5.0
         version: 7.5.0
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
+      eslint-config-next:
+        specifier: 15.4.4
+        version: 15.4.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.39.1(jiti@2.6.1))
@@ -262,6 +280,9 @@ importers:
       jotai:
         specifier: ^2.15.1
         version: 2.15.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.1.8)(react@19.2.1)
+      jsdom:
+        specifier: 26.1.0
+        version: 26.1.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -295,6 +316,9 @@ importers:
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
+      prettier:
+        specifier: ^3.7.1
+        version: 3.7.1
       query-string:
         specifier: ^9.3.1
         version: 9.3.1
@@ -325,49 +349,24 @@ importers:
       tailwindcss:
         specifier: ^4.1.17
         version: 4.1.17
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
       twin.macro:
         specifier: ^3.4.1
         version: 3.4.1(tailwindcss@4.1.17)
-      world-atlas:
-        specifier: ^2.0.2
-        version: 2.0.2
-    devDependencies:
-      '@eslint/eslintrc':
-        specifier: ^3.3.1
-        version: 3.3.1
-      '@testing-library/react':
-        specifier: 16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@vitejs/plugin-react':
-        specifier: 4.5.2
-        version: 4.5.2(vite@7.2.4(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6))
-      baseline-browser-mapping:
-        specifier: ^2.9.5
-        version: 2.9.5
-      eslint:
-        specifier: ^9.39.1
-        version: 9.39.1(jiti@2.6.1)
-      eslint-config-next:
-        specifier: 15.4.4
-        version: 15.4.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
-      jsdom:
-        specifier: 26.1.0
-        version: 26.1.0
-      prettier:
-        specifier: ^3.7.1
-        version: 3.7.1
-      tsx:
-        specifier: ^4.20.6
-        version: 4.20.6
       vite-tsconfig-paths:
         specifier: 5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.2.4(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6))
       vitest:
         specifier: 3.2.3
         version: 3.2.3(@types/debug@4.1.12)(@types/node@22.19.1)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)
+      world-atlas:
+        specifier: ^2.0.2
+        version: 2.0.2
 
 packages:
 

@@ -10,22 +10,14 @@ import { EventFilterContextProvider } from '@/components/EventFilterContextProvi
 import { EventList } from '@/components/EventList'
 import type { Campaign, Event } from '@/payload-types'
 import { notFound } from 'next/navigation'
-import { AdminEditBanner, LoggedIn, Username } from '@/components/Me'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { AdminEditBanner } from '@/components/Me'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '../../../../utils/payloadPath'
 import { EventStats } from '@/components/EventStats'
 import Image from 'next/image'
 import { EventTimeline } from '@/components/EventsTimeline'
 
-export function CampaignPage({
-  initialCampaign,
-  events,
-}: {
-  initialCampaign: Campaign
-  events: Event[]
-}) {
+export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign }) {
   if (!initialCampaign) notFound()
 
   // Use the Payload API URL (where the admin panel is hosted)
@@ -34,6 +26,8 @@ export function CampaignPage({
     serverURL: projectStrings.baseUrl,
     depth: 3,
   })
+
+  const events = page.events as Event[]
 
   const primaryColor = page.color!
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
@@ -45,20 +39,6 @@ export function CampaignPage({
       }}
     >
       <AdminEditBanner page={page} />
-      {/*       
-      {page.featuredImage &&
-          typeof page.featuredImage === 'object' &&
-          page.featuredImage?.url && (
-            <div className="w-full aspect-video">
-              <Image
-                src={page.featuredImage.url}
-                alt={page.name}
-                width={page.featuredImage.width || 1000}
-                height={page.featuredImage.height || 1000}
-              />
-            </div>
-          )} */}
-
       {page.featuredImage && typeof page.featuredImage === 'object' && page.featuredImage?.url ? (
         <div className="w-full mx-auto grid md:grid-cols-2">
           <div className="flex flex-col gap-4 p-4 md:p-5 lg:p-6 xl:p-8 sticky top-6">

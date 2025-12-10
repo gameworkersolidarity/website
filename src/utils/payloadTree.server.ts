@@ -3,9 +3,9 @@
 import { CollectionSlug } from 'payload'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
-import { Breadcrumb } from 'node_modules/@payloadcms/plugin-nested-docs/dist/types'
 import { ArchiveBreadcrumb } from './payloadTree'
 import { getPath } from '@/utils/payloadPath'
+import { Breadcrumb } from '@payloadcms/plugin-nested-docs/types'
 
 export async function getDescendants<T extends CollectionSlug>(collection: T, slug: string) {
   const payloadConfig = await config
