@@ -14,7 +14,7 @@ export enum ZoomLevel {
   Detailed = 'detailed',
 }
 
-export const zoomLevelAtom = atomWithStorage<ZoomLevel>('zoomLevel', ZoomLevel.Compact)
+export const zoomLevelAtom = atomWithStorage<ZoomLevel>('zoomLevel', ZoomLevel.Preview)
 
 export const sortOrderAtom = atomWithStorage<SortingState>('sortOrder', [
   {
