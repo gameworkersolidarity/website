@@ -8,7 +8,7 @@ export function CountryLabel({ country, link }: { country: Country; link?: boole
     return <SoftLinkCountryLabel country={country} />
   } else if (link) {
     return (
-      <Link href={country.path!}>
+      <Link href={country.path || '/'}>
         <RenderedCountryLabel country={country} textClassName="link" />
       </Link>
     )

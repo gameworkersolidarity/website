@@ -27,11 +27,15 @@ import { projectStrings } from './project-strings'
 import { getPath, getSlug } from './utils/payloadPath'
 import { AboutPage } from './globals/AboutPage'
 import { CampaignsPage } from './globals/CampaignsPage'
+import { DataPage } from './globals/DataPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  graphQL: {
+    disablePlaygroundInProduction: false,
+  },
   admin: {
     user: Users.slug,
     importMap: {
@@ -112,7 +116,7 @@ export default buildConfig({
     Campaigns,
     Events,
   ],
-  globals: [Header, Footer, StartOrganising, AboutPage, CampaignsPage],
+  globals: [Header, Footer, StartOrganising, AboutPage, CampaignsPage, DataPage],
   editor: lexicalEditor(),
   secret: env.get('PAYLOAD_SECRET').required().asString(),
   typescript: {

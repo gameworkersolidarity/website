@@ -67,13 +67,9 @@ export function EventFilter({
     setInitiatorFilter,
     filteredYear,
     setYearFilter,
+    availableYears,
     clearAllFilters,
   } = useEventFilterContext()
-
-  // Get unique years from all actions (we'll calculate this from context or pass as prop)
-  // For now, we'll generate years from 2018 to current year
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 2017 }, (_, i) => currentYear - i)
 
   return (
     <div className="homepage-filters">
@@ -278,7 +274,7 @@ export function EventFilter({
             placeholder="year..."
             valueKey="value"
             renderLabel={(d) => <span>{d.value.toString()}</span>}
-            options={years.map((year) => ({
+            options={availableYears.map((year) => ({
               label: year.toString(),
               value: year.toString(),
             }))}

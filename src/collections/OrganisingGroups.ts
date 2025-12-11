@@ -123,6 +123,13 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'checkbox',
     },
     {
+      name: 'highlighted',
+      type: 'checkbox',
+      admin: {
+        description: 'If checked, this group will be displayed on the start-organising page',
+      },
+    },
+    {
       name: 'website',
       type: 'text',
     },

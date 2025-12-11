@@ -78,7 +78,9 @@ export function CompactEventList({
             key={cell.id}
             className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-8 font-mono text-xs opacity-50 uppercase"
           >
-            <Link href={row.original.path!}>{format(row.getValue('date'), 'dd MMM yyyy')}</Link>
+            <Link href={row.original.path || '/'}>
+              {format(row.getValue('date'), 'dd MMM yyyy')}
+            </Link>
           </TableCell>
         ),
       },
@@ -88,7 +90,7 @@ export function CompactEventList({
         size: 250,
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="overflow-hidden text-ellipsis">
-            <Link href={row.original.path!}>
+            <Link href={row.original.path || '/'}>
               <div className="font-medium text-wrap w-[250px]">{row.getValue('name')}</div>
               {!filteredCampaignSlug && row.original.campaigns?.docs?.length ? (
                 <div className="text-xs opacity-50 flex items-center gap-1">
@@ -180,7 +182,7 @@ export function CompactEventList({
             className="text-ellipsis text-wrap wrap-normal max-w-12 uppercase font-mono text-xs"
           >
             {row.getValue('headcount') ? (
-              <Link href={row.original.path!}>
+              <Link href={row.original.path || '/'}>
                 <b>{row.getValue('headcount')}</b>
                 &nbsp;
                 {pluralize('worker', row.getValue('headcount'))}

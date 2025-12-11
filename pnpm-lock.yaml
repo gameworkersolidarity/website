@@ -163,6 +163,9 @@ importers:
       '@urbica/react-map-gl-cluster':
         specifier: ^0.2.0
         version: 0.2.0(@urbica/react-map-gl@1.16.2(mapbox-gl@3.16.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(supercluster@8.0.1)
+      '@visx/annotation':
+        specifier: ^3.12.0
+        version: 3.12.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@visx/axis':
         specifier: ^3.12.0
         version: 3.12.0(react@19.2.1)
@@ -2846,6 +2849,11 @@ packages:
     resolution: {integrity: sha512-l0t2KhbOO/I8ZNOl9zypYf1NE0837aO4/CPQNGR/RAxtj8FpdYKjhyUADUXj2gERLQmnhun+teaVs/G7vZJ/TQ==}
     engines: {node: '>=16.14'}
 
+  '@visx/annotation@3.12.0':
+    resolution: {integrity: sha512-ZH6Y4jfrb47iEUV9O2itU9TATE5IPzhs5qvP6J7vmv26qkqwDcuE7xN3S3l9R70WjyEKGbpO8js4EijA3FJWkA==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+
   '@visx/axis@3.12.0':
     resolution: {integrity: sha512-8MoWpfuaJkhm2Yg+HwyytK8nk+zDugCqTT/tRmQX7gW4LYrHYLXFUXOzbDyyBakCVaUbUaAhVFxpMASJiQKf7A==}
     peerDependencies:
@@ -2859,6 +2867,11 @@ packages:
 
   '@visx/curve@3.12.0':
     resolution: {integrity: sha512-Ng1mefXIzoIoAivw7dJ+ZZYYUbfuwXgZCgQynShr6ZIVw7P4q4HeQfJP3W24ON+1uCSrzoycHSXRelhR9SBPcw==}
+
+  '@visx/drag@3.12.0':
+    resolution: {integrity: sha512-LXOoPVw//YPjpYhDJYBsCYDuv1QimsXjDV98duH0aCy4V94ediXMQpe2wHq4pnlDobLEB71FjOZMFrbFmqtERg==}
+    peerDependencies:
+      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
 
   '@visx/event@3.12.0':
     resolution: {integrity: sha512-9Lvw6qJ0Fi+y1vsC1WspfdIKCxHTb7oy59Uql1uBdPGT8zChP0vuxW0jQNQRDbKgoefj4pCXAFi8+MF1mEtVTw==}
@@ -9107,6 +9120,19 @@ snapshots:
       is-buffer: 2.0.5
       undici: 5.29.0
 
+  '@visx/annotation@3.12.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+    dependencies:
+      '@types/react': 19.1.8
+      '@visx/drag': 3.12.0(react@19.2.1)
+      '@visx/group': 3.12.0(react@19.2.1)
+      '@visx/text': 3.12.0(react@19.2.1)
+      classnames: 2.5.1
+      prop-types: 15.8.1
+      react: 19.2.1
+      react-use-measure: 2.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+    transitivePeerDependencies:
+      - react-dom
+
   '@visx/axis@3.12.0(react@19.2.1)':
     dependencies:
       '@types/react': 19.1.8
@@ -9131,6 +9157,14 @@ snapshots:
     dependencies:
       '@types/d3-shape': 1.3.12
       d3-shape: 1.3.7
+
+  '@visx/drag@3.12.0(react@19.2.1)':
+    dependencies:
+      '@types/react': 19.1.8
+      '@visx/event': 3.12.0
+      '@visx/point': 3.12.0
+      prop-types: 15.8.1
+      react: 19.2.1
 
   '@visx/event@3.12.0':
     dependencies:

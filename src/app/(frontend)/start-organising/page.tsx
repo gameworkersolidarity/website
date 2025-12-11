@@ -35,13 +35,22 @@ export default async function StartOrganisingPage() {
     const groupsResult = await payload.find({
       collection: 'organisingGroups',
       where: {
-        ...(!isDraftMode
-          ? {
-              _status: {
-                equals: 'published',
-              },
-            }
-          : {}),
+        and: [
+          {
+            highlighted: {
+              equals: true,
+            },
+          },
+          ...(!isDraftMode
+            ? [
+                {
+                  _status: {
+                    equals: 'published',
+                  },
+                },
+              ]
+            : []),
+        ],
       },
       depth: 1, // Include countries
       pagination: false,

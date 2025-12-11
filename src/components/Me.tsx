@@ -16,7 +16,7 @@ export function AdminEditBanner({
   return (
     <LoggedIn>
       <div className="flex flex-row items-center justify-between gap-4 bg-snot-300 p-4 text-black font-mono text-sm uppercase">
-        <Link href={page.adminPath!}>
+        <Link href={page.adminPath || '/'}>
           <Button>Edit this page</Button>
         </Link>
         <code>Page ID: {page.id}</code>

@@ -39,10 +39,6 @@ type NavigationItem =
 
 export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const _navigation = [
-    {
-      label: 'Home',
-      url: '/',
-    },
     ...navigation,
     {
       label: 'Campaigns',
@@ -62,16 +58,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
     },
     {
       label: 'Data',
-      children: [
-        {
-          label: 'API docs',
-          url: '/api/docs',
-        },
-        {
-          label: 'GraphQL playground',
-          url: '/api/graphql-playground',
-        },
-      ],
+      url: '/data',
     },
   ]
 

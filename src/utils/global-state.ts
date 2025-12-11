@@ -94,7 +94,7 @@ export function useInitiatorFilter(override?: EventInitiator | null) {
       .withOptions({
         clearOnDefault: true,
       })
-      .withDefault(EventInitiator.ALL),
+      .withDefault(EventInitiator.WORKER_LED),
   )
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }

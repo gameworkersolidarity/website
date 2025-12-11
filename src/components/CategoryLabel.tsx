@@ -10,7 +10,7 @@ export function CategoryLabel({ category, link }: { category: Category; link?: b
     return <SoftLinkCategoryLabel category={category} />
   } else if (link) {
     return (
-      <Link href={category.path!}>
+      <Link href={category.path || '/'}>
         <RenderedCategoryLabel category={category} textClassName="link" />
       </Link>
     )

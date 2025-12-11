@@ -15,6 +15,7 @@ import { Descendants } from '../../components/Descendants'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
 import { EventStats } from '@/components/EventStats'
+import { EventTimeline } from '@/components/EventsTimeline'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { Building } from 'lucide-react'
 import { CountryLabel } from '@/components/CountryLabel'
@@ -110,6 +111,8 @@ export function CompanyPage({
           </div>
         </article>
       </div>
+
+      <EventTimeline events={events} labelProperty="categories" />
 
       <EventFilterContextProvider
         events={events}

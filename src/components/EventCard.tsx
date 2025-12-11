@@ -26,6 +26,8 @@ import { CountryLabel } from './CountryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CategoryLabel } from './CategoryLabel'
+import { EventInitiator } from '@/collections/enums'
+import { DisplayInitiator } from '@/utils/displayInitiator'
 
 interface ListProps {
   data: Event[]
@@ -293,6 +295,11 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
           ))}
         </div>
       )}
+      {!!data.initiator && data.initiator === EventInitiator.BOSS_LED && (
+        <div className="inline-flex flex-wrap gap-2">
+          <DisplayInitiator initiator={data.initiator as EventInitiator} link={linkStyle} />
+        </div>
+      )}
       {!!data.organisingGroups?.length && (
         <div className="inline-flex flex-wrap gap-2">
           {data.organisingGroups.slice(0, 3).map((organisingGroup) => (
@@ -364,7 +371,7 @@ export function EventCard({
             </a>
           </div>
         )}
-        {withContext && (
+        {/* {withContext && (
           <div className="grid gap-[2px] grid-cols-2 mt-[2px]">
             {data.campaigns?.docs?.map((campaign) => (
               <div className="p-4 md:px-8 bg-white" key={(campaign as Campaign).id}>
@@ -414,7 +421,7 @@ export function EventCard({
               </div>
             ))}
           </div>
-        )}
+        )} */}
       </article>
     </>
   )

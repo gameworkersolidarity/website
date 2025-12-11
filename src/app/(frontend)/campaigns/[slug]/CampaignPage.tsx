@@ -2,8 +2,6 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import chroma from 'chroma-js'
-import { twMerge } from 'tailwind-merge'
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
 import { ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
@@ -29,29 +27,17 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
 
   const events = page.events as Event[]
 
-  const primaryColor = page.color!
-  const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
-
   return (
-    <div
-      style={{
-        backgroundColor: primaryColor,
-      }}
-    >
+    <div>
       <AdminEditBanner page={page} />
       {page.featuredImage && typeof page.featuredImage === 'object' && page.featuredImage?.url ? (
-        <div className="w-full mx-auto grid md:grid-cols-2">
+        <div className="w-full mx-auto grid md:grid-cols-2 bg-white">
           <div className="flex flex-col gap-4 p-4 md:p-5 lg:p-6 xl:p-8 sticky top-6">
             <header>
               <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
               <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
             </header>
-            {page.description && (
-              <LexicalRenderer
-                content={page.description}
-                className={twMerge(textColor === 'white' && 'prose-invert')}
-              />
-            )}
+            {page.description && <LexicalRenderer content={page.description} />}
           </div>
           <Image
             src={page.featuredImage.url}
@@ -62,43 +48,16 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           />
         </div>
       ) : (
-        <article
-          className={twMerge(
-            'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',
-            textColor === 'white' && 'text-white',
-          )}
-        >
+        <article className="max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4 bg-white">
           <header>
             <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
             <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
           </header>
-          {page.description && (
-            <LexicalRenderer
-              content={page.description}
-              className={twMerge(textColor === 'white' && 'prose-invert')}
-            />
-          )}
+          {page.description && <LexicalRenderer content={page.description} />}
         </article>
       )}
 
-      <EventTimeline events={events} />
-
-      <EventFilterContextProvider
-        events={events}
-        overrideFilteredCampaignSlug={getSlug('campaigns', page)}
-      >
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats color={primaryColor} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList linkStyle="hard" />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </EventFilterContextProvider>
+      <EventTimeline events={events} labelProperty="categories" />
     </div>
   )
 }

@@ -115,6 +115,7 @@ export interface Config {
     startOrganising: StartOrganising;
     aboutPage: AboutPage;
     campaignsPage: CampaignsPage;
+    dataPage: DataPage;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -122,6 +123,7 @@ export interface Config {
     startOrganising: StartOrganisingSelect<false> | StartOrganisingSelect<true>;
     aboutPage: AboutPageSelect<false> | AboutPageSelect<true>;
     campaignsPage: CampaignsPageSelect<false> | CampaignsPageSelect<true>;
+    dataPage: DataPageSelect<false> | DataPageSelect<true>;
   };
   locale: null;
   user: User & {
@@ -504,6 +506,10 @@ export interface OrganisingGroup {
    */
   companies?: (string | Company)[] | null;
   isUnion?: boolean | null;
+  /**
+   * If checked, this group will be displayed on the start-organising page
+   */
+  highlighted?: boolean | null;
   website?: string | null;
   webshiteHostname?: string | null;
   bluesky?: string | null;
@@ -561,11 +567,6 @@ export interface Campaign {
     [k: string]: unknown;
   } | null;
   featuredImage?: (string | null) | Media;
-  /**
-   * Choose a color for this page
-   */
-  primaryColor: string;
-  color?: string;
   /**
    * Used to illustrate the campaign label.
    */
@@ -1057,6 +1058,7 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   countries?: T;
   companies?: T;
   isUnion?: T;
+  highlighted?: T;
   website?: T;
   webshiteHostname?: T;
   bluesky?: T;
@@ -1090,8 +1092,6 @@ export interface CampaignsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   featuredImage?: T;
-  primaryColor?: T;
-  color?: T;
   emoji?: T;
   events?: T;
   path?: T;
@@ -1329,6 +1329,33 @@ export interface CampaignsPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dataPage".
+ */
+export interface DataPage {
+  id: string;
+  /**
+   * Rich text description for the data page
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -1384,6 +1411,16 @@ export interface AboutPageSelect<T extends boolean = true> {
  * via the `definition` "campaignsPage_select".
  */
 export interface CampaignsPageSelect<T extends boolean = true> {
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dataPage_select".
+ */
+export interface DataPageSelect<T extends boolean = true> {
   description?: T;
   updatedAt?: T;
   createdAt?: T;

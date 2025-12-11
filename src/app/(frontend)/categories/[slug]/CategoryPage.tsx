@@ -15,6 +15,7 @@ import { EventList } from '@/components/EventList'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
 import { EventStats } from '@/components/EventStats'
+import { EventTimeline } from '@/components/EventsTimeline'
 import { EventInitiator } from '@/collections/enums'
 
 export function CategoryPage({
@@ -64,6 +65,8 @@ export function CategoryPage({
           />
         )}
       </article>
+
+      <EventTimeline events={events} labelProperty="countries" />
 
       <EventFilterContextProvider
         events={events}

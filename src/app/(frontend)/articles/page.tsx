@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import Image from 'next/image'
 import { Rss } from 'lucide-react'
 import { DateTime } from '@/components/DateTime'
+import { draftMode } from 'next/headers'
 
 export const metadata = {
   title: 'Articles - Game Workers Solidarity Project',
@@ -14,14 +15,19 @@ export const metadata = {
 export default async function BlogPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await draftMode()).isEnabled
 
   // Fetch all published blog posts
   const blogPostsResult = await payload.find({
     collection: 'blogPosts',
     where: {
-      _status: {
-        equals: 'published',
-      },
+      ...(!isDraftMode
+        ? {
+            _status: {
+              equals: 'published',
+            },
+          }
+        : {}),
     },
     depth: 2, // Include image relation
     pagination: false,

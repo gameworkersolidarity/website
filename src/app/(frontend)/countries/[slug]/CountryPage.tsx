@@ -13,6 +13,7 @@ import { EventList } from '@/components/EventList'
 import { projectStrings } from '@/project-strings'
 import { CountryLabel } from '@/components/CountryLabel'
 import { EventStats } from '@/components/EventStats'
+import { EventTimeline } from '@/components/EventsTimeline'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
 
@@ -91,6 +92,8 @@ export function CountryPage({
           </div>
         )}
       </article>
+
+      <EventTimeline events={events} labelProperty="categories" />
 
       <EventFilterContextProvider events={events} overrideFilteredCountryISOA2={page.isoA2}>
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">

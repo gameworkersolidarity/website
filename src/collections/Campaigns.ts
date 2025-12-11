@@ -65,32 +65,6 @@ export const Campaigns: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    colorPickerField({
-      name: 'primaryColor',
-      label: 'Primary Color',
-      required: true,
-      admin: {
-        position: 'sidebar',
-        description: 'Choose a color for this page',
-      },
-    }),
-    {
-      name: 'color',
-      type: 'text',
-      virtual: true,
-      admin: {
-        hidden: true,
-        readOnly: true,
-      },
-      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
-      hooks: {
-        afterRead: [
-          ({ siblingData }) => {
-            return siblingData.primaryColor || '#EEE'
-          },
-        ],
-      },
-    },
     {
       name: 'emoji',
       type: 'text',

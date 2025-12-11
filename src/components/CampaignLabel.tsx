@@ -9,7 +9,7 @@ export function CampaignLabel({ campaign, link }: { campaign: Campaign; link?: b
     return <SoftLinkCampaignLabel campaign={campaign} />
   } else if (link) {
     return (
-      <Link href={campaign.path!}>
+      <Link href={campaign.path || '/'}>
         <RenderedCampaignLabel campaign={campaign} textClassName="link" />
       </Link>
     )

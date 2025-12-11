@@ -33,6 +33,7 @@ export const EventFilterContext = createContext<{
   filteredOrganisingGroup?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] }) | null
   filteredInitiator?: EventInitiator | null
   filteredYear?: number | null
+  availableYears: number[]
   setCountryISOA2Filter: (value: string | null) => void
   setCategoryFilter: (value: string | null) => void
   setCompanyFilter: (value: string | null) => void
@@ -45,6 +46,7 @@ export const EventFilterContext = createContext<{
 }>({
   filteredEvents: [],
   selectedPopupIds: null,
+  availableYears: [],
   setCountryISOA2Filter: noop,
   setCategoryFilter: noop,
   setCompanyFilter: noop,
@@ -159,6 +161,20 @@ export function EventFilterContextProvider({
     },
   )
 
+  const availableYears = useMemo(() => {
+    if (!events?.length) {
+      return []
+    }
+    const years = new Set<number>()
+    events.forEach((event) => {
+      if (event.date) {
+        const year = getYear(new Date(event.date))
+        years.add(year)
+      }
+    })
+    return Array.from(years).sort((a, b) => b - a) // Sort descending (newest first)
+  }, [events])
+
   const filteredEvents = useMemo(() => {
     if (!events?.length) {
       return []
@@ -241,6 +257,7 @@ export function EventFilterContextProvider({
         filteredOrganisingGroup: filteredOrganisingGroup.data || null,
         filteredCampaign: filteredCampaign.data?.docs?.[0] as Campaign | null,
         filteredYear: filteredYear ? Number(filteredYear) : null,
+        availableYears,
         setCountryISOA2Filter,
         setCategoryFilter,
         setCompanyFilter,

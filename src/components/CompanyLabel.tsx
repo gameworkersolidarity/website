@@ -11,7 +11,7 @@ export function CompanyLabel({ company, link }: { company: Company; link?: boole
       return <SoftLinkCompanyLabel company={company} />
     }
     return (
-      <Link href={company.path!} className="link">
+      <Link href={company.path || '/'} className="link">
         <RenderedCompanyLabel company={company} />
       </Link>
     )

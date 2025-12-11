@@ -17,6 +17,7 @@ import { CountryLabel } from '@/components/CountryLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
 import { EventInitiator } from '@/collections/enums'
 import { EventStats } from '@/components/EventStats'
+import { EventTimeline } from '@/components/EventsTimeline'
 import { Link2, Users } from 'lucide-react'
 import XOutlinedIcon from '@/components/X.com'
 import Image from 'next/image'
@@ -161,6 +162,8 @@ export function OrganisingGroupPage({
           </div>
         </article>
       </div>
+
+      <EventTimeline events={events} labelProperty="categories" />
 
       <EventFilterContextProvider
         events={events}

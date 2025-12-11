@@ -16,7 +16,7 @@ export function OrganisingGroupLabel({
     return <SoftLinkOrganisingGroupLabel organisingGroup={organisingGroup} />
   } else if (link) {
     return (
-      <Link href={organisingGroup.path!}>
+      <Link href={organisingGroup.path || '/'}>
         <RenderedOrganisingGroupLabel organisingGroup={organisingGroup} textClassName="link" />
       </Link>
     )
