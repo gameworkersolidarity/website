@@ -29,6 +29,8 @@ export function EventTimeline({
 }) {
   const [currentEventId, setCurrentEventId] = useState<string | null>(null)
 
+  if (!events?.length || events.length < 3) return null
+
   return (
     <div>
       <div className="py-4 px-4 sm:px-5 lg:px-6 xl:px-8 bg-white">
@@ -348,7 +350,7 @@ export function Timeline({
                 <div
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center',
-                    event.id === currentEventId && 'bg-snot-300 rounded-md px-2 border-none',
+                    event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
                   )}
                 >
                   {event.id === currentEventId && (
