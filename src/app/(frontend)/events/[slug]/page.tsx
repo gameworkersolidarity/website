@@ -149,3 +149,43 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     return events.docs[0]
   }
 }
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const isDraftMode = (await draftMode()).isEnabled
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+  const { slug } = await params
+
+  const eventResult = await payload.find({
+    collection: 'events',
+    where: {
+      slug: {
+        equals: slug,
+      },
+      ...(!isDraftMode
+        ? {
+            _status: {
+              equals: 'published',
+            },
+          }
+        : {}),
+    },
+    depth: 0,
+    draft: isDraftMode,
+    limit: 1,
+  })
+
+  if (eventResult.docs.length === 0) {
+    return {
+      title: 'Event Not Found',
+    }
+  }
+
+  const event = eventResult.docs[0]
+  return {
+    title: `${event.name} - Game Workers Solidarity Platform`,
+    description:
+      event.description?.root?.children[0]?.text ??
+      `Learn about worker organising in the video game industry.`,
+  }
+}

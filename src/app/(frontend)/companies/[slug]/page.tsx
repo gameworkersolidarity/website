@@ -59,8 +59,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const company = companyResult.docs[0]
   return {
-    title: `${company.name} - Companies - Game Workers Solidarity Platform`,
-    description: `Learn about ${company.name} and related solidarity actions.`,
+    title: `Worker organising at ${company.name} - Game Workers Solidarity Platform`,
+    description:
+      company.description?.root?.children[0]?.text ??
+      `Learn about video game worker organising at ${company.name}.`,
   }
 }
 

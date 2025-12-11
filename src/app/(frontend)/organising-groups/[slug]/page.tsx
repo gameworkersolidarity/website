@@ -58,8 +58,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const group = groupResult.docs[0]
   return {
-    title: `${group.fullName || group.name} - Organising Groups - Game Workers Solidarity Platform`,
-    description: `Learn about ${group.fullName || group.name} and related solidarity actions.`,
+    title: `${group.fullName || group.name} - Game Workers Solidarity Platform`,
+    description:
+      group.description?.root?.children[0]?.text ??
+      `${group.fullName || group.name} organise workers in the video game industry.`,
   }
 }
 
