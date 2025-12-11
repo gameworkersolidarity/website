@@ -60,9 +60,9 @@ export function Map({
   data: Event[]
   width?: any
   height?: any
-  onSelectCountry?: (iso2id: string | null) => void
+  onSelectCountry?: (iso2id: string[] | null) => void
   colorRange?: string[]
-  countryFilter?: string | null
+  countryFilter?: string[] | null
 }) {
   const [viewport, setViewport] = useState({
     ...defaultViewport,
@@ -370,8 +370,8 @@ const CountryLayer = ({
   onSelectCountry,
 }: {
   countryCounts: CountryCounts
-  countryFilter?: string | null
-  onSelectCountry: (iso2id: string | null) => void
+  countryFilter?: string[] | null
+  onSelectCountry: (iso2id: string[] | null) => void
 }) => {
   // const [event, setEvent] = useState<{ lng: number; lat: number }>()
   // const [hoverCountry, setHoverCountry] = useState<{
@@ -432,15 +432,17 @@ const CountryLayer = ({
         onClick={(event: MapMouseEvent) => {
           const country = event.features?.[0]?.properties
           if (country?.iso_3166_1) {
-            if (country.iso_3166_1 === countryFilter) {
+            if (countryFilter?.includes(country.iso_3166_1)) {
               // setEvent(undefined)
               // setHoverCountry(undefined)
-              onSelectCountry(null)
+              onSelectCountry(
+                countryFilter?.filter((iso2id) => iso2id !== country.iso_3166_1) || null,
+              )
             } else if (
               Object.keys(countryCounts).includes(country.iso_3166_1) &&
               event.features?.[0]?.properties
             ) {
-              onSelectCountry(country.iso_3166_1)
+              onSelectCountry([...(countryFilter || []), country.iso_3166_1])
             }
           }
         }}

@@ -21,9 +21,23 @@ export function CompanyLabel({ company, link }: { company: Company; link?: boole
 }
 
 export function SoftLinkCompanyLabel({ company }: { company: Company }) {
-  const [_, setCompanyFilter] = useCompanyFilter()
+  const [currentFilter, setCompanyFilter] = useCompanyFilter()
+  const slug = getSlug('companies', company)
   return (
-    <div onClick={() => setCompanyFilter(getSlug('companies', company))} className="cursor-pointer">
+    <div
+      onClick={() => {
+        const current = currentFilter || []
+        const isSelected = current.includes(slug)
+        if (isSelected) {
+          setCompanyFilter(
+            current.filter((s) => s !== slug).length > 0 ? current.filter((s) => s !== slug) : null,
+          )
+        } else {
+          setCompanyFilter([...current, slug])
+        }
+      }}
+      className="cursor-pointer"
+    >
       <RenderedCompanyLabel company={company} textClassName="link" />
     </div>
   )

@@ -30,10 +30,21 @@ export function SoftLinkOrganisingGroupLabel({
 }: {
   organisingGroup: OrganisingGroup
 }) {
-  const [_, setOrganisingGroupFilter] = useOrganisingGroupFilter()
+  const [currentFilter, setOrganisingGroupFilter] = useOrganisingGroupFilter()
+  const slug = getSlug('organisingGroups', organisingGroup)
   return (
     <div
-      onClick={() => setOrganisingGroupFilter(getSlug('organisingGroups', organisingGroup))}
+      onClick={() => {
+        const current = currentFilter || []
+        const isSelected = current.includes(slug)
+        if (isSelected) {
+          setOrganisingGroupFilter(
+            current.filter((s) => s !== slug).length > 0 ? current.filter((s) => s !== slug) : null,
+          )
+        } else {
+          setOrganisingGroupFilter([...current, slug])
+        }
+      }}
       className="cursor-pointer"
     >
       <RenderedOrganisingGroupLabel organisingGroup={organisingGroup} textClassName="link" />

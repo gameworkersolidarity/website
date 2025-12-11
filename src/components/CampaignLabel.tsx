@@ -19,10 +19,21 @@ export function CampaignLabel({ campaign, link }: { campaign: Campaign; link?: b
 }
 
 export function SoftLinkCampaignLabel({ campaign }: { campaign: Campaign }) {
-  const [_, setCampaignFilter] = useCampaignFilter()
+  const [currentFilter, setCampaignFilter] = useCampaignFilter()
+  const slug = getSlug('campaigns', campaign)
   return (
     <div
-      onClick={() => setCampaignFilter(getSlug('campaigns', campaign))}
+      onClick={() => {
+        const current = currentFilter || []
+        const isSelected = current.includes(slug)
+        if (isSelected) {
+          setCampaignFilter(
+            current.filter((s) => s !== slug).length > 0 ? current.filter((s) => s !== slug) : null,
+          )
+        } else {
+          setCampaignFilter([...current, slug])
+        }
+      }}
       className="cursor-pointer"
     >
       <RenderedCampaignLabel campaign={campaign} textClassName="link" />

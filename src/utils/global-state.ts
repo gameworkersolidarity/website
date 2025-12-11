@@ -5,7 +5,7 @@ import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
 import { atom } from 'jotai/vanilla'
 import { noop } from 'lodash'
-import { parseAsStringEnum, useQueryState } from 'nuqs'
+import { parseAsArrayOf, parseAsString, parseAsStringEnum, useQueryState } from 'nuqs'
 import qs from 'query-string'
 
 export enum ZoomLevel {
@@ -58,33 +58,74 @@ export function getFilterPath(
   })
 }
 
-export function useCountryISOA2Filter(override?: string | null) {
-  const [countryISOA2, setCountryISOA2] = useQueryState(EventFilterKey.Country, {
-    clearOnDefault: true,
-  })
-  return override ? ([override, noop] as const) : ([countryISOA2, setCountryISOA2] as const)
+export function useCountryISOA2Filter(override?: string | string[] | null) {
+  const [countryISOA2, setCountryISOA2] = useQueryState(
+    EventFilterKey.Country,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  if (override) {
+    const overrideArray = Array.isArray(override) ? override : override ? [override] : null
+    return [overrideArray, noop] as const
+  }
+  return [countryISOA2, setCountryISOA2] as const
 }
 
-export function useCategoryFilter(override?: string | null) {
-  const [category, setCategory] = useQueryState(EventFilterKey.Category, { clearOnDefault: true })
-  return override ? ([override, noop] as const) : ([category, setCategory] as const)
+export function useCategoryFilter(override?: string | string[] | null) {
+  const [category, setCategory] = useQueryState(
+    EventFilterKey.Category,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  if (override) {
+    const overrideArray = Array.isArray(override) ? override : override ? [override] : null
+    return [overrideArray, noop] as const
+  }
+  return [category, setCategory] as const
 }
 
-export function useCompanyFilter(override?: string | null) {
-  const [company, setCompany] = useQueryState(EventFilterKey.Company, { clearOnDefault: true })
-  return override ? ([override, noop] as const) : ([company, setCompany] as const)
+export function useCompanyFilter(override?: string | string[] | null) {
+  const [company, setCompany] = useQueryState(
+    EventFilterKey.Company,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  if (override) {
+    const overrideArray = Array.isArray(override) ? override : override ? [override] : null
+    return [overrideArray, noop] as const
+  }
+  return [company, setCompany] as const
 }
 
-export function useOrganisingGroupFilter(override?: string | null) {
-  const [organisingGroup, setOrganisingGroup] = useQueryState(EventFilterKey.OrganisingGroup, {
-    clearOnDefault: true,
-  })
-  return override ? ([override, noop] as const) : ([organisingGroup, setOrganisingGroup] as const)
+export function useOrganisingGroupFilter(override?: string | string[] | null) {
+  const [organisingGroup, setOrganisingGroup] = useQueryState(
+    EventFilterKey.OrganisingGroup,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  if (override) {
+    const overrideArray = Array.isArray(override) ? override : override ? [override] : null
+    return [overrideArray, noop] as const
+  }
+  return [organisingGroup, setOrganisingGroup] as const
 }
 
-export function useCampaignFilter(override?: string | null) {
-  const [campaign, setCampaign] = useQueryState(EventFilterKey.Campaign, { clearOnDefault: true })
-  return override ? ([override, noop] as const) : ([campaign, setCampaign] as const)
+export function useCampaignFilter(override?: string | string[] | null) {
+  const [campaign, setCampaign] = useQueryState(
+    EventFilterKey.Campaign,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  if (override) {
+    const overrideArray = Array.isArray(override) ? override : override ? [override] : null
+    return [overrideArray, noop] as const
+  }
+  return [campaign, setCampaign] as const
 }
 
 export function useInitiatorFilter(override?: EventInitiator | null) {
@@ -99,7 +140,20 @@ export function useInitiatorFilter(override?: EventInitiator | null) {
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }
 
-export function useYearFilter(override?: string | number | null) {
-  const [year, setYear] = useQueryState(EventFilterKey.Year, { clearOnDefault: true })
-  return override ? ([override, noop] as const) : ([Number(year), setYear] as const)
+export function useYearFilter(override?: string | number | string[] | number[] | null) {
+  const [year, setYear] = useQueryState(
+    EventFilterKey.Year,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  if (override) {
+    const overrideArray = Array.isArray(override)
+      ? override.map((v) => String(v))
+      : override
+        ? [String(override)]
+        : null
+    return [overrideArray?.map(Number) || null, noop] as const
+  }
+  return [year?.map(Number) || null, setYear] as const
 }

@@ -18,9 +18,24 @@ export function CountryLabel({ country, link }: { country: Country; link?: boole
 }
 
 export function SoftLinkCountryLabel({ country }: { country: Country }) {
-  const [_, setCountryISOA2Filter] = useCountryISOA2Filter()
+  const [currentFilter, setCountryISOA2Filter] = useCountryISOA2Filter()
   return (
-    <div onClick={() => setCountryISOA2Filter(country.isoA2)} className="cursor-pointer">
+    <div
+      onClick={() => {
+        const current = currentFilter || []
+        const isSelected = current.includes(country.isoA2)
+        if (isSelected) {
+          setCountryISOA2Filter(
+            current.filter((s) => s !== country.isoA2).length > 0
+              ? current.filter((s) => s !== country.isoA2)
+              : null,
+          )
+        } else {
+          setCountryISOA2Filter([...current, country.isoA2])
+        }
+      }}
+      className="cursor-pointer"
+    >
       <RenderedCountryLabel country={country} textClassName="link" />
     </div>
   )

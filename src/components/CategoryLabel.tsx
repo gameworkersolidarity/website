@@ -20,10 +20,21 @@ export function CategoryLabel({ category, link }: { category: Category; link?: b
 }
 
 export function SoftLinkCategoryLabel({ category }: { category: Category }) {
-  const [_, setCategoryFilter] = useCategoryFilter()
+  const [currentFilter, setCategoryFilter] = useCategoryFilter()
+  const slug = getSlug('categories', category)
   return (
     <div
-      onClick={() => setCategoryFilter(getSlug('categories', category))}
+      onClick={() => {
+        const current = currentFilter || []
+        const isSelected = current.includes(slug)
+        if (isSelected) {
+          setCategoryFilter(
+            current.filter((s) => s !== slug).length > 0 ? current.filter((s) => s !== slug) : null,
+          )
+        } else {
+          setCategoryFilter([...current, slug])
+        }
+      }}
       className="cursor-pointer"
     >
       <RenderedCategoryLabel category={category} textClassName="link" />

@@ -1,8 +1,9 @@
 'use client'
 
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, ChevronsUpDown, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Command,
   CommandEmpty,
@@ -49,19 +50,19 @@ export function EventFilter({
 }: EventFilterProps) {
   const {
     filteredCountryISOA2,
-    filteredCountry,
+    filteredCountries,
     setCountryISOA2Filter,
     filteredCategorySlug,
-    filteredCategory,
+    filteredCategories,
     setCategoryFilter,
     filteredCompanySlug,
-    filteredCompany,
+    filteredCompanies,
     setCompanyFilter,
     filteredOrganisingGroupSlug,
-    filteredOrganisingGroup,
+    filteredOrganisingGroups,
     setOrganisingGroupFilter,
     filteredCampaignSlug,
-    filteredCampaign,
+    filteredCampaigns,
     setCampaignFilter,
     filteredInitiator,
     setInitiatorFilter,
@@ -76,13 +77,13 @@ export function EventFilter({
       <div className="flex flex-row items-center justify-between gap-2 mb-2">
         <div className="flex flex-row items-baseline gap-2">
           <h2 className="font-bold">Filter by</h2>
-          {(filteredCountryISOA2 ||
-            filteredCategorySlug ||
-            filteredCompanySlug ||
-            filteredOrganisingGroupSlug ||
-            filteredCampaignSlug ||
+          {((filteredCountryISOA2 && filteredCountryISOA2.length > 0) ||
+            (filteredCategorySlug && filteredCategorySlug.length > 0) ||
+            (filteredCompanySlug && filteredCompanySlug.length > 0) ||
+            (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) ||
+            (filteredCampaignSlug && filteredCampaignSlug.length > 0) ||
             filteredInitiator ||
-            filteredYear) && (
+            (filteredYear && filteredYear.length > 0)) && (
             <div className="link" onClick={clearAllFilters}>
               clear filters ⤬
             </div>
@@ -110,24 +111,23 @@ export function EventFilter({
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
         <div className="filter-group w-full">
-          <Select
+          <MultiSelect
             placeholder="country..."
             options={countries}
-            value={filteredCountryISOA2 || ''}
-            onChange={(value) =>
-              value === filteredCountryISOA2
-                ? setCountryISOA2Filter(null)
-                : setCountryISOA2Filter(value as string | null)
-            }
+            value={filteredCountryISOA2 || []}
+            onChange={(value) => setCountryISOA2Filter(value.length > 0 ? value : null)}
             valueKey="isoA2"
             renderLabel={(d) => <CountryLabel country={d} />}
           />
-          {filteredCountry && (
-            <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              <Link href={filteredCountry.path!} className="text-xs">
-                See{' '}
-                <span className="font-medium link hover:bg-snot-300">{filteredCountry.name}</span> →
-              </Link>
+          {filteredCountries && filteredCountries.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredCountries.map((country) => (
+                  <Link key={country.id} href={country.path!} className="text-xs">
+                    See <span className="font-medium link hover:bg-snot-300">{country.name}</span> →
+                  </Link>
+                ))}
+              </div>
               <span
                 className="text-xs link"
                 onClick={() => {
@@ -140,26 +140,25 @@ export function EventFilter({
           )}
         </div>
         <div className="filter-group w-full">
-          <Select
+          <MultiSelect
             placeholder="category..."
             options={categories}
             valueKey="slug"
             renderLabel={(d) => <CategoryLabel category={d} />}
-            value={filteredCategorySlug || ''}
-            onChange={(value) =>
-              value === filteredCategorySlug
-                ? setCategoryFilter(null)
-                : setCategoryFilter(value || null)
-            }
+            value={filteredCategorySlug || []}
+            onChange={(value) => setCategoryFilter(value.length > 0 ? value : null)}
           />
 
-          {filteredCategory && (
-            <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              <Link href={filteredCategory.path!} className="text-xs">
-                See{' '}
-                <span className="font-medium link hover:bg-snot-300">{filteredCategory.name}</span>{' '}
-                →
-              </Link>
+          {filteredCategories && filteredCategories.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredCategories.map((category) => (
+                  <Link key={category.id} href={category.path!} className="text-xs">
+                    See <span className="font-medium link hover:bg-snot-300">{category.name}</span>{' '}
+                    →
+                  </Link>
+                ))}
+              </div>
               <span
                 className="text-xs link"
                 onClick={() => {
@@ -172,24 +171,23 @@ export function EventFilter({
           )}
         </div>
         <div className="filter-group w-full">
-          <Select
+          <MultiSelect
             placeholder="company..."
             options={companies}
-            value={filteredCompanySlug || ''}
-            onChange={(value) =>
-              value === filteredCompanySlug
-                ? setCompanyFilter(null)
-                : setCompanyFilter(value || null)
-            }
+            value={filteredCompanySlug || []}
+            onChange={(value) => setCompanyFilter(value.length > 0 ? value : null)}
             valueKey="slug"
             renderLabel={(d) => <CompanyLabel company={d} />}
           />
-          {!!filteredCompany && (
-            <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              <Link href={filteredCompany.path!} className="text-xs" key={filteredCompany.id}>
-                See{' '}
-                <span className="font-medium link hover:bg-snot-300">{filteredCompany.name}</span> →
-              </Link>
+          {filteredCompanies && filteredCompanies.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredCompanies.map((company) => (
+                  <Link key={company.id} href={company.path!} className="text-xs">
+                    See <span className="font-medium link hover:bg-snot-300">{company.name}</span> →
+                  </Link>
+                ))}
+              </div>
               <span
                 className="text-xs link"
                 onClick={() => {
@@ -202,31 +200,27 @@ export function EventFilter({
           )}
         </div>
         <div className="filter-group w-full">
-          <Select
+          <MultiSelect
             placeholder="union..."
             options={organisingGroups}
             valueKey="slug"
             renderLabel={(d) => <OrganisingGroupLabel organisingGroup={d} />}
-            value={filteredOrganisingGroupSlug || ''}
-            onChange={(value) =>
-              value === filteredOrganisingGroupSlug
-                ? setOrganisingGroupFilter(null)
-                : setOrganisingGroupFilter(value || null)
-            }
+            value={filteredOrganisingGroupSlug || []}
+            onChange={(value) => setOrganisingGroupFilter(value.length > 0 ? value : null)}
           />
-          {!!filteredOrganisingGroup && (
-            <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              <Link
-                href={filteredOrganisingGroup.path!}
-                className="text-xs"
-                key={filteredOrganisingGroup.id}
-              >
-                See{' '}
-                <span className="font-medium link hover:bg-snot-300">
-                  {filteredOrganisingGroup.name}
-                </span>{' '}
-                →
-              </Link>
+          {filteredOrganisingGroups && filteredOrganisingGroups.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredOrganisingGroups.map((organisingGroup) => (
+                  <Link key={organisingGroup.id} href={organisingGroup.path!} className="text-xs">
+                    See{' '}
+                    <span className="font-medium link hover:bg-snot-300">
+                      {organisingGroup.name}
+                    </span>{' '}
+                    →
+                  </Link>
+                ))}
+              </div>
               <span
                 className="text-xs link"
                 onClick={() => {
@@ -239,25 +233,24 @@ export function EventFilter({
           )}
         </div>
         <div className="filter-group w-full">
-          <Select
+          <MultiSelect
             placeholder="campaign..."
             options={campaigns}
             valueKey="slug"
             renderLabel={(d) => <CampaignLabel campaign={d} />}
-            value={filteredCampaignSlug || ''}
-            onChange={(value) =>
-              value === filteredCampaignSlug
-                ? setCampaignFilter(null)
-                : setCampaignFilter(value || null)
-            }
+            value={filteredCampaignSlug || []}
+            onChange={(value) => setCampaignFilter(value.length > 0 ? value : null)}
           />
-          {filteredCampaign && (
-            <div className="flex flex-row items-center justify-between gap-2 mt-1">
-              <Link href={filteredCampaign.path!} className="text-xs">
-                See{' '}
-                <span className="font-medium link hover:bg-snot-300">{filteredCampaign.name}</span>{' '}
-                →
-              </Link>
+          {filteredCampaigns && filteredCampaigns.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredCampaigns.map((campaign) => (
+                  <Link key={campaign.id} href={campaign.path!} className="text-xs">
+                    See <span className="font-medium link hover:bg-snot-300">{campaign.name}</span>{' '}
+                    →
+                  </Link>
+                ))}
+              </div>
               <span
                 className="text-xs link"
                 onClick={() => {
@@ -270,7 +263,7 @@ export function EventFilter({
           )}
         </div>
         <div className="filter-group w-full">
-          <Select
+          <MultiSelect
             placeholder="year..."
             valueKey="value"
             renderLabel={(d) => <span>{d.value.toString()}</span>}
@@ -278,14 +271,10 @@ export function EventFilter({
               label: year.toString(),
               value: year.toString(),
             }))}
-            value={filteredYear?.toString() || ''}
-            onChange={(value) =>
-              value === filteredYear?.toString()
-                ? setYearFilter(null)
-                : setYearFilter(value || null)
-            }
+            value={filteredYear?.map(String) || []}
+            onChange={(value) => setYearFilter(value.length > 0 ? value.map(Number) : null)}
           />
-          {filteredYear && (
+          {filteredYear && filteredYear.length > 0 && (
             <span
               className="text-xs link"
               onClick={() => {
@@ -309,7 +298,7 @@ export function EventFilter({
   )
 }
 
-function Select<T, K extends keyof T>({
+function MultiSelect<T, K extends keyof T>({
   options,
   value,
   onChange,
@@ -318,14 +307,27 @@ function Select<T, K extends keyof T>({
   placeholder = 'Select...',
 }: {
   options: T[]
-  value: string | null
+  value: string[]
   valueKey: K
-  onChange: (value: T[K]) => void
+  onChange: (value: string[]) => void
   renderLabel: (item: T) => React.ReactNode
   placeholder?: string
 }) {
   const [open, setOpen] = useState(false)
-  const selectedItem = options.find((option) => option[valueKey] === value)
+  const selectedItems = options.filter((option) => value.includes(String(option[valueKey])))
+
+  const toggleValue = (optionValue: string) => {
+    const newValue = value.includes(optionValue)
+      ? value.filter((v) => v !== optionValue)
+      : [...value, optionValue]
+    onChange(newValue)
+  }
+
+  const removeValue = (optionValue: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    onChange(value.filter((v) => v !== optionValue))
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -333,35 +335,62 @@ function Select<T, K extends keyof T>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={twMerge('w-full justify-between overflow-hidden', value && 'bg-snot-300')}
+          className={twMerge(
+            'w-full justify-between overflow-hidden min-h-10 h-auto',
+            value.length > 0 && 'bg-snot-300',
+          )}
         >
-          {selectedItem ? renderLabel(selectedItem) : placeholder}
-          <ChevronsUpDown className="opacity-50" />
+          <div className="flex flex-wrap gap-1 flex-1 items-start justify-start">
+            {selectedItems.length === 0 ? (
+              <span className="text-muted-foreground">{placeholder}</span>
+            ) : selectedItems.length <= 1 ? (
+              selectedItems.map((item) => (
+                <div key={String(item[valueKey])} className="flex items-center gap-1 text-sm">
+                  {renderLabel(item)}
+                  {/* <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={(e) => removeValue(String(item[valueKey]), e)}
+                  /> */}
+                </div>
+              ))
+            ) : (
+              <span className="text-sm flex flex-row flex-wrap items-center gap-1">
+                {selectedItems.slice(0, 1).map((item) => (
+                  <span key={String(item[valueKey])}>{renderLabel(item)}</span>
+                ))}
+                <span>+ {selectedItems.length - 1} more</span>
+              </span>
+            )}
+          </div>
+          <ChevronsUpDown className="opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
-        <Command value={value || undefined}>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option[valueKey]?.toString() || ''}
-                  onSelect={() => {
-                    onChange(option[valueKey])
-                    setOpen(false)
-                  }}
-                >
-                  {renderLabel(option)}
-                  <Check
-                    className={cn(
-                      'ml-auto',
-                      value === option[valueKey] ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                </CommandItem>
-              ))}
+              {options.map((option) => {
+                const optionValue = String(option[valueKey])
+                const isSelected = value.includes(optionValue)
+                return (
+                  <CommandItem
+                    key={optionValue}
+                    onSelect={() => {
+                      toggleValue(optionValue)
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleValue(optionValue)}
+                      className="mr-2"
+                    />
+                    {renderLabel(option)}
+                  </CommandItem>
+                )
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

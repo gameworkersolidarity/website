@@ -21,26 +21,26 @@ import useSWR from 'swr'
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
-  filteredCountryISOA2?: string | null
-  filteredCategorySlug?: string | null
-  filteredCompanySlug?: string | null
-  filteredOrganisingGroupSlug?: string | null
-  filteredCampaignSlug?: string | null
-  filteredCountry?: Country | null
-  filteredCategory?: Category | null
-  filteredCompany?: (Company & { descendants: ArchiveBreadcrumb[] }) | null
-  filteredCampaign?: Campaign | null
-  filteredOrganisingGroup?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] }) | null
+  filteredCountryISOA2?: string[] | null
+  filteredCategorySlug?: string[] | null
+  filteredCompanySlug?: string[] | null
+  filteredOrganisingGroupSlug?: string[] | null
+  filteredCampaignSlug?: string[] | null
+  filteredCountries?: Country[] | null
+  filteredCategories?: Category[] | null
+  filteredCompanies?: (Company & { descendants: ArchiveBreadcrumb[] })[] | null
+  filteredCampaigns?: Campaign[] | null
+  filteredOrganisingGroups?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] })[] | null
   filteredInitiator?: EventInitiator | null
-  filteredYear?: number | null
+  filteredYear?: number[] | null
   availableYears: number[]
-  setCountryISOA2Filter: (value: string | null) => void
-  setCategoryFilter: (value: string | null) => void
-  setCompanyFilter: (value: string | null) => void
-  setOrganisingGroupFilter: (value: string | null) => void
-  setCampaignFilter: (value: string | null) => void
+  setCountryISOA2Filter: (value: string[] | null) => void
+  setCategoryFilter: (value: string[] | null) => void
+  setCompanyFilter: (value: string[] | null) => void
+  setOrganisingGroupFilter: (value: string[] | null) => void
+  setCampaignFilter: (value: string[] | null) => void
   setInitiatorFilter: (value: EventInitiator | null) => void
-  setYearFilter: (value: string | number | null) => void
+  setYearFilter: (value: string | number | string[] | number[] | null) => void
   setSelectedPopupIds: (value: string[] | null) => void
   selectedPopupIds: string[] | null
 }>({
@@ -70,13 +70,13 @@ export function EventFilterContextProvider({
 }: {
   events: Event[]
   children: React.ReactNode
-  overrideFilteredCountryISOA2?: string | null
-  overrideFilteredCategorySlug?: string | null
-  overrideFilteredCompanySlug?: string | null
-  overrideFilteredOrganisingGroupSlug?: string | null
-  overrideFilteredCampaignSlug?: string | null
+  overrideFilteredCountryISOA2?: string | string[] | null
+  overrideFilteredCategorySlug?: string | string[] | null
+  overrideFilteredCompanySlug?: string | string[] | null
+  overrideFilteredOrganisingGroupSlug?: string | string[] | null
+  overrideFilteredCampaignSlug?: string | string[] | null
   overrideFilteredInitiator?: EventInitiator | null
-  overrideFilteredYear?: string | number | null
+  overrideFilteredYear?: string | number | string[] | number[] | null
 }) {
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
@@ -91,73 +91,115 @@ export function EventFilterContextProvider({
   const [filteredInitiator, setInitiatorFilter] = useInitiatorFilter(overrideFilteredInitiator)
   const [filteredYear, setYearFilter] = useYearFilter(overrideFilteredYear)
 
-  const filteredCategory = useSWR(`/api/categories/${filteredCategorySlug}`, () => {
-    if (!filteredCategorySlug) {
-      return null
-    }
-
-    return payloadClient.find({
-      collection: 'categories',
-      where: { slug: { equals: filteredCategorySlug } },
-    })
-  })
-
-  const filteredCompany = useSWR(`/api/companies/${filteredCompanySlug}`, async () => {
-    if (!filteredCompanySlug) {
-      return null
-    }
-
-    const company = await payloadClient.find({
-      collection: 'companies',
-      where: { slug: { equals: filteredCompanySlug } },
-    })
-
-    const descendants = await getDescendants('companies', company.docs?.[0]?.slug || '')
-
-    return {
-      ...company.docs?.[0],
-      descendants,
-    }
-  })
-
-  const filteredCountry = useSWR(`/api/countries/${filteredCountryISOA2}`, () => {
-    if (!filteredCountryISOA2) {
-      return null
-    }
-    return payloadClient.find({
-      collection: 'countries',
-      where: { isoA2: { equals: filteredCountryISOA2 } },
-    })
-  })
-
-  const filteredCampaign = useSWR(`/api/campaigns/${filteredCampaignSlug}`, () => {
-    if (!filteredCampaignSlug) {
-      return null
-    }
-    return payloadClient.find({
-      collection: 'campaigns',
-      where: { slug: { equals: filteredCampaignSlug } },
-    })
-  })
-
-  const filteredOrganisingGroup = useSWR(
-    `/api/organising-groups/${filteredOrganisingGroupSlug}`,
+  const filteredCategories = useSWR(
+    `/api/categories/${filteredCategorySlug?.join(',') || ''}`,
     async () => {
-      if (!filteredOrganisingGroupSlug) {
+      if (!filteredCategorySlug || filteredCategorySlug.length === 0) {
         return null
       }
 
-      const union = await payloadClient.find({
-        collection: 'organisingGroups',
-        where: { slug: { equals: filteredOrganisingGroupSlug } },
-      })
+      const results = await Promise.all(
+        filteredCategorySlug.map((slug) =>
+          payloadClient.find({
+            collection: 'categories',
+            where: { slug: { equals: slug } },
+          }),
+        ),
+      )
 
-      const descendants = await getDescendants('organisingGroups', union.docs?.[0]?.slug || '')
+      return results.flatMap((result) => result.docs || [])
+    },
+  )
 
-      return {
-        ...union.docs?.[0],
-        descendants,
+  const filteredCompanies = useSWR(
+    `/api/companies/${filteredCompanySlug?.join(',') || ''}`,
+    async () => {
+      if (!filteredCompanySlug || filteredCompanySlug.length === 0) {
+        return null
       }
+
+      const results = await Promise.all(
+        filteredCompanySlug.map(async (slug) => {
+          const company = await payloadClient.find({
+            collection: 'companies',
+            where: { slug: { equals: slug } },
+          })
+
+          const descendants = await getDescendants('companies', company.docs?.[0]?.slug || '')
+
+          return {
+            ...company.docs?.[0],
+            descendants,
+          }
+        }),
+      )
+
+      return results.filter(Boolean)
+    },
+  )
+
+  const filteredCountries = useSWR(
+    `/api/countries/${filteredCountryISOA2?.join(',') || ''}`,
+    async () => {
+      if (!filteredCountryISOA2 || filteredCountryISOA2.length === 0) {
+        return null
+      }
+      const results = await Promise.all(
+        filteredCountryISOA2.map((isoA2) =>
+          payloadClient.find({
+            collection: 'countries',
+            where: { isoA2: { equals: isoA2 } },
+          }),
+        ),
+      )
+
+      return results.flatMap((result) => result.docs || [])
+    },
+  )
+
+  const filteredCampaigns = useSWR(
+    `/api/campaigns/${filteredCampaignSlug?.join(',') || ''}`,
+    async () => {
+      if (!filteredCampaignSlug || filteredCampaignSlug.length === 0) {
+        return null
+      }
+      const results = await Promise.all(
+        filteredCampaignSlug.map((slug) =>
+          payloadClient.find({
+            collection: 'campaigns',
+            where: { slug: { equals: slug } },
+          }),
+        ),
+      )
+
+      return results.flatMap((result) => result.docs || [])
+    },
+  )
+
+  const filteredOrganisingGroups = useSWR(
+    `/api/organising-groups/${filteredOrganisingGroupSlug?.join(',') || ''}`,
+    async () => {
+      if (!filteredOrganisingGroupSlug || filteredOrganisingGroupSlug.length === 0) {
+        return null
+      }
+
+      const results = await Promise.all(
+        filteredOrganisingGroupSlug.map(async (slug) => {
+          const union = await payloadClient.find({
+            collection: 'organisingGroups',
+            where: { slug: { equals: slug } },
+          })
+
+          const descendants = await getDescendants('organisingGroups', union.docs?.[0]?.slug || '')
+
+          return {
+            ...union.docs?.[0],
+            descendants,
+          }
+        }),
+      )
+
+      return results.filter(Boolean)
     },
   )
 
@@ -183,50 +225,56 @@ export function EventFilterContextProvider({
     if (selectedPopupIds && selectedPopupIds.length > 0) {
       filtered = filtered.filter((event) => selectedPopupIds.includes(event.id))
     }
-    if (filteredCountryISOA2) {
+    if (filteredCountryISOA2 && filteredCountryISOA2.length > 0) {
       filtered = filtered.filter((event) =>
-        event.countries?.some((country) => (country as Country).isoA2 === filteredCountryISOA2),
+        event.countries?.some((country) =>
+          filteredCountryISOA2.includes((country as Country).isoA2),
+        ),
       )
     }
-    if (filteredCategorySlug) {
+    if (filteredCategorySlug && filteredCategorySlug.length > 0) {
       filtered = filtered.filter((event) =>
-        event.categories?.some((category) => (category as Category).slug === filteredCategorySlug),
+        event.categories?.some((category) =>
+          filteredCategorySlug.includes((category as Category).slug),
+        ),
       )
     }
-    if (filteredCompanySlug) {
+    if (filteredCompanySlug && filteredCompanySlug.length > 0) {
       filtered = filtered.filter((event) =>
         event.companies?.some((company) => {
           return (
-            filteredCompanySlug === (company as Company).slug ||
-            (company as Company).parents?.some((parent) => parent.url === `/${filteredCompanySlug}`)
-          )
-        }),
-      )
-    }
-    if (filteredOrganisingGroupSlug) {
-      filtered = filtered.filter((event) =>
-        event.organisingGroups?.some((organisingGroup) => {
-          return (
-            filteredOrganisingGroupSlug === (organisingGroup as OrganisingGroup).slug ||
-            (organisingGroup as OrganisingGroup).parents?.some(
-              (parent) => parent.url === `/${filteredOrganisingGroupSlug}`,
+            filteredCompanySlug.includes((company as Company).slug) ||
+            (company as Company).parents?.some((parent) =>
+              filteredCompanySlug.some((slug) => parent.url === `/${slug}`),
             )
           )
         }),
       )
     }
-    if (filteredCampaignSlug) {
+    if (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) {
       filtered = filtered.filter((event) =>
-        event.campaigns?.docs?.some(
-          (campaign) => (campaign as Campaign).slug === filteredCampaignSlug,
+        event.organisingGroups?.some((organisingGroup) => {
+          return (
+            filteredOrganisingGroupSlug.includes((organisingGroup as OrganisingGroup).slug) ||
+            (organisingGroup as OrganisingGroup).parents?.some((parent) =>
+              filteredOrganisingGroupSlug.some((slug) => parent.url === `/${slug}`),
+            )
+          )
+        }),
+      )
+    }
+    if (filteredCampaignSlug && filteredCampaignSlug.length > 0) {
+      filtered = filtered.filter((event) =>
+        event.campaigns?.docs?.some((campaign) =>
+          filteredCampaignSlug.includes((campaign as Campaign).slug),
         ),
       )
     }
     if (filteredInitiator && filteredInitiator !== EventInitiator.ALL) {
       filtered = filtered.filter((event) => event.initiator === filteredInitiator)
     }
-    if (filteredYear) {
-      filtered = filtered.filter((event) => getYear(new Date(event.date)) === Number(filteredYear))
+    if (filteredYear && filteredYear.length > 0) {
+      filtered = filtered.filter((event) => filteredYear.includes(getYear(new Date(event.date))))
     }
     return filtered
   }, [
@@ -251,12 +299,12 @@ export function EventFilterContextProvider({
         filteredOrganisingGroupSlug,
         filteredCampaignSlug,
         filteredInitiator,
-        filteredCountry: filteredCountry.data?.docs?.[0] || null,
-        filteredCategory: filteredCategory.data?.docs?.[0] || null,
-        filteredCompany: filteredCompany.data || null,
-        filteredOrganisingGroup: filteredOrganisingGroup.data || null,
-        filteredCampaign: filteredCampaign.data?.docs?.[0] as Campaign | null,
-        filteredYear: filteredYear ? Number(filteredYear) : null,
+        filteredCountries: filteredCountries.data || null,
+        filteredCategories: filteredCategories.data || null,
+        filteredCompanies: filteredCompanies.data || null,
+        filteredOrganisingGroups: filteredOrganisingGroups.data || null,
+        filteredCampaigns: filteredCampaigns.data || null,
+        filteredYear: filteredYear || null,
         availableYears,
         setCountryISOA2Filter,
         setCategoryFilter,
