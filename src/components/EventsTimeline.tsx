@@ -194,7 +194,16 @@ export function Timeline({
   setCurrentEventId: (id: string) => void
   labelProperty?: LabelProperty
 }) {
+  // Bucketing labels
+  const minSkip = 1
+  const maxSkip = 7
+  const itemsPerBucket = 2
+  // Heights of labels
+  const highlightOffset = 5
+  const gap = 20
+  const numLevels = 3
   const divHeight = 270
+
   const [elementRef, size] = useElementSize()
   const margin = { top: 15, right: 10, bottom: 25, left: 10 }
   const width = size.width - margin.left - margin.right
@@ -216,6 +225,33 @@ export function Timeline({
     if (dayRange <= 365 * 10) return 'year'
     return 'decade'
   }, [dayRange])
+
+  // Helper for date bucket
+  function getBucket(date: Date) {
+    switch (xScaleLevel) {
+      case 'year':
+        // Bucket by year
+        return date.getFullYear()
+      case 'decade':
+        // get buckets of 3.333 years
+        return `${Math.floor(date.getFullYear() / 3.333) * 3.333}-${Math.floor(date.getFullYear() / 3.333) * 3.333 + 3.333}`
+      case 'quarter':
+        // Bucket by year and quarter
+        return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
+      case 'month':
+        // Bucket by year and month
+        return `${date.getFullYear()}-${date.getMonth()}`
+      case 'week':
+        // Bucket by year and ISO week number
+        // ISO week inspried from https://stackoverflow.com/a/6117889
+        const weekNum = getWeek(date)
+        return `${date.getFullYear()}-W${weekNum}`
+      case 'day':
+      default:
+        // Bucket by full day
+        return formatDate(date, 'yyyy-MM-dd')
+    }
+  }
 
   const numTicks = useMemo(() => {
     if (xScaleLevel === 'day') return 7
@@ -265,37 +301,20 @@ export function Timeline({
     [currentEventId],
   )
 
-  const skipCount = 3
-
-  function shouldAppear(index: number, event: Event) {
-    if (!event.id || !currentEventId) return false
+  function getLabelPositionMetadata(event: Event) {
+    if (!event.id || !currentEventId) {
+      return {
+        shouldAppear: false,
+        indexInBucket: 0,
+        dynamicSkipCount: 0,
+      }
+    }
     // Always show currently selected event
-    if (event.id === currentEventId) return true
-
-    // Helper for date bucket
-    function getBucket(date: Date) {
-      switch (xScaleLevel) {
-        case 'year':
-          // Bucket by year
-          return date.getFullYear()
-        case 'decade':
-          // get buckets of 3.333 years
-          return `${Math.floor(date.getFullYear() / 3.333) * 3.333}-${Math.floor(date.getFullYear() / 3.333) * 3.333 + 3.333}`
-        case 'quarter':
-          // Bucket by year and quarter
-          return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
-        case 'month':
-          // Bucket by year and month
-          return `${date.getFullYear()}-${date.getMonth()}`
-        case 'week':
-          // Bucket by year and ISO week number
-          // ISO week inspried from https://stackoverflow.com/a/6117889
-          const weekNum = getWeek(date)
-          return `${date.getFullYear()}-W${weekNum}`
-        case 'day':
-        default:
-          // Bucket by full day
-          return formatDate(date, 'yyyy-MM-dd')
+    if (event.id === currentEventId) {
+      return {
+        shouldAppear: true,
+        indexInBucket: 0,
+        dynamicSkipCount: 0,
       }
     }
 
@@ -304,9 +323,6 @@ export function Timeline({
     const eventsInBucket = sortedEvents.filter((e) => getBucket(new Date(e.date)) === targetBucket)
     // Dynamic skipCount: more in the bucket = higher skip
     // For many events display fewer: set minSkip 1, maxSkip e.g. 7
-    const minSkip = 1
-    const maxSkip = 7
-    const itemsPerBucket = 1
     const dynamicSkipCount = Math.max(
       Math.min(Math.ceil(eventsInBucket.length / itemsPerBucket), maxSkip),
       minSkip,
@@ -320,15 +336,14 @@ export function Timeline({
     const thisEventIndexInBucket = thisBucketIndices.findIndex((row) => row.id === event.id)
 
     // Show one every dynamicSkipCount in the same bucket
-    return thisEventIndexInBucket % dynamicSkipCount === 0
+    return {
+      shouldAppear: thisEventIndexInBucket % dynamicSkipCount === 0,
+      indexInBucket: thisEventIndexInBucket,
+      dynamicSkipCount,
+    }
   }
 
-  const highlightOffset = 5
-
-  function getLabelPosition(index: number, eventId: string | null, offset: number = 0) {
-    const gap = 20
-    const numLevels = 3
-    const labelCount = Math.floor(index / skipCount)
+  function getLabelPosition(labelCount: number, eventId: string | null, offset: number = 0) {
     if (currentEventId && eventId === currentEventId) {
       const aboveBelow = -1
       const level = numLevels + 1
@@ -374,9 +389,10 @@ export function Timeline({
           {/* Vertical ines from circle to text labels */}
           {sortedEvents.map((event, index) => {
             const x = xScale(new Date(event.date))
-            if (!shouldAppear(index, event)) return null
+            const { shouldAppear, indexInBucket } = getLabelPositionMetadata(event)
+            if (!shouldAppear) return null
             const { y } = getLabelPosition(
-              index,
+              indexInBucket,
               event.id,
               event.id === currentEventId ? highlightOffset : 0,
             )
@@ -413,37 +429,11 @@ export function Timeline({
 
           {/* Labels above timeline */}
           {sortedEvents.map((event, index) => {
-            if (!shouldAppear(index, event)) return null
+            const positionMetadata = getLabelPositionMetadata(event)
+            if (!positionMetadata.shouldAppear) return null
             const x = xScale(new Date(event.date))
-            // let labelText
-            // if (labelProperty === 'categories') {
-            //   labelText =
-            //     event.categories
-            //       ?.map((c) => `${(c as Category).emoji || ''} ${capitalise((c as Category).name)}`)
-            //       .join(' ') || ''
-            // } else if (labelProperty === 'companies') {
-            //   labelText = event.companies?.map((c) => `${(c as Company).name}`).join(' ') || ''
-            // } else if (labelProperty === 'organisingGroups') {
-            //   labelText =
-            //     event.organisingGroups?.map((c) => `${(c as OrganisingGroup).name}`).join(' ') || ''
-            // } else if (labelProperty === 'countries') {
-            //   labelText =
-            //     event.countries
-            //       ?.map((c) => {
-            //         const country = c as Country
-            //         // Add flag emoji if present
-            //         const flag = country.emoji ? `${country.emoji} ` : ''
-            //         return `${flag}${country.name}`
-            //       })
-            //       .join(' ') || ''
-            // } else if (labelProperty === 'location') {
-            //   labelText = event.location || ''
-            // } else if (labelProperty === 'name') {
-            //   labelText = event.name || ''
-            // }
-            // if (!labelText) return null
             const { y, aboveBelow } = getLabelPosition(
-              index,
+              positionMetadata.indexInBucket,
               event.id,
               event.id === currentEventId ? highlightOffset : 0,
             )
@@ -457,6 +447,7 @@ export function Timeline({
                 showAnchorLine={false}
                 containerStyle={{ display: 'block' }}
               >
+                {/* <pre className="text-xs">{JSON.stringify(positionMetadata, null, 2)}</pre> */}
                 <div
                   className={twMerge(
                     '-translate-x-1/2 whitespace-nowrap inline-flex flex-col items-center text-center',
