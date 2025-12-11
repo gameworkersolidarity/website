@@ -3,7 +3,7 @@
 import { Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { EventCard } from './EventCard'
-import { differenceInDays, formatDate } from 'date-fns'
+import { differenceInDays, formatDate, getWeek } from 'date-fns'
 import { extent } from 'd3-array'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { getCSSVariable } from '@/utils/css'
@@ -209,11 +209,11 @@ export function Timeline({
 
   // Determine number of ticks based on date range
   const xScaleLevel = useMemo(() => {
-    if (dayRange < 7) return 'day'
-    if (dayRange < 30) return 'week'
-    if (dayRange < 90) return 'month'
-    if (dayRange < 365) return 'quarter'
-    if (dayRange < 365 * 10) return 'year'
+    if (dayRange <= 21) return 'day'
+    if (dayRange <= 180) return 'week'
+    if (dayRange <= 365 * 2) return 'month'
+    if (dayRange <= 365 * 5) return 'quarter'
+    if (dayRange <= 365 * 10) return 'year'
     return 'decade'
   }, [dayRange])
 
@@ -265,13 +265,65 @@ export function Timeline({
     [currentEventId],
   )
 
-  const skipCount = 2
+  const skipCount = 3
 
-  function shouldAppear(index: number, eventId: string | null) {
-    return index % skipCount === 0 || eventId === currentEventId
-    // if (!eventId || !currentEventId) return false
-    // return index % 5 === 0 || eventId === currentEventId
+  function shouldAppear(index: number, event: Event) {
+    if (!event.id || !currentEventId) return false
+    // Always show currently selected event
+    if (event.id === currentEventId) return true
+
+    // Helper for date bucket
+    function getBucket(date: Date) {
+      switch (xScaleLevel) {
+        case 'year':
+          // Bucket by year
+          return date.getFullYear()
+        case 'decade':
+          // get buckets of 3.333 years
+          return `${Math.floor(date.getFullYear() / 3.333) * 3.333}-${Math.floor(date.getFullYear() / 3.333) * 3.333 + 3.333}`
+        case 'quarter':
+          // Bucket by year and quarter
+          return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
+        case 'month':
+          // Bucket by year and month
+          return `${date.getFullYear()}-${date.getMonth()}`
+        case 'week':
+          // Bucket by year and ISO week number
+          // ISO week inspried from https://stackoverflow.com/a/6117889
+          const weekNum = getWeek(date)
+          return `${date.getFullYear()}-W${weekNum}`
+        case 'day':
+        default:
+          // Bucket by full day
+          return formatDate(date, 'yyyy-MM-dd')
+      }
+    }
+
+    const targetBucket = getBucket(new Date(event.date))
+    // How many events in the same bucket?
+    const eventsInBucket = sortedEvents.filter((e) => getBucket(new Date(e.date)) === targetBucket)
+    // Dynamic skipCount: more in the bucket = higher skip
+    // For many events display fewer: set minSkip 1, maxSkip e.g. 7
+    const minSkip = 1
+    const maxSkip = 7
+    const itemsPerBucket = 1
+    const dynamicSkipCount = Math.max(
+      Math.min(Math.ceil(eventsInBucket.length / itemsPerBucket), maxSkip),
+      minSkip,
+    )
+
+    // For deterministic spacing within bucket, get positions in this bucket
+    const thisBucketIndices = sortedEvents
+      .map((e, i) => ({ id: e.id, b: getBucket(new Date(e.date)), idx: i }))
+      .filter((row) => row.b === targetBucket)
+
+    const thisEventIndexInBucket = thisBucketIndices.findIndex((row) => row.id === event.id)
+
+    // Show one every dynamicSkipCount in the same bucket
+    return thisEventIndexInBucket % dynamicSkipCount === 0
   }
+
+  const highlightOffset = 5
 
   function getLabelPosition(index: number, eventId: string | null, offset: number = 0) {
     const gap = 20
@@ -322,8 +374,12 @@ export function Timeline({
           {/* Vertical ines from circle to text labels */}
           {sortedEvents.map((event, index) => {
             const x = xScale(new Date(event.date))
-            if (!shouldAppear(index, event.id)) return null
-            const { y } = getLabelPosition(index, event.id, event.id === currentEventId ? 20 : 0)
+            if (!shouldAppear(index, event)) return null
+            const { y } = getLabelPosition(
+              index,
+              event.id,
+              event.id === currentEventId ? highlightOffset : 0,
+            )
             return (
               <Line
                 key={`line-${event.id}`}
@@ -357,7 +413,7 @@ export function Timeline({
 
           {/* Labels above timeline */}
           {sortedEvents.map((event, index) => {
-            if (!shouldAppear(index, event.id)) return null
+            if (!shouldAppear(index, event)) return null
             const x = xScale(new Date(event.date))
             // let labelText
             // if (labelProperty === 'categories') {
@@ -389,7 +445,7 @@ export function Timeline({
             const { y, aboveBelow } = getLabelPosition(
               index,
               event.id,
-              event.id === currentEventId ? 20 : 0,
+              event.id === currentEventId ? highlightOffset : 0,
             )
             return (
               <HtmlLabel
