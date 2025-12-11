@@ -27,7 +27,11 @@ export function EventTimeline({
   events: Event[]
   labelProperty?: LabelProperty
 }) {
-  const [currentEventId, setCurrentEventId] = useState<string | null>(null)
+  const sortedEvents = useMemo(
+    () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [events],
+  )
+  const [currentEventId, setCurrentEventId] = useState<string | null>(sortedEvents[0]?.id || null)
 
   if (!events?.length || events.length < 3) return null
 
@@ -190,7 +194,7 @@ export function Timeline({
   setCurrentEventId: (id: string) => void
   labelProperty?: LabelProperty
 }) {
-  const divHeight = 300
+  const divHeight = 270
   const [elementRef, size] = useElementSize()
   const margin = { top: 15, right: 10, bottom: 25, left: 10 }
   const width = size.width - margin.left - margin.right
@@ -204,14 +208,23 @@ export function Timeline({
   const dayRange = useMemo(() => differenceInDays(maxDate, minDate), [maxDate, minDate])
 
   // Determine number of ticks based on date range
-  const numTicks = useMemo(() => {
-    if (dayRange < 7) return 7
-    if (dayRange < 30) return 5
-    if (dayRange < 90) return 4
-    if (dayRange < 365) return 4
-    if (dayRange < 365 * 10) return 5
-    return 6
+  const xScaleLevel = useMemo(() => {
+    if (dayRange < 7) return 'day'
+    if (dayRange < 30) return 'week'
+    if (dayRange < 90) return 'month'
+    if (dayRange < 365) return 'quarter'
+    if (dayRange < 365 * 10) return 'year'
+    return 'decade'
   }, [dayRange])
+
+  const numTicks = useMemo(() => {
+    if (xScaleLevel === 'day') return 7
+    if (xScaleLevel === 'week') return 5
+    if (xScaleLevel === 'month') return 4
+    if (xScaleLevel === 'quarter') return 4
+    if (xScaleLevel === 'year') return 5
+    return 6
+  }, [xScaleLevel])
 
   // Create time scale
   const xScale = useMemo(
@@ -252,6 +265,39 @@ export function Timeline({
     [currentEventId],
   )
 
+  const skipCount = 2
+
+  function shouldAppear(index: number, eventId: string | null) {
+    return index % skipCount === 0 || eventId === currentEventId
+    // if (!eventId || !currentEventId) return false
+    // return index % 5 === 0 || eventId === currentEventId
+  }
+
+  function getLabelPosition(index: number, eventId: string | null, offset: number = 0) {
+    const gap = 20
+    const numLevels = 3
+    const labelCount = Math.floor(index / skipCount)
+    if (currentEventId && eventId === currentEventId) {
+      const aboveBelow = -1
+      const level = numLevels + 1
+      const y = timelineY + aboveBelow * level * gap + offset * aboveBelow
+      return {
+        y,
+        aboveBelow,
+        level,
+      }
+    } else {
+      const aboveBelow = labelCount % 2 === 0 ? -1 : 1
+      const level = (labelCount % numLevels) + 1
+      const y = timelineY + aboveBelow * level * gap + offset * aboveBelow
+      return {
+        y,
+        aboveBelow,
+        level,
+      }
+    }
+  }
+
   return (
     <div ref={elementRef} className="h-full w-full">
       <svg width={size.width} height={divHeight} style={{ overflow: 'visible' }}>
@@ -277,13 +323,14 @@ export function Timeline({
           {sortedEvents.map((event, index) => {
             const x = xScale(new Date(event.date))
             if (!shouldAppear(index, event.id)) return null
+            const { y } = getLabelPosition(index, event.id, event.id === currentEventId ? 20 : 0)
             return (
               <Line
                 key={`line-${event.id}`}
                 x1={x}
                 y1={timelineY}
                 x2={x}
-                y2={getLabelY(index, event.id, -5)}
+                y2={y}
                 stroke={getEventColor(event)}
                 strokeWidth={1}
               />
@@ -339,24 +386,31 @@ export function Timeline({
             //   labelText = event.name || ''
             // }
             // if (!labelText) return null
+            const { y, aboveBelow } = getLabelPosition(
+              index,
+              event.id,
+              event.id === currentEventId ? 20 : 0,
+            )
             return (
               <HtmlLabel
                 key={`label-${event.id}`}
                 x={x}
-                y={getLabelY(index, event.id)}
+                y={y}
                 horizontalAnchor="middle"
-                verticalAnchor="middle"
+                verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
+                showAnchorLine={false}
+                containerStyle={{ display: 'block' }}
               >
                 <div
                   className={twMerge(
-                    'whitespace-nowrap flex flex-col items-center text-center',
+                    '-translate-x-1/2 whitespace-nowrap inline-flex flex-col items-center text-center',
                     event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
                   )}
                 >
                   {event.id === currentEventId && (
                     <div className="text-xs">{formatDate(new Date(event.date), 'dd MMM yyyy')}</div>
                   )}
-                  <div className="text-xs font-bold">
+                  <div className="text-xs font-bold flex flex-row flex-wrap justify-center items-center">
                     {labelProperty === 'categories'
                       ? event.categories?.map((c) => (
                           <CategoryLabel category={c as Category} key={(c as Category).id} />
@@ -442,7 +496,22 @@ export function Timeline({
             top={height}
             scale={xScale}
             numTicks={numTicks}
-            tickFormat={(d) => formatDate(d as Date, 'dd MMM yyyy')}
+            tickFormat={(d) =>
+              formatDate(
+                d as Date,
+                xScaleLevel === 'day'
+                  ? 'dd MMM yyyy'
+                  : xScaleLevel === 'week'
+                    ? 'dd MMM'
+                    : xScaleLevel === 'month'
+                      ? 'MMM yyyy'
+                      : xScaleLevel === 'quarter'
+                        ? 'Q yyyy'
+                        : xScaleLevel === 'year'
+                          ? 'yyyy'
+                          : 'yyyy',
+              )
+            }
             stroke="#6b7280"
             tickStroke="#6b7280"
             tickLabelProps={() => ({
@@ -455,28 +524,4 @@ export function Timeline({
       </svg>
     </div>
   )
-
-  function shouldAppear(index: number, eventId: string | null) {
-    return index % 5 === 0 || eventId === currentEventId
-    // if (!eventId || !currentEventId) return false
-    // return index % 5 === 0 || eventId === currentEventId
-  }
-
-  function getLabelY(index: number, eventId: string | null, offset: number = 0) {
-    const gap = 20
-    const numLevels = 3
-    if (currentEventId && eventId === currentEventId) {
-      const aboveBelow = -1
-      return timelineY + aboveBelow * (numLevels + 1) * gap + offset * aboveBelow
-    }
-    const aboveBelow = index % 2 === 0 ? -1 : 1
-    const level = Math.floor(index / 2) % numLevels
-    const y = timelineY + aboveBelow * (level + 1) * gap + offset * aboveBelow
-    return y + offset * aboveBelow
-  }
-}
-
-function capitalise(string: string) {
-  // Capitalise each word
-  return string?.replace(/\b\w/g, (char) => char.toUpperCase())
 }
