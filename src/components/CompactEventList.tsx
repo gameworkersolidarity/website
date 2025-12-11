@@ -113,7 +113,7 @@ export function CompactEventList({
         header: 'Actor',
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="text-xs uppercase font-mono">
-            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link />
+            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link="soft" />
           </TableCell>
         ),
       },

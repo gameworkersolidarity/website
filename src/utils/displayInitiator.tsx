@@ -9,13 +9,8 @@ export function DisplayInitiator({
   initiator: EventInitiator
   link?: 'soft' | boolean
 }) {
-  const [_, setInitiatorFilter] = useInitiatorFilter()
   if (link === 'soft') {
-    return (
-      <div onClick={() => setInitiatorFilter(initiator)} className="cursor-pointer">
-        <RenderedInitiator initiator={initiator} />
-      </div>
-    )
+    return <SoftLinkInitiator initiator={initiator} />
   } else if (link) {
     return (
       <Link href={getFilterPath({ [EventFilterKey.Initiator]: initiator })}>
@@ -25,6 +20,15 @@ export function DisplayInitiator({
   } else {
     return <RenderedInitiator initiator={initiator} />
   }
+}
+
+function SoftLinkInitiator({ initiator }: { initiator: EventInitiator }) {
+  const [_, setInitiatorFilter] = useInitiatorFilter()
+  return (
+    <div onClick={() => setInitiatorFilter(initiator)} className="cursor-pointer">
+      <RenderedInitiator initiator={initiator} />
+    </div>
+  )
 }
 
 function RenderedInitiator({ initiator }: { initiator: EventInitiator }) {
