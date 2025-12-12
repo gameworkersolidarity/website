@@ -26,6 +26,7 @@ import {
 import { useMediaQuery } from 'usehooks-ts'
 import { Button } from '@/components/ui/button'
 import { HamburgerIcon, MenuIcon } from 'lucide-react'
+import { navLinks } from '@/app/links'
 
 type NavigationItem =
   | {
@@ -38,29 +39,7 @@ type NavigationItem =
     }
 
 export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
-  const _navigation = [
-    ...navigation,
-    {
-      label: 'Campaigns',
-      url: '/campaigns',
-    },
-    {
-      label: 'Organise!',
-      url: '/start-organising',
-    },
-    {
-      label: 'Articles',
-      url: '/articles',
-    },
-    {
-      label: 'About',
-      url: '/about',
-    },
-    {
-      label: 'Data',
-      url: '/data',
-    },
-  ]
+  const _navigation = [...navigation, ...navLinks]
 
   const headerRef = useRef<HTMLDivElement>(null)
   const scrollY = useScrollPosition(60 /*fps*/)

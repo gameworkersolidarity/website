@@ -6,6 +6,7 @@ import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import '@/app/globals.css'
 import { ThemeProvider } from 'next-themes'
+import { navLinks } from '../links'
 
 export const metadata = {
   description:
@@ -21,7 +22,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const payload = await getPayload({ config: payloadConfig })
 
   let headerData: { navigation?: Array<{ label: string; url: string }> } | null = null
-  let footerData: { navigation?: Array<{ label: string; url: string }> } | null = null
+  // const footerData: { navigation?: Array<{ label: string; url: string }> } | null = null
 
   try {
     const result = await payload.findGlobal({
@@ -32,14 +33,20 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     console.error('Error fetching header:', error)
   }
 
-  try {
-    const result = await payload.findGlobal({
-      slug: 'footer',
-    })
-    footerData = result as { navigation?: Array<{ label: string; url: string }> }
-  } catch (error) {
-    console.error('Error fetching footer:', error)
-  }
+  // try {
+  //   const result = await payload.findGlobal({
+  //     slug: 'footer',
+  //   })
+  //   footerData = result as { navigation?: Array<{ label: string; url: string }> }
+  // } catch (error) {
+  //   console.error('Error fetching footer:', error)
+  // }
+
+  const footerNav = [
+    ...(headerData?.navigation || []),
+    ...(navLinks || []),
+    { label: 'Admin', url: '/admin' },
+  ]
 
   return (
     <html lang="en">
@@ -56,7 +63,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                     </div>
                   </main>
                   <div className="margin-top">
-                    <Footer navigation={footerData?.navigation || []} />
+                    <Footer navigation={footerNav} />
                   </div>
                 </div>
               }
@@ -64,7 +71,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
               <Header navigation={headerData?.navigation || []} />
               <main className="min-h-[75vh]">{children}</main>
               <div className="margin-top">
-                <Footer navigation={footerData?.navigation || []} />
+                <Footer navigation={footerNav} />
               </div>
             </Suspense>
           </NuqsAdapter>

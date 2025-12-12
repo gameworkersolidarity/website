@@ -1,3 +1,11 @@
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu'
 import Link from 'next/link'
 
 interface NavigationItem {
@@ -14,19 +22,19 @@ export function Footer({ navigation = [] }: FooterProps) {
     <footer className="mt-auto bg-gw-pink text-sm">
       <div className="content-wrapper py-5 md:py-6 space-y-4 flex flex-col md:flex-row justify-between items-start align-top">
         <div className="space-y-4 grow">
-          <ul className="list-none flex flex-row space-x-4">
-            {navigation.map((item, index) => (
-              <li key={index} className="nav-link">
-                {item.url.startsWith('http') ? (
-                  <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    {item.label}
-                  </a>
-                ) : (
-                  <Link href={item.url}>{item.label}</Link>
-                )}
-              </li>
-            ))}
-          </ul>
+          <NavigationMenu viewport={false} className="-ml-2">
+            <NavigationMenuList className="flex-wrap">
+              {navigation.map((item, index) => (
+                <NavigationMenuItem key={index} className="relative">
+                  {'url' in item && item.url ? (
+                    <NavigationMenuLink asChild>
+                      <Link href={item.url}>{item.label}</Link>
+                    </NavigationMenuLink>
+                  ) : null}
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
           <div className="md:flex space-y-4 md:space-y-0 md:space-x-5">
             <div>
               Site developed by{' '}
