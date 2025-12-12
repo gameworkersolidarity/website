@@ -138,7 +138,7 @@ export function EventsList({
               </div>
               <div className="flex flex-col gap-4">
                 {shownActions.map((action) => (
-                  <Link key={action.id} href={action.path!} as={action.path} shallow>
+                  <Link key={action.id} href={action.path!} shallow>
                     <div className="transition cursor-pointer group" id={action.slug}>
                       {fullDisplay ? (
                         <EventCard data={action} hoverable />
@@ -150,7 +150,7 @@ export function EventsList({
                 ))}
                 <div className={twMerge(hiddenActionsOpen ? 'flex flex-col gap-4' : 'hidden')}>
                   {hiddenActions.map((action) => (
-                    <Link key={action.id} href={action.path!} as={action.path} shallow>
+                    <Link key={action.id} href={action.path!} shallow>
                       <div className="transition cursor-pointer group" id={action.slug}>
                         {fullDisplay ? (
                           <EventCard data={action} hoverable />

@@ -20,6 +20,7 @@ import { CountryLabel } from './CountryLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { useMediaQuery } from 'usehooks-ts'
+import Link from 'next/link'
 
 export function EventTimeline({
   events,
@@ -160,7 +161,9 @@ export function Slideshow({
               size={20}
               onClick={() => setCurrentEventId(events[index - 1].id)}
             />
-            <EventCard data={event} />
+            <Link href={event.path || ''} shallow>
+              <EventCard data={event} />
+            </Link>
             <ArrowRight
               className={twMerge(
                 'w-20 cursor-pointer',
