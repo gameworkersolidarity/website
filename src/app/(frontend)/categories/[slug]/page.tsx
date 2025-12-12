@@ -19,9 +19,11 @@ export async function generateStaticParams() {
     pagination: false,
   })
 
-  return categoriesResult.docs.map((category) => ({
-    slug: getSlug('categories', category),
-  }))
+  return categoriesResult.docs
+    .map((category) => ({
+      slug: getSlug('categories', category),
+    }))
+    .filter((category) => !!category.slug)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

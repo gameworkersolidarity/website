@@ -20,9 +20,11 @@ export async function generateStaticParams() {
     pagination: false,
   })
 
-  return groupsResult.docs.map((group) => ({
-    slug: group.slug,
-  }))
+  return groupsResult.docs
+    .map((group) => ({
+      slug: group.slug,
+    }))
+    .filter((group) => !!group.slug)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

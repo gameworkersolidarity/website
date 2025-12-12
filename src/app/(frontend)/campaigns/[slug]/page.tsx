@@ -14,9 +14,11 @@ export async function generateStaticParams() {
     pagination: false,
   })
 
-  return pagesResult.docs.map((page) => ({
-    slug: getSlug('campaigns', page),
-  }))
+  return pagesResult.docs
+    .map((page) => ({
+      slug: getSlug('campaigns', page),
+    }))
+    .filter((page) => !!page.slug)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

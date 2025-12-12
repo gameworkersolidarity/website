@@ -19,9 +19,11 @@ export async function generateStaticParams() {
     pagination: false,
   })
 
-  return countriesResult.docs.map((country) => ({
-    slug: country.slug,
-  }))
+  return countriesResult.docs
+    .map((country) => ({
+      slug: country.slug,
+    }))
+    .filter((country) => !!country.slug)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

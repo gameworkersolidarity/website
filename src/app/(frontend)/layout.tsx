@@ -22,7 +22,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const payload = await getPayload({ config: payloadConfig })
 
   let headerData: { navigation?: Array<{ label: string; url: string }> } | null = null
-  const footerData: { navigation?: Array<{ label: string; url: string }> } | null = null
+  let footerData: { navigation?: Array<{ label: string; url: string }> } | null = null
 
   try {
     const result = await payload.findGlobal({

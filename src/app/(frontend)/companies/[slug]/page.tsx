@@ -21,9 +21,11 @@ export async function generateStaticParams() {
     pagination: false,
   })
 
-  return companiesResult.docs.map((company) => ({
-    slug: getSlug('companies', company),
-  }))
+  return companiesResult.docs
+    .map((company) => ({
+      slug: getSlug('companies', company),
+    }))
+    .filter((company) => !!company.slug)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
