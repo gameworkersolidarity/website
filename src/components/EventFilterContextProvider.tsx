@@ -33,9 +33,9 @@ export const EventFilterContext = createContext<{
   filteredCampaignSlug?: string[] | null
   filteredCountries?: Country[] | null
   filteredCategories?: Category[] | null
-  filteredCompanies?: (Company & { descendants: ArchiveBreadcrumb[] })[] | null
+  filteredCompanies?: Company[] | null
   filteredCampaigns?: Campaign[] | null
-  filteredOrganisingGroups?: (OrganisingGroup & { descendants: ArchiveBreadcrumb[] })[] | null
+  filteredOrganisingGroups?: OrganisingGroup[] | null
   filteredInitiator?: EventInitiator | null
   filteredYear?: number[] | null
   availableYears: number[]
@@ -125,55 +125,17 @@ export function EventFilterContextProvider({
     return campaigns?.filter((campaign) => filteredCampaignSlug?.includes(campaign.slug)) || []
   }, [campaigns, filteredCampaignSlug])
 
-  const filteredCompanies = useSWR(
-    [`/filteredCompanies`, ...companies?.map((company) => company.slug)],
-    async () => {
-      if (!filteredCompanySlug?.length) {
-        return []
-      }
-      const cos = companies?.filter((company) => filteredCompanySlug?.includes(company.slug)) || []
-      return await Promise.all(
-        cos.map(async (co) => {
-          const descendants = await getDescendants('companies', co.slug || '', companies)
-          console.log('companies descendants', descendants)
-          return {
-            ...co,
-            descendants,
-          }
-        }),
-      )
-    },
-  )
+  const filteredCompanies = useMemo(() => {
+    return companies?.filter((company) => filteredCompanySlug?.includes(company.slug)) || []
+  }, [companies, filteredCompanySlug])
 
-  const filteredOrganisingGroups = useSWR(
-    [
-      `/filteredOrganisingGroups`,
-      ...organisingGroups?.map((organisingGroup) => organisingGroup.slug),
-    ],
-    async () => {
-      if (!filteredOrganisingGroupSlug?.length) {
-        return []
-      }
-      const orgs =
-        organisingGroups?.filter((organisingGroup) =>
-          filteredOrganisingGroupSlug?.includes(organisingGroup.slug),
-        ) || []
-      return await Promise.all(
-        orgs.map(async (org) => {
-          const descendants = await getDescendants(
-            'organisingGroups',
-            org.slug || '',
-            organisingGroups,
-          )
-          console.log('organising groups descendants', descendants)
-          return {
-            ...org,
-            descendants,
-          }
-        }),
-      )
-    },
-  )
+  const filteredOrganisingGroups = useMemo(() => {
+    return (
+      organisingGroups?.filter((organisingGroup) =>
+        filteredOrganisingGroupSlug?.includes(organisingGroup.slug),
+      ) || []
+    )
+  }, [organisingGroups, filteredOrganisingGroupSlug])
 
   const availableYears = useMemo(() => {
     if (!events?.length) {
@@ -273,8 +235,8 @@ export function EventFilterContextProvider({
         filteredInitiator,
         filteredCountries,
         filteredCategories,
-        filteredCompanies: filteredCompanies.data || null,
-        filteredOrganisingGroups: filteredOrganisingGroups.data || null,
+        filteredCompanies,
+        filteredOrganisingGroups,
         filteredCampaigns,
         filteredYear: filteredYear || null,
         availableYears,
