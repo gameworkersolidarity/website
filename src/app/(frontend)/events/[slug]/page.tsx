@@ -49,6 +49,8 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     nextInOrganisingGroup: {},
   }
 
+  const eventIdsIncluded: string[] = [event.id]
+
   for (const country of event?.countries ?? []) {
     if (typeof country === 'string') continue
     const prevEvent = await getNearestEvent(
@@ -56,11 +58,13 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { countries: { equals: country.id } },
       'previous',
     )
-    if (prevEvent && prevEvent.id !== event.id) {
+    if (prevEvent && prevEvent.id !== event.id && !eventIdsIncluded.includes(prevEvent.id)) {
+      eventIdsIncluded.push(prevEvent.id)
       eventNav.previousInCountry![getSlug('countries', country)] = prevEvent
     }
     const nextEvent = await getNearestEvent(event, { countries: { equals: country.id } }, 'next')
-    if (nextEvent && nextEvent.id !== event.id) {
+    if (nextEvent && nextEvent.id !== event.id && !eventIdsIncluded.includes(nextEvent.id)) {
+      eventIdsIncluded.push(nextEvent.id)
       eventNav.nextInCountry![getSlug('countries', country)] = nextEvent
     }
     const sameDayEvent = await getNearestEvent(
@@ -68,7 +72,12 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { countries: { equals: country.id } },
       'sameDay',
     )
-    if (sameDayEvent && sameDayEvent.id !== event.id) {
+    if (
+      sameDayEvent &&
+      sameDayEvent.id !== event.id &&
+      !eventIdsIncluded.includes(sameDayEvent.id)
+    ) {
+      eventIdsIncluded.push(sameDayEvent.id)
       eventNav.sameDayInCountry![getSlug('countries', country)] = sameDayEvent
     }
   }
@@ -80,11 +89,13 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { categories: { in: [category.id] } },
       'previous',
     )
-    if (prevEvent && prevEvent.id !== event.id) {
+    if (prevEvent && prevEvent.id !== event.id && !eventIdsIncluded.includes(prevEvent.id)) {
+      eventIdsIncluded.push(prevEvent.id)
       eventNav.previousInCategory![getSlug('categories', category)] = prevEvent
     }
     const nextEvent = await getNearestEvent(event, { categories: { equals: category.id } }, 'next')
-    if (nextEvent && nextEvent.id !== event.id) {
+    if (nextEvent && nextEvent.id !== event.id && !eventIdsIncluded.includes(nextEvent.id)) {
+      eventIdsIncluded.push(nextEvent.id)
       eventNav.nextInCategory![getSlug('categories', category)] = nextEvent
     }
     const sameDayEvent = await getNearestEvent(
@@ -92,7 +103,12 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { categories: { equals: category.id } },
       'sameDay',
     )
-    if (sameDayEvent && sameDayEvent.id !== event.id) {
+    if (
+      sameDayEvent &&
+      sameDayEvent.id !== event.id &&
+      !eventIdsIncluded.includes(sameDayEvent.id)
+    ) {
+      eventIdsIncluded.push(sameDayEvent.id)
       eventNav.sameDayInCategory![getSlug('categories', category)] = sameDayEvent
     }
   }
@@ -104,11 +120,13 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { companies: { equals: company.id } },
       'previous',
     )
-    if (prevEvent && prevEvent.id !== event.id) {
+    if (prevEvent && prevEvent.id !== event.id && !eventIdsIncluded.includes(prevEvent.id)) {
+      eventIdsIncluded.push(prevEvent.id)
       eventNav.previousInCompany![getSlug('companies', company)] = prevEvent
     }
     const nextEvent = await getNearestEvent(event, { companies: { equals: company.id } }, 'next')
-    if (nextEvent && nextEvent.id !== event.id) {
+    if (nextEvent && nextEvent.id !== event.id && !eventIdsIncluded.includes(nextEvent.id)) {
+      eventIdsIncluded.push(nextEvent.id)
       eventNav.nextInCompany![getSlug('companies', company)] = nextEvent
     }
     const sameDayEvent = await getNearestEvent(
@@ -116,7 +134,12 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { companies: { equals: company.id } },
       'sameDay',
     )
-    if (sameDayEvent && sameDayEvent.id !== event.id) {
+    if (
+      sameDayEvent &&
+      sameDayEvent.id !== event.id &&
+      !eventIdsIncluded.includes(sameDayEvent.id)
+    ) {
+      eventIdsIncluded.push(sameDayEvent.id)
       eventNav.sameDayInCompany![getSlug('companies', company)] = sameDayEvent
     }
   }
@@ -128,7 +151,8 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { organisingGroups: { equals: organisingGroup.id } },
       'previous',
     )
-    if (prevEvent && prevEvent.id !== event.id) {
+    if (prevEvent && prevEvent.id !== event.id && !eventIdsIncluded.includes(prevEvent.id)) {
+      eventIdsIncluded.push(prevEvent.id)
       eventNav.previousInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] = prevEvent
     }
     const nextEvent = await getNearestEvent(
@@ -136,7 +160,8 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { organisingGroups: { equals: organisingGroup.id } },
       'next',
     )
-    if (nextEvent && nextEvent.id !== event.id) {
+    if (nextEvent && nextEvent.id !== event.id && !eventIdsIncluded.includes(nextEvent.id)) {
+      eventIdsIncluded.push(nextEvent.id)
       eventNav.nextInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] = nextEvent
     }
     const sameDayEvent = await getNearestEvent(
@@ -144,7 +169,12 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { organisingGroups: { equals: organisingGroup.id } },
       'sameDay',
     )
-    if (sameDayEvent && sameDayEvent.id !== event.id) {
+    if (
+      sameDayEvent &&
+      sameDayEvent.id !== event.id &&
+      !eventIdsIncluded.includes(sameDayEvent.id)
+    ) {
+      eventIdsIncluded.push(sameDayEvent.id)
       eventNav.sameDayInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] =
         sameDayEvent
     }
@@ -157,11 +187,13 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { campaigns: { equals: campaign.id } },
       'previous',
     )
-    if (prevEvent && prevEvent.id !== event.id) {
+    if (prevEvent && prevEvent.id !== event.id && !eventIdsIncluded.includes(prevEvent.id)) {
+      eventIdsIncluded.push(prevEvent.id)
       eventNav.previousInCampaign![getSlug('campaigns', campaign)] = prevEvent
     }
     const nextEvent = await getNearestEvent(event, { campaigns: { equals: campaign.id } }, 'next')
-    if (nextEvent && nextEvent.id !== event.id) {
+    if (nextEvent && nextEvent.id !== event.id && !eventIdsIncluded.includes(nextEvent.id)) {
+      eventIdsIncluded.push(nextEvent.id)
       eventNav.nextInCampaign![getSlug('campaigns', campaign)] = nextEvent
     }
     const sameDayEvent = await getNearestEvent(
@@ -169,7 +201,12 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       { campaigns: { equals: campaign.id } },
       'sameDay',
     )
-    if (sameDayEvent && sameDayEvent.id !== event.id) {
+    if (
+      sameDayEvent &&
+      sameDayEvent.id !== event.id &&
+      !eventIdsIncluded.includes(sameDayEvent.id)
+    ) {
+      eventIdsIncluded.push(sameDayEvent.id)
       eventNav.sameDayInCampaign![getSlug('campaigns', campaign)] = sameDayEvent
     }
   }
