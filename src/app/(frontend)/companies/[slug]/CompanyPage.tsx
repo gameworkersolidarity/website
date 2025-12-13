@@ -16,6 +16,7 @@ import { Building } from 'lucide-react'
 import { CountryLabel } from '@/components/CountryLabel'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
+import { EventInitiatorFilter } from '@/collections/enums'
 
 export function CompanyPage({
   initialCompany,
@@ -114,6 +115,7 @@ export function CompanyPage({
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredCompanySlug: getSlug('companies', page),
+          overrideFilteredInitiator: EventInitiatorFilter.ALL,
         }}
         events={events}
         primaryColor={primaryColor}

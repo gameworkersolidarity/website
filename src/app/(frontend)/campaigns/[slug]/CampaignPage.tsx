@@ -10,6 +10,7 @@ import { getSlug } from '../../../../utils/payloadPath'
 import Image from 'next/image'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
+import { EventInitiatorFilter } from '@/collections/enums'
 
 export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign }) {
   if (!initialCampaign) notFound()
@@ -55,6 +56,9 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
 
       <EventExplorer
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
+        eventFilterContextProps={{
+          overrideFilteredInitiator: EventInitiatorFilter.ALL,
+        }}
         events={events}
         linkStyle="hard"
         timelineBy="categories"

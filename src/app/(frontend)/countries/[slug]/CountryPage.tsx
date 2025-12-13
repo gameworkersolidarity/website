@@ -13,6 +13,7 @@ import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
+import { EventInitiatorFilter } from '@/collections/enums'
 
 export function CountryPage({
   initialCountry,
@@ -95,6 +96,7 @@ export function CountryPage({
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredCountryISOA2: page.isoA2,
+          overrideFilteredInitiator: EventInitiatorFilter.ALL,
         }}
         events={events}
         primaryColor={primaryColor}
