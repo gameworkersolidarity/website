@@ -1,17 +1,13 @@
 import useSWR from 'swr'
 import { FrequencyChart } from './FrequencyChart'
 import { payloadClient } from '@/utils/payload'
-import { Category, Event } from '@/payload-types'
+import { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { EventFilterContextProvider } from './EventFilterContextProvider'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { getCSSVariable } from '@/utils/css'
 import { useCallback, useMemo } from 'react'
-import * as Plot from '@observablehq/plot'
-import { formatDate } from 'date-fns'
 import { EventInitiator } from '@/collections/enums'
-import { useRouter } from 'next/navigation'
-import { getFilterPath } from '@/utils/global-state'
-import { EventFilter } from '../app/(frontend)/components/EventFilter'
+import { getRelatedObjects } from '@/utils/getRelatedObjects'
 
 export const EventHistogramContext = ({ event }: { event: Event }) => {
   const events = useSWR('all-events', () =>
@@ -47,7 +43,10 @@ export const EventHistogramContext = ({ event }: { event: Event }) => {
     [eventType],
   )
 
-  const router = useRouter()
+  const relatedObjects = useMemo(
+    () => getRelatedObjects(events.data?.docs || []),
+    [events.data?.docs],
+  )
 
   if (events.isLoading) {
     return <div>Loading...</div>
@@ -57,7 +56,14 @@ export const EventHistogramContext = ({ event }: { event: Event }) => {
     <div className="rounded-xl">
       <h2 className="text-xl font-bold font-identity mb-2">{eventType}</h2>
       <div ref={elementRef} className="h-[200px] w-full">
-        <EventFilterContextProvider events={events.data?.docs || []}>
+        <EventFilterContextProvider
+          events={events.data?.docs || []}
+          countries={relatedObjects.countries}
+          categories={relatedObjects.categories}
+          companies={relatedObjects.companies}
+          organisingGroups={relatedObjects.organisingGroups}
+          campaigns={relatedObjects.campaigns}
+        >
           <FrequencyChart
             size={size}
             color={

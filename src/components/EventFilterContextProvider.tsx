@@ -15,12 +15,17 @@ import { payloadClient } from '@/utils/payload'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { getDescendants } from '@/utils/payloadTree.client'
 import { getYear } from 'date-fns'
-import { noop } from 'lodash'
+import { noop, union } from 'lodash'
 import { createContext, useContext, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
+  countries: Country[]
+  categories: Category[]
+  companies: Company[]
+  organisingGroups: OrganisingGroup[]
+  campaigns: Campaign[]
   filteredCountryISOA2?: string[] | null
   filteredCategorySlug?: string[] | null
   filteredCompanySlug?: string[] | null
@@ -55,6 +60,11 @@ export const EventFilterContext = createContext<{
   setInitiatorFilter: noop,
   setYearFilter: noop,
   setSelectedPopupIds: noop,
+  countries: [],
+  categories: [],
+  companies: [],
+  organisingGroups: [],
+  campaigns: [],
 })
 
 export type EventFilterContextProviderProps = {
@@ -67,11 +77,21 @@ export type EventFilterContextProviderProps = {
   overrideFilteredCampaignSlug?: string | string[] | null
   overrideFilteredInitiator?: EventInitiator | null
   overrideFilteredYear?: string | number | string[] | number[] | null
+  countries: Country[]
+  categories: Category[]
+  companies: Company[]
+  organisingGroups: OrganisingGroup[]
+  campaigns: Campaign[]
 }
 
 export function EventFilterContextProvider({
   events,
   children,
+  countries,
+  categories,
+  companies,
+  organisingGroups,
+  campaigns,
   overrideFilteredCountryISOA2,
   overrideFilteredCategorySlug,
   overrideFilteredCompanySlug,
@@ -93,115 +113,65 @@ export function EventFilterContextProvider({
   const [filteredInitiator, setInitiatorFilter] = useInitiatorFilter(overrideFilteredInitiator)
   const [filteredYear, setYearFilter] = useYearFilter(overrideFilteredYear)
 
-  const filteredCategories = useSWR(
-    `/api/categories/${filteredCategorySlug?.join(',') || ''}`,
-    async () => {
-      if (!filteredCategorySlug || filteredCategorySlug.length === 0) {
-        return null
-      }
+  const filteredCategories = useMemo(() => {
+    return categories?.filter((category) => filteredCategorySlug?.includes(category.slug)) || []
+  }, [categories, filteredCategorySlug])
 
-      const results = await Promise.all(
-        filteredCategorySlug.map((slug) =>
-          payloadClient.find({
-            collection: 'categories',
-            where: { slug: { equals: slug } },
-          }),
-        ),
-      )
+  const filteredCountries = useMemo(() => {
+    return countries?.filter((country) => filteredCountryISOA2?.includes(country.isoA2)) || []
+  }, [countries, filteredCountryISOA2])
 
-      return results.flatMap((result) => result.docs || [])
-    },
-  )
+  const filteredCampaigns = useMemo(() => {
+    return campaigns?.filter((campaign) => filteredCampaignSlug?.includes(campaign.slug)) || []
+  }, [campaigns, filteredCampaignSlug])
 
   const filteredCompanies = useSWR(
-    `/api/companies/${filteredCompanySlug?.join(',') || ''}`,
+    [`/filteredCompanies`, ...companies?.map((company) => company.slug)],
     async () => {
-      if (!filteredCompanySlug || filteredCompanySlug.length === 0) {
-        return null
+      if (!filteredCompanySlug?.length) {
+        return []
       }
-
-      const results = await Promise.all(
-        filteredCompanySlug.map(async (slug) => {
-          const company = await payloadClient.find({
-            collection: 'companies',
-            where: { slug: { equals: slug } },
-          })
-
-          const descendants = await getDescendants('companies', company.docs?.[0]?.slug || '')
-
+      const cos = companies?.filter((company) => filteredCompanySlug?.includes(company.slug)) || []
+      return await Promise.all(
+        cos.map(async (co) => {
+          const descendants = await getDescendants('companies', co.slug || '', companies)
+          console.log('companies descendants', descendants)
           return {
-            ...company.docs?.[0],
+            ...co,
             descendants,
           }
         }),
       )
-
-      return results.filter(Boolean)
-    },
-  )
-
-  const filteredCountries = useSWR(
-    `/api/countries/${filteredCountryISOA2?.join(',') || ''}`,
-    async () => {
-      if (!filteredCountryISOA2 || filteredCountryISOA2.length === 0) {
-        return null
-      }
-      const results = await Promise.all(
-        filteredCountryISOA2.map((isoA2) =>
-          payloadClient.find({
-            collection: 'countries',
-            where: { isoA2: { equals: isoA2 } },
-          }),
-        ),
-      )
-
-      return results.flatMap((result) => result.docs || [])
-    },
-  )
-
-  const filteredCampaigns = useSWR(
-    `/api/campaigns/${filteredCampaignSlug?.join(',') || ''}`,
-    async () => {
-      if (!filteredCampaignSlug || filteredCampaignSlug.length === 0) {
-        return null
-      }
-      const results = await Promise.all(
-        filteredCampaignSlug.map((slug) =>
-          payloadClient.find({
-            collection: 'campaigns',
-            where: { slug: { equals: slug } },
-          }),
-        ),
-      )
-
-      return results.flatMap((result) => result.docs || [])
     },
   )
 
   const filteredOrganisingGroups = useSWR(
-    `/api/organising-groups/${filteredOrganisingGroupSlug?.join(',') || ''}`,
+    [
+      `/filteredOrganisingGroups`,
+      ...organisingGroups?.map((organisingGroup) => organisingGroup.slug),
+    ],
     async () => {
-      if (!filteredOrganisingGroupSlug || filteredOrganisingGroupSlug.length === 0) {
-        return null
+      if (!filteredOrganisingGroupSlug?.length) {
+        return []
       }
-
-      const results = await Promise.all(
-        filteredOrganisingGroupSlug.map(async (slug) => {
-          const union = await payloadClient.find({
-            collection: 'organisingGroups',
-            where: { slug: { equals: slug } },
-          })
-
-          const descendants = await getDescendants('organisingGroups', union.docs?.[0]?.slug || '')
-
+      const orgs =
+        organisingGroups?.filter((organisingGroup) =>
+          filteredOrganisingGroupSlug?.includes(organisingGroup.slug),
+        ) || []
+      return await Promise.all(
+        orgs.map(async (org) => {
+          const descendants = await getDescendants(
+            'organisingGroups',
+            org.slug || '',
+            organisingGroups,
+          )
+          console.log('organising groups descendants', descendants)
           return {
-            ...union.docs?.[0],
+            ...org,
             descendants,
           }
         }),
       )
-
-      return results.filter(Boolean)
     },
   )
 
@@ -301,11 +271,11 @@ export function EventFilterContextProvider({
         filteredOrganisingGroupSlug,
         filteredCampaignSlug,
         filteredInitiator,
-        filteredCountries: filteredCountries.data || null,
-        filteredCategories: filteredCategories.data || null,
+        filteredCountries,
+        filteredCategories,
         filteredCompanies: filteredCompanies.data || null,
         filteredOrganisingGroups: filteredOrganisingGroups.data || null,
-        filteredCampaigns: filteredCampaigns.data || null,
+        filteredCampaigns,
         filteredYear: filteredYear || null,
         availableYears,
         setCountryISOA2Filter,
@@ -317,6 +287,11 @@ export function EventFilterContextProvider({
         setYearFilter,
         setSelectedPopupIds,
         selectedPopupIds,
+        countries,
+        categories,
+        companies,
+        organisingGroups,
+        campaigns,
       }}
     >
       {children}

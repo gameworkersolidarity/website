@@ -110,6 +110,7 @@ export function CompanyPage({
       </div>
 
       <EventExplorer
+        showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredCompanySlug: getSlug('companies', page),
@@ -118,6 +119,12 @@ export function CompanyPage({
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="categories"
+        eventFilterProps={{
+          companies: false,
+          years: false,
+          campaigns: false,
+          initiators: false,
+        }}
       />
     </div>
   )

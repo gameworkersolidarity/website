@@ -8,6 +8,7 @@ import { ZoomLevel } from '@/utils/global-state'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import pluralize from 'pluralize'
 import { EventTimeline, TimelineLabelProperty } from './EventsTimeline'
+import { EventFilter, EventFilterProps } from '@/app/(frontend)/components/EventFilter'
 
 export function ZoomlevelSelector({
   value,
@@ -45,27 +46,39 @@ export function EventList({
   timelineBy,
   zoomLevel,
   setZoomLevel,
+  showFilter,
+  eventFilterProps,
 }: {
   linkStyle?: 'soft' | 'hard'
   timelineBy?: TimelineLabelProperty
   zoomLevel: ZoomLevel
   setZoomLevel: (value: ZoomLevel) => void
+  showFilter?: boolean
+  hideYear?: boolean
+  eventFilterProps?: Partial<EventFilterProps>
 }) {
   const { filteredEvents: events } = useEventFilterContext()
 
   return (
     <div className="flex flex-col gap-2 @container">
-      <header className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 mt-1 sticky top-6 bg-background pt-3 pb-2 z-10">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-4xl font-bold font-identity">
-            {pluralize('event', events.length, true)}
-          </h2>
+      <header className="mt-1 sticky top-6 bg-background pt-3 z-40">
+        <div className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 pb-2">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-4xl font-bold font-identity">
+              {pluralize('event', events.length, true)}
+            </h2>
+          </div>
+          <ZoomlevelSelector
+            value={zoomLevel}
+            onChange={setZoomLevel}
+            includeTimeline={!!timelineBy}
+          />
         </div>
-        <ZoomlevelSelector
-          value={zoomLevel}
-          onChange={setZoomLevel}
-          includeTimeline={!!timelineBy}
-        />
+        {showFilter && (
+          <div className="px-4 py-3 border-t border-b border-gray-200">
+            <EventFilter {...(eventFilterProps || {})} />
+          </div>
+        )}
       </header>
       {zoomLevel === ZoomLevel.Compact ? (
         <div>

@@ -479,7 +479,7 @@ export function Timeline({
         width={size.width}
         height={divHeight}
         style={{ overflow: 'visible' }}
-        className="z-50 relative"
+        className="z-30 relative"
       >
         <Group left={margin.left} top={margin.top}>
           {/* Histogram of events */}

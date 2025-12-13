@@ -161,6 +161,7 @@ export function OrganisingGroupPage({
       </div>
 
       <EventExplorer
+        showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredOrganisingGroupSlug: page.slug,
@@ -170,6 +171,12 @@ export function OrganisingGroupPage({
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="categories"
+        eventFilterProps={{
+          organisingGroups: false,
+          years: false,
+          campaigns: false,
+          initiators: false,
+        }}
       />
     </div>
   )

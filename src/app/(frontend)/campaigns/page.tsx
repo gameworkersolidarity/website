@@ -8,12 +8,11 @@ import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
 
 export const metadata = {
-  title: 'Start Organising - Game Workers Solidarity Platform',
-  description:
-    'Find organising groups and unions by country to get started with worker organising.',
+  title: 'Worker organising campaigns — Game Workers Solidarity Platform',
+  description: 'Stories about worker organising in the video game industry.',
 }
 
-export default async function StartOrganisingPage() {
+export default async function CampaignsPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
   const isDraftMode = (await draftMode()).isEnabled
@@ -38,7 +37,6 @@ export default async function StartOrganisingPage() {
     },
     depth: 1, // Include countries
     pagination: false,
-    sort: 'name',
     draft: isDraftMode,
   })
 
@@ -73,13 +71,6 @@ export default async function StartOrganisingPage() {
                 ? campaign.featuredImage.url
                 : null
 
-            if (
-              !campaign.featuredImage ||
-              typeof campaign.featuredImage !== 'object' ||
-              !campaign.featuredImage.url
-            )
-              return null
-
             return (
               <Link
                 key={campaign.id}
@@ -98,16 +89,18 @@ export default async function StartOrganisingPage() {
                     </div>
                   )}
                 </header>
-                {imageUrl && (
-                  <Image
-                    src={imageUrl}
-                    alt={campaign.name || ''}
-                    width={campaign.featuredImage.width!}
-                    height={campaign.featuredImage.height!}
-                    objectFit="cover"
-                    className="w-full h-48 object-cover overflow-hidden"
-                  />
-                )}
+                {imageUrl &&
+                  typeof campaign.featuredImage === 'object' &&
+                  campaign.featuredImage?.url && (
+                    <Image
+                      src={imageUrl}
+                      alt={campaign.name || ''}
+                      width={campaign.featuredImage.width!}
+                      height={campaign.featuredImage.height!}
+                      objectFit="cover"
+                      className="w-full h-48 object-cover overflow-hidden"
+                    />
+                  )}
                 {campaign.description && (
                   <LexicalRenderer content={campaign.description} className="p-4" />
                 )}

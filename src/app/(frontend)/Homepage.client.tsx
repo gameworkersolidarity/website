@@ -27,20 +27,15 @@ export function HomepageClient({
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.Preview)
 
   return (
-    <EventFilterContextProvider events={events}>
+    <EventFilterContextProvider
+      events={events}
+      countries={countries}
+      categories={categories}
+      companies={companies}
+      organisingGroups={organisingGroups}
+      campaigns={campaigns}
+    >
       <div className="homepage">
-        <div className="content-wrapper py-4 bg-white border-b border-gray-200">
-          <EventFilter
-            countries={countries}
-            categories={categories}
-            companies={companies}
-            organisingGroups={organisingGroups}
-            campaigns={campaigns}
-            // searchQuery={searchQuery}
-            // setSearchQuery={setSearchQuery}
-          />
-        </div>
-
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
@@ -49,7 +44,16 @@ export function HomepageClient({
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={60}>
-            <EventList linkStyle="soft" zoomLevel={zoomLevel} setZoomLevel={setZoomLevel} />
+            <EventList
+              linkStyle="soft"
+              zoomLevel={zoomLevel}
+              setZoomLevel={setZoomLevel}
+              showFilter
+              eventFilterProps={{
+                years: false,
+                campaigns: false,
+              }}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

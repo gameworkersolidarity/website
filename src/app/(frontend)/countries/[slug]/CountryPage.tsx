@@ -91,6 +91,7 @@ export function CountryPage({
       </article>
 
       <EventExplorer
+        showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredCountryISOA2: page.isoA2,
@@ -99,6 +100,12 @@ export function CountryPage({
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="categories"
+        eventFilterProps={{
+          countries: false,
+          years: false,
+          campaigns: false,
+          initiators: false,
+        }}
       />
     </div>
   )

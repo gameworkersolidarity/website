@@ -48,7 +48,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
 
   return (
     <>
-      <header className="pt-3 bg-gw-pink space-y-2" ref={headerRef} id="static-header">
+      <header className="pt-3 bg-gw-pink space-y-2 z-40" ref={headerRef} id="static-header">
         <div className="content-wrapper">
           <div className="sm:flex sm:space-x-4 space-y-2 sm:space-y-0 items-center">
             <div className="leading-none shrink-0">

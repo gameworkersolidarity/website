@@ -1,5 +1,5 @@
 import { ZoomLevel } from '@/utils/global-state'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useMemo } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import {
   EventFilterContextProvider,
@@ -8,11 +8,15 @@ import {
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventStats } from '@/components/EventStats'
 import { EventList } from '@/components/EventList'
-import { Event } from '@/payload-types'
+import { Campaign, Company, Country, OrganisingGroup, Category, Event } from '@/payload-types'
 import { TimelineLabelProperty } from '@/components/EventsTimeline'
+import { getRelatedObjects } from '@/utils/getRelatedObjects'
+import { EventFilterProps } from './EventFilter'
 
 export function EventExplorer({
   eventFilterContextProps,
+  eventFilterProps,
+  showFilter,
   events,
   primaryColor,
   linkStyle,
@@ -20,6 +24,8 @@ export function EventExplorer({
   overrideDefaultZoomLevel,
 }: {
   eventFilterContextProps?: Partial<EventFilterContextProviderProps>
+  eventFilterProps?: Partial<EventFilterProps>
+  showFilter?: boolean
   events: Event[]
   primaryColor?: string
   linkStyle: 'soft' | 'hard'
@@ -40,8 +46,18 @@ export function EventExplorer({
     }
   }, [collapsibleRef, zoomLevel])
 
+  const relatedObjects = useMemo(() => getRelatedObjects(events), [events])
+
   return (
-    <EventFilterContextProvider events={events} {...(eventFilterContextProps || {})}>
+    <EventFilterContextProvider
+      events={events}
+      countries={relatedObjects.countries}
+      categories={relatedObjects.categories}
+      companies={relatedObjects.companies}
+      organisingGroups={relatedObjects.organisingGroups}
+      campaigns={relatedObjects.campaigns}
+      {...(eventFilterContextProps || {})}
+    >
       <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
         <ResizablePanel
           defaultSize={40}
@@ -60,6 +76,8 @@ export function EventExplorer({
             timelineBy={timelineBy}
             zoomLevel={zoomLevel}
             setZoomLevel={setZoomLevel}
+            showFilter={showFilter}
+            eventFilterProps={eventFilterProps}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

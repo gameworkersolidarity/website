@@ -62,6 +62,7 @@ export function CategoryPage({
       </article>
 
       <EventExplorer
+        showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredCategorySlug: getSlug('categories', page),
@@ -74,6 +75,12 @@ export function CategoryPage({
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="countries"
+        eventFilterProps={{
+          categories: false,
+          years: false,
+          campaigns: false,
+          initiators: false,
+        }}
       />
     </div>
   )

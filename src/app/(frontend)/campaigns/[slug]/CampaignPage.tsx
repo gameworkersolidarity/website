@@ -58,6 +58,11 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
         events={events}
         linkStyle="hard"
         timelineBy="categories"
+        eventFilterProps={{
+          campaigns: false,
+          years: false,
+          initiators: false,
+        }}
       />
     </div>
   )
