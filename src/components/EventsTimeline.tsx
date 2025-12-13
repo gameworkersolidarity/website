@@ -30,30 +30,38 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { useMediaQuery } from 'usehooks-ts'
 import Link from 'next/link'
-import { groupBy } from 'lodash'
-import * as Plot from '@observablehq/plot'
-import { getDateInterval } from '@/utils/dates'
+import { ZoomlevelSelector } from './EventList'
+import { useZoomLevel } from '@/utils/global-state'
+import pluralize from 'pluralize'
 
 export function EventTimeline({
   events,
   labelProperty,
+  allowToggleZoomLevel = false,
 }: {
   events: Event[]
   labelProperty?: LabelProperty
+  allowToggleZoomLevel?: boolean
 }) {
   const sortedEvents = useMemo(
     () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
     [events],
   )
   const [currentEventId, setCurrentEventId] = useState<string | null>(sortedEvents[0]?.id || null)
+  const [zoomLevel, setZoomLevel] = useZoomLevel()
 
   if (!events?.length || events.length < 3) return null
 
   return (
     <div>
-      <div className="py-4 px-4 sm:px-5 lg:px-6 xl:px-8 bg-white">
-        <h2 className="text-2xl font-bold mb-4 font-identity">Timeline</h2>
-        <div className="px-4">
+      <div className="py-4">
+        <header className="pr-4 flex flex-row justify-between items-center">
+          <h2 className="text-4xl font-bold font-identity pl-4 md:pl-6 lg:pl-6 xl:pl-8">
+            {pluralize('event', events.length, true)}
+          </h2>
+          {allowToggleZoomLevel && <ZoomlevelSelector value={zoomLevel} onChange={setZoomLevel} />}
+        </header>
+        <div className="px-6 xl:px-8 mt-4">
           <Timeline
             events={events}
             currentEventId={currentEventId}
@@ -62,7 +70,7 @@ export function EventTimeline({
           />
         </div>
       </div>
-      <div className="my-4">
+      <div>
         <Slideshow
           events={events}
           currentEventId={currentEventId}
@@ -154,9 +162,9 @@ export function Slideshow({
       <div
         ref={scrollContainerRef}
         onScrollEndCapture={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth items-start"
+        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth items-start py-4"
       >
-        {sortedEvents.map((event, index) => (
+        {sortedEvents.map((event, index, list) => (
           <div
             key={event.id}
             ref={(el) => {
@@ -171,7 +179,7 @@ export function Slideshow({
             <ArrowLeft
               className={twMerge('w-20 cursor-pointer', index > 0 ? 'block' : 'invisible')}
               size={20}
-              onClick={() => setCurrentEventId(events[index - 1].id)}
+              onClick={() => setCurrentEventId(list[index - 1].id)}
             />
             <Link href={event.path || ''} shallow>
               <EventCard data={event} />
@@ -182,7 +190,7 @@ export function Slideshow({
                 index < events.length - 1 ? 'block' : 'invisible',
               )}
               size={20}
-              onClick={() => setCurrentEventId(events[index + 1].id)}
+              onClick={() => setCurrentEventId(list[index + 1].id)}
             />
           </div>
         ))}

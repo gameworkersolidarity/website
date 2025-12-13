@@ -9,6 +9,7 @@ import { parseAsArrayOf, parseAsString, parseAsStringEnum, useQueryState } from 
 import qs from 'query-string'
 
 export enum ZoomLevel {
+  Timeline = 'timeline',
   Compact = 'compact',
   Preview = 'preview',
   Detailed = 'detailed',

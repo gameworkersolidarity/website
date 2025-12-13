@@ -19,6 +19,7 @@ import { EventTimeline } from '@/components/EventsTimeline'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { Building } from 'lucide-react'
 import { CountryLabel } from '@/components/CountryLabel'
+import { useZoomLevel, ZoomLevel } from '@/utils/global-state'
 
 export function CompanyPage({
   initialCompany,
@@ -44,6 +45,7 @@ export function CompanyPage({
 
   const primaryColor = page.color!
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
+  const [zoomLevel, setZoomLevel] = useZoomLevel()
 
   return (
     <div>
@@ -112,24 +114,28 @@ export function CompanyPage({
         </article>
       </div>
 
-      <EventTimeline events={events} labelProperty="categories" />
-
-      <EventFilterContextProvider
-        events={events}
-        overrideFilteredCompanySlug={getSlug('companies', page)}
-      >
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats color={primaryColor} graphs={false} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList linkStyle="hard" />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </EventFilterContextProvider>
+      {zoomLevel === ZoomLevel.Timeline ? (
+        <EventTimeline allowToggleZoomLevel events={events} labelProperty="categories" />
+      ) : (
+        <>
+          <EventFilterContextProvider
+            events={events}
+            overrideFilteredCompanySlug={getSlug('companies', page)}
+          >
+            <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
+              <ResizablePanel defaultSize={40}>
+                <div className="sticky top-6 h-[calc(100vh-60px)]">
+                  <EventStats color={primaryColor} graphs={false} />
+                </div>
+              </ResizablePanel>
+              <ResizableHandle />
+              <ResizablePanel defaultSize={60}>
+                <EventList linkStyle="hard" />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </EventFilterContextProvider>
+        </>
+      )}
     </div>
   )
 }

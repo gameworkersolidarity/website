@@ -1,14 +1,14 @@
 'use client'
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Newspaper, Rows2, Rows4 } from 'lucide-react'
+import { History, Newspaper, Rows2, Rows4 } from 'lucide-react'
 import { CompactEventList } from './CompactEventList'
 import { EventsList } from './EventCard'
 import { useZoomLevel, ZoomLevel } from '@/utils/global-state'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import pluralize from 'pluralize'
 
-function ZoomlevelSelector({
+export function ZoomlevelSelector({
   value,
   onChange,
 }: {
@@ -18,6 +18,9 @@ function ZoomlevelSelector({
   return (
     <Tabs defaultValue={value} value={value} onValueChange={(e) => onChange(e as ZoomLevel)}>
       <TabsList>
+        <TabsTrigger value={ZoomLevel.Timeline}>
+          <History /> Timeline
+        </TabsTrigger>
         <TabsTrigger value={ZoomLevel.Compact}>
           <Rows4 /> Compact
         </TabsTrigger>
