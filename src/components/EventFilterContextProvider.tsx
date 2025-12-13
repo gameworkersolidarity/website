@@ -1,6 +1,6 @@
 'use client'
 
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
 import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import {
   useCategoryFilter,
@@ -11,13 +11,9 @@ import {
   useCampaignFilter,
   useInitiatorFilter,
 } from '@/utils/global-state'
-import { payloadClient } from '@/utils/payload'
-import { ArchiveBreadcrumb } from '@/utils/payloadTree'
-import { getDescendants } from '@/utils/payloadTree.client'
 import { getYear } from 'date-fns'
-import { noop, union } from 'lodash'
+import { noop } from 'lodash'
 import { createContext, useContext, useMemo, useState } from 'react'
-import useSWR from 'swr'
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
@@ -36,7 +32,7 @@ export const EventFilterContext = createContext<{
   filteredCompanies?: Company[] | null
   filteredCampaigns?: Campaign[] | null
   filteredOrganisingGroups?: OrganisingGroup[] | null
-  filteredInitiator?: EventInitiator | null
+  filteredInitiator?: EventInitiatorFilter | null
   filteredYear?: number[] | null
   availableYears: number[]
   setCountryISOA2Filter: (value: string[] | null) => void
@@ -75,7 +71,7 @@ export type EventFilterContextProviderProps = {
   overrideFilteredCompanySlug?: string | string[] | null
   overrideFilteredOrganisingGroupSlug?: string | string[] | null
   overrideFilteredCampaignSlug?: string | string[] | null
-  overrideFilteredInitiator?: EventInitiator | null
+  overrideFilteredInitiator?: EventInitiatorFilter | null
   overrideFilteredYear?: string | number | string[] | number[] | null
   countries: Country[]
   categories: Category[]
@@ -204,7 +200,7 @@ export function EventFilterContextProvider({
         ),
       )
     }
-    if (filteredInitiator && filteredInitiator !== EventInitiator.ALL) {
+    if (filteredInitiator && filteredInitiator !== EventInitiatorFilter.ALL) {
       filtered = filtered.filter((event) => event.initiator === filteredInitiator)
     }
     if (filteredYear && filteredYear.length > 0) {

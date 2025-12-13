@@ -119,7 +119,15 @@ export default buildConfig({
     Campaigns,
     Events,
   ],
-  globals: [Header, Footer, StartOrganising, AboutPage, CampaignsPage, DataPage, EventSubmissionPage],
+  globals: [
+    Header,
+    Footer,
+    StartOrganising,
+    AboutPage,
+    CampaignsPage,
+    DataPage,
+    EventSubmissionPage,
+  ],
   editor: lexicalEditor(),
   secret: env.get('PAYLOAD_SECRET').required().asString(),
   typescript: {
@@ -128,27 +136,29 @@ export default buildConfig({
   db: mongooseAdapter({
     url: env.get('DATABASE_URL').required().asString(),
   }),
-  email: nodemailerAdapter({
-    defaultFromAddress: projectStrings.email,
-    defaultFromName: projectStrings.name,
-    transport: nodemailer.createTransport({
-      host: env.get('SMTP_HOST').asString() || 'localhost',
-      port: env.get('SMTP_PORT').default(587).asInt(),
-      secure: env.get('SMTP_SECURE').default('false').asBoolStrict(),
-      auth: env.get('SMTP_USER').asString()
-        ? {
-            user: env.get('SMTP_USER').asString(),
-            pass: env.get('SMTP_PASS').asString(),
-          }
-        : undefined,
-      // For development, allow self-signed certificates
-      ...(process.env.NODE_ENV === 'development' && {
-        tls: {
-          rejectUnauthorized: false,
-        },
-      }),
-    }),
-  }),
+  email: env.get('SMTP_HOST')
+    ? nodemailerAdapter({
+        defaultFromAddress: projectStrings.email,
+        defaultFromName: projectStrings.name,
+        transport: nodemailer.createTransport({
+          host: env.get('SMTP_HOST').asString() || 'localhost',
+          port: env.get('SMTP_PORT').default(587).asInt(),
+          secure: env.get('SMTP_SECURE').default('false').asBoolStrict(),
+          auth: env.get('SMTP_USER').asString()
+            ? {
+                user: env.get('SMTP_USER').asString(),
+                pass: env.get('SMTP_PASS').asString(),
+              }
+            : undefined,
+          // For development, allow self-signed certificates
+          ...(process.env.NODE_ENV === 'development' && {
+            tls: {
+              rejectUnauthorized: false,
+            },
+          }),
+        }),
+      })
+    : undefined,
   plugins: [
     nestedDocsPlugin({
       collections: ['companies', 'organisingGroups'],

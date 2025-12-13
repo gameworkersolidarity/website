@@ -5,7 +5,7 @@ import type { Country, Category, Company, OrganisingGroup, Campaign } from '@/pa
 import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import Emoji from 'a11y-react-emoji'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { useEventFilterContext } from '@/components/EventFilterContextProvider'
 import Link from 'next/link'
@@ -110,7 +110,7 @@ export function EventFilter({
               {[
                 { label: 'Worker-led', value: EventInitiator.WORKER_LED },
                 { label: 'Boss-led', value: EventInitiator.BOSS_LED },
-                { label: 'All', value: EventInitiator.ALL },
+                { label: 'All', value: EventInitiatorFilter.ALL },
               ].map((initiator) => (
                 <div key={initiator.label} className="flex items-center gap-2">
                   <Label htmlFor={initiator.label} className="text-xs uppercase">

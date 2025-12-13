@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import { getCSSVariable } from '@/utils/css'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { Category, Event } from '@/payload-types'
 import { Map } from './Map/Map'
 import { twMerge } from 'tailwind-merge'
@@ -16,29 +16,29 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
   const { filteredEvents, filteredInitiator, filteredYear, setYearFilter } = useEventFilterContext()
 
   const workerEventsFilter = useCallback(
-    (event: Event) => event.initiator === EventInitiator.WORKER_LED,
+    (event: Event) => event.initiator === EventInitiatorFilter.WORKER_LED,
     [],
   )
 
   const redundancyFilter = useCallback(
     (event: Event) =>
-      (event.initiator === EventInitiator.BOSS_LED &&
+      (event.initiator === EventInitiatorFilter.BOSS_LED &&
         event.categories?.some((category) => (category as Category).name === 'Redundancy')) ||
       false,
     [],
   )
 
   const otherEventsFilter = useCallback(
-    (event: Event) => event.initiator === EventInitiator.OTHER,
+    (event: Event) => event.initiator === EventInitiatorFilter.OTHER,
     [],
   )
 
   const extraFilteredEvents = useMemo(() => {
-    if (filteredInitiator === EventInitiator.BOSS_LED) {
+    if (filteredInitiator === EventInitiatorFilter.BOSS_LED) {
       return filteredEvents.filter(redundancyFilter)
-    } else if (filteredInitiator === EventInitiator.WORKER_LED) {
+    } else if (filteredInitiator === EventInitiatorFilter.WORKER_LED) {
       return filteredEvents.filter(workerEventsFilter)
-    } else if (filteredInitiator === EventInitiator.OTHER) {
+    } else if (filteredInitiator === EventInitiatorFilter.OTHER) {
       return filteredEvents.filter(otherEventsFilter)
     } else {
       return filteredEvents
@@ -56,9 +56,9 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
 
   const statsCount = !graphs
     ? 0
-    : filteredInitiator === EventInitiator.WORKER_LED
+    : filteredInitiator === EventInitiatorFilter.WORKER_LED
       ? 1
-      : filteredInitiator === EventInitiator.BOSS_LED
+      : filteredInitiator === EventInitiatorFilter.BOSS_LED
         ? 1
         : 2
 
@@ -89,7 +89,7 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
           onSelectCountry={setCountryISOA2Filter}
           data={extraFilteredEvents}
           colorRange={
-            filteredInitiator === EventInitiator.BOSS_LED
+            filteredInitiator === EventInitiatorFilter.BOSS_LED
               ? [
                   getCSSVariable(`--color-orange-50`, true),
                   getCSSVariable(`--color-orange-200`, true),
@@ -105,9 +105,9 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
       </div>
       {graphs && (
         <>
-          {(filteredInitiator === EventInitiator.WORKER_LED ||
+          {(filteredInitiator === EventInitiatorFilter.WORKER_LED ||
             !filteredInitiator ||
-            filteredInitiator === EventInitiator.ALL) && (
+            filteredInitiator === EventInitiatorFilter.ALL) && (
             <div className="px-4 mb-4">
               <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
               <div ref={elementRef} className="h-full w-full">
@@ -121,9 +121,9 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
               </div>
             </div>
           )}
-          {(filteredInitiator === EventInitiator.BOSS_LED ||
+          {(filteredInitiator === EventInitiatorFilter.BOSS_LED ||
             !filteredInitiator ||
-            filteredInitiator === EventInitiator.ALL) && (
+            filteredInitiator === EventInitiatorFilter.ALL) && (
             <div className="px-4 mb-4">
               <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
               <div ref={elementRef} className="h-full w-full">

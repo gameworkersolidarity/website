@@ -1,4 +1,4 @@
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
 import { projectStrings } from '@/project-strings'
 import { SortingState } from '@tanstack/react-table'
 import { atomWithStorage } from 'jotai/utils'
@@ -121,14 +121,14 @@ export function useCampaignFilter(override?: string | string[] | null) {
   return [campaign, setCampaign] as const
 }
 
-export function useInitiatorFilter(override?: EventInitiator | null) {
+export function useInitiatorFilter(override?: EventInitiatorFilter | null) {
   const [initiator, setInitiator] = useQueryState(
     EventFilterKey.Initiator,
-    parseAsStringEnum<EventInitiator>(Object.values(EventInitiator))
+    parseAsStringEnum<EventInitiatorFilter>(Object.values(EventInitiatorFilter))
       .withOptions({
         clearOnDefault: true,
       })
-      .withDefault(EventInitiator.WORKER_LED),
+      .withDefault(EventInitiatorFilter.WORKER_LED),
   )
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }

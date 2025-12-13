@@ -158,5 +158,8 @@
     "patchedDependencies": {
       "@payloadcms/next": "patches/@payloadcms__next.patch"
     }
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^7.0.4"
   }
 }

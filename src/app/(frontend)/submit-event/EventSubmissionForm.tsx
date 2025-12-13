@@ -310,7 +310,7 @@ export function EventSubmissionForm({
             placeholder="Please provide your email address or other contact information"
           />
           <p className="text-sm text-gray-500 mt-1">
-            We'll use this to contact you about your submission
+            We&apos;ll use this to contact you about your submission
           </p>
         </div>
       </section>

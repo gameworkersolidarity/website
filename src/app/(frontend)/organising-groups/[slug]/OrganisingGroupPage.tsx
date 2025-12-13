@@ -12,7 +12,7 @@ import { Descendants } from '../../components/Descendants'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { CountryLabel } from '@/components/CountryLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
 import { Link2, Users } from 'lucide-react'
 import XOutlinedIcon from '@/components/X.com'
 import Image from 'next/image'
@@ -165,7 +165,7 @@ export function OrganisingGroupPage({
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
         eventFilterContextProps={{
           overrideFilteredOrganisingGroupSlug: page.slug,
-          overrideFilteredInitiator: EventInitiator.WORKER_LED,
+          overrideFilteredInitiator: EventInitiatorFilter.WORKER_LED,
         }}
         events={events}
         primaryColor={primaryColor}

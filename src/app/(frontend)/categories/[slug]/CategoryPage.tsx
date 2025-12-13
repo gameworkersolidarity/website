@@ -9,7 +9,7 @@ import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 
@@ -68,8 +68,8 @@ export function CategoryPage({
           overrideFilteredCategorySlug: getSlug('categories', page),
           overrideFilteredInitiator:
             getSlug('categories', page) === 'redundancy'
-              ? EventInitiator.BOSS_LED
-              : EventInitiator.WORKER_LED,
+              ? EventInitiatorFilter.BOSS_LED
+              : EventInitiatorFilter.WORKER_LED,
         }}
         events={events}
         primaryColor={primaryColor}
