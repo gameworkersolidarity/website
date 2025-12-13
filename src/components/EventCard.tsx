@@ -28,6 +28,7 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CategoryLabel } from './CategoryLabel'
 import { EventInitiator } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
+import { CampaignLabel } from './CampaignLabel'
 
 interface ListProps {
   data: Event[]
@@ -325,13 +326,7 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
   )
 }
 
-export function EventCard({
-  data,
-  withContext,
-  hoverable,
-  displayStandaloneInfo = false,
-  linkStyle = true,
-}: CardProps) {
+export function EventCard({ data, displayStandaloneInfo = false, linkStyle = true }: CardProps) {
   return (
     <>
       <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
@@ -374,12 +369,28 @@ export function EventCard({
           </div>
         )}
         {displayStandaloneInfo && (
-          <div className="p-4 md:px-8 bg-white mt-[2px]">
-            Have more info about this action?{' '}
-            <a className="link" href={`mailto:${projectStrings.email}`}>
-              Let us know &rarr;
-            </a>
-          </div>
+          <>
+            {!!data.campaigns?.docs?.length && (
+              <div className="p-4 md:px-8 bg-white mt-[2px]">
+                <div className="flex flex-row gap-1 items-center">
+                  <span>This report is included in</span>
+                  {data.campaigns?.docs?.map((campaign) => (
+                    <CampaignLabel
+                      campaign={campaign as unknown as Campaign}
+                      key={(campaign as Campaign).id}
+                      link
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="p-4 md:px-8 bg-white mt-[2px]">
+              Have more info about this report?{' '}
+              <a className="link" href={`mailto:${projectStrings.email}`}>
+                Let us know &rarr;
+              </a>
+            </div>
+          </>
         )}
         {/* {withContext && (
           <div className="grid gap-[2px] grid-cols-2 mt-[2px]">

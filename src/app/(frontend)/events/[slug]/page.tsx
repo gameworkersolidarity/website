@@ -18,7 +18,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     collection: 'events',
     sort: '-date',
     depth: 2,
-    draft: isDraftMode,
     limit: 1,
     where: {
       slug: {

@@ -54,8 +54,6 @@ export default async function BlogPage() {
             const imageUrl =
               typeof post.image === 'object' && post.image?.url ? post.image.url : null
 
-            if (!post.image || typeof post.image !== 'object' || !post.image.url) return null
-
             return (
               <Link
                 key={post.id}
@@ -69,7 +67,7 @@ export default async function BlogPage() {
                     {post.byline && <div>{post.byline}</div>}
                   </div>
                 </header>
-                {imageUrl && (
+                {imageUrl && typeof post.image === 'object' && post.image?.url && (
                   <Image
                     src={imageUrl}
                     alt={post.title || ''}
