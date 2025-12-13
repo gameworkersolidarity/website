@@ -3,14 +3,14 @@
 import { Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { EventCard } from './EventCard'
-import { differenceInDays, formatDate, getWeek } from 'date-fns'
-import { extent } from 'd3-array'
+import { differenceInDays, formatDate, getWeek, max } from 'date-fns'
+import { bin, extent } from 'd3-array'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { getCSSVariable } from '@/utils/css'
-import { scaleTime } from '@visx/scale'
+import { scaleLinear, scaleTime } from '@visx/scale'
 import { AxisBottom } from '@visx/axis'
 import { HtmlLabel } from '@visx/annotation'
-import { LinePath, Circle, Line } from '@visx/shape'
+import { LinePath, Circle, Line, Bar } from '@visx/shape'
 import { Group } from '@visx/group'
 import { Text } from '@visx/text'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
@@ -21,6 +21,9 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { useMediaQuery } from 'usehooks-ts'
 import Link from 'next/link'
+import { groupBy } from 'lodash'
+import * as Plot from '@observablehq/plot'
+import { getDateInterval } from '@/utils/dates'
 
 export function EventTimeline({
   events,
@@ -201,10 +204,10 @@ export function Timeline({
   const isSmallScreen = useMediaQuery('(max-width: 768px)')
   const isMediumScreen = useMediaQuery('(min-width: 769px) and (max-width: 1023px)')
 
-  // Bucketing labels
+  // Bining labels
   const minSkip = 1
   const maxSkip = isSmallScreen ? 15 : isMediumScreen ? 7 : 5
-  const itemsPerBucket = isSmallScreen ? 1 : isMediumScreen ? 2 : 3
+  const itemsPerBin = isSmallScreen ? 1 : isMediumScreen ? 2 : 3
   // Heights of labels
   const highlightOffset = 5
   const gap = 20
@@ -233,30 +236,36 @@ export function Timeline({
     return 'decade'
   }, [dayRange])
 
-  // Helper for date bucket
-  const getBucket = useCallback(
+  // Helper for date Bin
+  const getBin = useCallback(
     (date: Date) => {
+      if (typeof date === 'number') {
+        date = new Date(date)
+      }
+      if (typeof date === 'string') {
+        date = new Date(date)
+      }
       switch (xScaleLevel) {
         case 'year':
-          // Bucket by year
-          return date.getFullYear()
+          // Bin by year
+          return date.getFullYear().toString()
         case 'decade':
-          // get buckets of 3.333 years
+          // get Bins of 3.333 years
           return `${Math.floor(date.getFullYear() / 3.333) * 3.333}-${Math.floor(date.getFullYear() / 3.333) * 3.333 + 3.333}`
         case 'quarter':
-          // Bucket by year and quarter
+          // Bin by year and quarter
           return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
         case 'month':
-          // Bucket by year and month
+          // Bin by year and month
           return `${date.getFullYear()}-${date.getMonth()}`
         case 'week':
-          // Bucket by year and ISO week number
+          // Bin by year and ISO week number
           // ISO week inspried from https://stackoverflow.com/a/6117889
           const weekNum = getWeek(date)
           return `${date.getFullYear()}-W${weekNum}`
         case 'day':
         default:
-          // Bucket by full day
+          // Bin by full day
           return formatDate(date, 'yyyy-MM-dd')
       }
     },
@@ -311,11 +320,53 @@ export function Timeline({
     [currentEventId],
   )
 
+  const eventsWithBins = useMemo(() => {
+    return sortedEvents.map((event) => {
+      return {
+        event,
+        bin: getBin(new Date(event.date)),
+      }
+    })
+  }, [sortedEvents, getBin])
+
+  const binnedEvents = useMemo(() => {
+    // const groupedEvents = groupBy(eventsWithBins, (d) => getBin(new Date(d.event.date)))
+    // return Object.entries(groupedEvents).map(([bin, events]) => {
+    //   return {
+    //     bin: events[0].bin,
+    //     events,
+    //     count: events.length,
+    //   }
+    // })
+    const binFn = bin().domain([minDate.getTime(), maxDate.getTime()])
+    const bins = binFn(eventsWithBins.map((e) => new Date(e.event.date).getTime()))
+    return bins.map((bin) => ({
+      bin: bin.x0,
+      count: bin.length,
+    }))
+  }, [eventsWithBins, minDate, maxDate])
+
+  const histogramYScale = useMemo(
+    () =>
+      scaleLinear({
+        domain: [0, max(binnedEvents.map((e) => e.count))],
+        range: [0, height],
+      }),
+    [binnedEvents, height],
+  )
+
   function getLabelPositionMetadata(event: Event) {
     if (!event.id || !currentEventId) {
       return {
         shouldAppear: false,
-        indexInBucket: 0,
+        indexInBin: 0,
+        dynamicSkipCount: 0,
+      }
+    }
+    if (!event[labelProperty]) {
+      return {
+        shouldAppear: false,
+        indexInBin: 0,
         dynamicSkipCount: 0,
       }
     }
@@ -323,32 +374,32 @@ export function Timeline({
     if (event.id === currentEventId) {
       return {
         shouldAppear: true,
-        indexInBucket: 0,
+        indexInBin: 0,
         dynamicSkipCount: 0,
       }
     }
 
-    const targetBucket = getBucket(new Date(event.date))
-    // How many events in the same bucket?
-    const eventsInBucket = sortedEvents.filter((e) => getBucket(new Date(e.date)) === targetBucket)
-    // Dynamic skipCount: more in the bucket = higher skip
+    const targetBin = getBin(new Date(event.date))
+    // How many events in the same Bin?
+    const eventsInBin = eventsWithBins.filter((e) => e.bin === targetBin)
+    // Dynamic skipCount: more in the Bin = higher skip
     // For many events display fewer: set minSkip 1, maxSkip e.g. 7
     const dynamicSkipCount = Math.max(
-      Math.min(Math.ceil(eventsInBucket.length / itemsPerBucket), maxSkip),
+      Math.min(Math.ceil(eventsInBin.length / itemsPerBin), maxSkip),
       minSkip,
     )
 
-    // For deterministic spacing within bucket, get positions in this bucket
-    const thisBucketIndices = sortedEvents
-      .map((e, i) => ({ id: e.id, b: getBucket(new Date(e.date)), idx: i }))
-      .filter((row) => row.b === targetBucket)
+    // For deterministic spacing within Bin, get positions in this Bin
+    const thisBinIndices = eventsWithBins
+      .map((e, i) => ({ id: e.event.id, b: e.bin, idx: i }))
+      .filter((row) => row.b === targetBin)
 
-    const thisEventIndexInBucket = thisBucketIndices.findIndex((row) => row.id === event.id)
+    const thisEventIndexInBin = thisBinIndices.findIndex((row) => row.id === event.id)
 
-    // Show one every dynamicSkipCount in the same bucket
+    // Show one every dynamicSkipCount in the same Bin
     return {
-      shouldAppear: thisEventIndexInBucket % dynamicSkipCount === 0,
-      indexInBucket: thisEventIndexInBucket,
+      shouldAppear: thisEventIndexInBin % dynamicSkipCount === 0,
+      indexInBin: thisEventIndexInBin,
       dynamicSkipCount,
     }
   }
@@ -370,34 +421,32 @@ export function Timeline({
         return
       }
 
-      const targetBucket = getBucket(new Date(event.date))
-      // How many events in the same bucket?
-      const eventsInBucket = sortedEvents.filter(
-        (e) => getBucket(new Date(e.date)) === targetBucket,
-      )
-      // Dynamic skipCount: more in the bucket = higher skip
+      const targetBin = getBin(new Date(event.date))
+      // How many events in the same Bin?
+      const eventsInBin = sortedEvents.filter((e) => getBin(new Date(e.date)) === targetBin)
+      // Dynamic skipCount: more in the Bin = higher skip
       // For many events display fewer: set minSkip 1, maxSkip e.g. 7
       const dynamicSkipCount = Math.max(
-        Math.min(Math.ceil(eventsInBucket.length / itemsPerBucket), maxSkip),
+        Math.min(Math.ceil(eventsInBin.length / itemsPerBin), maxSkip),
         minSkip,
       )
 
-      // For deterministic spacing within bucket, get positions in this bucket
-      const thisBucketIndices = sortedEvents
-        .map((e, i) => ({ id: e.id, b: getBucket(new Date(e.date)), idx: i }))
-        .filter((row) => row.b === targetBucket)
+      // For deterministic spacing within Bin, get positions in this Bin
+      const thisBinIndices = sortedEvents
+        .map((e, i) => ({ id: e.id, b: getBin(new Date(e.date)), idx: i }))
+        .filter((row) => row.b === targetBin)
 
-      const thisEventIndexInBucket = thisBucketIndices.findIndex((row) => row.id === event.id)
+      const thisEventIndexInBin = thisBinIndices.findIndex((row) => row.id === event.id)
 
-      // Show one every dynamicSkipCount in the same bucket
-      if (thisEventIndexInBucket % dynamicSkipCount === 0) {
+      // Show one every dynamicSkipCount in the same Bin
+      if (thisEventIndexInBin % dynamicSkipCount === 0) {
         indexMap.set(event.id, globalIndex)
         globalIndex++
       }
     })
 
     return indexMap
-  }, [sortedEvents, currentEventId, getBucket, minSkip, maxSkip, itemsPerBucket])
+  }, [sortedEvents, currentEventId, getBin, minSkip, maxSkip, itemsPerBin])
 
   function getLabelPosition(globalIndex: number, eventId: string | null, offset: number = 0) {
     if (currentEventId && eventId === currentEventId) {
@@ -441,6 +490,22 @@ export function Timeline({
             stroke="#9ca3af"
             strokeWidth={2}
           />
+
+          {/* Histogram of events */}
+          {binnedEvents.map((bin) => {
+            const barHeight = histogramYScale(bin.count)
+            console.log({ bin })
+            return (
+              <Bar
+                key={bin.bin}
+                x={xScale(new Date())}
+                y={height - barHeight}
+                width={10}
+                height={barHeight}
+                fill="#EEE"
+              />
+            )
+          })}
 
           {/* Vertical ines from circle to text labels */}
           {sortedEvents.map((event, index) => {

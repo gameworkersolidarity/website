@@ -67,9 +67,8 @@ export const EventHistogramContext = ({ event }: { event: Event }) => {
             }
             highlightDate={new Date(event.date)}
             eventFilter={eventFilter}
-            highlightColor={getCSSVariable(`--color-snot-500`, true)}
+            highlightColor={getCSSVariable(`--color-gw-pink`, true)}
             countBy={eventType === 'Redundancies' ? 'headcount' : 'events'}
-            minYear={1960}
           />
         </EventFilterContextProvider>
       </div>

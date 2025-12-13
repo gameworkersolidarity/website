@@ -58,7 +58,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 <div>
                   <Header navigation={headerData?.navigation || []} />
                   <main className="min-h-[75vh]">
-                    <div className="flex flex-col min-h-screen items-center justify-center bg-snot-200">
+                    <div className="flex flex-col min-h-screen items-center justify-center bg-background">
                       <div className="text-base font-semibold opacity-75">Loading...</div>
                     </div>
                   </main>
