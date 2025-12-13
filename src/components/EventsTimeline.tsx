@@ -27,7 +27,6 @@ import { CategoryLabel } from './CategoryLabel'
 import { CountryLabel } from './CountryLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
-import { useMediaQuery } from 'usehooks-ts'
 import Link from 'next/link'
 
 export function EventTimeline({
@@ -44,8 +43,8 @@ export function EventTimeline({
   const [currentEventId, setCurrentEventId] = useState<string | null>(sortedEvents[0]?.id || null)
 
   return (
-    <div>
-      <div className="py-4 px-6 xl:px-8">
+    <div className="@container">
+      <div className="py-4 px-5 @5xl:px-8">
         <Timeline
           events={events}
           currentEventId={currentEventId}
@@ -157,7 +156,7 @@ export function Slideshow({
                 itemRefs.current.delete(event.id)
               }
             }}
-            className="shrink-0 w-full snap-center flex items-center justify-center gap-1 md:gap-4"
+            className="shrink-0 w-full snap-center flex items-center justify-center gap-1 @md:gap-4"
           >
             <ArrowLeft
               className={twMerge('w-20 cursor-pointer', index > 0 ? 'block' : 'invisible')}
@@ -201,20 +200,21 @@ export function Timeline({
   setCurrentEventId: (id: string) => void
   labelProperty?: TimelineLabelProperty
 }) {
-  const isSmallScreen = useMediaQuery('(max-width: 768px)')
-  const isMediumScreen = useMediaQuery('(min-width: 769px) and (max-width: 1023px)')
+  const [elementRef, size] = useElementSize()
+  const isTinyScreen = size.width <= 480
+  const isSmallScreen = size.width > 480 && size.width <= 768
+  const isMediumScreen = size.width > 768 && size.width <= 1023
 
   // Bining labels
   const minSkip = 1
-  const maxSkip = isSmallScreen ? 15 : isMediumScreen ? 7 : 5
-  const itemsPerBin = isSmallScreen ? 1 : isMediumScreen ? 2 : 3
+  const maxSkip = isTinyScreen ? 30 : isSmallScreen ? 18 : isMediumScreen ? 14 : 10
+  const itemsPerBin = isTinyScreen || isSmallScreen ? 1 : isMediumScreen ? 2 : 3
   // Heights of labels
   const highlightOffset = 5
   const gap = 20
   const numLevels = 3
   const divHeight = 270
 
-  const [elementRef, size] = useElementSize()
   const margin = { top: 15, right: 10, bottom: 25, left: 10 }
   const width = size.width - margin.left - margin.right
   const height = divHeight - margin.top - margin.bottom
@@ -475,7 +475,12 @@ export function Timeline({
 
   return (
     <div ref={elementRef} className="h-full w-full">
-      <svg width={size.width} height={divHeight} style={{ overflow: 'visible' }}>
+      <svg
+        width={size.width}
+        height={divHeight}
+        style={{ overflow: 'visible' }}
+        className="z-50 relative"
+      >
         <Group left={margin.left} top={margin.top}>
           {/* Histogram of events */}
           {!!sortedEvents.length &&
