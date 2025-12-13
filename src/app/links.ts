@@ -8,6 +8,10 @@ export const navLinks = [
     url: '/start-organising',
   },
   {
+    label: 'Submit Event',
+    url: '/submit-event',
+  },
+  {
     label: 'Articles',
     url: '/articles',
   },

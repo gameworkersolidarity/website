@@ -116,6 +116,7 @@ export interface Config {
     aboutPage: AboutPage;
     campaignsPage: CampaignsPage;
     dataPage: DataPage;
+    eventSubmissionPage: EventSubmissionPage;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -124,6 +125,7 @@ export interface Config {
     aboutPage: AboutPageSelect<false> | AboutPageSelect<true>;
     campaignsPage: CampaignsPageSelect<false> | CampaignsPageSelect<true>;
     dataPage: DataPageSelect<false> | DataPageSelect<true>;
+    eventSubmissionPage: EventSubmissionPageSelect<false> | EventSubmissionPageSelect<true>;
   };
   locale: null;
   user: User & {
@@ -678,6 +680,10 @@ export interface Event {
   path?: string;
   url?: string;
   adminPath?: string;
+  /**
+   * Contact information provided by the person who submitted this event
+   */
+  submissionContactDetails?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1138,6 +1144,7 @@ export interface EventsSelect<T extends boolean = true> {
   path?: T;
   url?: T;
   adminPath?: T;
+  submissionContactDetails?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1356,6 +1363,37 @@ export interface DataPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventSubmissionPage".
+ */
+export interface EventSubmissionPage {
+  id: string;
+  /**
+   * Title for the event submission page
+   */
+  title?: string | null;
+  /**
+   * Rich text description for the event submission page
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -1421,6 +1459,17 @@ export interface CampaignsPageSelect<T extends boolean = true> {
  * via the `definition` "dataPage_select".
  */
 export interface DataPageSelect<T extends boolean = true> {
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventSubmissionPage_select".
+ */
+export interface EventSubmissionPageSelect<T extends boolean = true> {
+  title?: T;
   description?: T;
   updatedAt?: T;
   createdAt?: T;

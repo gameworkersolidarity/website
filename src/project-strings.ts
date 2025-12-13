@@ -16,4 +16,8 @@ export const projectStrings = {
     .get('GITHUB_REPO_URL')
     .default('https://github.com/gameworkersolidarity/website')
     .asString(),
+  submissionNotificationEmail: env
+    .get('SUBMISSION_NOTIFICATION_EMAIL')
+    .default('austin@austinkelmore.com')
+    .asString(),
 }

@@ -302,6 +302,15 @@ export const Events: CollectionConfig = {
         ],
       },
     },
+    {
+      name: 'submissionContactDetails',
+      type: 'textarea',
+      label: 'Contact Details',
+      admin: {
+        description: 'Contact information provided by the person who submitted this event',
+        position: 'sidebar',
+      },
+    },
   ],
   hooks: {
     beforeChange: [
@@ -346,6 +355,53 @@ export const Events: CollectionConfig = {
         }
 
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        // Send email notification when a new event is created as a draft
+        if (operation === 'create' && doc._status === 'draft' && doc.submissionContactDetails) {
+          try {
+            await req.payload.sendEmail({
+              to: projectStrings.submissionNotificationEmail,
+              from: projectStrings.email,
+              subject: `New Event Submission: ${doc.name || 'Untitled Event'}`,
+              html: `
+                <h2>New Event Submission</h2>
+                <p>A new event has been submitted and saved as a draft.</p>
+                <h3>Event Details:</h3>
+                <ul>
+                  <li><strong>Name:</strong> ${doc.name || 'N/A'}</li>
+                  <li><strong>Date:</strong> ${doc.date || 'N/A'}</li>
+                  <li><strong>Location:</strong> ${doc.location || 'N/A'}</li>
+                  <li><strong>ID:</strong> ${doc.id}</li>
+                </ul>
+                <h3>Contact Details:</h3>
+                <p>${doc.submissionContactDetails || 'N/A'}</p>
+                <p><a href="${projectStrings.baseUrl}/admin/collections/events/${doc.id}">View in Admin Panel</a></p>
+              `,
+              text: `
+New Event Submission
+
+A new event has been submitted and saved as a draft.
+
+Event Details:
+- Name: ${doc.name || 'N/A'}
+- Date: ${doc.date || 'N/A'}
+- Location: ${doc.location || 'N/A'}
+- ID: ${doc.id}
+
+Contact Details:
+${doc.submissionContactDetails || 'N/A'}
+
+View in Admin Panel: ${projectStrings.baseUrl}/admin/collections/events/${doc.id}
+              `,
+            })
+          } catch (error) {
+            console.error('Failed to send submission notification email:', error)
+            // Don't throw - we don't want to fail the save if email fails
+          }
+        }
       },
     ],
   },
