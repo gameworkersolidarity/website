@@ -117,6 +117,7 @@ export function CompanyPage({
         events={events}
         primaryColor={primaryColor}
         linkStyle="hard"
+        timelineBy="categories"
       />
     </div>
   )
