@@ -273,8 +273,8 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
         <DateTime date={data.date} />
       </span>
       {!!data.countries?.length && (
-        <div className="inline-flex flex-wrap gap-2">
-          {data.countries.slice(0, 3).map((country) => (
+        <div className="inline-flex flex-wrap gap-x-2">
+          {data.countries.map((country) => (
             <CountryLabel
               country={country as Country}
               key={(country as Country).id}
@@ -285,8 +285,8 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
       )}
       {data.location ? <span>{data.location}</span> : null}
       {!!data.categories?.length && (
-        <div className="inline-flex flex-wrap gap-2">
-          {data.categories.slice(0, 3).map((category) => (
+        <div className="inline-flex flex-wrap gap-x-2">
+          {data.categories.map((category) => (
             <CategoryLabel
               category={category as unknown as Category}
               key={(category as Category).id}
@@ -296,8 +296,8 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
         </div>
       )}
       {!!data.companies?.length && (
-        <div className="inline-flex flex-wrap gap-2">
-          {data.companies.slice(0, 3).map((company) => (
+        <div className="inline-flex flex-wrap gap-x-2">
+          {data.companies.map((company) => (
             <CompanyLabel
               company={company as Company}
               key={(company as Company).id}
@@ -307,13 +307,13 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
         </div>
       )}
       {!!data.initiator && data.initiator === EventInitiator.BOSS_LED && (
-        <div className="inline-flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-x-2">
           <DisplayInitiator initiator={data.initiator as EventInitiator} link={linkStyle} />
         </div>
       )}
       {!!data.organisingGroups?.length && (
-        <div className="inline-flex flex-wrap gap-2">
-          {data.organisingGroups.slice(0, 3).map((organisingGroup) => (
+        <div className="inline-flex flex-wrap gap-x-2">
+          {data.organisingGroups.map((organisingGroup) => (
             <OrganisingGroupLabel
               organisingGroup={organisingGroup as OrganisingGroup}
               key={(organisingGroup as OrganisingGroup).id}

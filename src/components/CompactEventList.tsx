@@ -111,15 +111,6 @@ export function CompactEventList({
         ),
       },
       {
-        accessorKey: 'initiator',
-        header: 'Actor',
-        cell: ({ cell, row }) => (
-          <TableCell key={cell.id} className="text-xs uppercase font-mono">
-            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link="soft" />
-          </TableCell>
-        ),
-      },
-      {
         accessorKey: 'categories',
         header: ({ column }) => {
           return (
@@ -140,10 +131,7 @@ export function CompactEventList({
           )
         },
         cell: ({ cell, row }) => (
-          <TableCell
-            key={cell.id}
-            className="text-ellipsis wrap-normal uppercase font-mono text-xs text-wrap"
-          >
+          <TableCell key={cell.id} className="text-ellipsis wrap-normal text-wrap">
             <div className="flex flex-wrap gap-1">
               {(row.getValue('categories') as Category[])?.map((category) => (
                 <CategoryLabel
@@ -157,7 +145,7 @@ export function CompactEventList({
         ),
       },
       {
-        accessorKey: 'headcount',
+        accessorKey: 'countries',
         header: ({ column }) => {
           return (
             <Button
@@ -171,7 +159,7 @@ export function CompactEventList({
                     : column.toggleSorting(false)
               }}
             >
-              Headcount
+              Country
               <ArrowUpDown />
             </Button>
           )
@@ -179,15 +167,21 @@ export function CompactEventList({
         cell: ({ cell, row }) => (
           <TableCell
             key={cell.id}
-            className="text-ellipsis text-wrap wrap-normal max-w-12 uppercase font-mono text-xs"
+            className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-12"
           >
-            {row.getValue('headcount') ? (
-              <Link href={row.original.path || '/'}>
-                <b>{row.getValue('headcount')}</b>
-                &nbsp;
-                {pluralize('worker', row.getValue('headcount'))}
-              </Link>
-            ) : null}
+            <div className="flex flex-wrap gap-1">
+              {(row.getValue('countries') as Country[])?.map((country) => (
+                <div key={country.id}>
+                  <CountryLabel
+                    country={country as Country}
+                    link={linkStyle === 'soft' ? 'soft' : true}
+                  />
+                  {row.original.location ? (
+                    <span className="text-xs opacity-50">{row.original.location}</span>
+                  ) : null}
+                </div>
+              ))}
+            </div>
           </TableCell>
         ),
       },
@@ -260,7 +254,7 @@ export function CompactEventList({
         ),
       },
       {
-        accessorKey: 'countries',
+        accessorKey: 'headcount',
         header: ({ column }) => {
           return (
             <Button
@@ -274,7 +268,7 @@ export function CompactEventList({
                     : column.toggleSorting(false)
               }}
             >
-              Country
+              Headcount
               <ArrowUpDown />
             </Button>
           )
@@ -282,21 +276,24 @@ export function CompactEventList({
         cell: ({ cell, row }) => (
           <TableCell
             key={cell.id}
-            className="overflow-hidden text-ellipsis text-wrap wrap-normal max-w-12"
+            className="text-ellipsis text-wrap wrap-normal max-w-12 uppercase font-mono text-xs"
           >
-            <div className="flex flex-wrap gap-1">
-              {(row.getValue('countries') as Country[])?.map((country) => (
-                <div key={country.id}>
-                  <CountryLabel
-                    country={country as Country}
-                    link={linkStyle === 'soft' ? 'soft' : true}
-                  />
-                  {row.original.location ? (
-                    <span className="text-xs opacity-50">{row.original.location}</span>
-                  ) : null}
-                </div>
-              ))}
-            </div>
+            {row.getValue('headcount') ? (
+              <Link href={row.original.path || '/'}>
+                <b>{row.getValue('headcount')}</b>
+                &nbsp;
+                {pluralize('worker', row.getValue('headcount'))}
+              </Link>
+            ) : null}
+          </TableCell>
+        ),
+      },
+      {
+        accessorKey: 'initiator',
+        header: 'Actor',
+        cell: ({ cell, row }) => (
+          <TableCell key={cell.id} className="text-xs uppercase font-mono">
+            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link="soft" />
           </TableCell>
         ),
       },
