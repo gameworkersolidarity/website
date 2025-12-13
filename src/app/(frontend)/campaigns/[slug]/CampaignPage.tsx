@@ -55,9 +55,6 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
 
       <EventExplorer
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
-        eventFilterContextProps={{
-          overrideFilteredCampaignSlug: getSlug('campaigns', page),
-        }}
         events={events}
         linkStyle="hard"
         timelineBy="categories"

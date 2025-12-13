@@ -83,7 +83,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           }
         : {}),
     },
-    depth: 1,
+    depth: 2,
     pagination: false,
     draft: isDraftMode,
     limit: 1,
