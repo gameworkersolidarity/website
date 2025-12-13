@@ -91,7 +91,7 @@ export const Companies: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return siblingData.primaryColor || '#EEE'
+            return siblingData.primaryColor || '#FF8038'
           },
         ],
       },

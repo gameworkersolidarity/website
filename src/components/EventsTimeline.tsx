@@ -3,8 +3,17 @@
 import { Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { EventCard } from './EventCard'
-import { differenceInDays, formatDate, getWeek, max } from 'date-fns'
-import { bin, extent } from 'd3-array'
+import {
+  differenceInDays,
+  differenceInMonths,
+  differenceInQuarters,
+  differenceInWeeks,
+  differenceInYears,
+  formatDate,
+  getWeek,
+  max,
+} from 'date-fns'
+import { bin, extent, ticks } from 'd3-array'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { getCSSVariable } from '@/utils/css'
 import { scaleLinear, scaleTime } from '@visx/scale'
@@ -281,6 +290,14 @@ export function Timeline({
     return 6
   }, [xScaleLevel])
 
+  const numBins = useMemo(() => {
+    if (xScaleLevel === 'day') return differenceInDays(maxDate, minDate)
+    if (xScaleLevel === 'week') return differenceInWeeks(maxDate, minDate)
+    if (xScaleLevel === 'month') return differenceInMonths(maxDate, minDate)
+    if (xScaleLevel === 'quarter') return differenceInQuarters(maxDate, minDate)
+    return differenceInYears(maxDate, minDate)
+  }, [xScaleLevel, minDate, maxDate])
+
   // Create time scale
   const xScale = useMemo(
     () =>
@@ -315,7 +332,7 @@ export function Timeline({
   // Get radius for event
   const getEventRadius = useCallback(
     (event: Event) => {
-      return event.id === currentEventId ? 12 : 8
+      return event.id === currentEventId ? 8 : 5
     },
     [currentEventId],
   )
@@ -330,27 +347,22 @@ export function Timeline({
   }, [sortedEvents, getBin])
 
   const binnedEvents = useMemo(() => {
-    // const groupedEvents = groupBy(eventsWithBins, (d) => getBin(new Date(d.event.date)))
-    // return Object.entries(groupedEvents).map(([bin, events]) => {
-    //   return {
-    //     bin: events[0].bin,
-    //     events,
-    //     count: events.length,
-    //   }
-    // })
-    const binFn = bin().domain([minDate.getTime(), maxDate.getTime()])
-    const bins = binFn(eventsWithBins.map((e) => new Date(e.event.date).getTime()))
-    return bins.map((bin) => ({
-      bin: bin.x0,
-      count: bin.length,
-    }))
-  }, [eventsWithBins, minDate, maxDate])
+    const binFn = bin<Event, Date>()
+      .domain([minDate, maxDate])
+      .value(
+        // @ts-expect-error - d is an Event
+        (d) => (d?.date ? new Date(d?.date).getTime() : new Date().getTime()),
+      )
+      .thresholds(xScale.ticks(numBins))
+    const bins = binFn(sortedEvents)
+    return bins
+  }, [sortedEvents, minDate, maxDate, numBins, xScale])
 
   const histogramYScale = useMemo(
     () =>
       scaleLinear({
-        domain: [0, max(binnedEvents.map((e) => e.count))],
-        range: [0, height],
+        domain: [0, max(binnedEvents.map((e) => e.length))],
+        range: [0, height / 3.5],
       }),
     [binnedEvents, height],
   )
@@ -474,6 +486,21 @@ export function Timeline({
     <div ref={elementRef} className="h-full w-full">
       <svg width={size.width} height={divHeight} style={{ overflow: 'visible' }}>
         <Group left={margin.left} top={margin.top}>
+          {/* Histogram of events */}
+          {binnedEvents.map((bin) => {
+            const barHeight = histogramYScale(bin.length)
+            return (
+              <Bar
+                key={bin.x0!.toString()}
+                x={xScale(bin.x0!)}
+                y={height - barHeight}
+                width={xScale(bin.x1!) - xScale(bin.x0!)}
+                height={barHeight}
+                fill="#f5f5f5"
+              />
+            )
+          })}
+
           {/* Grid lines */}
           {xScale.ticks(numTicks).map((tick, i) => {
             const x = xScale(tick)
@@ -486,26 +513,10 @@ export function Timeline({
           <LinePath
             data={sortedEvents}
             x={(d) => xScale(new Date(d.date))}
-            y={() => timelineY}
+            y={timelineY}
             stroke="#9ca3af"
             strokeWidth={2}
           />
-
-          {/* Histogram of events */}
-          {binnedEvents.map((bin) => {
-            const barHeight = histogramYScale(bin.count)
-            console.log({ bin })
-            return (
-              <Bar
-                key={bin.bin}
-                x={xScale(new Date())}
-                y={height - barHeight}
-                width={10}
-                height={barHeight}
-                fill="#EEE"
-              />
-            )
-          })}
 
           {/* Vertical ines from circle to text labels */}
           {sortedEvents.map((event, index) => {
@@ -676,14 +687,14 @@ export function Timeline({
                     : xScaleLevel === 'month'
                       ? 'MMM yyyy'
                       : xScaleLevel === 'quarter'
-                        ? 'Q yyyy'
+                        ? 'yyyy'
                         : xScaleLevel === 'year'
                           ? 'yyyy'
                           : 'yyyy',
               )
             }
-            stroke="#6b7280"
-            tickStroke="#6b7280"
+            stroke="none"
+            tickStroke="none"
             tickLabelProps={() => ({
               fill: '#6b7280',
               fontSize: 12,

@@ -91,7 +91,7 @@ export const OrganisingGroups: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return siblingData.primaryColor || '#EEE'
+            return siblingData.primaryColor || '#3B97EC'
           },
         ],
       },

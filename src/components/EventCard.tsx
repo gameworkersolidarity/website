@@ -201,7 +201,17 @@ export function EventsList({
 export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolean }) {
   return (
     <article
-      className={twMerge('event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2')}
+      style={{
+        // @ts-expect-error - CSS variables are not typed
+        '--glow-color':
+          data.initiator === EventInitiator.BOSS_LED
+            ? 'var(--color-gw-orange)'
+            : 'var(--color-gw-blue)',
+      }}
+      className={twMerge(
+        'event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
+        data.initiator === EventInitiator.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
+      )}
     >
       <h3 className="text-2xl leading-tight font-semibold max-w-3xl">{data.name}</h3>
       {(!!data.link || !!data.documents?.length) && (

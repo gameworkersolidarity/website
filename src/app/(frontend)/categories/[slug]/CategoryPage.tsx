@@ -80,7 +80,7 @@ export function CategoryPage({
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats />
+              <EventStats graphs={false} />
             </div>
           </ResizablePanel>
           <ResizableHandle />

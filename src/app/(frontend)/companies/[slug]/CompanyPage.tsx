@@ -121,7 +121,7 @@ export function CompanyPage({
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
           <ResizablePanel defaultSize={40}>
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats color={primaryColor} />
+              <EventStats color={primaryColor} graphs={false} />
             </div>
           </ResizablePanel>
           <ResizableHandle />

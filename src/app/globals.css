@@ -158,8 +158,9 @@ body {
   --spacing-7: 80px;
   --spacing-8: 100px;
 
-  --shadow-noglow: inset 0 0 0 0 #FF8038;
-  --shadow-glow: inset 4px 4px 20px 6px #FF8038;
+  --glow-color: var(--color-gw-orange);
+  --shadow-noglow: inset 0 0 0 0 var(--glow-color);
+  --shadow-glow: inset 4px 4px 20px 6px var(--glow-color);
   --shadow-inner-gw-pink: inset 0px 0px 10px 6px var(--gw-pink-50);
   --shadow-gw-pink: 0px 1px 10px 5px var(--gw-pink-50);
   --shadow-gw-orange: 0px 1px 10px 5px var(--gw-orange-50);

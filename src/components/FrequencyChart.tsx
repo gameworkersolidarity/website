@@ -9,6 +9,7 @@ import { PlotMouseEvent, usePlotConfig } from './Plot'
 import { PlotOptions } from '@observablehq/plot'
 import * as Plot from '@observablehq/plot'
 import { getDateInterval } from '@/utils/dates'
+import { formatDate, getYear } from 'date-fns'
 
 export function FrequencyChart({
   size,
@@ -52,14 +53,20 @@ export function FrequencyChart({
         height: size.height,
         marginBottom: 60,
         y: {
-          tickSize: 0,
           grid: true,
         },
         x: {
-          tickSize: 0,
           domain,
         },
         marks: [
+          Plot.axisY({
+            tickFormat: (d) => (d > Math.floor(d) ? '' : `${d}`),
+            tickSize: 0,
+          }),
+          Plot.axisX({
+            textAnchor: 'start',
+            tickSize: 0,
+          }),
           Plot.rectY(
             extraFilteredEvents,
             Plot.binX(
@@ -72,11 +79,23 @@ export function FrequencyChart({
                 // y: countBy,
                 interval: Plot.utcInterval(`1 ${getDateInterval(domain)}`),
                 // @ts-expect-error - fill is, in fact, a valid property for BinXInputs
-                fill: color,
+                // fill: color,
+                fill: (d: Event) => {
+                  try {
+                    if (highlightDate && getYear(new Date(d.date)) === getYear(highlightDate)) {
+                      return highlightColor
+                    }
+                    return color
+                  } catch {
+                    return color
+                  }
+                },
               },
             ),
           ),
-          highlightDate ? Plot.ruleX([new Date(highlightDate)], { stroke: highlightColor }) : null,
+          // highlightDate
+          //   ? Plot.ruleX([new Date(highlightDate)], { stroke: highlightColor, strokeWidth: 3 })
+          //   : null,
         ],
       }
       if (transformPlotConfig) {

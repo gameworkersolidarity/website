@@ -11,7 +11,7 @@ import { twMerge } from 'tailwind-merge'
 import { FrequencyChart } from './FrequencyChart'
 import { getYear } from 'date-fns'
 
-export function EventStats({ color }: { color?: string }) {
+export function EventStats({ color, graphs = true }: { color?: string; graphs?: boolean }) {
   const [elementRef, size] = useElementSize()
   const { filteredEvents, filteredInitiator, filteredYear, setYearFilter } = useEventFilterContext()
 
@@ -54,8 +54,9 @@ export function EventStats({ color }: { color?: string }) {
     return Math.min(...extraFilteredEvents.map((event) => getYear(new Date(event.date))))
   }, [extraFilteredEvents])
 
-  const statsCount =
-    filteredInitiator === EventInitiator.WORKER_LED
+  const statsCount = !graphs
+    ? 0
+    : filteredInitiator === EventInitiator.WORKER_LED
       ? 1
       : filteredInitiator === EventInitiator.BOSS_LED
         ? 1
@@ -79,7 +80,7 @@ export function EventStats({ color }: { color?: string }) {
     <div
       className={twMerge(
         'h-full grid grid-rows-8 gap-4 p-4',
-        statsCount === 1 ? 'grid-rows-4' : 'grid-rows-5',
+        statsCount === 0 ? 'grid-rows-3' : statsCount === 1 ? 'grid-rows-4' : 'grid-rows-5',
       )}
     >
       <div className={twMerge('row-span-3')}>
@@ -102,38 +103,42 @@ export function EventStats({ color }: { color?: string }) {
           }
         />
       </div>
-      {(filteredInitiator === EventInitiator.WORKER_LED ||
-        !filteredInitiator ||
-        filteredInitiator === EventInitiator.ALL) && (
-        <div className="bg-white rounded-xl p-2">
-          <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
-          <div ref={elementRef} className="h-full w-full">
-            <FrequencyChart
-              size={size}
-              eventFilter={workerEventsFilter}
-              color={color || getCSSVariable(`--color-gw-blue`, true)}
-              minYear={earliestYear}
-              onMouseEvent={onMouseEvent}
-            />
-          </div>
-        </div>
-      )}
-      {(filteredInitiator === EventInitiator.BOSS_LED ||
-        !filteredInitiator ||
-        filteredInitiator === EventInitiator.ALL) && (
-        <div className="bg-white rounded-xl p-2">
-          <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
-          <div ref={elementRef} className="h-full w-full">
-            <FrequencyChart
-              size={size}
-              countBy="headcount"
-              eventFilter={redundancyFilter}
-              color={getCSSVariable(`--color-gw-orange`, true)}
-              minYear={earliestYear}
-              onMouseEvent={onMouseEvent}
-            />
-          </div>
-        </div>
+      {graphs && (
+        <>
+          {(filteredInitiator === EventInitiator.WORKER_LED ||
+            !filteredInitiator ||
+            filteredInitiator === EventInitiator.ALL) && (
+            <div className="bg-white rounded-xl p-2">
+              <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
+              <div ref={elementRef} className="h-full w-full">
+                <FrequencyChart
+                  size={size}
+                  eventFilter={workerEventsFilter}
+                  color={color || getCSSVariable(`--color-gw-blue`, true)}
+                  minYear={earliestYear}
+                  onMouseEvent={onMouseEvent}
+                />
+              </div>
+            </div>
+          )}
+          {(filteredInitiator === EventInitiator.BOSS_LED ||
+            !filteredInitiator ||
+            filteredInitiator === EventInitiator.ALL) && (
+            <div className="bg-white rounded-xl p-2">
+              <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
+              <div ref={elementRef} className="h-full w-full">
+                <FrequencyChart
+                  size={size}
+                  countBy="headcount"
+                  eventFilter={redundancyFilter}
+                  color={getCSSVariable(`--color-gw-orange`, true)}
+                  minYear={earliestYear}
+                  onMouseEvent={onMouseEvent}
+                />
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
