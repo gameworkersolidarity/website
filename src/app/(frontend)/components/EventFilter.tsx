@@ -82,10 +82,10 @@ export function EventFilter({
             (filteredCompanySlug && filteredCompanySlug.length > 0) ||
             (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) ||
             (filteredCampaignSlug && filteredCampaignSlug.length > 0) ||
-            filteredInitiator ||
+            (filteredInitiator && filteredInitiator !== EventInitiator.WORKER_LED) ||
             (filteredYear && filteredYear.length > 0)) && (
             <div className="link" onClick={clearAllFilters}>
-              clear filters ⤬
+              reset ⤬
             </div>
           )}
         </div>
@@ -112,35 +112,6 @@ export function EventFilter({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
         <div className="filter-group w-full">
           <MultiSelect
-            placeholder="country..."
-            options={countries}
-            value={filteredCountryISOA2 || []}
-            onChange={(value) => setCountryISOA2Filter(value.length > 0 ? value : null)}
-            valueKey="isoA2"
-            renderLabel={(d) => <CountryLabel country={d} />}
-          />
-          {filteredCountries && filteredCountries.length > 0 && (
-            <div className="flex flex-col gap-1 mt-1">
-              <div className="flex flex-row flex-wrap items-center gap-2">
-                {filteredCountries.map((country) => (
-                  <Link key={country.id} href={country.path!} className="text-xs">
-                    See <span className="font-medium link hover:bg-snot-300">{country.name}</span> →
-                  </Link>
-                ))}
-              </div>
-              <span
-                className="text-xs link"
-                onClick={() => {
-                  setCountryISOA2Filter(null)
-                }}
-              >
-                clear filter ⤬
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="filter-group w-full">
-          <MultiSelect
             placeholder="category..."
             options={categories}
             valueKey="slug"
@@ -163,35 +134,6 @@ export function EventFilter({
                 className="text-xs link"
                 onClick={() => {
                   setCategoryFilter(null)
-                }}
-              >
-                clear filter ⤬
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="filter-group w-full">
-          <MultiSelect
-            placeholder="company..."
-            options={companies}
-            value={filteredCompanySlug || []}
-            onChange={(value) => setCompanyFilter(value.length > 0 ? value : null)}
-            valueKey="slug"
-            renderLabel={(d) => <CompanyLabel company={d} />}
-          />
-          {filteredCompanies && filteredCompanies.length > 0 && (
-            <div className="flex flex-col gap-1 mt-1">
-              <div className="flex flex-row flex-wrap items-center gap-2">
-                {filteredCompanies.map((company) => (
-                  <Link key={company.id} href={company.path!} className="text-xs">
-                    See <span className="font-medium link hover:bg-snot-300">{company.name}</span> →
-                  </Link>
-                ))}
-              </div>
-              <span
-                className="text-xs link"
-                onClick={() => {
-                  setCompanyFilter(null)
                 }}
               >
                 clear filter ⤬
@@ -234,6 +176,35 @@ export function EventFilter({
         </div>
         <div className="filter-group w-full">
           <MultiSelect
+            placeholder="company..."
+            options={companies}
+            value={filteredCompanySlug || []}
+            onChange={(value) => setCompanyFilter(value.length > 0 ? value : null)}
+            valueKey="slug"
+            renderLabel={(d) => <CompanyLabel company={d} />}
+          />
+          {filteredCompanies && filteredCompanies.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredCompanies.map((company) => (
+                  <Link key={company.id} href={company.path!} className="text-xs">
+                    See <span className="font-medium link hover:bg-snot-300">{company.name}</span> →
+                  </Link>
+                ))}
+              </div>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setCompanyFilter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="filter-group w-full">
+          <MultiSelect
             placeholder="campaign..."
             options={campaigns}
             valueKey="slug"
@@ -255,6 +226,35 @@ export function EventFilter({
                 className="text-xs link"
                 onClick={() => {
                   setCampaignFilter(null)
+                }}
+              >
+                clear filter ⤬
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="filter-group w-full">
+          <MultiSelect
+            placeholder="country..."
+            options={countries}
+            value={filteredCountryISOA2 || []}
+            onChange={(value) => setCountryISOA2Filter(value.length > 0 ? value : null)}
+            valueKey="isoA2"
+            renderLabel={(d) => <CountryLabel country={d} />}
+          />
+          {filteredCountries && filteredCountries.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex flex-row flex-wrap items-center gap-2">
+                {filteredCountries.map((country) => (
+                  <Link key={country.id} href={country.path!} className="text-xs">
+                    See <span className="font-medium link hover:bg-snot-300">{country.name}</span> →
+                  </Link>
+                ))}
+              </div>
+              <span
+                className="text-xs link"
+                onClick={() => {
+                  setCountryISOA2Filter(null)
                 }}
               >
                 clear filter ⤬
@@ -380,7 +380,7 @@ function MultiSelect<T, K extends keyof T>({
                     onSelect={() => {
                       toggleValue(optionValue)
                     }}
-                    className="cursor-pointer"
+                    className={twMerge('cursor-pointer', isSelected && 'bg-snot-300')}
                   >
                     <Checkbox
                       checked={isSelected}
