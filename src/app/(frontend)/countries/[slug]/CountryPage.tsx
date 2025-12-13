@@ -7,15 +7,12 @@ import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventList } from '@/components/EventList'
 import { projectStrings } from '@/project-strings'
 import { CountryLabel } from '@/components/CountryLabel'
-import { EventStats } from '@/components/EventStats'
-import { EventTimeline } from '@/components/EventsTimeline'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
+import { EventExplorer } from '../../components/EventExplorer'
+import { ZoomLevel } from '@/utils/global-state'
 
 export function CountryPage({
   initialCountry,
@@ -54,7 +51,7 @@ export function CountryPage({
           textColor === 'white' && 'text-white',
         )}
       >
-        <header>
+        <header className="sticky top-6 py-4 z-20" style={{ backgroundColor: primaryColor }}>
           <h1 className="text-5xl font-bold font-identity">
             <CountryLabel country={page} />
           </h1>
@@ -93,21 +90,16 @@ export function CountryPage({
         )}
       </article>
 
-      <EventTimeline events={events} labelProperty="categories" />
-
-      <EventFilterContextProvider events={events} overrideFilteredCountryISOA2={page.isoA2}>
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats graphs={false} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList linkStyle="hard" />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </EventFilterContextProvider>
+      <EventExplorer
+        overrideDefaultZoomLevel={ZoomLevel.Timeline}
+        eventFilterContextProps={{
+          overrideFilteredCountryISOA2: page.isoA2,
+        }}
+        events={events}
+        primaryColor={primaryColor}
+        linkStyle="hard"
+        timelineBy="categories"
+      />
     </div>
   )
 }

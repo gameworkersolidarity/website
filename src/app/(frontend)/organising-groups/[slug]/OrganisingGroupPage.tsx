@@ -7,20 +7,17 @@ import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventList } from '@/components/EventList'
 import { projectStrings } from '@/project-strings'
 import { Descendants } from '../../components/Descendants'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { CountryLabel } from '@/components/CountryLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
 import { EventInitiator } from '@/collections/enums'
-import { EventStats } from '@/components/EventStats'
-import { EventTimeline } from '@/components/EventsTimeline'
 import { Link2, Users } from 'lucide-react'
 import XOutlinedIcon from '@/components/X.com'
 import Image from 'next/image'
+import { EventExplorer } from '../../components/EventExplorer'
+import { ZoomLevel } from '@/utils/global-state'
 
 export function OrganisingGroupPage({
   initialGroup,
@@ -163,25 +160,17 @@ export function OrganisingGroupPage({
         </article>
       </div>
 
-      <EventTimeline events={events} labelProperty="categories" />
-
-      <EventFilterContextProvider
+      <EventExplorer
+        overrideDefaultZoomLevel={ZoomLevel.Timeline}
+        eventFilterContextProps={{
+          overrideFilteredOrganisingGroupSlug: page.slug,
+          overrideFilteredInitiator: EventInitiator.WORKER_LED,
+        }}
         events={events}
-        overrideFilteredOrganisingGroupSlug={page.slug}
-        overrideFilteredInitiator={EventInitiator.WORKER_LED}
-      >
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats color={primaryColor} graphs={false} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList linkStyle="hard" />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </EventFilterContextProvider>
+        primaryColor={primaryColor}
+        linkStyle="hard"
+        timelineBy="categories"
+      />
     </div>
   )
 }

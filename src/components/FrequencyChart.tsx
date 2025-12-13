@@ -51,7 +51,7 @@ export function FrequencyChart({
       let config: PlotOptions = {
         width: size.width,
         height: size.height,
-        marginBottom: 60,
+        marginBottom: 50,
         y: {
           grid: true,
         },

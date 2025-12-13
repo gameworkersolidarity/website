@@ -4,23 +4,28 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { History, Newspaper, Rows2, Rows4 } from 'lucide-react'
 import { CompactEventList } from './CompactEventList'
 import { EventsList } from './EventCard'
-import { useZoomLevel, ZoomLevel } from '@/utils/global-state'
+import { ZoomLevel } from '@/utils/global-state'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import pluralize from 'pluralize'
+import { EventTimeline, TimelineLabelProperty } from './EventsTimeline'
 
 export function ZoomlevelSelector({
   value,
   onChange,
+  includeTimeline = false,
 }: {
   value: ZoomLevel
   onChange: (value: ZoomLevel) => void
+  includeTimeline?: boolean
 }) {
   return (
     <Tabs defaultValue={value} value={value} onValueChange={(e) => onChange(e as ZoomLevel)}>
       <TabsList>
-        <TabsTrigger value={ZoomLevel.Timeline}>
-          <History /> Timeline
-        </TabsTrigger>
+        {includeTimeline && (
+          <TabsTrigger value={ZoomLevel.Timeline}>
+            <History /> Timeline
+          </TabsTrigger>
+        )}
         <TabsTrigger value={ZoomLevel.Compact}>
           <Rows4 /> Compact
         </TabsTrigger>
@@ -35,9 +40,18 @@ export function ZoomlevelSelector({
   )
 }
 
-export function EventList({ linkStyle = 'hard' }: { linkStyle?: 'soft' | 'hard' }) {
+export function EventList({
+  linkStyle = 'hard',
+  timelineBy,
+  zoomLevel,
+  setZoomLevel,
+}: {
+  linkStyle?: 'soft' | 'hard'
+  timelineBy?: TimelineLabelProperty
+  zoomLevel: ZoomLevel
+  setZoomLevel: (value: ZoomLevel) => void
+}) {
   const { filteredEvents: events } = useEventFilterContext()
-  const [zoomLevel, setZoomLevel] = useZoomLevel()
 
   return (
     <div className="flex flex-col gap-2 @container">
@@ -47,7 +61,11 @@ export function EventList({ linkStyle = 'hard' }: { linkStyle?: 'soft' | 'hard' 
             {pluralize('event', events.length, true)}
           </h2>
         </div>
-        <ZoomlevelSelector value={zoomLevel} onChange={setZoomLevel} />
+        <ZoomlevelSelector
+          value={zoomLevel}
+          onChange={setZoomLevel}
+          includeTimeline={!!timelineBy}
+        />
       </header>
       {zoomLevel === ZoomLevel.Compact ? (
         <div>
@@ -56,6 +74,10 @@ export function EventList({ linkStyle = 'hard' }: { linkStyle?: 'soft' | 'hard' 
       ) : zoomLevel === ZoomLevel.Preview ? (
         <div className="flex flex-col gap-4 px-4 pb-4">
           <EventsList data={events} />
+        </div>
+      ) : zoomLevel === ZoomLevel.Timeline ? (
+        <div className="flex flex-col gap-4 px-4 pb-4">
+          <EventTimeline events={events} labelProperty={timelineBy} />
         </div>
       ) : (
         <div className="flex flex-col gap-8 px-4 pb-4">

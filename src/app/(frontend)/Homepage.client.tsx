@@ -1,12 +1,13 @@
-import {
-  EventFilterContextProvider,
-  useEventFilterContext,
-} from '@/components/EventFilterContextProvider'
+'use client'
+
+import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
 import { EventFilter } from './components/EventFilter'
 import { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { EventStats } from '@/components/EventStats'
 import { EventList } from '@/components/EventList'
+import { useState } from 'react'
+import { ZoomLevel } from '@/utils/global-state'
 
 export function HomepageClient({
   events,
@@ -23,6 +24,8 @@ export function HomepageClient({
   organisingGroups: OrganisingGroup[]
   campaigns: Campaign[]
 }) {
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.Preview)
+
   return (
     <EventFilterContextProvider events={events}>
       <div className="homepage">
@@ -46,7 +49,7 @@ export function HomepageClient({
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={60}>
-            <EventList linkStyle="soft" />
+            <EventList linkStyle="soft" zoomLevel={zoomLevel} setZoomLevel={setZoomLevel} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

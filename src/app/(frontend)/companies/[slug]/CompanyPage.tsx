@@ -7,19 +7,15 @@ import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventList } from '@/components/EventList'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { Descendants } from '../../components/Descendants'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
-import { EventStats } from '@/components/EventStats'
-import { EventTimeline } from '@/components/EventsTimeline'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { Building } from 'lucide-react'
 import { CountryLabel } from '@/components/CountryLabel'
-import { useZoomLevel, ZoomLevel } from '@/utils/global-state'
+import { EventExplorer } from '../../components/EventExplorer'
+import { ZoomLevel } from '@/utils/global-state'
 
 export function CompanyPage({
   initialCompany,
@@ -45,7 +41,6 @@ export function CompanyPage({
 
   const primaryColor = page.color!
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
-  const [zoomLevel, setZoomLevel] = useZoomLevel()
 
   return (
     <div>
@@ -114,28 +109,15 @@ export function CompanyPage({
         </article>
       </div>
 
-      {zoomLevel === ZoomLevel.Timeline ? (
-        <EventTimeline allowToggleZoomLevel events={events} labelProperty="categories" />
-      ) : (
-        <>
-          <EventFilterContextProvider
-            events={events}
-            overrideFilteredCompanySlug={getSlug('companies', page)}
-          >
-            <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-              <ResizablePanel defaultSize={40}>
-                <div className="sticky top-6 h-[calc(100vh-60px)]">
-                  <EventStats color={primaryColor} graphs={false} />
-                </div>
-              </ResizablePanel>
-              <ResizableHandle />
-              <ResizablePanel defaultSize={60}>
-                <EventList linkStyle="hard" />
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </EventFilterContextProvider>
-        </>
-      )}
+      <EventExplorer
+        overrideDefaultZoomLevel={ZoomLevel.Timeline}
+        eventFilterContextProps={{
+          overrideFilteredCompanySlug: getSlug('companies', page),
+        }}
+        events={events}
+        primaryColor={primaryColor}
+        linkStyle="hard"
+      />
     </div>
   )
 }

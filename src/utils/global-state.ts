@@ -1,9 +1,7 @@
 import { EventInitiator } from '@/collections/enums'
 import { projectStrings } from '@/project-strings'
 import { SortingState } from '@tanstack/react-table'
-import { useAtom } from 'jotai/react'
 import { atomWithStorage } from 'jotai/utils'
-import { atom } from 'jotai/vanilla'
 import { noop } from 'lodash'
 import { parseAsArrayOf, parseAsString, parseAsStringEnum, useQueryState } from 'nuqs'
 import qs from 'query-string'
@@ -15,18 +13,12 @@ export enum ZoomLevel {
   Detailed = 'detailed',
 }
 
-export const zoomLevelAtom = atomWithStorage<ZoomLevel>('zoomLevel', ZoomLevel.Preview)
-
 export const sortOrderAtom = atomWithStorage<SortingState>('sortOrder', [
   {
     id: 'date',
     desc: true,
   },
 ])
-
-export function useZoomLevel() {
-  return useAtom(zoomLevelAtom)
-}
 
 export enum EventFilterKey {
   Country = 'country',

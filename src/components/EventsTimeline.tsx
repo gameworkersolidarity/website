@@ -13,7 +13,7 @@ import {
   getWeek,
   max,
 } from 'date-fns'
-import { bin, extent, ticks } from 'd3-array'
+import { bin, extent } from 'd3-array'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { getCSSVariable } from '@/utils/css'
 import { scaleLinear, scaleTime } from '@visx/scale'
@@ -21,7 +21,6 @@ import { AxisBottom } from '@visx/axis'
 import { HtmlLabel } from '@visx/annotation'
 import { LinePath, Circle, Line, Bar } from '@visx/shape'
 import { Group } from '@visx/group'
-import { Text } from '@visx/text'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CategoryLabel } from './CategoryLabel'
@@ -30,45 +29,29 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { useMediaQuery } from 'usehooks-ts'
 import Link from 'next/link'
-import { ZoomlevelSelector } from './EventList'
-import { useZoomLevel } from '@/utils/global-state'
-import pluralize from 'pluralize'
 
 export function EventTimeline({
   events,
   labelProperty,
-  allowToggleZoomLevel = false,
 }: {
   events: Event[]
-  labelProperty?: LabelProperty
-  allowToggleZoomLevel?: boolean
+  labelProperty?: TimelineLabelProperty
 }) {
   const sortedEvents = useMemo(
     () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
     [events],
   )
   const [currentEventId, setCurrentEventId] = useState<string | null>(sortedEvents[0]?.id || null)
-  const [zoomLevel, setZoomLevel] = useZoomLevel()
-
-  if (!events?.length || events.length < 3) return null
 
   return (
     <div>
-      <div className="py-4">
-        <header className="pr-4 flex flex-row justify-between items-center">
-          <h2 className="text-4xl font-bold font-identity pl-4 md:pl-6 lg:pl-6 xl:pl-8">
-            {pluralize('event', events.length, true)}
-          </h2>
-          {allowToggleZoomLevel && <ZoomlevelSelector value={zoomLevel} onChange={setZoomLevel} />}
-        </header>
-        <div className="px-6 xl:px-8 mt-4">
-          <Timeline
-            events={events}
-            currentEventId={currentEventId}
-            setCurrentEventId={setCurrentEventId}
-            labelProperty={labelProperty}
-          />
-        </div>
+      <div className="py-4 px-6 xl:px-8">
+        <Timeline
+          events={events}
+          currentEventId={currentEventId}
+          setCurrentEventId={setCurrentEventId}
+          labelProperty={labelProperty}
+        />
       </div>
       <div>
         <Slideshow
@@ -199,7 +182,7 @@ export function Slideshow({
   )
 }
 
-type LabelProperty =
+export type TimelineLabelProperty =
   | 'categories'
   | 'companies'
   | 'organisingGroups'
@@ -216,7 +199,7 @@ export function Timeline({
   events: Event[]
   currentEventId: string | null
   setCurrentEventId: (id: string) => void
-  labelProperty?: LabelProperty
+  labelProperty?: TimelineLabelProperty
 }) {
   const isSmallScreen = useMediaQuery('(max-width: 768px)')
   const isMediumScreen = useMediaQuery('(min-width: 769px) and (max-width: 1023px)')
@@ -370,7 +353,7 @@ export function Timeline({
     () =>
       scaleLinear({
         domain: [0, max(binnedEvents.map((e) => e.length))],
-        range: [0, height / 3.5],
+        range: [0, height / 3.75],
       }),
     [binnedEvents, height],
   )
@@ -495,25 +478,37 @@ export function Timeline({
       <svg width={size.width} height={divHeight} style={{ overflow: 'visible' }}>
         <Group left={margin.left} top={margin.top}>
           {/* Histogram of events */}
-          {binnedEvents.map((bin) => {
-            const barHeight = histogramYScale(bin.length)
-            return (
-              <Bar
-                key={bin.x0!.toString()}
-                x={xScale(bin.x0!)}
-                y={height - barHeight}
-                width={xScale(bin.x1!) - xScale(bin.x0!)}
-                height={barHeight}
-                fill="#f5f5f5"
-              />
-            )
-          })}
+          {!!sortedEvents.length &&
+            sortedEvents.length > 10 &&
+            binnedEvents.map((bin) => {
+              const barHeight = histogramYScale(bin.length)
+              return (
+                <Bar
+                  key={bin.x0!.toString()}
+                  x={xScale(bin.x0!)}
+                  y={height - barHeight}
+                  width={xScale(bin.x1!) - xScale(bin.x0!)}
+                  height={barHeight}
+                  fill={getCSSVariable('--color-gw-pink', true, '#EEE')}
+                  opacity={0.3}
+                />
+              )
+            })}
 
           {/* Grid lines */}
           {xScale.ticks(numTicks).map((tick, i) => {
             const x = xScale(tick)
             return (
-              <Line key={i} x1={x} y1={0} x2={x} y2={height} stroke="#e5e7eb" strokeWidth={1} />
+              <Line
+                key={i}
+                x1={x}
+                y1={0}
+                x2={x}
+                y2={height}
+                stroke="#CCC"
+                strokeWidth={1}
+                strokeDasharray="2,2"
+              />
             )
           })}
 
@@ -704,9 +699,9 @@ export function Timeline({
             stroke="none"
             tickStroke="none"
             tickLabelProps={() => ({
-              fill: '#6b7280',
+              fill: '#777',
               fontSize: 12,
-              textAnchor: 'middle',
+              textAnchor: 'middle' as const,
             })}
           />
         </Group>

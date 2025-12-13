@@ -57,6 +57,18 @@ export const EventFilterContext = createContext<{
   setSelectedPopupIds: noop,
 })
 
+export type EventFilterContextProviderProps = {
+  events: Event[]
+  children: React.ReactNode
+  overrideFilteredCountryISOA2?: string | string[] | null
+  overrideFilteredCategorySlug?: string | string[] | null
+  overrideFilteredCompanySlug?: string | string[] | null
+  overrideFilteredOrganisingGroupSlug?: string | string[] | null
+  overrideFilteredCampaignSlug?: string | string[] | null
+  overrideFilteredInitiator?: EventInitiator | null
+  overrideFilteredYear?: string | number | string[] | number[] | null
+}
+
 export function EventFilterContextProvider({
   events,
   children,
@@ -67,17 +79,7 @@ export function EventFilterContextProvider({
   overrideFilteredCampaignSlug,
   overrideFilteredInitiator,
   overrideFilteredYear,
-}: {
-  events: Event[]
-  children: React.ReactNode
-  overrideFilteredCountryISOA2?: string | string[] | null
-  overrideFilteredCategorySlug?: string | string[] | null
-  overrideFilteredCompanySlug?: string | string[] | null
-  overrideFilteredOrganisingGroupSlug?: string | string[] | null
-  overrideFilteredCampaignSlug?: string | string[] | null
-  overrideFilteredInitiator?: EventInitiator | null
-  overrideFilteredYear?: string | number | string[] | number[] | null
-}) {
+}: EventFilterContextProviderProps) {
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
     overrideFilteredCountryISOA2,

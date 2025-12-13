@@ -4,19 +4,14 @@ import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import type { Category, Event } from '@/payload-types'
 import { notFound } from 'next/navigation'
-import { AdminEditBanner, LoggedIn, Username } from '@/components/Me'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventList } from '@/components/EventList'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
-import { EventStats } from '@/components/EventStats'
-import { EventTimeline } from '@/components/EventsTimeline'
 import { EventInitiator } from '@/collections/enums'
+import { EventExplorer } from '../../components/EventExplorer'
+import { ZoomLevel } from '@/utils/global-state'
 
 export function CategoryPage({
   initialCategory,
@@ -66,29 +61,20 @@ export function CategoryPage({
         )}
       </article>
 
-      <EventTimeline events={events} labelProperty="countries" />
-
-      <EventFilterContextProvider
+      <EventExplorer
+        overrideDefaultZoomLevel={ZoomLevel.Timeline}
+        eventFilterContextProps={{
+          overrideFilteredCategorySlug: getSlug('categories', page),
+          overrideFilteredInitiator:
+            getSlug('categories', page) === 'redundancy'
+              ? EventInitiator.BOSS_LED
+              : EventInitiator.WORKER_LED,
+        }}
         events={events}
-        overrideFilteredCategorySlug={getSlug('categories', page)}
-        overrideFilteredInitiator={
-          getSlug('categories', page) === 'redundancy'
-            ? EventInitiator.BOSS_LED
-            : EventInitiator.WORKER_LED
-        }
-      >
-        <ResizablePanelGroup direction="horizontal" className="w-full h-screen bg-background">
-          <ResizablePanel defaultSize={40}>
-            <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats graphs={false} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={60}>
-            <EventList />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </EventFilterContextProvider>
+        primaryColor={primaryColor}
+        linkStyle="hard"
+        timelineBy="countries"
+      />
     </div>
   )
 }

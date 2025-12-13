@@ -2,18 +2,14 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
-import { ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { EventList } from '@/components/EventList'
 import type { Campaign, Event } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '../../../../utils/payloadPath'
-import { EventStats } from '@/components/EventStats'
 import Image from 'next/image'
-import { EventTimeline } from '@/components/EventsTimeline'
+import { EventExplorer } from '../../components/EventExplorer'
+import { ZoomLevel } from '@/utils/global-state'
 
 export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign }) {
   if (!initialCampaign) notFound()
@@ -57,7 +53,15 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
         </article>
       )}
 
-      <EventTimeline events={events} labelProperty="categories" />
+      <EventExplorer
+        overrideDefaultZoomLevel={ZoomLevel.Timeline}
+        eventFilterContextProps={{
+          overrideFilteredCampaignSlug: getSlug('campaigns', page),
+        }}
+        events={events}
+        linkStyle="hard"
+        timelineBy="categories"
+      />
     </div>
   )
 }

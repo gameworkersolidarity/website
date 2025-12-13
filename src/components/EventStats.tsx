@@ -79,11 +79,11 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
   return (
     <div
       className={twMerge(
-        'h-full grid grid-rows-8 gap-4 p-4',
+        'h-full grid grid-rows-8',
         statsCount === 0 ? 'grid-rows-3' : statsCount === 1 ? 'grid-rows-4' : 'grid-rows-5',
       )}
     >
-      <div className={twMerge('row-span-3')}>
+      <div className={twMerge('row-span-3 m-4')}>
         <Map
           countryFilter={filteredCountryISOA2}
           onSelectCountry={setCountryISOA2Filter}
@@ -108,7 +108,7 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
           {(filteredInitiator === EventInitiator.WORKER_LED ||
             !filteredInitiator ||
             filteredInitiator === EventInitiator.ALL) && (
-            <div className="bg-white rounded-xl p-2">
+            <div className="px-4 mb-4">
               <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
               <div ref={elementRef} className="h-full w-full">
                 <FrequencyChart
@@ -124,7 +124,7 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
           {(filteredInitiator === EventInitiator.BOSS_LED ||
             !filteredInitiator ||
             filteredInitiator === EventInitiator.ALL) && (
-            <div className="bg-white rounded-xl p-2">
+            <div className="px-4 mb-4">
               <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
               <div ref={elementRef} className="h-full w-full">
                 <FrequencyChart
