@@ -73,7 +73,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
       <AdminEditBanner page={event} />
       <div className="mx-auto py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
-          {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Past events</div>}
+          {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Previous events</div>}
           {Object.values(eventNav?.previousInCampaign ?? {}).map(
             (event) =>
               event &&
@@ -149,7 +149,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
           <EventHistogramContext event={event} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
-          {hasNextEvents && <div className="text-sm font-semibold">Future events</div>}
+          {hasNextEvents && <div className="text-sm font-semibold">Following events</div>}
           {Object.values(eventNav?.nextInCampaign ?? {}).map(
             (event) =>
               event &&
@@ -240,11 +240,22 @@ function EventBreadcrumbNavLink({
       />
       <div className="flex flex-col gap-0.5">
         {event.date && (
-          <span className="font-mono text-xs opacity-60 uppercase">
+          <span
+            className={twMerge(
+              'font-mono text-xs opacity-60 uppercase ltr',
+              direction === 'previous' ? 'text-right ml-auto' : 'text-left',
+            )}
+          >
             <DateTime date={event.date} />
           </span>
         )}
-        <div className="text-sm flex flex-wrap gap-1">
+        <div
+          className={twMerge(
+            'text-sm flex flex-wrap gap-x-1 ltr',
+            direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left',
+          )}
+        >
+          {direction === 'previous' ? 'Previously in' : 'Next in'}{' '}
           {label === 'countries' ? (
             event.countries?.map((country) => (
               <CountryLabel country={country as unknown as Country} key={(country as Country).id} />
