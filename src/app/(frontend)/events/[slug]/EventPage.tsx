@@ -82,7 +82,9 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
       <AdminEditBanner page={event} />
       <div className="mx-auto py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
-          {hasPreviousEvents && <div className="text-sm font-semibold mb-2">Previous events</div>}
+          {hasPreviousEvents && (
+            <div className="text-sm text-zinc-500 font-semibold mb-2">Previous events</div>
+          )}
           {Object.values(eventNav?.previousInCampaign ?? {}).map(
             (event) =>
               event &&
@@ -159,7 +161,9 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
           <EventHistogramContext event={event} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
-          {hasNextEvents && <div className="text-sm font-semibold">Following events</div>}
+          {hasNextEvents && (
+            <div className="text-sm text-zinc-500 font-semibold">Following events</div>
+          )}
           {Object.values(eventNav?.nextInCampaign ?? {}).map(
             (event) =>
               event &&
@@ -226,7 +230,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
 function SameDayEvents({ events }: { events: EventNav }) {
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-2xl font-bold font-identity">Also on this day</h2>
+      <h2 className="text-sm text-zinc-500 font-semibold">Also on this day</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2">
         {Object.values(events?.sameDayInCampaign ?? {}).map(
           (event) =>
@@ -251,7 +255,7 @@ function SameDayEvents({ events }: { events: EventNav }) {
               />
             ),
         )}
-        {Object.values(events?.sameDayInCountry ?? {}).map(
+        {Object.values(events?.sameDayInCategory ?? {}).map(
           (event) =>
             event && (
               <EventBreadcrumbNavLink
@@ -262,7 +266,7 @@ function SameDayEvents({ events }: { events: EventNav }) {
               />
             ),
         )}
-        {Object.values(events?.sameDayInCategory ?? {}).map(
+        {Object.values(events?.sameDayInCompany ?? {}).map(
           (event) =>
             event && (
               <EventBreadcrumbNavLink
@@ -325,7 +329,7 @@ function EventBreadcrumbNavLink({
             direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left justify-start',
           )}
         >
-          <span className="text-xs opacity-75">
+          <span className="text-xs text-zinc-400">
             {label === 'categories'
               ? direction === 'previous'
                 ? 'Previous'
@@ -388,13 +392,14 @@ function EventBreadcrumbNavLink({
           ) : label === 'DIRECT' ? (
             <div>Direct connection</div>
           ) : null}
+          {label === 'categories' && <span className="text-xs text-zinc-400">report</span>}
         </div>
         <div className="text-base font-medium leading-snug">{event.name}</div>
-        {description && <div className="text-xs opacity-50 italic mt-0.5">{description}</div>}
+        {description && <div className="text-xs text-zinc-400 italic mt-0.5">{description}</div>}
         {event.date && (
           <span
             className={twMerge(
-              'text-xs opacity-60 ltr',
+              'text-xs text-zinc-400 ltr',
               direction === 'previous' ? 'text-right ml-auto' : 'text-left',
             )}
           >
