@@ -54,6 +54,15 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
       ...eventNav?.nextInCampaign,
     }).filter(Boolean).length > 0
 
+  const hasSameDayEvents =
+    Object.values({
+      ...eventNav?.sameDayInCountry,
+      ...eventNav?.sameDayInCategory,
+      ...eventNav?.sameDayInCompany,
+      ...eventNav?.sameDayInOrganisingGroup,
+      ...eventNav?.sameDayInCampaign,
+    }).filter(Boolean).length > 0
+
   const previousRelatedEvents = event.relatedEvents
     ?.filter((relation) => relation.id !== event.id && (relation.event as Event).date < event.date)
     .sort(
@@ -146,6 +155,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
         </aside>
         <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
           <EventCard data={event} withContext displayStandaloneInfo />
+          {hasSameDayEvents && <SameDayEvents events={eventNav} />}
           <EventHistogramContext event={event} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
@@ -213,6 +223,72 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
   )
 }
 
+function SameDayEvents({ events }: { events: EventNav }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <h2 className="text-2xl font-bold font-identity">Also on this day</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+        {Object.values(events?.sameDayInCampaign ?? {}).map(
+          (event) =>
+            event &&
+            event.campaigns?.docs?.[0] && (
+              <EventBreadcrumbNavLink
+                direction="sameDay"
+                event={event}
+                key={event.id}
+                label="campaigns"
+              />
+            ),
+        )}
+        {Object.values(events?.sameDayInCountry ?? {}).map(
+          (event) =>
+            event && (
+              <EventBreadcrumbNavLink
+                direction="sameDay"
+                event={event}
+                key={event.id}
+                label="countries"
+              />
+            ),
+        )}
+        {Object.values(events?.sameDayInCountry ?? {}).map(
+          (event) =>
+            event && (
+              <EventBreadcrumbNavLink
+                direction="sameDay"
+                event={event}
+                key={event.id}
+                label="categories"
+              />
+            ),
+        )}
+        {Object.values(events?.sameDayInCategory ?? {}).map(
+          (event) =>
+            event && (
+              <EventBreadcrumbNavLink
+                direction="sameDay"
+                event={event}
+                key={event.id}
+                label="organisingGroups"
+              />
+            ),
+        )}
+        {Object.values(events?.sameDayInOrganisingGroup ?? {}).map(
+          (event) =>
+            event && (
+              <EventBreadcrumbNavLink
+                direction="sameDay"
+                event={event}
+                key={event.id}
+                label="organisingGroups"
+              />
+            ),
+        )}
+      </div>
+    </div>
+  )
+}
+
 function EventBreadcrumbNavLink({
   event,
   label,
@@ -223,7 +299,7 @@ function EventBreadcrumbNavLink({
   label:
     | CollectionSlug
     | NonNullable<Config['collections']['events']['relatedEvents']>[0]['connectionType']
-  direction: 'previous' | 'next'
+  direction: 'previous' | 'next' | 'sameDay'
   description?: string
 }) {
   return (
@@ -235,7 +311,11 @@ function EventBreadcrumbNavLink({
       <ArrowLeftIcon
         className={twMerge(
           'w-4 h-4 shrink-0',
-          direction === 'previous' ? 'rotate-0' : 'rotate-180',
+          direction === 'previous'
+            ? 'rotate-0'
+            : direction === 'next'
+              ? 'rotate-180'
+              : 'rotate-270',
         )}
       />
       <div className="flex flex-col gap-0.5">
@@ -255,7 +335,11 @@ function EventBreadcrumbNavLink({
             direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left',
           )}
         >
-          {direction === 'previous' ? 'Previously in' : 'Next in'}{' '}
+          {direction === 'previous'
+            ? 'Previously in'
+            : direction === 'next'
+              ? 'Next in'
+              : 'Also today in'}{' '}
           {label === 'countries' ? (
             event.countries?.map((country) => (
               <CountryLabel country={country as unknown as Country} key={(country as Country).id} />
@@ -303,11 +387,17 @@ export interface EventNav {
   previousInCountry?: {
     [isoA2: string]: Event | null | undefined
   }
+  sameDayInCountry?: {
+    [isoA2: string]: Event | null | undefined
+  }
   nextInCountry?: {
     [isoA2: string]: Event | null | undefined
   }
   // Category
   previousInCategory?: {
+    [category: string]: Event | null | undefined
+  }
+  sameDayInCategory?: {
     [category: string]: Event | null | undefined
   }
   nextInCategory?: {
@@ -317,6 +407,9 @@ export interface EventNav {
   previousInCompany?: {
     [company: string]: Event | null | undefined
   }
+  sameDayInCompany?: {
+    [company: string]: Event | null | undefined
+  }
   nextInCompany?: {
     [company: string]: Event | null | undefined
   }
@@ -324,11 +417,17 @@ export interface EventNav {
   previousInOrganisingGroup?: {
     [organisingGroup: string]: Event | null | undefined
   }
+  sameDayInOrganisingGroup?: {
+    [organisingGroup: string]: Event | null | undefined
+  }
   nextInOrganisingGroup?: {
     [organisingGroup: string]: Event | null | undefined
   }
   // Campaign
   previousInCampaign?: {
+    [campaign: string]: Event | null | undefined
+  }
+  sameDayInCampaign?: {
     [campaign: string]: Event | null | undefined
   }
   nextInCampaign?: {

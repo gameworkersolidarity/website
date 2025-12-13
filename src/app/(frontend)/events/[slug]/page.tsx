@@ -33,14 +33,19 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   const eventNav: EventNav = {
     previousInCampaign: {},
+    sameDayInCampaign: {},
     nextInCampaign: {},
     previousInCountry: {},
+    sameDayInCountry: {},
     nextInCountry: {},
     previousInCategory: {},
+    sameDayInCategory: {},
     nextInCategory: {},
     previousInCompany: {},
+    sameDayInCompany: {},
     nextInCompany: {},
     previousInOrganisingGroup: {},
+    sameDayInOrganisingGroup: {},
     nextInOrganisingGroup: {},
   }
 
@@ -58,6 +63,14 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextEvent && nextEvent.id !== event.id) {
       eventNav.nextInCountry![getSlug('countries', country)] = nextEvent
     }
+    const sameDayEvent = await getNearestEvent(
+      event,
+      { countries: { equals: country.id } },
+      'sameDay',
+    )
+    if (sameDayEvent && sameDayEvent.id !== event.id) {
+      eventNav.sameDayInCountry![getSlug('countries', country)] = sameDayEvent
+    }
   }
 
   for (const category of event?.categories ?? []) {
@@ -74,6 +87,14 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextEvent && nextEvent.id !== event.id) {
       eventNav.nextInCategory![getSlug('categories', category)] = nextEvent
     }
+    const sameDayEvent = await getNearestEvent(
+      event,
+      { categories: { equals: category.id } },
+      'sameDay',
+    )
+    if (sameDayEvent && sameDayEvent.id !== event.id) {
+      eventNav.sameDayInCategory![getSlug('categories', category)] = sameDayEvent
+    }
   }
 
   for (const company of event?.companies ?? []) {
@@ -89,6 +110,14 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     const nextEvent = await getNearestEvent(event, { companies: { equals: company.id } }, 'next')
     if (nextEvent && nextEvent.id !== event.id) {
       eventNav.nextInCompany![getSlug('companies', company)] = nextEvent
+    }
+    const sameDayEvent = await getNearestEvent(
+      event,
+      { companies: { equals: company.id } },
+      'sameDay',
+    )
+    if (sameDayEvent && sameDayEvent.id !== event.id) {
+      eventNav.sameDayInCompany![getSlug('companies', company)] = sameDayEvent
     }
   }
 
@@ -110,6 +139,15 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextEvent && nextEvent.id !== event.id) {
       eventNav.nextInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] = nextEvent
     }
+    const sameDayEvent = await getNearestEvent(
+      event,
+      { organisingGroups: { equals: organisingGroup.id } },
+      'sameDay',
+    )
+    if (sameDayEvent && sameDayEvent.id !== event.id) {
+      eventNav.sameDayInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] =
+        sameDayEvent
+    }
   }
 
   for (const campaign of event?.campaigns?.docs ?? []) {
@@ -126,17 +164,33 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextEvent && nextEvent.id !== event.id) {
       eventNav.nextInCampaign![getSlug('campaigns', campaign)] = nextEvent
     }
+    const sameDayEvent = await getNearestEvent(
+      event,
+      { campaigns: { equals: campaign.id } },
+      'sameDay',
+    )
+    if (sameDayEvent && sameDayEvent.id !== event.id) {
+      eventNav.sameDayInCampaign![getSlug('campaigns', campaign)] = sameDayEvent
+    }
   }
 
   return <EventPage initialEvent={event} eventNav={eventNav} />
 
-  async function getNearestEvent(event: Event, filter: any, direction: 'previous' | 'next') {
+  async function getNearestEvent(
+    event: Event,
+    filter: any,
+    direction: 'previous' | 'next' | 'sameDay',
+  ) {
     const events = await payload.find({
       collection: 'events',
       where: {
         ...filter,
         date: {
-          [direction === 'previous' ? 'less_than' : 'greater_than']: event.date,
+          [direction === 'previous'
+            ? 'less_than'
+            : direction === 'next'
+              ? 'greater_than'
+              : 'equals']: event.date,
         },
         id: {
           not_equals: event.id,
