@@ -319,64 +319,88 @@ function EventBreadcrumbNavLink({
         )}
       />
       <div className="flex flex-col gap-0.5">
-        {event.date && (
-          <span
-            className={twMerge(
-              'font-mono text-xs opacity-60 uppercase ltr',
-              direction === 'previous' ? 'text-right ml-auto' : 'text-left',
-            )}
-          >
-            <DateTime date={event.date} />
-          </span>
-        )}
         <div
           className={twMerge(
-            'text-sm flex flex-wrap gap-x-1 ltr',
-            direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left',
+            'text-xs flex flex-wrap gap-x-1 ltr items-center',
+            direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left justify-start',
           )}
         >
-          {direction === 'previous'
-            ? 'Previously in'
-            : direction === 'next'
-              ? 'Next in'
-              : 'Also today in'}{' '}
+          <span className="text-xs opacity-75">
+            {label === 'categories'
+              ? direction === 'previous'
+                ? 'Previous'
+                : direction === 'next'
+                  ? 'Next'
+                  : 'Also today: '
+              : direction === 'previous'
+                ? 'Previously in'
+                : direction === 'next'
+                  ? 'Next in'
+                  : 'Also today in'}
+          </span>
           {label === 'countries' ? (
-            event.countries?.map((country) => (
-              <CountryLabel country={country as unknown as Country} key={(country as Country).id} />
-            ))
+            event.countries
+              ?.slice(0, 3)
+              .map((country) => (
+                <CountryLabel
+                  country={country as unknown as Country}
+                  key={(country as Country).id}
+                />
+              ))
           ) : label === 'categories' ? (
-            event.categories?.map((category) => (
-              <CategoryLabel
-                category={category as unknown as Category}
-                key={(category as Category).id}
-              />
-            ))
+            event.categories
+              ?.slice(0, 3)
+              .map((category) => (
+                <CategoryLabel
+                  category={category as unknown as Category}
+                  key={(category as Category).id}
+                />
+              ))
           ) : label === 'companies' ? (
-            event.companies?.map((company) => (
-              <CompanyLabel company={company as unknown as Company} key={(company as Company).id} />
-            ))
+            event.companies
+              ?.slice(0, 3)
+              .map((company) => (
+                <CompanyLabel
+                  company={company as unknown as Company}
+                  key={(company as Company).id}
+                />
+              ))
           ) : label === 'organisingGroups' ? (
-            event.organisingGroups?.map((organisingGroup) => (
-              <OrganisingGroupLabel
-                organisingGroup={organisingGroup as unknown as OrganisingGroup}
-                key={(organisingGroup as OrganisingGroup).id}
-              />
-            ))
+            event.organisingGroups
+              ?.slice(0, 3)
+              .map((organisingGroup) => (
+                <OrganisingGroupLabel
+                  organisingGroup={organisingGroup as unknown as OrganisingGroup}
+                  key={(organisingGroup as OrganisingGroup).id}
+                />
+              ))
           ) : label === 'campaigns' ? (
-            event.campaigns?.docs?.map((campaign) => (
-              <CampaignLabel
-                campaign={campaign as unknown as Campaign}
-                key={(campaign as Campaign).id}
-              />
-            ))
+            event.campaigns?.docs
+              ?.slice(0, 3)
+              .map((campaign) => (
+                <CampaignLabel
+                  campaign={campaign as unknown as Campaign}
+                  key={(campaign as Campaign).id}
+                />
+              ))
           ) : label === 'INDIRECT' ? (
             <div>Indirect connection</div>
           ) : label === 'DIRECT' ? (
             <div>Direct connection</div>
           ) : null}
         </div>
-        <div className="text-xs link">{event.name}</div>
+        <div className="text-base font-medium leading-snug">{event.name}</div>
         {description && <div className="text-xs opacity-50 italic mt-0.5">{description}</div>}
+        {event.date && (
+          <span
+            className={twMerge(
+              'text-xs opacity-60 ltr',
+              direction === 'previous' ? 'text-right ml-auto' : 'text-left',
+            )}
+          >
+            <DateTime date={event.date} />
+          </span>
+        )}
       </div>
     </Link>
   )
