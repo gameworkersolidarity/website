@@ -90,12 +90,20 @@ export function FrequencyChart({
                     return color
                   }
                 },
+                tip: true,
               },
             ),
           ),
           // highlightDate
           //   ? Plot.ruleX([new Date(highlightDate)], { stroke: highlightColor, strokeWidth: 3 })
           //   : null,
+          // Plot.tip(
+          //   extraFilteredEvents,
+          //   Plot.pointerX({
+          //     x: (d) => new Date(d.date),
+          //     y: 'initiator',
+          //   }),
+          // ),
         ],
       }
       if (transformPlotConfig) {

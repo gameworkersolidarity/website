@@ -64,12 +64,13 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
 
   const onMouseEvent = useCallback(
     (value: any, event: MouseEvent) => {
-      console.log('mouse event', value, event)
-      if (value.year) {
-        if (filteredYear === value.year.getFullYear()) {
+      const date = value && Array.isArray(value) ? value[0]?.date : null
+      if (date) {
+        const year = getYear(new Date(date))
+        if (filteredYear?.includes(year)) {
           setYearFilter(null)
         } else {
-          setYearFilter(value.year.getFullYear())
+          setYearFilter([year])
         }
       }
     },
@@ -116,7 +117,7 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
                   eventFilter={workerEventsFilter}
                   color={color || getCSSVariable(`--color-gw-blue`, true)}
                   minYear={earliestYear}
-                  onMouseEvent={onMouseEvent}
+                  // onMouseEvent={onMouseEvent}
                 />
               </div>
             </div>
@@ -133,7 +134,7 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
                   eventFilter={redundancyFilter}
                   color={getCSSVariable(`--color-gw-orange`, true)}
                   minYear={earliestYear}
-                  onMouseEvent={onMouseEvent}
+                  // onMouseEvent={onMouseEvent}
                 />
               </div>
             </div>
