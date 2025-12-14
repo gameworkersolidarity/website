@@ -141,6 +141,11 @@ export function CompactEventList({
                 />
               ))}
             </div>
+            {row.original.headcount ? (
+              <span className="text-xs opacity-50">
+                {row.original.headcount} {pluralize('worker', row.original.headcount)}
+              </span>
+            ) : null}
           </TableCell>
         ),
       },
