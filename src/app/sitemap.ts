@@ -22,34 +22,74 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ] = await Promise.all([
     payload.find({
       collection: 'staticPages',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'blogPosts',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'campaigns',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'categories',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'companies',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'countries',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'events',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
     payload.find({
       collection: 'organisingGroups',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
       pagination: false,
     }),
   ])
