@@ -4,6 +4,41 @@ import config from '@/payload.config'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
 import { Campaign, Event } from '@/payload-types'
+import { TimelineLabelProperty } from '@/global-types'
+
+const highlightedEventAttributeOptions: Array<{ label: string; value: TimelineLabelProperty }> = [
+  // Pick from companies, countries, categories, organising groups, headcount
+  {
+    label: 'Companies',
+    value: 'companies',
+  },
+  {
+    label: 'Countries',
+    value: 'countries',
+  },
+  {
+    label: 'Organising Groups',
+    value: 'organisingGroups',
+  },
+  {
+    label: 'Categories',
+    value: 'categories',
+  },
+  {
+    label: 'Headcount',
+    value: 'headcount',
+  },
+  {
+    label: 'Location',
+    value: 'location',
+  },
+  {
+    label: 'Name',
+    value: 'name',
+  },
+]
+
+const defaultHighlightedEventAttribute: TimelineLabelProperty = 'categories'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
@@ -51,18 +86,15 @@ export const Campaigns: CollectionConfig = {
       required: true,
     },
     {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
       name: 'description',
       type: 'richText',
       admin: {
         description: 'Go into more detail.',
-      },
-    },
-    {
-      name: 'featuredImage',
-      type: 'upload',
-      relationTo: 'media',
-      admin: {
-        position: 'sidebar',
       },
     },
     {
@@ -89,6 +121,16 @@ export const Campaigns: CollectionConfig = {
           hasMany: true,
         },
       ],
+    },
+    {
+      name: 'highlightedEventAttribute',
+      type: 'select',
+      defaultValue: defaultHighlightedEventAttribute,
+      options: highlightedEventAttributeOptions,
+      admin: {
+        description: 'Select which value to display in the timeline labels for this campaign.',
+        position: 'sidebar',
+      },
     },
     {
       name: 'path',

@@ -614,6 +614,7 @@ export interface Campaign {
   generateSlug?: boolean | null;
   slug: string;
   name: string;
+  featuredImage?: (string | null) | Media;
   /**
    * Go into more detail.
    */
@@ -632,12 +633,17 @@ export interface Campaign {
     };
     [k: string]: unknown;
   } | null;
-  featuredImage?: (string | null) | Media;
   /**
    * Used to illustrate the campaign label.
    */
   emoji?: string | null;
   events?: (string | Event)[] | null;
+  /**
+   * Select which value to display in the timeline labels for this campaign.
+   */
+  highlightedEventAttribute?:
+    | ('companies' | 'countries' | 'organisingGroups' | 'categories' | 'headcount' | 'location' | 'name')
+    | null;
   path?: string;
   url?: string;
   adminPath?: string;
@@ -1210,10 +1216,11 @@ export interface CampaignsSelect<T extends boolean = true> {
   generateSlug?: T;
   slug?: T;
   name?: T;
-  description?: T;
   featuredImage?: T;
+  description?: T;
   emoji?: T;
   events?: T;
+  highlightedEventAttribute?: T;
   path?: T;
   url?: T;
   adminPath?: T;
