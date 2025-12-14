@@ -2,7 +2,7 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import type { Campaign, Event } from '@/payload-types'
+import type { Campaign, Event, Media } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import { projectStrings } from '@/project-strings'
@@ -22,6 +22,8 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
     depth: 3,
   })
 
+  const campaign = page as Campaign
+
   const events = page.events as Event[]
 
   return (
@@ -37,11 +39,11 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
             {page.description && <LexicalRenderer content={page.description} />}
           </div>
           <Image
-            src={page.featuredImage.url}
+            src={(campaign.featuredImage as Media).cloudinary?.secure_url || page.featuredImage.url}
             alt={page.name}
-            width={page.featuredImage.width || 1000}
-            height={page.featuredImage.height || 1000}
-            className="sticky top-6"
+            width={page.featuredImage.width}
+            height={page.featuredImage.height}
+            className="sticky top-6 h-full w-full object-cover"
           />
         </div>
       ) : (
