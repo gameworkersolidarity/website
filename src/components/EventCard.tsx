@@ -342,18 +342,21 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
 
 export function EventCard({ data, displayStandaloneInfo = false, links = true }: CardProps) {
   const Wrapper = links
-    ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
+    ? ({ children }: { children: React.ReactNode }) => (
+        <Link href={data.path!} className="block order-0 md:order-1">
+          {children}
+        </Link>
+      )
     : ({ children }: { children: React.ReactNode }) => children
 
   return (
     <>
       <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
-        <div className={twMerge('p-4 lg:px-8 bg-white')}>
-          <div className="text-sm">
+        <div className={twMerge('p-4 lg:px-8 bg-white flex flex-col gap-4')}>
+          <div className="text-sm order-1 md:order-0">
             <ActionMetadata data={data} link={links} />
           </div>
           <Wrapper>
-            <div className="pb-4" />
             <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
               {data.name}
             </h3>
@@ -361,11 +364,11 @@ export function EventCard({ data, displayStandaloneInfo = false, links = true }:
           {data.description && (
             <LexicalRenderer
               content={data.description}
-              className={'w-full pt-4 text-lg font-light'}
+              className={'w-full text-lg font-light order-2 md:order-2'}
             />
           )}
-          <div className="flex flex-row space-x-4 mt-3 text-sm">
-            {data.link && links && (
+          {data.link && links && (
+            <div className="flex flex-row space-x-4 text-sm">
               <Link href={data.link} className="block my-1">
                 <Emoji symbol="🔗" label="Link" className="align-baseline" />
                 &nbsp;
@@ -373,8 +376,8 @@ export function EventCard({ data, displayStandaloneInfo = false, links = true }:
                   {new URL(data.link).hostname}
                 </span>
               </Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         {!!data.documents && data.documents.length > 0 && (
           <div className="p-4 md:px-8 bg-white text-sm">
