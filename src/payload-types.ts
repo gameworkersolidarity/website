@@ -1385,6 +1385,24 @@ export interface AboutPage {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Rich text credits for the about page. Will be displayed in columns after the description.
+   */
+  credits?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1521,6 +1539,7 @@ export interface StartOrganisingSelect<T extends boolean = true> {
  */
 export interface AboutPageSelect<T extends boolean = true> {
   description?: T;
+  credits?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

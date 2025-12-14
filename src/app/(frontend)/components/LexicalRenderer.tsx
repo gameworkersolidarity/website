@@ -16,7 +16,7 @@ export function LexicalRenderer({
     return null
   }
   return (
-    <div className={twMerge('lexical-content prose', className)}>
+    <div className={twMerge('lexical-content prose leading-relaxed', className)}>
       <PayloadLexicalReactRenderer content={content as PayloadLexicalReactRendererContent} />
     </div>
   )
