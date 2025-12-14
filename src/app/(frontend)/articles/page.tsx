@@ -35,9 +35,9 @@ export default async function BlogPage() {
   })
 
   return (
-    <main className="max-w-xl mx-auto py-5 px-4 flex flex-col gap-4">
+    <main className="max-w-xl mx-auto py-4 md:py-5 px-4 flex flex-col gap-4">
       <header className="flex flex-col gap-4">
-        <h1 className="text-5xl font-bold font-identity">Articles</h1>
+        <h1 className="text-4xl md:text-5xl font-bold font-identity">Articles</h1>
         <Link href="/articles/feed.xml" className="link flex flex-row items-center gap-2">
           <Rss className="w-4 h-4 inline-block" />
           <span className="inline-block">RSS Feed</span>
