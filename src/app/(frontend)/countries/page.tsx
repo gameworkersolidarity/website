@@ -4,7 +4,7 @@ import Link from 'next/link'
 import config from '@/payload.config'
 
 export const metadata = {
-  title: 'Countries - Game Workers Solidarity Platform',
+  title: 'Countries',
   description:
     'Explore countries where solidarity actions have taken place in the global video game industry.',
 }

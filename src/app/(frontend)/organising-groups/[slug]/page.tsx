@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const group = groupResult.docs[0]
   return {
-    title: `${group.fullName || group.name} - Game Workers Solidarity Platform`,
+    title: `${group.fullName || group.name}`,
     description:
       group.description?.root?.children[0]?.text ??
       `${group.fullName || group.name} organise workers in the video game industry.`,

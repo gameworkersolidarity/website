@@ -6,7 +6,7 @@ import { LexicalRenderer } from '../components/LexicalRenderer'
 import { EventSubmissionForm } from './EventSubmissionForm'
 
 export const metadata = {
-  title: 'Submit an Event - Game Workers Solidarity Platform',
+  title: 'Submit an Event',
   description: 'Submit a new event to the Game Workers Solidarity Platform',
 }
 
@@ -80,4 +80,3 @@ export default async function SubmitEventPage() {
     return notFound()
   }
 }
-

@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const category = categoryResult.docs[0]
   return {
-    title: `${capitalize(category.name)} - Game Workers Solidarity Platform`,
+    title: `${capitalize(category.name)}`,
     description:
       category.description?.root?.children[0]?.text ??
       `Learn more about worker organising in the video game industry.`,

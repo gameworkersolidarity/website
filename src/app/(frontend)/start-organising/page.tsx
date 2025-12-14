@@ -11,7 +11,7 @@ import { OrganisingGroupLinks } from '../organising-groups/[slug]/OrganisingGrou
 import { notFound } from 'next/navigation'
 
 export const metadata = {
-  title: 'Start Organising - Game Workers Solidarity Platform',
+  title: 'Start Organising',
   description:
     'Find organising groups and unions by country to get started with worker organising.',
 }

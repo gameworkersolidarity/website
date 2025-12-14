@@ -273,7 +273,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const event = eventResult.docs[0]
   return {
-    title: `${event.name} - Game Workers Solidarity Platform`,
+    title: `${event.name}`,
     description:
       event.description?.root?.children[0]?.text ??
       `Learn about worker organising in the video game industry.`,

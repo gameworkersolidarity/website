@@ -101,6 +101,6 @@ export default async function DataPage() {
 }
 
 export const metadata: Metadata = {
-  title: 'Get the data - Game Workers Solidarity Platform',
+  title: 'Get the data',
   description: 'Get the data from the Game Workers Solidarity Platform',
 }

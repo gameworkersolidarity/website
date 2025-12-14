@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const country = countryResult.docs[0]
   return {
-    title: `Worker organising in ${country.name} - Game Workers Solidarity Platform`,
+    title: `Worker organising in ${country.name}`,
     description:
       country.description?.root?.children[0]?.text ??
       `Learn about video game worker organising in ${country.name}.`,
