@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Users } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { getSlug } from '@/utils/payloadPath'
+import { projectStrings } from '@/project-strings'
 
 export function OrganisingGroupLabel({
   organisingGroup,
@@ -79,6 +80,7 @@ export function RenderedOrganisingGroupLabel({
       {!!logo &&
       organisingGroup.logo &&
       typeof organisingGroup.logo === 'object' &&
+      projectStrings.STORAGE_TYPE === 'cloudinary' &&
       (organisingGroup.logo as Media).cloudinary?.secure_url ? (
         <Image
           src={(organisingGroup.logo as Media).cloudinary!.secure_url!}

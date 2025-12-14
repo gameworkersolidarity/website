@@ -20,4 +20,5 @@ export const projectStrings = {
     .get('SUBMISSION_NOTIFICATION_EMAIL')
     .default('austin@austinkelmore.com')
     .asString(),
+  STORAGE_TYPE: env.get('STORAGE_TYPE').default('local').asString(),
 }

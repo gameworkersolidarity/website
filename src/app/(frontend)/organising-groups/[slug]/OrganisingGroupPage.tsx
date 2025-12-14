@@ -98,17 +98,20 @@ export function OrganisingGroupPage({
                     </p>
                   )}
                 </div>
-                {page.logo && typeof page.logo === 'object' && page.logo.url && (
-                  <div className="shrink-0">
-                    <Image
-                      src={page.logo.cloudinary!.secure_url!}
-                      alt={page.logo.alt || `${page.fullName || page.name} logo`}
-                      width={120}
-                      height={120}
-                      className="object-contain"
-                    />
-                  </div>
-                )}
+                {projectStrings.STORAGE_TYPE === 'cloudinary' &&
+                  page.logo &&
+                  typeof page.logo === 'object' &&
+                  page.logo.url && (
+                    <div className="shrink-0">
+                      <Image
+                        src={page.logo.cloudinary!.secure_url!}
+                        alt={page.logo.alt || `${page.fullName || page.name} logo`}
+                        width={120}
+                        height={120}
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
               </div>
             </div>
             {page.featuredImage &&
