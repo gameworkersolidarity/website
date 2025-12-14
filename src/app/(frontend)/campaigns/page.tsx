@@ -56,7 +56,7 @@ export default async function CampaignsPage() {
   return (
     <main className="max-w-xl mx-auto py-5 px-4 flex flex-col gap-4">
       <header className="flex flex-col gap-4">
-        <h1 className="text-5xl font-bold font-identity">Campaigns</h1>
+        <h1 className="text-4xl md:text-5xl font-bold font-identity">Campaigns</h1>
         {campaignPageData.description && <LexicalRenderer content={campaignPageData.description} />}
       </header>
 
@@ -78,7 +78,7 @@ export default async function CampaignsPage() {
                 href={campaign.path!}
                 className="flex flex-col bg-white rounded-xl overflow-hidden"
               >
-                <header className="p-4 flex flex-col gap-2">
+                <header className="p-4 md:p-5 pb-0! flex flex-col gap-2">
                   <h2 className="text-2xl font-bold font-identity">
                     <CampaignLabel campaign={campaign} />
                   </h2>
@@ -101,11 +101,11 @@ export default async function CampaignsPage() {
                       width={campaign.featuredImage.width!}
                       height={campaign.featuredImage.height!}
                       objectFit="cover"
-                      className="w-full h-48 object-cover overflow-hidden"
+                      className="w-full h-48 object-cover overflow-hidden my-4"
                     />
                   )}
                 {campaign.description && (
-                  <LexicalRenderer content={campaign.description} className="p-4" />
+                  <LexicalRenderer content={campaign.description} className="p-4 md:p-5 pt-3!" />
                 )}
               </Link>
             )

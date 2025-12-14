@@ -11,8 +11,8 @@ export function CompanyLabel({ company, link }: { company: Company; link?: boole
       return <SoftLinkCompanyLabel company={company} />
     }
     return (
-      <Link href={company.path || '/'} className="link">
-        <RenderedCompanyLabel company={company} />
+      <Link href={company.path || '/'}>
+        <RenderedCompanyLabel company={company} textClassName="link" />
       </Link>
     )
   } else {

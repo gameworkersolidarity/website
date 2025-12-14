@@ -249,16 +249,9 @@ body {
 }
 
 @layer components {
-  .link {
-    @apply underline cursor-pointer font-semibold
-  }
-
+  .link,
   .prose a {
-    color: inherit;
-  }
-  
-  .prose a:hover {
-    color: inherit;
+    @apply underline cursor-pointer font-semibold hover:bg-snot-300;
   }
 
   .button {
