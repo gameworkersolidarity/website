@@ -87,7 +87,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
           )}
         </aside>
         <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
-          <EventCard data={event} withContext displayStandaloneInfo />
+          <EventCard data={event} links displayStandaloneInfo />
           {hasSameDayEvents && <SameDayEvents events={eventNav} />}
           <EventHistogramContext event={event} />
         </main>
