@@ -7,8 +7,9 @@ import { EventsList } from './EventCard'
 import { ZoomLevel } from '@/utils/global-state'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import pluralize from 'pluralize'
-import { EventTimeline, TimelineLabelProperty } from './EventsTimeline'
+import { EventTimeline } from './EventsTimeline'
 import { EventFilter, EventFilterProps } from '@/app/(frontend)/components/EventFilter'
+import { TimelineLabelProperty } from '@/global-types'
 
 export function ZoomlevelSelector({
   value,
