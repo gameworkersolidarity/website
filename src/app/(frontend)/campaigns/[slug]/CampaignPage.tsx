@@ -30,7 +30,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
       <AdminEditBanner page={page} />
       {page.featuredImage && typeof page.featuredImage === 'object' && page.featuredImage?.url ? (
         <div className="w-full mx-auto grid md:grid-cols-2 bg-white">
-          <div className="flex flex-col gap-4 p-4 md:p-5 lg:p-6 xl:p-8 sticky top-6">
+          <div className="flex flex-col gap-4 p-4 md:p-5 lg:p-6 xl:p-8">
             <header>
               <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
               <h1 className="text-4xl md:text-5xl font-bold font-identity">{page.name}</h1>
@@ -42,7 +42,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
             alt={page.name}
             width={page.featuredImage.width || 1000}
             height={page.featuredImage.height || 1000}
-            className="sticky top-6 h-full w-full object-cover"
+            className="sticky top-6 h-full max-h-screen w-full object-cover"
           />
         </div>
       ) : (
