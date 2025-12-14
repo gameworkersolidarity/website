@@ -63,13 +63,13 @@ export function EventExplorer({
           defaultSize={40}
           collapsible
           ref={collapsibleRef}
-          className="transition-all duration-500 ease-in-out"
+          className="transition-all duration-500 ease-in-out hidden md:block"
         >
           <div className="sticky top-6 h-[calc(100vh-60px)]">
             <EventStats color={primaryColor} graphs={false} />
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="hidden md:flex" />
         <ResizablePanel defaultSize={60}>
           <EventList
             linkStyle={linkStyle}

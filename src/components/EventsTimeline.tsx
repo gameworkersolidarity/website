@@ -163,9 +163,7 @@ export function Slideshow({
               size={20}
               onClick={() => setCurrentEventId(list[index - 1].id)}
             />
-            <Link href={event.path || ''} shallow>
-              <EventCard data={event} />
-            </Link>
+            <EventCard data={event} link />
             <ArrowRight
               className={twMerge(
                 'w-20 cursor-pointer',

@@ -6,9 +6,13 @@ import { twMerge } from 'tailwind-merge'
 
 export type PlotMouseEvent<T> = (value: T, event: MouseEvent) => void
 
-export function usePlotConfig(cb: (plot: typeof Plot) => HTMLElement | SVGElement, memoize: any[]) {
+export function usePlotConfig(
+  cb: (plot: typeof Plot) => HTMLElement | SVGElement | null,
+  memoize: any[],
+) {
   return useMemo(() => {
     try {
+      if (!Plot || !cb) return null
       return cb(Plot)
     } catch (error) {
       console.error("Couldn't create plot", error)

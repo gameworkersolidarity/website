@@ -1,10 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-import type { Country, Category, Company, OrganisingGroup, Campaign } from '@/payload-types'
-import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-import Emoji from 'a11y-react-emoji'
 import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { useEventFilterContext } from '@/components/EventFilterContextProvider'
@@ -18,6 +14,17 @@ import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CampaignLabel } from '@/components/CampaignLabel'
 import { MultiSelect } from '@/components/MultiSelect'
 import pluralize from 'pluralize'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { useState } from 'react'
+import {
+  ChevronsDown,
+  ChevronsDownUp,
+  ChevronsUp,
+  ChevronsUpDown,
+  Expand,
+  ListCollapse,
+} from 'lucide-react'
+import { useMediaQuery } from 'usehooks-ts'
 
 export type EventFilterProps = {
   years?: boolean
@@ -73,23 +80,35 @@ export function EventFilter({
     countries,
   ].filter(Boolean).length
 
+  const isMobile = useMediaQuery('(max-width: 768px)')
+
+  const [open, setOpen] = useState(!isMobile)
+
   return (
-    <div>
-      <div
+    <Collapsible
+      className={twMerge(
+        'flex flex-col items-baseline',
+        initiators ? 'flex-col' : 'md:flex-row gap-4',
+      )}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <section
         className={twMerge(
-          'flex flex-col items-baseline',
-          initiators ? 'flex-col' : 'md:flex-row gap-4',
+          'shrink-0 flex flex-row items-center justify-between gap-2',
+          initiators && 'w-full ',
         )}
       >
-        <section
-          className={twMerge(
-            'shrink-0 flex flex-row items-center justify-between gap-2 mb-2',
-            initiators && 'w-full ',
-          )}
-        >
-          <div className="flex flex-row items-baseline gap-2">
+        <div className="flex flex-row items-baseline gap-2">
+          <CollapsibleTrigger className="flex flex-row items-center gap-2 cursor-pointer">
             <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
-            {/* {((filteredCountryISOA2 && filteredCountryISOA2.length > 0) ||
+            {open ? (
+              <ChevronsDownUp className="w-3.5 h-3.5 text-stone-500" />
+            ) : (
+              <ChevronsUpDown className="w-3.5 h-3.5 text-stone-500" />
+            )}
+          </CollapsibleTrigger>
+          {/* {((filteredCountryISOA2 && filteredCountryISOA2.length > 0) ||
             (filteredCategorySlug && filteredCategorySlug.length > 0) ||
             (filteredCompanySlug && filteredCompanySlug.length > 0) ||
             (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) ||
@@ -100,36 +119,38 @@ export function EventFilter({
               reset ⤬
             </div>
           )} */}
-          </div>
-          {initiators && (
-            <RadioGroup
-              value={filteredInitiator || ''}
-              onValueChange={(value) => setInitiatorFilter(value as EventInitiator)}
-              className="hidden md:flex flex-row items-right gap-3"
-            >
-              {[
-                { label: 'Worker-led', value: EventInitiator.WORKER_LED },
-                { label: 'Boss-led', value: EventInitiator.BOSS_LED },
-                { label: 'All', value: EventInitiatorFilter.ALL },
-              ].map((initiator) => (
-                <div key={initiator.label} className="flex items-center gap-2">
-                  <Label htmlFor={initiator.label} className="text-xs uppercase">
-                    <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
-                    <DisplayInitiator initiator={initiator.value as EventInitiator} link="soft" />
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          )}
-        </section>
+        </div>
+        {initiators && (
+          <RadioGroup
+            value={filteredInitiator || ''}
+            onValueChange={(value) => setInitiatorFilter(value as EventInitiator)}
+            className="hidden md:flex flex-row items-right gap-3"
+          >
+            {[
+              { label: 'Worker-led', value: EventInitiator.WORKER_LED },
+              { label: 'Boss-led', value: EventInitiator.BOSS_LED },
+              { label: 'All', value: EventInitiatorFilter.ALL },
+            ].map((initiator) => (
+              <div key={initiator.label} className="flex items-center gap-2">
+                <Label htmlFor={initiator.label} className="text-xs uppercase">
+                  <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
+                  <DisplayInitiator initiator={initiator.value as EventInitiator} link="soft" />
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        )}
+      </section>
+      <CollapsibleContent className="w-full">
         <div
           className={twMerge(
-            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full',
-            countEnabledFilters === 5 && 'lg:grid-cols-5',
-            countEnabledFilters === 4 && 'lg:grid-cols-4',
-            countEnabledFilters === 3 && 'lg:grid-cols-3',
-            countEnabledFilters === 2 && 'lg:grid-cols-2',
-            countEnabledFilters === 1 && 'lg:grid-cols-1',
+            'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full',
+            countEnabledFilters === 5 && 'md:grid-cols-3 lg:grid-cols-5',
+            countEnabledFilters === 4 && 'md:grid-cols-2 lg:grid-cols-4',
+            countEnabledFilters === 3 && 'md:grid-cols-3 lg:grid-cols-3',
+            countEnabledFilters === 2 && 'md:grid-cols-2 lg:grid-cols-2',
+            countEnabledFilters === 1 && 'md:grid-cols-1 lg:grid-cols-1',
+            initiators && 'mt-2',
           )}
         >
           {categories && (
@@ -330,23 +351,23 @@ export function EventFilter({
             </div>
           )}
         </div>
-      </div>
-      {selectedPopupIds && selectedPopupIds.length > 0 && (
-        <div className="mt-2 text-xs flex flex-row flex-wrap items-center gap-2">
-          You&apos;re viewing a selection of {pluralize('event', selectedPopupIds.length, true)}.{' '}
-          <div className="link" onClick={() => clearAllFilters()}>
-            Deselect all
+        {selectedPopupIds && selectedPopupIds.length > 0 && (
+          <div className="mt-2 text-xs flex flex-row flex-wrap items-center gap-2">
+            You&apos;re viewing a selection of {pluralize('event', selectedPopupIds.length, true)}.{' '}
+            <div className="link" onClick={() => clearAllFilters()}>
+              Deselect all
+            </div>
           </div>
-        </div>
-      )}
-      {/* <div>
-        <Input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div> */}
-    </div>
+        )}
+        {/* <div>
+          <Input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div> */}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

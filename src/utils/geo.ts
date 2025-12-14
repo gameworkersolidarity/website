@@ -12,11 +12,16 @@ export const getViewportForFeatures = (
   addressBounds: [number, number, number, number],
   fitBoundsArgs: Parameters<WebMercatorViewport['fitBounds']>[1],
 ) => {
-  // Create a calculator to generate new viewports
-  const parsedViewport = new WebMercatorViewport(viewport)
-  if (!addressBounds.every((n) => n !== Infinity)) return
-  const newViewport = parsedViewport.fitBounds(bboxToBounds(addressBounds as any), fitBoundsArgs)
-  return newViewport
+  try {
+    // Create a calculator to generate new viewports
+    const parsedViewport = new WebMercatorViewport(viewport)
+    if (!addressBounds.every((n) => n !== Infinity)) return
+    const newViewport = parsedViewport.fitBounds(bboxToBounds(addressBounds as any), fitBoundsArgs)
+    return newViewport
+  } catch (error) {
+    // Famously quite fragile
+    return null
+  }
 }
 
 export const bboxToBounds = (

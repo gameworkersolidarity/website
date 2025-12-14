@@ -136,7 +136,7 @@ export default buildConfig({
   db: mongooseAdapter({
     url: env.get('DATABASE_URL').required().asString(),
   }),
-  email: env.get('SMTP_HOST')
+  email: env.get('SMTP_PASS')
     ? nodemailerAdapter({
         defaultFromAddress: projectStrings.email,
         defaultFromName: projectStrings.name,

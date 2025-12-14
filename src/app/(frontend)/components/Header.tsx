@@ -128,7 +128,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
           // Hamburger -> modal menu
           <div className="flex flex-row items-center">
             <Sheet>
-              <SheetTrigger>
+              <SheetTrigger asChild>
                 <Button variant="ghost">
                   <MenuIcon className="w-6 h-6" aria-label="Open menu" />
                 </Button>

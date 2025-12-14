@@ -37,12 +37,12 @@ export function HomepageClient({
     >
       <div className="homepage">
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
-          <ResizablePanel defaultSize={40}>
+          <ResizablePanel defaultSize={40} className="hidden md:block">
             <div className="sticky top-6 h-[calc(100vh-60px)]">
               <EventStats />
             </div>
           </ResizablePanel>
-          <ResizableHandle />
+          <ResizableHandle className="hidden md:flex" />
           <ResizablePanel defaultSize={60}>
             <EventList
               linkStyle="soft"

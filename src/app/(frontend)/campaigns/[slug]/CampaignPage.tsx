@@ -32,7 +32,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           <div className="flex flex-col gap-4 p-4 md:p-5 lg:p-6 xl:p-8 sticky top-6">
             <header>
               <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
-              <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold font-identity">{page.name}</h1>
             </header>
             {page.description && <LexicalRenderer content={page.description} />}
           </div>
@@ -45,12 +45,14 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           />
         </div>
       ) : (
-        <article className="max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4 bg-white">
-          <header>
-            <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
-            <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
-          </header>
-          {page.description && <LexicalRenderer content={page.description} />}
+        <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4">
+          <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
+            <header>
+              <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
+              <h1 className="text-4xl md:text-5xl font-bold font-identity">{page.name}</h1>
+            </header>
+            {page.description && <LexicalRenderer content={page.description} />}
+          </section>
         </article>
       )}
 

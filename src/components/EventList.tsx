@@ -64,7 +64,7 @@ export function EventList({
       <header className="mt-1 sticky top-6 bg-background pt-3 z-40">
         <div className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 pb-2">
           <div className="flex flex-col gap-2">
-            <h2 className="text-4xl font-bold font-identity">
+            <h2 className="text-4xl lg:text-5xl font-bold font-identity">
               {pluralize('event', events.length, true)}
             </h2>
           </div>

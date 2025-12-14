@@ -388,6 +388,24 @@ const CountryLayer = ({
   // }>()
   const map = useContext(MapContext) as MapboxMap
 
+  // useEffect(() => {
+  //   try {
+  //     if (map) {
+  //       for (const layer of BACKGROUND_LAYER_IDS) {
+  //         if (map && map?.getLayer(layer) && 'setPaintProperty' in map) {
+  //           map.setPaintProperty(
+  //             layer,
+  //             'fill-color',
+  //             getCSSVariable(`--color-gw-pink`, true, 'pink'),
+  //           )
+  //         }
+  //       }
+  //     }
+  //   } catch {
+  //     // console.error(error)
+  //   }
+  // }, [map])
+
   return (
     <>
       <Source
@@ -397,7 +415,7 @@ const CountryLayer = ({
           url: 'mapbox://mapbox.country-boundaries-v1',
         }}
       />
-      {BACKGROUND_LAYER_IDS.map((layer) => (
+      {/* {BACKGROUND_LAYER_IDS.map((layer) => (
         <Layer
           key={layer}
           {...{
@@ -410,7 +428,7 @@ const CountryLayer = ({
             },
           }}
         />
-      ))}
+      ))} */}
       <Layer
         before="settlement-subdivision-label"
         {...{

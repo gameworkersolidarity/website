@@ -52,7 +52,7 @@ interface CardProps {
   withContext?: boolean
   contextProps?: Partial<ContextProps>
   displayStandaloneInfo?: boolean
-  linkStyle?: 'soft' | boolean
+  link?: 'soft' | boolean
 }
 
 interface ContextProps {
@@ -139,27 +139,31 @@ export function EventsList({
               </div>
               <div className="flex flex-col gap-4">
                 {shownActions.map((action) => (
-                  <Link key={action.id} href={action.path!} shallow>
-                    <div className="transition cursor-pointer group" id={action.slug}>
-                      {fullDisplay ? (
-                        <EventCard data={action} hoverable />
-                      ) : (
-                        <EventItem data={action} hoverable />
-                      )}
-                    </div>
-                  </Link>
+                  // <Link key={action.id} href={action.path!} shallow>
+                  <div key={action.id} className="transition cursor-pointer group" id={action.slug}>
+                    {fullDisplay ? (
+                      <EventCard data={action} link />
+                    ) : (
+                      <EventItem data={action} link />
+                    )}
+                  </div>
+                  // </Link>
                 ))}
                 <div className={twMerge(hiddenActionsOpen ? 'flex flex-col gap-4' : 'hidden')}>
                   {hiddenActions.map((action) => (
-                    <Link key={action.id} href={action.path!} shallow>
-                      <div className="transition cursor-pointer group" id={action.slug}>
-                        {fullDisplay ? (
-                          <EventCard data={action} hoverable />
-                        ) : (
-                          <EventItem data={action} hoverable />
-                        )}
-                      </div>
-                    </Link>
+                    // <Link key={action.id} href={action.path!}>
+                    <div
+                      key={action.id}
+                      className="transition cursor-pointer group"
+                      id={action.slug}
+                    >
+                      {fullDisplay ? (
+                        <EventCard data={action} link />
+                      ) : (
+                        <EventItem data={action} link />
+                      )}
+                    </div>
+                    // </Link>
                   ))}
                 </div>
               </div>
@@ -199,7 +203,11 @@ export function EventsList({
   )
 }
 
-export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolean }) {
+export function EventItem({ data, link }: { data: Event; link: boolean }) {
+  const Wrapper = link
+    ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
+    : ({ children }: { children: React.ReactNode }) => children
+
   return (
     <article
       style={{
@@ -214,24 +222,28 @@ export function EventItem({ data, hoverable }: { data: Event; hoverable?: boolea
         data.initiator === EventInitiator.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
       )}
     >
-      <h3 className="text-2xl leading-tight font-semibold max-w-3xl">{data.name}</h3>
+      <Wrapper>
+        <h3 className="text-2xl leading-tight font-semibold max-w-3xl">{data.name}</h3>
+      </Wrapper>
       {(!!data.link || !!data.documents?.length) && (
         <div className="flex flex-row mt-3 flex-wrap">
           {data.link && (
-            <a href={data.link} className="block my-1 mr-2">
+            <Link href={data.link} className="block my-1 mr-2">
               <Emoji symbol="🔗" label="Link" className="align-baseline" />
               &nbsp;
               <span className="align-baseline underline text-inherit">
                 {new URL(data.link).hostname}
               </span>
-            </a>
+            </Link>
           )}
           {data.documents?.map((doc) => (
             <DocumentLink key={(doc as Media).id} document={doc as unknown as Media} />
           ))}
         </div>
       )}
-      <ActionMetadata data={data} />
+      <Wrapper>
+        <ActionMetadata data={data} />
+      </Wrapper>
     </article>
   )
 }
@@ -244,7 +256,7 @@ export function DocumentLink({
   withPreview?: boolean
 }) {
   return (
-    <a href={document.url || ''} className="block my-1 mr-2">
+    <Link href={document.url || ''} className="block my-1 mr-2">
       <span className={twMerge(withPreview && 'block')}>
         <Emoji symbol="📑" label="File attachment" className="align-baseline" />
         &nbsp;
@@ -262,11 +274,11 @@ export function DocumentLink({
           />
         </div>
       )}
-    </a>
+    </Link>
   )
 }
 
-export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: 'soft' | boolean }) {
+export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | boolean }) {
   return (
     <div className="flex flex-wrap tracking-tight gap-4 gap-y-1">
       <span className="font-semibold">
@@ -275,11 +287,7 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
       {!!data.countries?.length && (
         <div className="inline-flex flex-wrap gap-x-2">
           {data.countries.map((country) => (
-            <CountryLabel
-              country={country as Country}
-              key={(country as Country).id}
-              link={linkStyle}
-            />
+            <CountryLabel country={country as Country} key={(country as Country).id} link={link} />
           ))}
         </div>
       )}
@@ -290,7 +298,7 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
             <CategoryLabel
               category={category as unknown as Category}
               key={(category as Category).id}
-              link={linkStyle}
+              link={link}
             />
           ))}
         </div>
@@ -298,17 +306,13 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
       {!!data.companies?.length && (
         <div className="inline-flex flex-wrap gap-x-2">
           {data.companies.map((company) => (
-            <CompanyLabel
-              company={company as Company}
-              key={(company as Company).id}
-              link={linkStyle}
-            />
+            <CompanyLabel company={company as Company} key={(company as Company).id} link={link} />
           ))}
         </div>
       )}
       {!!data.initiator && data.initiator === EventInitiator.BOSS_LED && (
         <div className="inline-flex flex-wrap gap-x-2">
-          <DisplayInitiator initiator={data.initiator as EventInitiator} link={linkStyle} />
+          <DisplayInitiator initiator={data.initiator as EventInitiator} link={link} />
         </div>
       )}
       {!!data.organisingGroups?.length && (
@@ -317,7 +321,7 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
             <OrganisingGroupLabel
               organisingGroup={organisingGroup as OrganisingGroup}
               key={(organisingGroup as OrganisingGroup).id}
-              link={linkStyle}
+              link={link}
             />
           ))}
         </div>
@@ -326,16 +330,24 @@ export function ActionMetadata({ data, linkStyle }: { data: Event; linkStyle?: '
   )
 }
 
-export function EventCard({ data, displayStandaloneInfo = false, linkStyle = true }: CardProps) {
+export function EventCard({ data, displayStandaloneInfo = false, link = true }: CardProps) {
+  const Wrapper = link
+    ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
+    : ({ children }: { children: React.ReactNode }) => children
+
   return (
     <>
       <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
         <div className={twMerge('p-4 lg:px-8 bg-white')}>
           <div className="text-sm">
-            <ActionMetadata data={data} linkStyle={linkStyle} />
+            <ActionMetadata data={data} link={link} />
           </div>
-          <div className="pb-4" />
-          <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>{data.name}</h3>
+          <Wrapper>
+            <div className="pb-4" />
+            <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
+              {data.name}
+            </h3>
+          </Wrapper>
           {data.description && (
             <LexicalRenderer
               content={data.description}
@@ -344,13 +356,13 @@ export function EventCard({ data, displayStandaloneInfo = false, linkStyle = tru
           )}
           <div className="flex flex-row space-x-4 mt-3 text-sm">
             {data.link && (
-              <a href={data.link} className="block my-1">
+              <Link href={data.link} className="block my-1">
                 <Emoji symbol="🔗" label="Link" className="align-baseline" />
                 &nbsp;
                 <span className="align-baseline underline text-inherit">
                   {new URL(data.link).hostname}
                 </span>
-              </a>
+              </Link>
             )}
           </div>
         </div>

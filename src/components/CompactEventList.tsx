@@ -352,7 +352,7 @@ export function CompactEventList({
               className={twMerge(
                 'bg-white hover:bg-snot-300',
                 row.getIsSelected() && 'bg-snot-300',
-                row.original.initiator === EventInitiator.WORKER_LED && 'bg-blue-50',
+                // row.original.initiator === EventInitiator.WORKER_LED && 'bg-blue-50',
                 row.original.initiator === EventInitiator.BOSS_LED && 'bg-orange-50',
               )}
             >

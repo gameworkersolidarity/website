@@ -5,8 +5,8 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import '@/app/globals.css'
-import { ThemeProvider } from 'next-themes'
 import { navLinks } from '../links'
+import { ThemeProvider } from '@/components/NextTheme'
 
 export const metadata = {
   description:
@@ -49,8 +49,8 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   ]
 
   return (
-    <html lang="en">
-      <body className="flex flex-col min-h-screen">
+    <html lang="en" suppressHydrationWarning={true}>
+      <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
         <ThemeProvider defaultTheme="light" disableTransitionOnChange>
           <NuqsAdapter>
             <Suspense

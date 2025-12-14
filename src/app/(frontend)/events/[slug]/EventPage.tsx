@@ -80,7 +80,7 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
   return (
     <div className="bg-gwBackground" style={{ minHeight: '66vh' }}>
       <AdminEditBanner page={event} />
-      <div className="mx-auto py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
+      <div className="mx-auto py-4 md:py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
           {hasPreviousEvents && (
             <PreviousEvents eventNav={eventNav} previousRelatedEvents={previousRelatedEvents} />

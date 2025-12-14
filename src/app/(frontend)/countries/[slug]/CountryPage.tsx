@@ -48,12 +48,12 @@ export function CountryPage({
       <AdminEditBanner page={page} />
       <article
         className={twMerge(
-          'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',
+          'max-w-4xl mx-auto md:py-5 px-4 flex flex-col gap-4',
           textColor === 'white' && 'text-white',
         )}
       >
         <header className="sticky top-6 py-4 z-20" style={{ backgroundColor: primaryColor }}>
-          <h1 className="text-5xl font-bold font-identity">
+          <h1 className="text-4xl md:text-5xl font-bold font-identity">
             <CountryLabel country={page} />
           </h1>
         </header>

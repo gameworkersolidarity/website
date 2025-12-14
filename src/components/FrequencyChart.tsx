@@ -47,69 +47,74 @@ export function FrequencyChart({
 
   const plotConfig = usePlotConfig(
     (Plot) => {
-      const domain = [dateFrom, new Date()]
-      let config: PlotOptions = {
-        width: size.width,
-        height: size.height,
-        marginBottom: 50,
-        y: {
-          grid: true,
-        },
-        x: {
-          domain,
-        },
-        marks: [
-          Plot.axisY({
-            tickFormat: (d) => (d > Math.floor(d) ? '' : `${d}`),
-            tickSize: 0,
-          }),
-          Plot.axisX({
-            textAnchor: 'start',
-            tickSize: 0,
-          }),
-          Plot.rectY(
-            extraFilteredEvents,
-            Plot.binX(
-              {
-                y: countBy === 'headcount' ? 'sum' : 'count',
-              },
-              {
-                x: (d: Event) => new Date(d.date),
-                ...(countBy === 'headcount' ? { y: 'headcount' } : {}),
-                // y: countBy,
-                interval: Plot.utcInterval(`1 ${getDateInterval(domain)}`),
-                // @ts-expect-error - fill is, in fact, a valid property for BinXInputs
-                // fill: color,
-                fill: (d: Event) => {
-                  try {
-                    if (highlightDate && getYear(new Date(d.date)) === getYear(highlightDate)) {
-                      return highlightColor
-                    }
-                    return color
-                  } catch {
-                    return color
-                  }
+      try {
+        const domain = [dateFrom, new Date()]
+        let config: PlotOptions = {
+          width: size.width,
+          height: size.height,
+          marginBottom: 50,
+          y: {
+            grid: true,
+          },
+          x: {
+            domain,
+          },
+          marks: [
+            Plot.axisY({
+              tickFormat: (d) => (d > Math.floor(d) ? '' : `${d}`),
+              tickSize: 0,
+            }),
+            Plot.axisX({
+              textAnchor: 'start',
+              tickSize: 0,
+            }),
+            Plot.rectY(
+              extraFilteredEvents,
+              Plot.binX(
+                {
+                  y: countBy === 'headcount' ? 'sum' : 'count',
                 },
-                tip: true,
-              },
+                {
+                  x: (d: Event) => new Date(d.date),
+                  ...(countBy === 'headcount' ? { y: 'headcount' } : {}),
+                  // y: countBy,
+                  interval: Plot.utcInterval(`1 ${getDateInterval(domain)}`),
+                  // @ts-expect-error - fill is, in fact, a valid property for BinXInputs
+                  // fill: color,
+                  fill: (d: Event) => {
+                    try {
+                      if (highlightDate && getYear(new Date(d.date)) === getYear(highlightDate)) {
+                        return highlightColor
+                      }
+                      return color
+                    } catch {
+                      return color
+                    }
+                  },
+                  tip: true,
+                },
+              ),
             ),
-          ),
-          // highlightDate
-          //   ? Plot.ruleX([new Date(highlightDate)], { stroke: highlightColor, strokeWidth: 3 })
-          //   : null,
-          // Plot.tip(
-          //   extraFilteredEvents,
-          //   Plot.pointerX({
-          //     x: (d) => new Date(d.date),
-          //     y: 'initiator',
-          //   }),
-          // ),
-        ],
+            // highlightDate
+            //   ? Plot.ruleX([new Date(highlightDate)], { stroke: highlightColor, strokeWidth: 3 })
+            //   : null,
+            // Plot.tip(
+            //   extraFilteredEvents,
+            //   Plot.pointerX({
+            //     x: (d) => new Date(d.date),
+            //     y: 'initiator',
+            //   }),
+            // ),
+          ],
+        }
+        if (transformPlotConfig) {
+          config = transformPlotConfig(config, Plot)
+        }
+        return Plot.plot(config)
+      } catch (error) {
+        console.error(error)
+        return null
       }
-      if (transformPlotConfig) {
-        config = transformPlotConfig(config, Plot)
-      }
-      return Plot.plot(config)
     },
     [size.width, size.height, countBy],
   )
