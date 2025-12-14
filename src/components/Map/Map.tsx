@@ -71,7 +71,8 @@ export function Map({
 
   const mapRef = useRef<MapGL>(null)
 
-  const displayStyle = !countryFilter ? 'summary' : 'detail'
+  // const displayStyle = !countryFilter ? 'summary' : 'detail'
+  const displayStyle = 'detail'
 
   const countryCounts = useMemo(() => {
     const counts = data.reduce((countries, event) => {
