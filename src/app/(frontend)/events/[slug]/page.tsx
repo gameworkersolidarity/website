@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import { EventNav, EventPage } from './EventPage'
 import { Event } from '@/payload-types'
 import { getSlug } from '@/utils/payloadPath'
+import { lexicalToHtml } from '@/utils/lexicalToHTML'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -272,10 +273,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const event = eventResult.docs[0]
+
+  const description = await lexicalToHtml(event.description)
+
   return {
-    title: `${event.name}`,
-    description:
-      event.description?.root?.children[0]?.text ??
-      `Learn about worker organising in the video game industry.`,
+    title: event.name,
+    description,
   }
 }

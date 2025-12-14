@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import { CampaignPage } from './CampaignPage'
 import { getSlug } from '@/utils/payloadPath'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { Media } from '@/payload-types'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -54,11 +56,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const page = result.docs[0]
+
+  const title = page.name
+  const description = page.description
+    ? lexicalToPlainText(page.description)
+    : `Learn more about worker organising in the video game industry.`
+  const images = page.featuredImage
+    ? [(page.featuredImage as Media).cloudinary?.secure_url || (page.featuredImage as Media).url]
+    : undefined
+
   return {
-    title: `${page.name}`,
-    description:
-      page.description?.root?.children[0]?.text ??
-      `Learn more about worker organising in the video game industry.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images,
+    },
+    twitter: {
+      title,
+      description,
+      images,
+    },
   }
 }
 

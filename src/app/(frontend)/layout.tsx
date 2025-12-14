@@ -8,8 +8,7 @@ import '@/app/globals.css'
 import { navLinks } from '../links'
 import { ThemeProvider } from '@/components/NextTheme'
 import { projectStrings } from '@/project-strings'
-import type { Metadata } from 'next'
-import { StructuredData } from '@/components/StructuredData'
+import type { Metadata } from 'next/dist/types'
 
 export const metadata: Metadata = {
   metadataBase: new URL(projectStrings.baseUrl),

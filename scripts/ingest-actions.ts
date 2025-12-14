@@ -13,7 +13,7 @@ import { join } from 'path'
 import { writeFile, unlink } from 'fs/promises'
 import { BlogPost, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import { EventInitiator } from '@/collections/enums'
-import { parseHTMLAsLexicalRichText } from '@/utils/payload'
+import { htmlToLexical } from '@/utils/htmlToLexical'
 
 interface AirtableRecord {
   id: string
@@ -204,7 +204,7 @@ async function migrateCountries(payload: any) {
         name: fields.Name.trim() || '',
         isoA2: fields.countryCode || '',
         slug: slug,
-        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
+        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
       }
 
       try {
@@ -263,7 +263,7 @@ async function migrateCompanies(payload: any) {
         slug: record.fields.Slug as string,
         airtableId: record.id,
         name: name,
-        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
+        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
       }
 
       try {
@@ -322,7 +322,7 @@ async function migrateCategories(payload: any) {
         airtableId: record.id,
         name: name,
         emoji: fields.Emoji || '',
-        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
+        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
       }
 
       try {
@@ -521,7 +521,7 @@ async function migrateSolidarityActions(payload: any) {
         name: name,
         date: date,
         location: fields.Location || undefined,
-        description: fields.Summary ? parseHTMLAsLexicalRichText(fields.Summary) : undefined,
+        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
         countries: countryIds.length > 0 ? countryIds : undefined,
         companies: companyIds.length > 0 ? companyIds : undefined,
         organisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
@@ -579,7 +579,7 @@ async function migrateBlogPosts(payload: any) {
         byline: fields.ByLine || undefined,
         title: title,
         image: imageId,
-        body: parseHTMLAsLexicalRichText(fields.Body || ''),
+        body: await htmlToLexical(fields.Body),
         date: parseDate(fields.Date)!,
       }
 

@@ -5,9 +5,9 @@ import * as path from 'path'
 import config from '../src/payload.config'
 import { EventInitiator } from '@/collections/enums'
 import { Company, Event } from '@/payload-types'
-import { parseHTMLAsLexicalRichText } from '@/utils/payload'
 import { slugify } from 'payload/shared'
 import { payloadGetOrCreateModel } from '@/utils/payloadServer'
+import { htmlToLexical } from '@/utils/htmlToLexical'
 
 interface CsvRow {
   Studio: string
@@ -530,7 +530,7 @@ async function processRedundancies(
       date: normalizedDate,
       headcount: headcount || undefined,
       location: eventLocation,
-      description: parseHTMLAsLexicalRichText(descriptionText),
+      description: await htmlToLexical(descriptionText),
       source: 'https://publish.obsidian.md/vg-layoffs/Archive/2025',
       companies: companyIds.length > 0 ? companyIds : undefined,
       countries: countryIds.length > 0 ? countryIds : undefined,

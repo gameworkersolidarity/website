@@ -6,7 +6,6 @@ import type { Campaign, Event, Media } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import { projectStrings } from '@/project-strings'
-import { getSlug } from '../../../../utils/payloadPath'
 import Image from 'next/image'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
@@ -41,8 +40,8 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           <Image
             src={(campaign.featuredImage as Media).cloudinary?.secure_url || page.featuredImage.url}
             alt={page.name}
-            width={page.featuredImage.width}
-            height={page.featuredImage.height}
+            width={page.featuredImage.width || 1000}
+            height={page.featuredImage.height || 1000}
             className="sticky top-6 h-full w-full object-cover"
           />
         </div>
