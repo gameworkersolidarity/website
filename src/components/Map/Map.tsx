@@ -193,13 +193,13 @@ export function Map({
     })
   }, [allActionsSingleCountry, setViewport])
 
+  const [elementRef, elementDimensions] = useElementSize()
+
   useEffect(() => {
     calculateViewportForActions()
-  }, [calculateViewportForActions])
+  }, [calculateViewportForActions, elementDimensions])
 
   const { selectedPopupIds, setSelectedPopupIds } = useEventFilterContext()
-
-  const [elementRef, elementDimensions] = useElementSize()
 
   useEffect(() => {
     mapRef.current?.getMap()?.resize()
