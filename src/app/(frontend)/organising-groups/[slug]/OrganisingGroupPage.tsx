@@ -153,7 +153,7 @@ export function OrganisingGroupPage({
               <CollapsibleList defaultOpen={countries.length < 15}>
                 <CollapsibleTrigger className="flex flex-row items-center gap-1 cursor-pointer">
                   <h2 className="text-xl font-bold font-identity">
-                    Active {pluralize('country', countries.length, true)}
+                    Active in {pluralize('country', countries.length, true)}
                   </h2>
                   <CollapsibleTriggerIcon className="w-4 h-4" />
                 </CollapsibleTrigger>
