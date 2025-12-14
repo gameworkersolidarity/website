@@ -69,7 +69,7 @@ export default async function CampaignsPage() {
           {campaigns.map((campaign) => {
             const imageUrl =
               typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
-                ? campaign.featuredImage.url
+                ? campaign.featuredImage.cloudinary?.secure_url || campaign.featuredImage.url
                 : null
 
             return (
@@ -101,7 +101,7 @@ export default async function CampaignsPage() {
                       width={campaign.featuredImage.width!}
                       height={campaign.featuredImage.height!}
                       objectFit="cover"
-                      className="w-full h-48 object-cover overflow-hidden my-4"
+                      className="w-full h-60 object-cover overflow-hidden my-4"
                     />
                   )}
                 {campaign.description && (
