@@ -8,7 +8,7 @@ import { DateTime } from '@/components/DateTime'
 import { draftMode } from 'next/headers'
 
 export const metadata = {
-  title: 'Articles - Game Workers Solidarity Project',
+  title: 'Articles',
   description: 'News & articles from the Game Workers Solidarity Project.',
 }
 

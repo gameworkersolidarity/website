@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { CampaignLabel } from '@/components/CampaignLabel'
 
 export const metadata = {
-  title: 'Worker organising campaigns — Game Workers Solidarity Platform',
+  title: 'Worker organising campaigns',
   description: 'Stories about worker organising in the video game industry.',
 }
 
