@@ -14,6 +14,9 @@ import { CompanyLabel } from '@/components/CompanyLabel'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 import { EventInitiatorFilter } from '@/collections/enums'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
+import pluralize from 'pluralize'
 
 export function CountryPage({
   initialCountry,
@@ -48,7 +51,7 @@ export function CountryPage({
       <AdminEditBanner page={page} />
       <article
         className={twMerge(
-          'max-w-4xl mx-auto md:py-5 px-4 flex flex-col gap-4',
+          'max-w-4xl mx-auto pb-4 md:py-5 px-4 flex flex-col gap-4',
           textColor === 'white' && 'text-white',
         )}
       >
@@ -64,30 +67,44 @@ export function CountryPage({
           />
         )}
         {organisingGroups.length > 0 && (
-          <div>
-            <h2 className="text-xl font-bold font-identity">Organising groups</h2>
-            <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
-            <div className="flex flex-row flex-wrap gap-2 mt-2">
-              {organisingGroups.map((organisingGroup) => (
-                <div key={organisingGroup.id}>
-                  <OrganisingGroupLabel organisingGroup={organisingGroup} link />
-                </div>
-              ))}
-            </div>
-          </div>
+          <CollapsibleList defaultOpen={organisingGroups.length < 15}>
+            <CollapsibleTrigger className="flex flex-row items-center gap-1 cursor-pointer">
+              <h2 className="text-xl font-bold font-identity">
+                {pluralize('worker organising group', organisingGroups.length, true)}
+              </h2>
+              <CollapsibleTriggerIcon className="w-4 h-4" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
+              <div className="flex flex-row flex-wrap gap-2 mt-2">
+                {organisingGroups.map((organisingGroup) => (
+                  <div key={organisingGroup.id}>
+                    <OrganisingGroupLabel organisingGroup={organisingGroup} link />
+                  </div>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </CollapsibleList>
         )}
         {companies.length > 0 && (
-          <div>
-            <h2 className="text-xl font-bold font-identity">Companies</h2>
-            <p className="text-sm opacity-50">Companies operating in {page.name}.</p>
-            <div className="flex flex-row flex-wrap gap-2 mt-2">
-              {companies.map((company) => (
-                <div key={company.id}>
-                  <CompanyLabel company={company as Company} link />
-                </div>
-              ))}
-            </div>
-          </div>
+          <CollapsibleList defaultOpen={companies.length < 15}>
+            <CollapsibleTrigger className="flex flex-row items-center gap-1 cursor-pointer">
+              <h2 className="text-xl font-bold font-identity">
+                {pluralize('company', companies.length, true)}
+              </h2>
+              <CollapsibleTriggerIcon className="w-4 h-4" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <p className="text-sm opacity-50">Companies operating in {page.name}.</p>
+              <div className="flex flex-row flex-wrap gap-2 mt-2">
+                {companies.map((company) => (
+                  <div key={company.id}>
+                    <CompanyLabel company={company as Company} link />
+                  </div>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </CollapsibleList>
         )}
       </article>
 

@@ -17,6 +17,9 @@ import { CountryLabel } from '@/components/CountryLabel'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 import { EventInitiatorFilter } from '@/collections/enums'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
+import pluralize from 'pluralize'
 
 export function CompanyPage({
   initialCompany,
@@ -77,28 +80,48 @@ export function CompanyPage({
           )}
           {organisingGroups.length > 0 && (
             <div className="bg-white px-4 md:px-6 py-4">
-              <h2 className="text-xl font-bold font-identity">Organising groups</h2>
-              <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
-              <div className="flex flex-row flex-wrap gap-2 mt-2">
-                {organisingGroups.map((organisingGroup) => (
-                  <div key={organisingGroup.id}>
-                    <OrganisingGroupLabel organisingGroup={organisingGroup} link />
+              <CollapsibleList defaultOpen={organisingGroups.length < 15}>
+                <CollapsibleTrigger className="flex flex-row items-center gap-1 cursor-pointer">
+                  <h2 className="text-xl font-bold font-identity">
+                    {pluralize('worker organising group', organisingGroups.length, true)}
+                  </h2>
+                  <CollapsibleTriggerIcon className="w-4 h-4" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
+                  <div className="flex flex-row flex-wrap gap-2 mt-2">
+                    {organisingGroups.map((organisingGroup) => (
+                      <div key={organisingGroup.id}>
+                        <OrganisingGroupLabel organisingGroup={organisingGroup} link />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </CollapsibleContent>
+              </CollapsibleList>
             </div>
           )}
           {countries.length > 0 && (
             <div className="bg-white px-4 md:px-6 py-4">
-              <h2 className="text-xl font-bold font-identity">Active countries</h2>
-              <p className="text-sm opacity-50">Countries we know this company is operating in.</p>
-              <div className="flex flex-row flex-wrap gap-2 mt-2">
-                {countries.map((country) => (
-                  <div key={country.id}>
-                    <CountryLabel country={country as Country} link />
+              <CollapsibleList defaultOpen={countries.length < 15}>
+                <CollapsibleTrigger className="flex flex-row items-center gap-1 cursor-pointer">
+                  <h2 className="text-xl font-bold font-identity">
+                    Active {pluralize('country', countries.length, true)}
+                  </h2>
+                  <CollapsibleTriggerIcon className="w-4 h-4" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <p className="text-sm opacity-50">
+                    Countries we know this company is operating in.
+                  </p>
+                  <div className="flex flex-row flex-wrap gap-2 mt-2">
+                    {countries.map((country) => (
+                      <div key={country.id}>
+                        <CountryLabel country={country as Country} link />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </CollapsibleContent>
+              </CollapsibleList>
             </div>
           )}
           <div className="bg-white px-4 md:px-6 py-4 mb-[2px]">

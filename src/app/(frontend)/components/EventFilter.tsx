@@ -25,6 +25,7 @@ import {
   ListCollapse,
 } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
+import { CollapsibleListButton } from '@/components/CollapsibleList'
 
 export type EventFilterProps = {
   years?: boolean
@@ -102,11 +103,7 @@ export function EventFilter({
         <div className="flex flex-row items-baseline gap-2">
           <CollapsibleTrigger className="flex flex-row items-center gap-2 cursor-pointer">
             <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
-            {open ? (
-              <ChevronsDownUp className="w-3.5 h-3.5 text-stone-500" />
-            ) : (
-              <ChevronsUpDown className="w-3.5 h-3.5 text-stone-500" />
-            )}
+            <CollapsibleListButton open={open} className="w-3.5 h-3.5 text-stone-500" />
           </CollapsibleTrigger>
           {/* {((filteredCountryISOA2 && filteredCountryISOA2.length > 0) ||
             (filteredCategorySlug && filteredCategorySlug.length > 0) ||
