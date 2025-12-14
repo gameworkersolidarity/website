@@ -4,9 +4,19 @@ import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import React from 'react'
 import { LexicalRenderer } from '../components/LexicalRenderer'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 type Props = {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  return generateMetadataForSlug({
+    collection: 'staticPages',
+    slug,
+    notFoundTitle: 'Page Not Found',
+  })
 }
 
 export default async function StaticPage({ params }: Props) {

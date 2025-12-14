@@ -6,6 +6,7 @@ import { getDescendants } from '@/utils/payloadTree.server'
 import { CompanyPage } from './CompanyPage'
 import { getSlug } from '@/utils/payloadPath'
 import { Country, OrganisingGroup } from '@/payload-types'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -29,43 +30,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const isDraftMode = (await draftMode()).isEnabled
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
-
-  const companyResult = await payload.find({
+  return generateMetadataForSlug({
     collection: 'companies',
-    where: {
-      slug: {
-        equals: slug,
-      },
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
-    depth: 0,
-    draft: isDraftMode,
-    limit: 1,
+    slug,
+    notFoundTitle: 'Company Not Found',
+    getTitle: (company) => `Worker organising at ${company.name}`,
   })
-
-  if (companyResult.docs.length === 0) {
-    return {
-      title: 'Company Not Found',
-    }
-  }
-
-  const company = companyResult.docs[0]
-  return {
-    title: `Worker organising at ${company.name}`,
-    description:
-      company.description?.root?.children[0]?.text ??
-      `Learn about video game worker organising at ${company.name}.`,
-  }
 }
 
 type Props = {

@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation'
 import { EventNav, EventPage } from './EventPage'
 import { Event } from '@/payload-types'
 import { getSlug } from '@/utils/payloadPath'
-import { lexicalToHtml } from '@/utils/lexicalToHTML'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -242,42 +242,10 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const isDraftMode = (await draftMode()).isEnabled
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
-
-  const eventResult = await payload.find({
+  return generateMetadataForSlug({
     collection: 'events',
-    where: {
-      slug: {
-        equals: slug,
-      },
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
-    depth: 0,
-    draft: isDraftMode,
-    limit: 1,
+    slug,
+    notFoundTitle: 'Event Not Found',
   })
-
-  if (eventResult.docs.length === 0) {
-    return {
-      title: 'Event Not Found',
-    }
-  }
-
-  const event = eventResult.docs[0]
-
-  const description = await lexicalToHtml(event.description)
-
-  return {
-    title: event.name,
-    description,
-  }
 }

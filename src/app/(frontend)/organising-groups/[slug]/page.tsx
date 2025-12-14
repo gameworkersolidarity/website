@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { Company, Country } from '@/payload-types'
 import { getDescendants } from '@/utils/payloadTree.server'
 import { OrganisingGroupPage } from './OrganisingGroupPage'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -28,43 +29,12 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const isDraftMode = (await draftMode()).isEnabled
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
-
-  const groupResult = await payload.find({
+  return generateMetadataForSlug({
     collection: 'organisingGroups',
-    where: {
-      slug: {
-        equals: slug,
-      },
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
-    depth: 0,
-    draft: isDraftMode,
-    limit: 1,
+    slug,
+    notFoundTitle: 'Organising Group Not Found',
   })
-
-  if (groupResult.docs.length === 0) {
-    return {
-      title: 'Organising Group Not Found',
-    }
-  }
-
-  const group = groupResult.docs[0]
-  return {
-    title: `${group.fullName || group.name}`,
-    description:
-      group.description?.root?.children[0]?.text ??
-      `${group.fullName || group.name} organise workers in the video game industry.`,
-  }
 }
 
 type Props = {

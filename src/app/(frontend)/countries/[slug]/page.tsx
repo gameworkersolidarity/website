@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import config from '@/payload.config'
 import { Company, OrganisingGroup } from '@/payload-types'
 import { CountryPage } from './CountryPage'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -27,43 +28,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const isDraftMode = (await draftMode()).isEnabled
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
-
-  const countryResult = await payload.find({
+  return generateMetadataForSlug({
     collection: 'countries',
-    where: {
-      slug: {
-        equals: slug,
-      },
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
-    depth: 0,
-    draft: isDraftMode,
-    limit: 1,
+    slug,
+    notFoundTitle: 'Country Not Found',
+    getTitle: (country) => `Worker organising in ${country.name}`,
   })
-
-  if (countryResult.docs.length === 0) {
-    return {
-      title: 'Country Not Found',
-    }
-  }
-
-  const country = countryResult.docs[0]
-  return {
-    title: `Worker organising in ${country.name}`,
-    description:
-      country.description?.root?.children[0]?.text ??
-      `Learn about video game worker organising in ${country.name}.`,
-  }
 }
 
 type Props = {

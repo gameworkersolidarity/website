@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { CategoryPage } from './CategoryPage'
 import { getSlug } from '@/utils/payloadPath'
 import { capitalize } from 'lodash'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -28,43 +29,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const isDraftMode = (await draftMode()).isEnabled
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
   const { slug } = await params
-
-  const categoryResult = await payload.find({
+  return generateMetadataForSlug({
     collection: 'categories',
-    where: {
-      slug: {
-        equals: slug,
-      },
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
-    depth: 0,
-    draft: isDraftMode,
-    limit: 1,
+    slug,
+    notFoundTitle: 'Category Not Found',
+    getTitle: (category) => capitalize(category.name),
   })
-
-  if (categoryResult.docs.length === 0) {
-    return {
-      title: 'Category Not Found',
-    }
-  }
-
-  const category = categoryResult.docs[0]
-  return {
-    title: `${capitalize(category.name)}`,
-    description:
-      category.description?.root?.children[0]?.text ??
-      `Learn more about worker organising in the video game industry.`,
-  }
 }
 
 type Props = {

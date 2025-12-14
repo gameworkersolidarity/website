@@ -10,9 +10,19 @@ import { AdminEditBanner } from '@/components/Me'
 import { DateTime } from '@/components/DateTime'
 import { RefreshRouteOnSave } from '@/components/RefreshRouteOnSave'
 import { projectStrings } from '@/project-strings'
+import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
 type Props = {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  return generateMetadataForSlug({
+    collection: 'blogPosts',
+    slug,
+    notFoundTitle: 'Article Not Found',
+  })
 }
 
 export default async function BlogPost({ params }: Props) {
