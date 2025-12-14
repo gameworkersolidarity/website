@@ -9,7 +9,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { EventStats } from '@/components/EventStats'
 import { EventList } from '@/components/EventList'
 import { Campaign, Company, Country, OrganisingGroup, Category, Event } from '@/payload-types'
-import { TimelineLabelProperty } from '@/components/EventsTimeline'
+import { TimelineLabelProperty } from '@/global-types'
 import { getRelatedObjects } from '@/utils/getRelatedObjects'
 import { EventFilterProps } from './EventFilter'
 

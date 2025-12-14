@@ -27,7 +27,7 @@ import { CategoryLabel } from './CategoryLabel'
 import { CountryLabel } from './CountryLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
-import Link from 'next/link'
+import { TimelineLabelProperty } from '@/global-types'
 
 export function EventTimeline({
   events,
@@ -178,14 +178,6 @@ export function Slideshow({
     </div>
   )
 }
-
-export type TimelineLabelProperty =
-  | 'categories'
-  | 'companies'
-  | 'organisingGroups'
-  | 'countries'
-  | 'location'
-  | 'name'
 
 export function Timeline({
   events,
