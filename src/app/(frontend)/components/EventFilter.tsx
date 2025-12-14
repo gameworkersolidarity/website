@@ -69,6 +69,7 @@ export function EventFilter({
     availableYears,
     clearAllFilters,
     selectedPopupIds,
+    setSelectedPopupIds,
     ...filterContext
   } = useEventFilterContext()
 
@@ -351,7 +352,12 @@ export function EventFilter({
         {selectedPopupIds && selectedPopupIds.length > 0 && (
           <div className="mt-2 text-xs flex flex-row flex-wrap items-center gap-2">
             You&apos;re viewing a selection of {pluralize('event', selectedPopupIds.length, true)}.{' '}
-            <div className="link" onClick={() => clearAllFilters()}>
+            <div
+              className="link"
+              onClick={() => {
+                setSelectedPopupIds(null)
+              }}
+            >
               Deselect all
             </div>
           </div>
