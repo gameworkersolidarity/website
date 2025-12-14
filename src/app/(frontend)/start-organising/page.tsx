@@ -2,10 +2,11 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
+import Image from 'next/image'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CountryLabel } from '@/components/CountryLabel'
-import type { OrganisingGroup, Country } from '@/payload-types'
+import type { OrganisingGroup, Country, Media } from '@/payload-types'
 import { OrganisingGroupLinks } from '../organising-groups/[slug]/OrganisingGroupPage'
 import { notFound } from 'next/navigation'
 
@@ -52,7 +53,7 @@ export default async function StartOrganisingPage() {
             : []),
         ],
       },
-      depth: 1, // Include countries
+      depth: 2, // Include countries and logo
       pagination: false,
       sort: 'name',
       draft: isDraftMode,
@@ -117,12 +118,16 @@ export default async function StartOrganisingPage() {
                   {groups.map((group) => (
                     <div key={group.id} className="bg-white rounded-xl p-4">
                       <Link key={group.id} href={group.path!}>
-                        <div className="font-bold">
-                          <OrganisingGroupLabel organisingGroup={group} link />
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold">
+                              <OrganisingGroupLabel organisingGroup={group} link logo={36} />
+                            </div>
+                            {group.fullName && (
+                              <div className="text-sm text-gray-600 mt-1">{group.fullName}</div>
+                            )}
+                          </div>
                         </div>
-                        {group.fullName && (
-                          <div className="text-sm text-gray-600 mt-1">{group.fullName}</div>
-                        )}
                       </Link>
                       {!!(group.website || group.twitter || group.bluesky) && (
                         <div className="text-sm text-gray-600 mt-1">

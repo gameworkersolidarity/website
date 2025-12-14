@@ -232,7 +232,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
           not_equals: event.id,
         },
       },
-      depth: 1,
+      depth: 2,
       sort: direction === 'previous' ? '-date' : 'date',
       limit: 1,
     })

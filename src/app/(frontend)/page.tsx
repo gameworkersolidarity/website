@@ -27,7 +27,7 @@ export default async function HomePage() {
             : {}),
         },
         sort: '-date',
-        depth: 1, // Include related data (countries, categories, companies, organising groups)
+        depth: 2, // Include related data (countries, categories, companies, organising groups)
         pagination: false,
       }),
       payload.find({

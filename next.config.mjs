@@ -9,6 +9,14 @@ const nextConfig = {
     },
     resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.json'],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

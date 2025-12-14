@@ -6,6 +6,7 @@ import { LexicalRenderer } from '../components/LexicalRenderer'
 import type { Campaign, Event } from '@/payload-types'
 import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
+import { CampaignLabel } from '@/components/CampaignLabel'
 
 export const metadata = {
   title: 'Worker organising campaigns — Game Workers Solidarity Platform',
@@ -78,7 +79,9 @@ export default async function CampaignsPage() {
                 className="flex flex-col bg-white rounded-xl overflow-hidden"
               >
                 <header className="p-4 flex flex-col gap-2">
-                  <h2 className="text-2xl font-bold font-identity">{campaign.name}</h2>
+                  <h2 className="text-2xl font-bold font-identity">
+                    <CampaignLabel campaign={campaign} />
+                  </h2>
                   {campaign.events && campaign.events.length > 0 && (
                     <div className="flex flex-row gap-1">
                       <DateTime date={(campaign.events[0] as Event).date} />

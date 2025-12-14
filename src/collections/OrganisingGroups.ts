@@ -71,6 +71,14 @@ export const OrganisingGroups: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+      },
+    },
     colorPickerField({
       name: 'primaryColor',
       label: 'Primary Color',

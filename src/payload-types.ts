@@ -554,6 +554,7 @@ export interface OrganisingGroup {
     [k: string]: unknown;
   } | null;
   featuredImage?: (string | null) | Media;
+  logo?: (string | null) | Media;
   /**
    * Choose a color for this page
    */
@@ -1137,6 +1138,7 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   featuredImage?: T;
+  logo?: T;
   primaryColor?: T;
   color?: T;
   fullName?: T;

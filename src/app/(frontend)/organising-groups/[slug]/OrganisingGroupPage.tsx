@@ -79,17 +79,34 @@ export function OrganisingGroupPage({
                 <Users className="w-4 h-4" />
                 Organising Group
               </div>
-              <h1 className="text-5xl font-bold font-identity">{page.fullName || page.name}</h1>
-              {page.name !== page.fullName && page.name && (
-                <p
-                  className={twMerge(
-                    'text-base mt-2',
-                    textColor === 'white' ? 'text-white/80' : 'opacity-50',
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  <h1 className="text-3xl md:text-5xl font-bold font-identity">
+                    {page.fullName || page.name}
+                  </h1>
+                  {page.name !== page.fullName && page.name && (
+                    <p
+                      className={twMerge(
+                        'text-base mt-2',
+                        textColor === 'white' ? 'text-white/80' : 'opacity-50',
+                      )}
+                    >
+                      Also known as: {page.name}
+                    </p>
                   )}
-                >
-                  Also known as: {page.name}
-                </p>
-              )}
+                </div>
+                {page.logo && typeof page.logo === 'object' && page.logo.url && (
+                  <div className="shrink-0">
+                    <Image
+                      src={page.logo.cloudinary!.secure_url!}
+                      alt={page.logo.alt || `${page.fullName || page.name} logo`}
+                      width={120}
+                      height={120}
+                      className="object-contain"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             {page.featuredImage &&
               typeof page.featuredImage === 'object' &&
