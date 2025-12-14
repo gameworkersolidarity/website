@@ -147,7 +147,9 @@
     "typescript": "^5.9.3",
     "usehooks-ts": "^3.1.1",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.3"
+    "vitest": "3.2.3",
+    "@types/html-to-text": "^9.0.4",
+    "@types/nodemailer": "^7.0.4"
   },
   "packageManager": "pnpm@10.18.1",
   "engines": {
@@ -162,9 +164,5 @@
     "patchedDependencies": {
       "@payloadcms/next": "patches/@payloadcms__next.patch"
     }
-  },
-  "devDependencies": {
-    "@types/html-to-text": "^9.0.4",
-    "@types/nodemailer": "^7.0.4"
   }
 }

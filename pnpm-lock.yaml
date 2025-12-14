@@ -142,6 +142,9 @@ importers:
       '@types/d3-scale':
         specifier: ^4.0.9
         version: 4.0.9
+      '@types/html-to-text':
+        specifier: ^9.0.4
+        version: 9.0.4
       '@types/jsdom':
         specifier: ^27.0.0
         version: 27.0.0
@@ -151,6 +154,9 @@ importers:
       '@types/node':
         specifier: ^22.19.1
         version: 22.19.1
+      '@types/nodemailer':
+        specifier: ^7.0.4
+        version: 7.0.4
       '@types/pluralize':
         specifier: ^0.0.33
         version: 0.0.33
@@ -397,13 +403,6 @@ importers:
       vitest:
         specifier: 3.2.3
         version: 3.2.3(@types/debug@4.1.12)(@types/node@22.19.1)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)
-    devDependencies:
-      '@types/html-to-text':
-        specifier: ^9.0.4
-        version: 9.0.4
-      '@types/nodemailer':
-        specifier: ^7.0.4
-        version: 7.0.4
 
 packages:
 

@@ -1,4 +1,4 @@
-import { LexicalContent } from '@/types'
+import { LexicalContent } from '@/global-types'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { convert } from 'html-to-text'
 

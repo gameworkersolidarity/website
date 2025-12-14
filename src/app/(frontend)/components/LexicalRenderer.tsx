@@ -3,7 +3,7 @@ import {
   PayloadLexicalReactRenderer,
   PayloadLexicalReactRendererContent,
 } from '@atelier-disko/payload-lexical-react-renderer'
-import { LexicalContent } from '@/types'
+import { LexicalContent } from '@/global-types'
 
 export function LexicalRenderer({
   content,

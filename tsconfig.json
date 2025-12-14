@@ -1,11 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ES2022",
-      "esnext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ES2022", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -24,22 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@payload-config": [
-        "./src/payload.config.ts"
-      ]
+      "@/*": ["./src/*"],
+      "@payload-config": ["./src/payload.config.ts"]
     },
     "target": "ES2022"
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

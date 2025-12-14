@@ -1,5 +1,4 @@
 import { slugField, type CollectionConfig } from 'payload'
-import coords from 'country-coords'
 import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { getCountryFlag } from '@/utils/iso'
 import { projectStrings } from '@/project-strings'
