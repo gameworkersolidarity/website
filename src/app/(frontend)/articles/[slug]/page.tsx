@@ -72,9 +72,9 @@ export default async function BlogPost({ params }: Props) {
     <div>
       <RefreshRouteOnSave />
       <AdminEditBanner page={post} />
-      <main className="max-w-2xl mx-auto py-5 px-4 flex flex-col gap-4">
+      <main className="max-w-2xl mx-auto py-4 md:py-5 px-4 flex flex-col gap-4">
         <Link href="/articles">← All articles</Link>
-        <h1 className="text-5xl font-bold font-identity">{post.title}</h1>
+        <h1 className="text-4xl md:text-5xl font-bold font-identity">{post.title}</h1>
         <div className="flex flex-row gap-4 font-mono">
           {post.createdAt && <DateTime date={post.createdAt} />}
           {post.byline && <div>{post.byline}</div>}
