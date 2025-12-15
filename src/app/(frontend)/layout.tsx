@@ -112,11 +112,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     console.error('Error fetching footer:', error)
   }
 
-  const footerNav = [
-    ...(footerData?.navigation || []),
-    ...(navLinks || []),
-    { label: 'Admin', url: '/admin' },
-  ]
+  const footerNav = [...(footerData?.navigation || []), ...(navLinks || [])]
 
   return (
     <html lang="en" suppressHydrationWarning={true}>

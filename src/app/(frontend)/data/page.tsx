@@ -83,15 +83,6 @@ export default async function DataPage() {
               <span>GraphQL Playground</span>
             </Button>
           </Link>
-
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full h-auto min-h-[120px] flex flex-col items-center justify-center gap-3 text-lg"
-            disabled
-          >
-            <span>Coming soon: CSV downloads</span>
-          </Button>
         </div>
       </article>
     )

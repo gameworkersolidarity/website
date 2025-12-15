@@ -689,6 +689,10 @@ export interface Event {
   source?: string | null;
   date: string;
   /**
+   * Optional end date for the event, if the event spans multiple days.
+   */
+  endDate?: string | null;
+  /**
    * What kind of event is this?
    */
   categories?: (string | Category)[] | null;
@@ -1210,6 +1214,7 @@ export interface EventsSelect<T extends boolean = true> {
   description?: T;
   source?: T;
   date?: T;
+  endDate?: T;
   categories?: T;
   headcount?: T;
   initiator?: T;

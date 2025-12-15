@@ -83,6 +83,13 @@ export const Events: CollectionConfig = {
           required: true,
         },
         {
+          name: 'endDate',
+          type: 'date',
+          admin: {
+            description: 'Optional end date for the event, if the event spans multiple days.',
+          },
+        },
+        {
           name: 'categories',
           type: 'relationship',
           relationTo: 'categories',

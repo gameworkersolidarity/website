@@ -144,10 +144,13 @@ export function EventSubmissionForm({
         </div>
 
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">
+            Description <span className="text-red-500">*</span>
+          </Label>
           <textarea
             id="description"
             name="description"
+            required
             rows={5}
             className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
           />

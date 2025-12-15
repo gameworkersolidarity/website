@@ -20,13 +20,13 @@ export const navLinks = [
     emoji: '📰',
   },
   {
-    label: 'About',
-    url: '/about',
-    emoji: 'ℹ️',
-  },
-  {
     label: 'Data',
     url: '/data',
     emoji: '📊',
+  },
+  {
+    label: 'About',
+    url: '/about',
+    emoji: 'ℹ️',
   },
 ]

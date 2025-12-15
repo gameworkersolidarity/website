@@ -27,7 +27,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import { Button } from '@/components/ui/button'
 import { HamburgerIcon, MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
-import Emoji from 'a11y-react-emoji'
+// import Emoji from 'a11y-react-emoji'
 
 type NavigationItem =
   | {
@@ -87,7 +87,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     <>
                       <NavigationMenuTrigger>
                         <span className="flex items-center gap-1">
-                          {item.emoji && <Emoji symbol={item.emoji} />}
+                          {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
                           {item.label}
                         </span>
                       </NavigationMenuTrigger>
@@ -98,9 +98,9 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                               <NavigationMenuLink asChild>
                                 <Link href={'url' in child && child.url ? child.url : ''}>
                                   <span className="flex items-center gap-1">
-                                    {'emoji' in child && child.emoji && (
+                                    {/* {'emoji' in child && child.emoji && (
                                       <Emoji symbol={child.emoji} />
-                                    )}
+                                    )} */}
                                     {child.label}
                                   </span>
                                 </Link>
@@ -114,7 +114,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     <NavigationMenuLink asChild>
                       <Link href={item.url}>
                         <span className="flex items-center gap-1">
-                          {item.emoji && <Emoji symbol={item.emoji} />}
+                          {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
                           {item.label}
                         </span>
                       </Link>
@@ -141,14 +141,14 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                         {'url' in item && item.url ? (
                           <Link href={item.url} className="link">
                             <span className="flex items-center gap-1">
-                              {item.emoji && <Emoji symbol={item.emoji} />}
+                              {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
                               {item.label}
                             </span>
                           </Link>
                         ) : (
                           <div>
                             <span className="flex items-center gap-1">
-                              {item.emoji && <Emoji symbol={item.emoji} />}
+                              {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
                               {item.label}
                             </span>
                           </div>
@@ -162,9 +162,9 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                                 className="link"
                               >
                                 <span className="flex items-center gap-1">
-                                  {'emoji' in child && child.emoji && (
+                                  {/* {'emoji' in child && child.emoji && (
                                     <Emoji symbol={child.emoji} />
-                                  )}
+                                  )} */}
                                   {child.label}
                                 </span>
                               </Link>
@@ -186,7 +186,17 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
           )}
           style={{ marginLeft: 'auto' }}
         >
-          <Link href="/">Game Worker Solidarity</Link>
+          <Link href="/">
+            <span className="flex items-center gap-2">
+              Game Worker Solidarity
+              <Image
+                src="/images/GameWorkerSolidarity_Logo_Transparent.png"
+                width="48"
+                height="48"
+                alt="Game Worker Solidarity Logo"
+              />
+            </span>
+          </Link>
         </div>
         {/* </div> */}
       </nav>
