@@ -5,6 +5,14 @@ export const Footer: GlobalConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 2000,
+      },
+      schedulePublish: true,
+    },
+  },
   fields: [
     {
       name: 'navigation',
@@ -25,4 +33,3 @@ export const Footer: GlobalConfig = {
     },
   ],
 }
-

@@ -31,7 +31,6 @@ import { AboutPage } from './globals/AboutPage'
 import { CampaignsPage } from './globals/CampaignsPage'
 import { DataPage } from './globals/DataPage'
 import { EventSubmissionPage } from './globals/EventSubmissionPage'
-import { activityLogPlugin } from '@payload-bites/activity-log'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -174,30 +173,6 @@ export default buildConfig({
         version: '1.0.0',
         description: `Free, public API for querying the Game Workers Solidarity archival database. Please let us know how you use it! ${projectStrings.email}`,
       },
-    }),
-    activityLogPlugin({
-      collections: {
-        events: {},
-        blogPosts: {},
-        staticPages: {},
-        campaigns: {},
-        companies: {},
-        organisingGroups: {},
-        countries: {},
-        categories: {},
-        media: {},
-        users: {},
-      },
-      globals: {
-        header: {},
-        footer: {},
-        startOrganising: {},
-        aboutPage: {},
-        campaignsPage: {},
-        dataPage: {},
-        eventSubmissionPage: {},
-      },
-      enableDraftAutosaveLogging: false,
     }),
     scalar({
       // Scalar UI will be available at /api/docs by default

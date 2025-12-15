@@ -5,6 +5,14 @@ export const CampaignsPage: GlobalConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 2000,
+      },
+      schedulePublish: true,
+    },
+  },
   fields: [
     {
       name: 'description',

@@ -31,9 +31,6 @@ importers:
       '@observablehq/plot':
         specifier: ^0.6.17
         version: 0.6.17
-      '@payload-bites/activity-log':
-        specifier: ^1.4.0
-        version: 1.4.0(next@15.4.9(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.77.4))(payload@3.68.3(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@payloadcms/db-mongodb':
         specifier: 3.68.3
         version: 3.68.3(@aws-sdk/credential-providers@3.940.0)(payload@3.68.3(graphql@16.12.0)(typescript@5.9.3))
@@ -1539,14 +1536,6 @@ packages:
     hasBin: true
     peerDependencies:
       openapi-types: '*'
-
-  '@payload-bites/activity-log@1.4.0':
-    resolution: {integrity: sha512-bZJ7gPYOIe7yGOM7EoAC1w0c83SIByKLK3IQ6LhY5HMULvHvLfyTySY23Gc+IsiH7LWhyTi3oBghxhBYU8bwPA==}
-    peerDependencies:
-      next: ^15.2.6 || ^15.3.6 || ^15.4.8 || ^15.5.7
-      payload: ^3
-      react: ^19.0.1 || ^19.1.2 || ^19.2.1
-      react-dom: ^19.0.1 || ^19.1.2 || ^19.2.1
 
   '@payloadcms/db-mongodb@3.68.3':
     resolution: {integrity: sha512-8svYjJF2gd2VM8k2srFUiMxGtyDfj1JVnlyGuC9f93e9HlBGapysMgyvBxYbD5fB22sw16XGCD49Qxn7XHTpIg==}
@@ -8000,13 +7989,6 @@ snapshots:
       yargs: 18.0.0
     transitivePeerDependencies:
       - '@types/json-schema'
-
-  '@payload-bites/activity-log@1.4.0(next@15.4.9(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.77.4))(payload@3.68.3(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
-    dependencies:
-      next: 15.4.9(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.77.4)
-      payload: 3.68.3(graphql@16.12.0)(typescript@5.9.3)
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
 
   '@payloadcms/db-mongodb@3.68.3(@aws-sdk/credential-providers@3.940.0)(payload@3.68.3(graphql@16.12.0)(typescript@5.9.3))':
     dependencies:

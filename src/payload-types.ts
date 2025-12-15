@@ -77,7 +77,6 @@ export interface Config {
     organisingGroups: OrganisingGroup;
     campaigns: Campaign;
     events: Event;
-    'activity-log': ActivityLog;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -100,7 +99,6 @@ export interface Config {
     organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
-    'activity-log': ActivityLogSelect<false> | ActivityLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -761,33 +759,6 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activity-log".
- */
-export interface ActivityLog {
-  id: string;
-  user?: {
-    relationTo: 'users';
-    value: string | User;
-  } | null;
-  operation?: ('create' | 'read' | 'update' | 'delete') | null;
-  timestamp?: string | null;
-  ipAddress?: string | null;
-  deviceInfo?: string | null;
-  locale?: string | null;
-  resource?: string | null;
-  documentId?: string | null;
-  data?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -941,10 +912,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'events';
         value: string | Event;
-      } | null)
-    | ({
-        relationTo: 'activity-log';
-        value: string | ActivityLog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1273,21 +1240,6 @@ export interface EventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activity-log_select".
- */
-export interface ActivityLogSelect<T extends boolean = true> {
-  user?: T;
-  operation?: T;
-  timestamp?: T;
-  ipAddress?: T;
-  deviceInfo?: T;
-  locale?: T;
-  resource?: T;
-  documentId?: T;
-  data?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1370,6 +1322,7 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1386,6 +1339,7 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1413,6 +1367,7 @@ export interface StartOrganising {
     };
     [k: string]: unknown;
   } | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1458,6 +1413,7 @@ export interface AboutPage {
     };
     [k: string]: unknown;
   } | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1485,6 +1441,7 @@ export interface CampaignsPage {
     };
     [k: string]: unknown;
   } | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1512,6 +1469,7 @@ export interface DataPage {
     };
     [k: string]: unknown;
   } | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1543,6 +1501,7 @@ export interface EventSubmissionPage {
     };
     [k: string]: unknown;
   } | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1558,6 +1517,7 @@ export interface HeaderSelect<T extends boolean = true> {
         url?: T;
         id?: T;
       };
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1574,6 +1534,7 @@ export interface FooterSelect<T extends boolean = true> {
         url?: T;
         id?: T;
       };
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1584,6 +1545,7 @@ export interface FooterSelect<T extends boolean = true> {
  */
 export interface StartOrganisingSelect<T extends boolean = true> {
   description?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1595,6 +1557,7 @@ export interface StartOrganisingSelect<T extends boolean = true> {
 export interface AboutPageSelect<T extends boolean = true> {
   description?: T;
   credits?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1605,6 +1568,7 @@ export interface AboutPageSelect<T extends boolean = true> {
  */
 export interface CampaignsPageSelect<T extends boolean = true> {
   description?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1615,6 +1579,7 @@ export interface CampaignsPageSelect<T extends boolean = true> {
  */
 export interface DataPageSelect<T extends boolean = true> {
   description?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1626,6 +1591,7 @@ export interface DataPageSelect<T extends boolean = true> {
 export interface EventSubmissionPageSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1675,7 +1641,9 @@ export interface TaskSchedulePublish {
           relationTo: 'events';
           value: string | Event;
         } | null);
-    global?: string | null;
+    global?:
+      | ('header' | 'footer' | 'startOrganising' | 'aboutPage' | 'campaignsPage' | 'dataPage' | 'eventSubmissionPage')
+      | null;
     user?: (string | null) | User;
   };
   output?: unknown;
