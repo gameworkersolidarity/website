@@ -225,7 +225,7 @@ export function SolidarityActionsList({
                 </div>
               </div>
               {(hasHiddenActions && hiddenActionsOpen === false) && (
-                <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
+                <button className="p-3 mt-3 font-semibold text-sm flex items-center text-black" onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}>
                   <>
                     <span className="pr-1">Load {hiddenActions.length} more {pluralActionsCopy}</span>
                     {DownArrow}
@@ -233,7 +233,7 @@ export function SolidarityActionsList({
                 </button>
               )}
               {(hasHiddenActions && hiddenActionsOpen) && (
-                <button className="p-3 mt-3 font-semibold text-sm flex items-center" onClick={() => setOpenYears(openYears.filter(openYear => openYear !== yearString))}>
+                <button className="p-3 mt-3 font-semibold text-sm flex items-center text-black" onClick={() => setOpenYears(openYears.filter(openYear => openYear !== yearString))}>
                   <>
                     <span className="pr-1">Hide {hiddenActions.length} {pluralActionsCopy}</span>
                     {UpArrow}
