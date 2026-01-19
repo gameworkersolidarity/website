@@ -16,7 +16,7 @@ import useSWR from 'swr';
 import { FilterContext } from '../components/Timeline';
 import { projectStrings } from '../data/site';
 import { actionUrl } from '../data/solidarityAction';
-import { AirtableCDNMap, Attachment, Country, SolidarityAction } from '../data/types';
+import { AirtableCDNMap, Attachment, Company, Country, SolidarityAction } from '../data/types';
 import { usePrevious } from '../utils/state';
 import { DateTime } from './Date';
 import { defaultOGImageStack } from '../pages/_app';
@@ -458,10 +458,8 @@ export function SolidarityActionCard({ data, withContext, contextProps }: CardPr
             )}
             {data.fields.companyName?.map((companyName, i) =>
               <div className='p-4 md:px-8 bg-white' key={companyName}>
-                <SolidarityActionRelatedActions
-                  subtitle='Company'
-                  url={`/?company=${companyName}`}
-                  name={<span>{companyName}</span>}
+                <SolidarityActionCompanyRelatedActions
+                  companyName={companyName}
                 />
               </div>
             )}
@@ -489,6 +487,28 @@ export function SolidarityActionCountryRelatedActions({ countryCode }: { country
       name={data?.fields ? (
         <span><Emoji symbol={data?.emoji?.emoji} label='flag' /> {data?.fields.Name}</span>
       ) : countryCode}
+      metadata={actionCount ? pluralize('action', actionCount, true) : undefined}
+    />
+  )
+}
+
+export function SolidarityActionCompanyRelatedActions({ companyName }: { companyName: string }) {
+  const { data } = useSWR<Company>(qs.stringifyUrl({
+    url: `/api/company`,
+    query: {
+      name: companyName
+    }
+  }), { revalidateOnMount: true })
+
+  const actionCount = data?.fields?.['Solidarity Actions']?.length || 0
+
+  return (
+    <SolidarityActionRelatedActions
+      subtitle={'Company'}
+      url={`/?company=${companyName}`}
+      name={data?.fields ? (
+        <span>{data.fields.Name}</span>
+      ) : companyName}
       metadata={actionCount ? pluralize('action', actionCount, true) : undefined}
     />
   )
