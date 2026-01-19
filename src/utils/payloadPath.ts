@@ -1,4 +1,4 @@
-import { CollectionSlug } from 'payload'
+import { CollectionSlug, GlobalSlug } from 'payload'
 import type {
   Company,
   Country,
@@ -52,6 +52,27 @@ export function getPath<C extends CollectionSlug>(collection: C, record: Config[
       return `/articles/${getSlug(collection, record)}`
     case 'staticPages':
       return `/${getSlug(collection, record)}`
+    default:
+      return '/'
+  }
+}
+
+export function getGlobalPath(globalSlug: GlobalSlug): string {
+  switch (globalSlug) {
+    case 'header':
+      return '/' // Header appears on all pages, preview on homepage
+    case 'footer':
+      return '/' // Footer appears on all pages, preview on homepage
+    case 'aboutPage':
+      return '/about'
+    case 'campaignsPage':
+      return '/campaigns'
+    case 'dataPage':
+      return '/data'
+    case 'eventSubmissionPage':
+      return '/submit-event'
+    case 'startOrganising':
+      return '/start-organising'
     default:
       return '/'
   }

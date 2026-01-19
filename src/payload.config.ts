@@ -26,7 +26,7 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 // import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 // import nodemailer from 'nodemailer'
 import { projectStrings } from './project-strings'
-import { getPath, getSlug } from './utils/payloadPath'
+import { getPath, getSlug, getGlobalPath } from './utils/payloadPath'
 import { AboutPage } from './globals/AboutPage'
 import { CampaignsPage } from './globals/CampaignsPage'
 import { DataPage } from './globals/DataPage'
@@ -54,20 +54,36 @@ export default buildConfig({
           }
         : undefined,
     livePreview: {
-      url: ({ data, collectionConfig }) => {
-        if (!data?.slug || !collectionConfig) {
-          return null
-        }
-
+      url: ({ data, collectionConfig, globalConfig }) => {
         const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
         const baseURL = projectStrings.baseUrl
-        const encodedParams = new URLSearchParams({
-          slug: getSlug(collectionConfig.slug, data as any),
-          collection: collectionConfig.slug,
-          path: getPath(collectionConfig.slug, data as any),
-          previewSecret,
-        })
-        return `${baseURL}/preview?${encodedParams.toString()}`
+
+        // Handle collections
+        if (collectionConfig) {
+          if (!data?.slug) {
+            return null
+          }
+
+          const encodedParams = new URLSearchParams({
+            slug: getSlug(collectionConfig.slug, data as any),
+            collection: collectionConfig.slug,
+            path: getPath(collectionConfig.slug, data as any),
+            previewSecret,
+          })
+          return `${baseURL}/preview?${encodedParams.toString()}`
+        }
+
+        // Handle globals
+        if (globalConfig) {
+          const encodedParams = new URLSearchParams({
+            global: globalConfig.slug,
+            path: getGlobalPath(globalConfig.slug),
+            previewSecret,
+          })
+          return `${baseURL}/preview?${encodedParams.toString()}`
+        }
+
+        return null
       },
       collections: [
         'events',
@@ -78,6 +94,15 @@ export default buildConfig({
         'countries',
         'staticPages',
         'blogPosts',
+      ],
+      globals: [
+        'header',
+        'footer',
+        'aboutPage',
+        'campaignsPage',
+        'dataPage',
+        'eventSubmissionPage',
+        'startOrganising',
       ],
       breakpoints: [
         {
