@@ -373,6 +373,8 @@ export function ActionMetadata({ data }: { data: SolidarityAction }) {
 
 export function SolidarityActionCard({ data, withContext, contextProps }: CardProps) {
   const seoTitle = `${format(new Date(data.fields.Date), 'dd MMM yyyy')}: ${data.fields.Name}`
+  const firstImage = data.cdnMap?.[0]
+  const remainingAttachments = data.cdnMap?.slice(1) || []
 
   return (
     <>
@@ -394,6 +396,19 @@ export function SolidarityActionCard({ data, withContext, contextProps }: CardPr
         }}
       />
       <article className={cx('space-y-2px rounded-xl overflow-hidden')}>
+        {firstImage && (
+          <div className='bg-white'>
+            <div className='overflow-hidden'>
+              <Image
+                src={firstImage.thumbnailURL || firstImage.originalURL}
+                width={firstImage.thumbnailWidth || firstImage.originalWidth || 800}
+                height={firstImage.thumbnailHeight || firstImage.originalHeight || 800 * (297 / 210) /** A4 proportional height */}
+                alt={firstImage.filename}
+                className='w-full h-auto'
+              />
+            </div>
+          </div>
+        )}
         <div className='p-4 md:px-8 bg-white'>
           <div className='text-sm'>
             <ActionMetadata data={data} />
@@ -415,11 +430,11 @@ export function SolidarityActionCard({ data, withContext, contextProps }: CardPr
             )}
           </div>
         </div>
-        {data.cdnMap?.length > 0 && (
+        {remainingAttachments.length > 0 && (
           <div className='p-4 md:px-8 bg-white text-sm'>
             <div className='font-semibold pb-2'>Attachments</div>
             <div className='grid gap-4'>
-              {data.cdnMap.map(doc => (
+              {remainingAttachments.map(doc => (
                 <DocumentLink key={doc.airtableDocID} {...doc} withPreview />
               ))}
             </div>
