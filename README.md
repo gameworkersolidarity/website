@@ -75,6 +75,43 @@ yarn generateschema
 
 This repo auto-deploys to Digital Ocean.
 
+## Airtable Configuration
+
+### Database Structure
+
+The application uses Airtable as its database with the following main tables:
+- **Solidarity Actions** - Events and actions taken by game workers
+- **Companies** - Game companies involved in these actions
+- **Countries** - Geographic data
+- **Organising Groups** - Unions and worker organizations
+- **Categories** - Types of actions
+- **Blog Posts** - Analysis and articles
+- **Static Pages** - Website content
+
+### Linked Records Setup
+
+The application requires proper linking between tables, particularly between Companies and Solidarity Actions. See the [Airtable Company Events Reverse View documentation](./docs/airtable-company-events-reverse-view.md) for detailed instructions on:
+- Setting up the reverse relationship between Companies and Solidarity Actions
+- Configuring field visibility in Airtable views
+- Understanding how the application uses these relationships
+
+### Required Fields
+
+#### Companies Table
+- `Name` (text) - Company name
+- `Summary` (long text) - Company description
+- `Solidarity Actions` (linked records) - Links to Solidarity Actions table
+
+#### Solidarity Actions Table
+- `Name` (text) - Action name
+- `Date` (date) - When the action occurred
+- `Company` (linked records) - Links to Companies table
+- `Location` (text) - Where the action took place
+- `Summary` (long text) - Action description
+- `Public` (checkbox) - Whether to display publicly
+- `slug` (text) - URL-friendly identifier
+- Additional fields documented in `data/types.ts`
+
 ## CDN for public file hosting
 
 Cloudinary is used as a public CDN for Airtable images. Here's how it works:
