@@ -8,8 +8,7 @@ import { useMemo, useState, createContext, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import Emoji from 'a11y-react-emoji';
 import pluralize from 'pluralize';
-import { useURLStateFactory } from '../utils/state';
-import { ensureArray, toggleInArray, stringifyArray } from '../utils/string';
+import { toggleInArray, stringifyArray } from '../utils/string';
 import { Listbox, Disclosure } from '@headlessui/react'
 import { useRouter } from 'next/dist/client/router';
 import useSWR from 'swr';
@@ -48,16 +47,11 @@ export function SolidarityActionsTimeline ({
   groups: OrganisingGroup[]
 }) {
   const router = useRouter()
-  const useURLState = useURLStateFactory()
 
   /**
    * Categories
    */
-  const [filteredCategoryNames, setCategories, categoryMetadata] = useURLState<string[]>({
-    key: 'category',
-    emptyValue: [],
-    serialiseObjectToState: (key, urlData) => urlData ? ensureArray(urlData) as string[] : [],
-  })
+  const [filteredCategoryNames, setCategories] = useState<string[]>([])
   const toggleCategory = (category: string) => {
     setCategories(categories => toggleInArray(categories, category))
   }
@@ -68,11 +62,7 @@ export function SolidarityActionsTimeline ({
   /**
    * Companies
    */
-  const [filteredCompanyNames, setCompanies, companiesMetadata] = useURLState({
-    key: 'company',
-    emptyValue: [],
-    serialiseObjectToState: (key, urlData) => urlData ? ensureArray(urlData) as string[] : [],
-  })
+  const [filteredCompanyNames, setCompanies] = useState<string[]>([])
   const toggleCompany = (id: string) => {
     setCompanies(companies => toggleInArray(companies, id))
   }
@@ -83,11 +73,7 @@ export function SolidarityActionsTimeline ({
   /**
    * Countries
    */
-  const [filteredCountrySlugs, setCountries, countriesMetadata] = useURLState({
-    key: 'country',
-    emptyValue: [],
-    serialiseObjectToState: (key, urlData) => urlData ? ensureArray(urlData) as string[] : []
-  })
+  const [filteredCountrySlugs, setCountries] = useState<string[]>([])
   const toggleCountry = (id: string) => {
     setCountries(countries => toggleInArray(countries, id))
   }
@@ -98,11 +84,7 @@ export function SolidarityActionsTimeline ({
   /**
    * OrganisingGroups
    */
-  const [filteredOrganisingGroupNames, setOrganisingGroups, organisingGroupMetadata] = useURLState({
-    key: 'group',
-    emptyValue: [],
-    serialiseObjectToState: (key, urlData) => urlData ? ensureArray(urlData) as string[] : [],
-  })
+  const [filteredOrganisingGroupNames, setOrganisingGroups] = useState<string[]>([])
   const toggleOrganisingGroup = (id: string) => {
     setOrganisingGroups(groups => toggleInArray(groups, id))
   }
@@ -113,11 +95,7 @@ export function SolidarityActionsTimeline ({
   /**
    * Full text search
    */
-  const [filterText, setFilterText, filterTextMetadata] = useURLState<string>({
-    key: 'search',
-    emptyValue: '',
-    serialiseObjectToState: (key, urlData) => urlData?.toString() || ''
-  })
+  const [filterText, setFilterText] = useState<string>('')
 
   /**
    * Filter metadata
@@ -125,11 +103,11 @@ export function SolidarityActionsTimeline ({
   const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
 
   const clearAllFilters = () => {
-    setFilterText(filterTextMetadata.emptyValue)
-    setCountries(countriesMetadata.emptyValue)
-    setCategories(categoryMetadata.emptyValue)
-    setCompanies(companiesMetadata.emptyValue)
-    setOrganisingGroups(organisingGroupMetadata.emptyValue)
+    setFilterText('')
+    setCountries([])
+    setCategories([])
+    setCompanies([])
+    setOrganisingGroups([])
   }
 
   /**
