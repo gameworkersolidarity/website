@@ -188,11 +188,11 @@ export function SolidarityActionsList({
             <div key={i}>
               <div className='flex flex-row justify-between items-center pb-3'>
                 <h2
-                  className={cx(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}
+                  className={cx(mini ? 'text-lg' : 'text-2xl', 'font-semibold', 'text-black')}
                   id={yearString}>
                   {yearString}
                 </h2>
-                <div className='text-xs font-semibold'>
+                <div className='text-xs font-semibold text-black'>
                   {pluralize('action', actions.length, true)}
                 </div>
               </div>
