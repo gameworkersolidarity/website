@@ -262,7 +262,7 @@ export function SolidarityActionsTimeline ({
           <div className='p-4 lg:p-5 xl:pl-7 flex flex-col flex-nowrap md:h-screen sticky top-5 space-y-4'>
             <section className='flex-grow-0'>
               <div className='flex flex-wrap w-full justify-between text-sm'>
-                <h3 className='text-base text-left left-0 font-semibold mb-2'>
+                <h3 className='text-base text-left left-0 font-semibold mb-2 text-black'>
                   Filter by
                 </h3>
                 {hasFilters ? (
@@ -470,7 +470,7 @@ export function SolidarityActionsTimeline ({
               }} />
             </section>
             <section className='pt-1 flex-grow-0'>
-              <h3 className='text-base text-left w-full font-semibold'>
+              <h3 className='text-base text-left w-full font-semibold text-black'>
                 Select year
               </h3>
               <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToYear(router, year)} />
