@@ -53,6 +53,9 @@ export default buildConfig({
             prefillOnly: true,
           }
         : undefined,
+    components: {
+      beforeNavLinks: ['@/components/payloadcms/HomepageLink#HomepageLink'],
+    },
     livePreview: {
       url: ({ data, collectionConfig }) => {
         if (!data?.slug || !collectionConfig) {
