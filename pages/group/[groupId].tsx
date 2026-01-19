@@ -8,12 +8,19 @@ import PageLayout from '../../components/PageLayout';
 import { OrganisingGroupCard, OrganisingGroupSEO } from '../../components/OrganisingGroup';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import LoadingPage from '../../components/LoadingPage';
 
 type PageProps = { group: OrganisingGroup | null, errorMessage?: string }
 type PageParams = { groupId: string }
 
 export default function Page({ group, errorMessage }: PageProps) {
   const router = useRouter()
+  
+  // Show loading state while page is being generated
+  if (router.isFallback) {
+    return <LoadingPage />
+  }
+  
   if (!group) return <ErrorPage message={errorMessage} />
   useEffect(() => {
     // The user may have landed on the Airtable ID url rather than the canonical slugified URL

@@ -8,12 +8,19 @@ import ErrorPage from '../404'
 import PageLayout from '../../components/PageLayout';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import LoadingPage from '../../components/LoadingPage';
 
 type PageProps = { action: SolidarityAction | null, errorMessage?: string }
 type PageParams = { actionId: string, page?: string }
 
 export default function Page({ action, errorMessage }: PageProps) {
   const router = useRouter()
+  
+  // Show loading state while page is being generated
+  if (router.isFallback) {
+    return <LoadingPage />
+  }
+  
   if (!action) return <ErrorPage message={errorMessage} />
   useEffect(() => {
     // The user may have landed on the Airtable ID url rather than the canonical slugified URL
