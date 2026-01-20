@@ -4,10 +4,78 @@ import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { EventSubmissionForm } from './EventSubmissionForm'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { projectStrings } from '@/project-strings'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Submit an Event',
-  description: 'Submit a new event to the Game Workers Solidarity Platform',
+export async function generateMetadata(): Promise<Metadata> {
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await draftMode()).isEnabled
+
+  try {
+    const eventSubmissionPageData = await payload.findGlobal({
+      slug: 'eventSubmissionPage',
+      draft: isDraftMode,
+    })
+
+    const title = eventSubmissionPageData?.title || 'Submit an Event'
+    const description =
+      (eventSubmissionPageData?.description
+        ? lexicalToPlainText(eventSubmissionPageData.description)
+        : '') || 'Submit a new event to the Game Workers Solidarity Platform'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  } catch (error) {
+    const title = 'Submit an Event'
+    const description = 'Submit a new event to the Game Workers Solidarity Platform'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  }
 }
 
 export default async function SubmitEventPage() {
