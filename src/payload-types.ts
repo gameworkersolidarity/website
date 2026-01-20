@@ -756,6 +756,10 @@ export interface Event {
    * Contact information provided by the person who submitted this event
    */
   submissionContactDetails?: string | null;
+  /**
+   * User consented to Game Worker Solidarity Project publishing this information online and offline
+   */
+  consent?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1238,6 +1242,7 @@ export interface EventsSelect<T extends boolean = true> {
   url?: T;
   adminPath?: T;
   submissionContactDetails?: T;
+  consent?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
