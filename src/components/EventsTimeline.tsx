@@ -572,15 +572,13 @@ export function Timeline({
             // Estimate label dimensions - generous defaults for Firefox/Safari compatibility
             // Firefox/Safari require explicit width/height on foreignObject
             const estimatedWidth = 300 // px - generous width to accommodate longer labels
-            const estimatedHeight = event.id === currentEventId ? 60 : 40 // px - more height if date is shown
+            // const estimatedHeight = event.id === currentEventId ? 60 : 40 // px - more height if date is shown
             
             return (
               <HtmlLabel
                 key={`label-${event.id}`}
                 x={x}
                 y={y}
-                width={estimatedWidth}
-                height={estimatedHeight}
                 horizontalAnchor="middle"
                 verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
                 showAnchorLine={false}
