@@ -206,9 +206,6 @@ export function SolidarityActionsTimeline ({
     if (selectedOrganisingGroups?.length) {
       expression.$and!.push({ $or: selectedOrganisingGroups.map(c => ({ $path: ['fields', "Organising Groups"], $val: `'${c?.id}` })) })
     }
-    if (selectedYears?.length) {
-      expression.$and!.push({ $or: selectedYears.map(year => ({ 'fields.Date': `'${year}` })) })
-    }
     if (filterText?.trim().length) {
       expression.$and!.push({
         $or: [
@@ -223,7 +220,17 @@ export function SolidarityActionsTimeline ({
         ]
       })
     }
-    return search.search(expression)
+    let results = search.search(expression)
+    
+    // Filter by year after Fuse search since dates are stored as full ISO dates
+    if (selectedYears?.length) {
+      results = results.filter(result => {
+        const actionYear = new Date(result.item.fields.Date).getFullYear().toString()
+        return selectedYears.includes(actionYear)
+      })
+    }
+    
+    return results
   }
 
   const filterActionCount = memoize((params: Partial<typeof defaults> = defaults): number => {
