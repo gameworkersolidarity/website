@@ -23,9 +23,12 @@ import {
   ChevronsUpDown,
   Expand,
   ListCollapse,
+  Search,
+  X,
 } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 import { CollapsibleListButton } from '@/components/CollapsibleList'
+import { Input } from '@/components/ui/input'
 
 export type EventFilterProps = {
   years?: boolean
@@ -70,6 +73,8 @@ export function EventFilter({
     clearAllFilters,
     selectedPopupIds,
     setSelectedPopupIds,
+    searchQuery,
+    setSearchQuery,
     ...filterContext
   } = useEventFilterContext()
 
@@ -85,6 +90,7 @@ export function EventFilter({
   const isMobile = useMediaQuery('(max-width: 768px)')
 
   const [open, setOpen] = useState(!isMobile)
+  const [searchExpanded, setSearchExpanded] = useState(false)
 
   return (
     <Collapsible
@@ -118,26 +124,68 @@ export function EventFilter({
             </div>
           )} */}
         </div>
-        {initiators && (
-          <RadioGroup
-            value={filteredInitiator || ''}
-            onValueChange={(value) => setInitiatorFilter(value as EventInitiatorFilter)}
-            className="hidden md:flex flex-row items-right gap-3"
-          >
-            {[
-              { label: 'Worker-led', value: EventInitiatorFilter.WORKER_LED },
-              { label: 'Boss-led', value: EventInitiatorFilter.BOSS_LED },
-              { label: 'All', value: EventInitiatorFilter.ALL },
-            ].map((initiator) => (
-              <div key={initiator.label} className="flex items-center gap-2">
-                <Label htmlFor={initiator.label} className="text-xs uppercase">
-                  <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
-                  <DisplayInitiator initiator={initiator.value as EventInitiatorFilter} link="soft" />
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        )}
+        <div className="flex flex-row items-center gap-2">
+          {/* Search input - expand on click, visible when non-empty */}
+          {(searchExpanded || searchQuery) && (
+            <div className="relative flex items-center">
+              <Search className="absolute left-2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onBlur={() => {
+                  if (!searchQuery) {
+                    setSearchExpanded(false)
+                  }
+                }}
+                className="pl-8 pr-8 h-8 text-sm"
+                autoFocus={searchExpanded}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setSearchExpanded(false)
+                  }}
+                  className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
+          {!searchExpanded && !searchQuery && (
+            <button
+              onClick={() => setSearchExpanded(true)}
+              className="flex items-center justify-center h-8 w-8 text-gray-400 hover:text-gray-600 rounded"
+              aria-label="Search events"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          )}
+          {initiators && (
+            <RadioGroup
+              value={filteredInitiator || ''}
+              onValueChange={(value) => setInitiatorFilter(value as EventInitiatorFilter)}
+              className="hidden md:flex flex-row items-right gap-3"
+            >
+              {[
+                { label: 'Worker-led', value: EventInitiatorFilter.WORKER_LED },
+                { label: 'Boss-led', value: EventInitiatorFilter.BOSS_LED },
+                { label: 'All', value: EventInitiatorFilter.ALL },
+              ].map((initiator) => (
+                <div key={initiator.label} className="flex items-center gap-2">
+                  <Label htmlFor={initiator.label} className="text-xs uppercase">
+                    <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
+                    <DisplayInitiator initiator={initiator.value as EventInitiatorFilter} link="soft" />
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          )}
+        </div>
       </section>
       <CollapsibleContent className="w-full">
         <div

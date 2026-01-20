@@ -32,9 +32,11 @@ import { TimelineLabelProperty } from '@/global-types'
 export function EventTimeline({
   events,
   labelProperty,
+  searchQuery,
 }: {
   events: Event[]
   labelProperty?: TimelineLabelProperty
+  searchQuery?: string
 }) {
   const sortedEvents = useMemo(
     () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
@@ -57,6 +59,7 @@ export function EventTimeline({
           events={events}
           currentEventId={currentEventId}
           setCurrentEventId={setCurrentEventId}
+          searchQuery={searchQuery}
         />
       </div>
     </div>
@@ -67,10 +70,12 @@ export function Slideshow({
   events,
   currentEventId,
   setCurrentEventId: __setCurrentEventId,
+  searchQuery,
 }: {
   events: Event[]
   currentEventId: string | null
   setCurrentEventId: (id: string) => void
+  searchQuery?: string
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map())
@@ -163,7 +168,7 @@ export function Slideshow({
               size={20}
               onClick={() => setCurrentEventId(list[index - 1].id)}
             />
-            <EventCard data={event} links />
+            <EventCard data={event} links searchQuery={searchQuery} />
             <ArrowRight
               className={twMerge(
                 'w-20 cursor-pointer',

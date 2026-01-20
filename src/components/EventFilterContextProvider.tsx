@@ -14,6 +14,20 @@ import {
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
 import { createContext, Dispatch, SetStateAction, useContext, useMemo, useState } from 'react'
+import Fuse from 'fuse.js'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+
+export type HighlightRange = {
+  field: string
+  start: number
+  end: number
+}
+
+export type EventHighlights = {
+  [eventId: string]: {
+    [field: string]: Array<[number, number]>
+  }
+}
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
@@ -35,6 +49,9 @@ export const EventFilterContext = createContext<{
   filteredInitiator?: EventInitiatorFilter | null
   filteredYear?: number[] | null
   availableYears: number[]
+  searchQuery: string
+  setSearchQuery: Dispatch<SetStateAction<string>>
+  highlights: EventHighlights
   setCountryISOA2Filter: ReturnType<typeof useCountryISOA2Filter>[1]
   setCategoryFilter: ReturnType<typeof useCategoryFilter>[1]
   setCompanyFilter: ReturnType<typeof useCompanyFilter>[1]
@@ -48,6 +65,9 @@ export const EventFilterContext = createContext<{
   filteredEvents: [],
   selectedPopupIds: null,
   availableYears: [],
+  searchQuery: '',
+  setSearchQuery: noop,
+  highlights: {},
   setCountryISOA2Filter: noop,
   setCategoryFilter: noop,
   setCompanyFilter: noop,
@@ -80,6 +100,54 @@ export type EventFilterContextProviderProps = {
   campaigns: Campaign[]
 }
 
+// Helper function to create a searchable version of an event with description converted to plain text
+function createSearchableEvent(event: Event) {
+  let descriptionText: string | undefined
+  if (event.description) {
+    try {
+      descriptionText = lexicalToPlainText(event.description)
+    } catch (e) {
+      // If conversion fails, skip description
+    }
+  }
+
+  return {
+    event,
+    name: event.name || '',
+    description: descriptionText || '',
+    location: event.location || '',
+    source: event.source || '',
+    categoryNames: event.categories
+      ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
+      .filter(Boolean)
+      .join(' ') || '',
+    countryNames: event.countries
+      ?.map((country) =>
+        typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
+      )
+      .filter(Boolean)
+      .join(' ') || '',
+    companyNames: event.companies
+      ?.map((company) =>
+        typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
+      )
+      .filter(Boolean)
+      .join(' ') || '',
+    organisingGroupNames: event.organisingGroups
+      ?.map((og) =>
+        typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
+      )
+      .filter(Boolean)
+      .join(' ') || '',
+    campaignNames: event.campaigns?.docs
+      ?.map((campaign) =>
+        typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
+      )
+      .filter(Boolean)
+      .join(' ') || '',
+  }
+}
+
 export function EventFilterContextProvider({
   events,
   children,
@@ -97,6 +165,7 @@ export function EventFilterContextProvider({
   overrideFilteredYear,
 }: EventFilterContextProviderProps) {
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
     overrideFilteredCountryISOA2,
   )
@@ -147,9 +216,10 @@ export function EventFilterContextProvider({
     return Array.from(years).sort((a, b) => b - a) // Sort descending (newest first)
   }, [events])
 
-  const filteredEvents = useMemo(() => {
+  // Build search index and perform fuzzy search
+  const { filteredEvents, highlights } = useMemo(() => {
     if (!events?.length) {
-      return []
+      return { filteredEvents: [], highlights: {} }
     }
     let filtered = [...events]
     if (selectedPopupIds && selectedPopupIds.length > 0) {
@@ -206,7 +276,58 @@ export function EventFilterContextProvider({
     if (filteredYear && filteredYear.length > 0) {
       filtered = filtered.filter((event) => filteredYear.includes(getYear(new Date(event.date))))
     }
-    return filtered
+
+    // Apply text search if query exists
+    const highlights: EventHighlights = {}
+    if (searchQuery.trim()) {
+      // Build search index with searchable event data
+      const searchIndex = filtered.map((event) => createSearchableEvent(event))
+
+      // Configure Fuse.js for fuzzy search
+      const fuse = new Fuse(searchIndex, {
+        keys: [{
+          name: 'name',
+          weight: 2,
+        }, {
+          name: 'description',
+          weight: 2,
+        }, 'location', 'categoryNames', 'countryNames', 'companyNames', 'organisingGroupNames', 'campaignNames'],
+        threshold: 0.8, // 0.0 = exact match, 1.0 = match anything
+        includeMatches: true,
+        includeScore: true,
+        findAllMatches: false,
+        minMatchCharLength: 3,
+        shouldSort: false
+      })
+
+      // Perform search
+      const results = fuse.search(searchQuery.trim())
+      const matchedEvents = results.map((result) => result.item.event)
+
+      // Collect match ranges for highlighting by field
+      results.forEach((result) => {
+        const eventId = result.item.event.id
+        if (!highlights[eventId]) {
+          highlights[eventId] = {}
+        }
+
+        // Process all matches across all fields
+        result.matches?.forEach((match) => {
+          const field = match.key || ''
+          if (field && match.indices && match.indices.length > 0) {
+            if (!highlights[eventId][field]) {
+              highlights[eventId][field] = []
+            }
+            // Fuse indices are [start, end] where both are inclusive
+            highlights[eventId][field].push(...match.indices)
+          }
+        })
+      })
+
+      return { filteredEvents: matchedEvents, highlights }
+    }
+
+    return { filteredEvents: filtered, highlights: {} }
   }, [
     events,
     filteredCountryISOA2,
@@ -217,6 +338,7 @@ export function EventFilterContextProvider({
     filteredInitiator,
     filteredYear,
     selectedPopupIds,
+    searchQuery,
   ])
 
   return (
@@ -236,6 +358,9 @@ export function EventFilterContextProvider({
         filteredCampaigns,
         filteredYear: filteredYear || null,
         availableYears,
+        searchQuery,
+        setSearchQuery,
+        highlights,
         setCountryISOA2Filter,
         setCategoryFilter,
         setCompanyFilter,
@@ -269,6 +394,7 @@ export function useEventFilterContext() {
     context.setInitiatorFilter(null)
     context.setYearFilter(null)
     context.setSelectedPopupIds(null)
+    context.setSearchQuery('')
   }
 
   return {
