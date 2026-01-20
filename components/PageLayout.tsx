@@ -7,6 +7,7 @@ type Links = Array<{ url: string, label: string }>
 
 const headerLinks: Links = [
   // All header links as JSON objects
+  { url: '/', label: 'All Campaigns' },
   { url: '/analysis', label: 'Analysis' },
   { url: '/start-organising', label: 'Organise!' },
   { url: '/submit', label: 'Submit Action' },
@@ -16,6 +17,7 @@ const headerLinks: Links = [
 
 const footerLinks: Links = [
   // All footer links as JSON objects
+  { url: '/', label: 'All Campaigns' },
   { url: '/analysis', label: 'Analysis' },
   { url: '/start-organising', label: 'Organise!' },
   { url: '/submit', label: 'Submit Action' },
