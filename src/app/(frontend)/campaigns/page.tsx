@@ -7,10 +7,78 @@ import type { Campaign, Event } from '@/payload-types'
 import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
 import { CampaignLabel } from '@/components/CampaignLabel'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { projectStrings } from '@/project-strings'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Worker organising campaigns',
-  description: 'Stories about worker organising in the video game industry.',
+export async function generateMetadata(): Promise<Metadata> {
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await draftMode()).isEnabled
+
+  try {
+    const campaignPageData = await payload.findGlobal({
+      slug: 'campaignsPage',
+      draft: isDraftMode,
+    })
+
+    const title = 'Worker organising campaigns'
+    const description =
+      (campaignPageData?.description
+        ? lexicalToPlainText(campaignPageData.description)
+        : '') || 'Stories about worker organising in the video game industry.'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  } catch (error) {
+    const title = 'Worker organising campaigns'
+    const description = 'Stories about worker organising in the video game industry.'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  }
 }
 
 export default async function CampaignsPage() {

@@ -6,7 +6,77 @@ import { LexicalRenderer } from '../components/LexicalRenderer'
 import { draftMode } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Metadata } from 'next'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import type { Metadata } from 'next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await draftMode()).isEnabled
+
+  try {
+    const dataPageData = await payload.findGlobal({
+      slug: 'dataPage',
+      draft: isDraftMode,
+    })
+
+    const title = 'Get the data'
+    const description =
+      (dataPageData?.description ? lexicalToPlainText(dataPageData.description) : '') ||
+      'Get the data from the Game Workers Solidarity Platform'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  } catch (error) {
+    const title = 'Get the data'
+    const description = 'Get the data from the Game Workers Solidarity Platform'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  }
+}
 
 export default async function DataPage() {
   const payloadConfig = await config
@@ -89,9 +159,4 @@ export default async function DataPage() {
   } catch (error) {
     return notFound()
   }
-}
-
-export const metadata: Metadata = {
-  title: 'Get the data',
-  description: 'Get the data from the Game Workers Solidarity Platform',
 }
