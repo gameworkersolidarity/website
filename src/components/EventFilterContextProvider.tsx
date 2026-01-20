@@ -13,8 +13,9 @@ import {
 } from '@/utils/global-state'
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
-import { createContext, Dispatch, SetStateAction, useContext, useMemo, useState } from 'react'
-import Fuse from 'fuse.js'
+import { createContext, Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { create, insertMultiple, search } from '@orama/orama'
+import { Highlight } from '@orama/highlight'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 
 export type HighlightRange = {
@@ -112,39 +113,45 @@ function createSearchableEvent(event: Event) {
   }
 
   return {
-    event,
+    id: event.id,
+    eventId: event.id, // Store event ID for retrieval
     name: event.name || '',
     description: descriptionText || '',
     location: event.location || '',
     source: event.source || '',
-    categoryNames: event.categories
-      ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
-      .filter(Boolean)
-      .join(' ') || '',
-    countryNames: event.countries
-      ?.map((country) =>
-        typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    companyNames: event.companies
-      ?.map((company) =>
-        typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    organisingGroupNames: event.organisingGroups
-      ?.map((og) =>
-        typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    campaignNames: event.campaigns?.docs
-      ?.map((campaign) =>
-        typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
+    categories: {
+      name: event.categories
+        ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
+        .filter(Boolean) || [],
+    },
+    countries: {
+      name: event.countries
+        ?.map((country) =>
+          typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    companies: {
+      name: event.companies
+        ?.map((company) =>
+          typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    organisingGroups: {
+      name: event.organisingGroups
+        ?.map((og) =>
+          typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    campaigns: {
+      name: event.campaigns?.docs
+        ?.map((campaign) =>
+          typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
+        )
+        .filter(Boolean) || [],
+    },
   }
 }
 
@@ -216,10 +223,10 @@ export function EventFilterContextProvider({
     return Array.from(years).sort((a, b) => b - a) // Sort descending (newest first)
   }, [events])
 
-  // Build search index and perform fuzzy search
-  const { filteredEvents, highlights } = useMemo(() => {
+  // First apply all non-search filters
+  const preFilteredEvents = useMemo(() => {
     if (!events?.length) {
-      return { filteredEvents: [], highlights: {} }
+      return []
     }
     let filtered = [...events]
     if (selectedPopupIds && selectedPopupIds.length > 0) {
@@ -277,57 +284,7 @@ export function EventFilterContextProvider({
       filtered = filtered.filter((event) => filteredYear.includes(getYear(new Date(event.date))))
     }
 
-    // Apply text search if query exists
-    const highlights: EventHighlights = {}
-    if (searchQuery.trim()) {
-      // Build search index with searchable event data
-      const searchIndex = filtered.map((event) => createSearchableEvent(event))
-
-      // Configure Fuse.js for fuzzy search
-      const fuse = new Fuse(searchIndex, {
-        keys: [{
-          name: 'name',
-          weight: 2,
-        }, {
-          name: 'description',
-          weight: 2,
-        }, 'location', 'categoryNames', 'countryNames', 'companyNames', 'organisingGroupNames', 'campaignNames'],
-        threshold: 0.8, // 0.0 = exact match, 1.0 = match anything
-        includeMatches: true,
-        includeScore: true,
-        findAllMatches: false,
-        minMatchCharLength: 3,
-        shouldSort: false
-      })
-
-      // Perform search
-      const results = fuse.search(searchQuery.trim())
-      const matchedEvents = results.map((result) => result.item.event)
-
-      // Collect match ranges for highlighting by field
-      results.forEach((result) => {
-        const eventId = result.item.event.id
-        if (!highlights[eventId]) {
-          highlights[eventId] = {}
-        }
-
-        // Process all matches across all fields
-        result.matches?.forEach((match) => {
-          const field = match.key || ''
-          if (field && match.indices && match.indices.length > 0) {
-            if (!highlights[eventId][field]) {
-              highlights[eventId][field] = []
-            }
-            // Fuse indices are [start, end] where both are inclusive
-            highlights[eventId][field].push(...match.indices)
-          }
-        })
-      })
-
-      return { filteredEvents: matchedEvents, highlights }
-    }
-
-    return { filteredEvents: filtered, highlights: {} }
+    return filtered
   }, [
     events,
     filteredCountryISOA2,
@@ -338,8 +295,152 @@ export function EventFilterContextProvider({
     filteredInitiator,
     filteredYear,
     selectedPopupIds,
-    searchQuery,
   ])
+
+  // Apply text search using Orama (async)
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(preFilteredEvents)
+  const [highlights, setHighlights] = useState<EventHighlights>({})
+
+  // Update filteredEvents when preFilteredEvents changes and there's no search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredEvents(preFilteredEvents)
+      setHighlights({})
+    }
+  }, [preFilteredEvents, searchQuery])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      return
+    }
+
+    const cancelledRef = { current: false }
+
+    // Perform async search
+    ;(async () => {
+      // Build search index with searchable event data
+      const searchIndex = preFilteredEvents.map((event) => createSearchableEvent(event))
+
+      // Create a map from event ID to original event for quick lookup
+      const eventMap = new Map<string, Event>()
+      preFilteredEvents.forEach((event) => {
+        eventMap.set(event.id, event)
+      })
+
+      // Create Orama database with nested schema
+      const db = await create({
+        schema: {
+          id: 'string',
+          eventId: 'string',
+          name: 'string',
+          description: 'string',
+          location: 'string',
+          source: 'string',
+          categories: {
+            name: 'string[]',
+          },
+          countries: {
+            name: 'string[]',
+          },
+          companies: {
+            name: 'string[]',
+          },
+          organisingGroups: {
+            name: 'string[]',
+          },
+          campaigns: {
+            name: 'string[]',
+          },
+        },
+      })
+
+      // Insert all documents
+      await insertMultiple(db, searchIndex)
+
+      // Perform search with field boosting using nested property paths
+      const searchResults = await search(db, {
+        term: searchQuery.trim(),
+        properties: [
+          'name',
+          'description',
+          'location',
+          'source',
+          'categories.name',
+          'countries.name',
+          'companies.name',
+          'organisingGroups.name',
+          'campaigns.name',
+        ],
+        boost: {
+          name: 2,
+          description: 2,
+        },
+        tolerance: 1, // Typo tolerance (1 character)
+      })
+
+      const matchedEvents = searchResults.hits
+        .map((hit) => eventMap.get(hit.document.eventId as string))
+        .filter((event): event is Event => event !== undefined)
+
+      // Initialize highlighter
+      const highlighter = new Highlight({
+        caseSensitive: false,
+        HTMLTag: 'mark',
+        CSSClass: 'orama-highlight',
+      })
+
+      // Collect match ranges for highlighting by field
+      const newHighlights: EventHighlights = {}
+      searchResults.hits.forEach((hit) => {
+        const eventId = hit.document.eventId as string
+        if (!newHighlights[eventId]) {
+          newHighlights[eventId] = {}
+        }
+
+        // Get the original event to access field values for highlighting
+        const originalEvent = eventMap.get(eventId)
+        if (!originalEvent) return
+
+        // Get the searchable event to access field values
+        const searchableEvent = searchIndex.find((item) => item.eventId === eventId)
+        if (!searchableEvent) return
+
+        // Highlight each field that might contain matches
+        // For simple string fields that are displayed in the UI
+        const simpleFields = ['name', 'description'] as const
+        simpleFields.forEach((field) => {
+          let fieldValue: string | undefined
+          if (field === 'description') {
+            try {
+              fieldValue = originalEvent.description ? lexicalToPlainText(originalEvent.description) : undefined
+            } catch (e) {
+              // Skip if conversion fails
+            }
+          } else {
+            fieldValue = searchableEvent[field] || undefined
+          }
+
+          if (fieldValue && typeof fieldValue === 'string' && fieldValue.length > 0) {
+            const highlighted = highlighter.highlight(fieldValue, searchQuery.trim())
+            if (highlighted.positions && highlighted.positions.length > 0) {
+              newHighlights[eventId][field] = highlighted.positions.map(
+                (pos) => [pos.start, pos.end] as [number, number],
+              )
+            }
+          }
+        })
+      })
+
+      if (!cancelledRef.current) {
+        setFilteredEvents(matchedEvents)
+        setHighlights(newHighlights)
+      }
+    })()
+
+    return () => {
+      cancelledRef.current = true
+    }
+  }, [preFilteredEvents, searchQuery])
 
   return (
     <EventFilterContext.Provider
