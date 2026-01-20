@@ -1,6 +1,6 @@
 'use client'
 
-import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import {
   useCategoryFilter,
@@ -13,7 +13,7 @@ import {
 } from '@/utils/global-state'
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, Dispatch, SetStateAction, useContext, useMemo, useState } from 'react'
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
@@ -35,14 +35,14 @@ export const EventFilterContext = createContext<{
   filteredInitiator?: EventInitiatorFilter | null
   filteredYear?: number[] | null
   availableYears: number[]
-  setCountryISOA2Filter: (value: string[] | null) => void
-  setCategoryFilter: (value: string[] | null) => void
-  setCompanyFilter: (value: string[] | null) => void
-  setOrganisingGroupFilter: (value: string[] | null) => void
-  setCampaignFilter: (value: string[] | null) => void
-  setInitiatorFilter: (value: EventInitiator | null) => void
-  setYearFilter: (value: string | number | string[] | number[] | null) => void
-  setSelectedPopupIds: (value: string[] | null) => void
+  setCountryISOA2Filter: ReturnType<typeof useCountryISOA2Filter>[1]
+  setCategoryFilter: ReturnType<typeof useCategoryFilter>[1]
+  setCompanyFilter: ReturnType<typeof useCompanyFilter>[1]
+  setOrganisingGroupFilter: ReturnType<typeof useOrganisingGroupFilter>[1]
+  setCampaignFilter: ReturnType<typeof useCampaignFilter>[1]
+  setInitiatorFilter: ReturnType<typeof useInitiatorFilter>[1]
+  setYearFilter: ReturnType<typeof useYearFilter>[1]
+  setSelectedPopupIds: Dispatch<SetStateAction<string[] | null>>
   selectedPopupIds: string[] | null
 }>({
   filteredEvents: [],

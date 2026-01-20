@@ -26,7 +26,7 @@ import { CountryLabel } from './CountryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CategoryLabel } from './CategoryLabel'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { CampaignLabel } from './CampaignLabel'
 
@@ -207,13 +207,13 @@ export function EventItem({ data, links }: { data: Event; links?: 'soft' | boole
       style={{
         // @ts-expect-error - CSS variables are not typed
         '--glow-color':
-          data.initiator === EventInitiator.BOSS_LED
+          data.initiator === EventInitiatorFilter.BOSS_LED
             ? 'var(--color-gw-orange)'
             : 'var(--color-gw-blue)',
       }}
       className={twMerge(
         'event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
-        data.initiator === EventInitiator.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
+        data.initiator === EventInitiatorFilter.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
       )}
     >
       <Wrapper>
@@ -320,9 +320,9 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
           ))}
         </div>
       )}
-      {!!data.initiator && data.initiator === EventInitiator.BOSS_LED && (
+      {!!data.initiator && data.initiator === EventInitiatorFilter.BOSS_LED && (
         <div className="inline-flex flex-wrap gap-x-2">
-          <DisplayInitiator initiator={data.initiator as EventInitiator} link={link} />
+          <DisplayInitiator initiator={data.initiator as EventInitiatorFilter} link={link} />
         </div>
       )}
       {!!data.organisingGroups?.length && (

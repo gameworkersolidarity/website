@@ -121,18 +121,18 @@ export function EventFilter({
         {initiators && (
           <RadioGroup
             value={filteredInitiator || ''}
-            onValueChange={(value) => setInitiatorFilter(value as EventInitiator)}
+            onValueChange={(value) => setInitiatorFilter(value as EventInitiatorFilter)}
             className="hidden md:flex flex-row items-right gap-3"
           >
             {[
-              { label: 'Worker-led', value: EventInitiator.WORKER_LED },
-              { label: 'Boss-led', value: EventInitiator.BOSS_LED },
+              { label: 'Worker-led', value: EventInitiatorFilter.WORKER_LED },
+              { label: 'Boss-led', value: EventInitiatorFilter.BOSS_LED },
               { label: 'All', value: EventInitiatorFilter.ALL },
             ].map((initiator) => (
               <div key={initiator.label} className="flex items-center gap-2">
                 <Label htmlFor={initiator.label} className="text-xs uppercase">
                   <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
-                  <DisplayInitiator initiator={initiator.value as EventInitiator} link="soft" />
+                  <DisplayInitiator initiator={initiator.value as EventInitiatorFilter} link="soft" />
                 </Label>
               </div>
             ))}

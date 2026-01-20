@@ -28,7 +28,7 @@ import { useAtom } from 'jotai/react'
 import { EventFilterKey, getFilterPath, sortOrderAtom } from '@/utils/global-state'
 import pluralize from 'pluralize'
 import { DisplayInitiator } from '@/utils/displayInitiator'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { twMerge } from 'tailwind-merge'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import { CountryLabel } from './CountryLabel'
@@ -298,7 +298,7 @@ export function CompactEventList({
         header: 'Actor',
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="text-xs uppercase font-mono">
-            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link="soft" />
+            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiatorFilter} link="soft" />
           </TableCell>
         ),
       },
@@ -357,8 +357,8 @@ export function CompactEventList({
               className={twMerge(
                 'bg-white hover:bg-snot-300',
                 row.getIsSelected() && 'bg-snot-300',
-                // row.original.initiator === EventInitiator.WORKER_LED && 'bg-blue-50',
-                row.original.initiator === EventInitiator.BOSS_LED && 'bg-orange-50',
+                // row.original.initiator === EventInitiatorFilter.WORKER_LED && 'bg-blue-50',
+                row.original.initiator === EventInitiatorFilter.BOSS_LED && 'bg-orange-50',
               )}
             >
               {row.getVisibleCells().map((cell) => (
