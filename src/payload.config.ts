@@ -23,8 +23,8 @@ import { s3Storage } from '@payloadcms/storage-s3'
 import { openapi, scalar } from 'payload-oapi'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
-// import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
-// import nodemailer from 'nodemailer'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import nodemailer from 'nodemailer'
 import { projectStrings } from './project-strings'
 import { getPath, getSlug } from './utils/payloadPath'
 import { AboutPage } from './globals/AboutPage'
@@ -136,29 +136,29 @@ export default buildConfig({
   db: mongooseAdapter({
     url: env.get('DATABASE_URL').required().asString(),
   }),
-  // email: env.get('SMTP_PASS')
-  //   ? nodemailerAdapter({
-  //       defaultFromAddress: projectStrings.email,
-  //       defaultFromName: projectStrings.name,
-  //       transport: nodemailer.createTransport({
-  //         host: env.get('SMTP_HOST').asString() || 'localhost',
-  //         port: env.get('SMTP_PORT').default(587).asInt(),
-  //         secure: env.get('SMTP_SECURE').default('false').asBoolStrict(),
-  //         auth: env.get('SMTP_USER').asString()
-  //           ? {
-  //               user: env.get('SMTP_USER').asString(),
-  //               pass: env.get('SMTP_PASS').asString(),
-  //             }
-  //           : undefined,
-  //         // For development, allow self-signed certificates
-  //         ...(process.env.NODE_ENV === 'development' && {
-  //           tls: {
-  //             rejectUnauthorized: false,
-  //           },
-  //         }),
-  //       }),
-  //     })
-  //   : undefined,
+  email: env.get('USE_SMTP').default('false').asBoolStrict()
+    ? nodemailerAdapter({
+        defaultFromAddress: projectStrings.email,
+        defaultFromName: projectStrings.name,
+        transport: nodemailer.createTransport({
+          host: env.get('SMTP_HOST').asString() || 'localhost',
+          port: env.get('SMTP_PORT').default(587).asInt(),
+          secure: env.get('SMTP_SECURE').default('false').asBoolStrict(),
+          auth: env.get('SMTP_USER').asString()
+            ? {
+                user: env.get('SMTP_USER').asString(),
+                pass: env.get('SMTP_PASS').asString(),
+              }
+            : undefined,
+          // For development, allow self-signed certificates
+          // ...(process.env.NODE_ENV === 'development' && {
+          //   tls: {
+          //     rejectUnauthorized: false,
+          //   },
+          // }),
+        }),
+      })
+    : undefined,
   plugins: [
     nestedDocsPlugin({
       collections: ['companies', 'organisingGroups'],
