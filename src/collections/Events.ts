@@ -318,6 +318,15 @@ export const Events: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'consent',
+      type: 'checkbox',
+      label: 'Consent',
+      admin: {
+        description: 'User consented to Game Worker Solidarity Project publishing this information online and offline',
+        position: 'sidebar',
+      },
+    },
   ],
   hooks: {
     beforeChange: [

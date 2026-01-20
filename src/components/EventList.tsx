@@ -76,7 +76,7 @@ export function EventList({
           />
         </div>
         {showFilter && (
-          <div className="px-4 py-3 border-t border-b border-gray-200">
+          <div className="px-4 py-2 border-t border-b border-gray-200">
             <EventFilter {...(eventFilterProps || {})} />
           </div>
         )}

@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { MultiSelect } from '@/components/MultiSelect'
 import type { Category, Country, Company, OrganisingGroup, Event } from '@/payload-types'
 import { EventInitiator } from '@/collections/enums'
@@ -32,12 +33,21 @@ export function EventSubmissionForm({
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
   const [selectedOrganisingGroups, setSelectedOrganisingGroups] = useState<string[]>([])
+  const [consent, setConsent] = useState(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus('idle')
     setErrorMessage('')
+
+    // Validate consent
+    if (!consent) {
+      setSubmitStatus('error')
+      setErrorMessage('You must consent to Game Worker Solidarity Project publishing this information')
+      setIsSubmitting(false)
+      return
+    }
 
     const formData = new FormData(e.currentTarget)
     const data: Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'slug'> = {
@@ -85,6 +95,7 @@ export function EventSubmissionForm({
       companies: selectedCompanies.length > 0 ? selectedCompanies : undefined,
       organisingGroups: selectedOrganisingGroups.length > 0 ? selectedOrganisingGroups : undefined,
       submissionContactDetails: formData.get('submissionContactDetails') as string,
+      consent: consent,
       _status: 'draft' as const,
     }
 
@@ -110,6 +121,7 @@ export function EventSubmissionForm({
       setSelectedCountries([])
       setSelectedCompanies([])
       setSelectedOrganisingGroups([])
+      setConsent(false)
     } catch (error: any) {
       setSubmitStatus('error')
       setErrorMessage(error.message || 'An error occurred while submitting the event')
@@ -315,6 +327,26 @@ export function EventSubmissionForm({
           <p className="text-sm text-gray-500 mt-1">
             We&apos;ll use this to contact you about your submission
           </p>
+        </div>
+      </section>
+
+      {/* Consent */}
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold">
+          Consent <span className="text-red-500">*</span>
+        </h2>
+
+        <div className="flex items-start space-x-3">
+          <Checkbox
+            id="consent"
+            checked={consent}
+            onCheckedChange={(checked) => setConsent(checked === true)}
+            className="mt-1"
+          />
+          <Label htmlFor="consent" className="cursor-pointer leading-relaxed">
+            I consent to Game Worker Solidarity Project publishing this information online and
+            offline
+          </Label>
         </div>
       </section>
 
