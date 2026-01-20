@@ -31,6 +31,7 @@ export const FilterContext = createContext<{
   countries?: string[]
   companies?: string[]
   groups?: string[]
+  years?: string[]
   hasFilters: boolean
 }>({ matches: [], hasFilters: false })
 
@@ -111,6 +112,18 @@ export function SolidarityActionsTimeline ({
   [filteredOrganisingGroupNames])
 
   /**
+   * Years
+   */
+  const [filteredYears, setYears, yearsMetadata] = useURLState({
+    key: 'year',
+    emptyValue: [],
+    serialiseObjectToState: (key, urlData) => urlData ? ensureArray(urlData) as string[] : [],
+  })
+  const toggleYear = (year: string) => {
+    setYears(years => toggleInArray(years, year))
+  }
+
+  /**
    * Full text search
    */
   const [filterText, setFilterText, filterTextMetadata] = useURLState<string>({
@@ -122,7 +135,7 @@ export function SolidarityActionsTimeline ({
   /**
    * Filter metadata
    */
-  const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
+  const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length || filteredYears.length)
 
   const clearAllFilters = () => {
     setFilterText(filterTextMetadata.emptyValue)
@@ -130,6 +143,7 @@ export function SolidarityActionsTimeline ({
     setCategories(categoryMetadata.emptyValue)
     setCompanies(companiesMetadata.emptyValue)
     setOrganisingGroups(organisingGroupMetadata.emptyValue)
+    setYears(yearsMetadata.emptyValue)
   }
 
   /**
@@ -166,6 +180,7 @@ export function SolidarityActionsTimeline ({
     selectedCompanies,
     selectedCountries,
     selectedOrganisingGroups,
+    selectedYears: filteredYears,
     filterText,
   }
 
@@ -175,6 +190,7 @@ export function SolidarityActionsTimeline ({
       selectedCompanies,
       selectedCountries,
       selectedOrganisingGroups,
+      selectedYears,
       filterText,
     } = params
     const expression: Fuse.Expression = { $and: [] }
@@ -189,6 +205,9 @@ export function SolidarityActionsTimeline ({
     }
     if (selectedOrganisingGroups?.length) {
       expression.$and!.push({ $or: selectedOrganisingGroups.map(c => ({ $path: ['fields', "Organising Groups"], $val: `'${c?.id}` })) })
+    }
+    if (selectedYears?.length) {
+      expression.$and!.push({ $or: selectedYears.map(year => ({ 'fields.Date': `'${year}` })) })
     }
     if (filterText?.trim().length) {
       expression.$and!.push({
@@ -212,7 +231,7 @@ export function SolidarityActionsTimeline ({
   }, (arg) => JSON.stringify(arg))
 
   function updateFilteredActions () {
-    const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length)
+    const hasFilters = !!(filterText.length || selectedOrganisingGroups.length || selectedCountries.length || selectedCompanies.length || selectedCategories.length || filteredYears.length)
     if (!hasFilters) return actions
     const results = filterActions()
     setMatches(results)
@@ -221,7 +240,7 @@ export function SolidarityActionsTimeline ({
 
   const filteredActions = useMemo(() => {
     return updateFilteredActions()
-  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries])
+  }, [actions, search, hasFilters, filterText, selectedCategories, selectedCompanies, selectedOrganisingGroups, selectedCountries, filteredYears])
   
 
   useEffect(() => {
@@ -254,6 +273,7 @@ export function SolidarityActionsTimeline ({
       categories: filteredCategoryNames,
       countries: filteredCountrySlugs,
       companies: filteredCompanyNames,
+      years: filteredYears,
       hasFilters
     }}>
       <OrganisingGroupDialog data={selectedUnion} onClose={() => { router.push(returnHref, undefined, { shallow: true, scroll: false }) }} />
@@ -460,6 +480,20 @@ export function SolidarityActionsTimeline ({
                   />
                 </div>
               </div>
+              {filteredYears.length > 0 && (
+                <div className='mt-2 flex flex-wrap gap-2'>
+                  {filteredYears.map(year => (
+                    <button
+                      key={year}
+                      onClick={() => toggleYear(year)}
+                      className='inline-flex items-center gap-1 px-2 py-1 bg-gwPink text-black rounded-lg text-xs font-semibold hover:bg-opacity-80'
+                    >
+                      {year}
+                      <span className='inline-block transform rotate-45 text-base leading-none'>+</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </section>
             <section className='w-full flex-grow h-[40vh] md:h-auto'>
               <Map data={JSON.parse(JSON.stringify(filteredActions))} onSelectCountry={iso2 => {
@@ -471,9 +505,9 @@ export function SolidarityActionsTimeline ({
             </section>
             <section className='pt-1 flex-grow-0'>
               <h3 className='text-base text-left w-full font-semibold'>
-                Select year
+                Filter by year
               </h3>
-              <CumulativeMovementChart data={filteredActions} onSelectYear={year => scrollToYear(router, year)} />
+              <CumulativeMovementChart data={filteredActions} onSelectYear={year => toggleYear(year)} />
             </section>
           </div>
         </section>
