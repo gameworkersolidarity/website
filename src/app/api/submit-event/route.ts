@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { slugify } from 'payload/shared'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest) {
     // Ensure the event is saved as a draft
     const eventData = {
       ...data,
+      slug: `${slugify(data.date)}-${slugify(data.name)}`,
       _status: 'draft' as const,
     }
 
