@@ -569,22 +569,37 @@ export function Timeline({
               event.id,
               event.id === currentEventId ? highlightOffset : 0,
             )
+            // Estimate label dimensions - generous defaults for Firefox/Safari compatibility
+            // Firefox/Safari require explicit width/height on foreignObject
+            const estimatedWidth = 300 // px - generous width to accommodate longer labels
+            const estimatedHeight = event.id === currentEventId ? 60 : 40 // px - more height if date is shown
+            
             return (
               <HtmlLabel
                 key={`label-${event.id}`}
                 x={x}
                 y={y}
+                width={estimatedWidth}
+                height={estimatedHeight}
                 horizontalAnchor="middle"
                 verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
                 showAnchorLine={false}
-                containerStyle={{ display: 'block' }}
+                containerStyle={{ 
+                  overflow: 'visible',
+                  pointerEvents: 'auto',
+                }}
               >
                 {/* <pre className="text-xs">{JSON.stringify(positionMetadata, null, 2)}</pre> */}
                 <div
                   className={twMerge(
-                    '-translate-x-1/2 whitespace-nowrap inline-flex flex-col items-center text-center',
+                    'whitespace-nowrap flex flex-col items-center text-center',
                     event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
                   )}
+                  style={{
+                    display: 'flex',
+                    width: 'max-content',
+                    maxWidth: `${estimatedWidth}px`,
+                  }}
                 >
                   {event.id === currentEventId && (
                     <div className="text-xs">{formatDate(new Date(event.date), 'dd MMM yyyy')}</div>
