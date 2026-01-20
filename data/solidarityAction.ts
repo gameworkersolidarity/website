@@ -116,6 +116,7 @@ export async function getLiveSolidarityActions ({ filterByFormula, ...selectArgs
       'Public',
       'Name!=""',
       'Date!=""',
+      'Summary!=""',
       filterByFormula
     ),
     fields: fields,
