@@ -58,7 +58,7 @@ export function EventList({
   hideYear?: boolean
   eventFilterProps?: Partial<EventFilterProps>
 }) {
-  const { filteredEvents: events } = useEventFilterContext()
+  const { filteredEvents: events, searchQuery } = useEventFilterContext()
 
   return (
     <div className="flex flex-col gap-2 @container">
@@ -83,19 +83,19 @@ export function EventList({
       </header>
       {zoomLevel === ZoomLevel.Compact ? (
         <div>
-          <CompactEventList events={events} linkStyle={linkStyle} />
+          <CompactEventList events={events} linkStyle={linkStyle} searchQuery={searchQuery} />
         </div>
       ) : zoomLevel === ZoomLevel.Preview ? (
         <div className="flex flex-col gap-4 px-4 pb-4">
-          <EventsList data={events} />
+          <EventsList data={events} searchQuery={searchQuery} />
         </div>
       ) : zoomLevel === ZoomLevel.Timeline ? (
         <div className="flex flex-col gap-4 px-4 pb-4">
-          <EventTimeline events={events} labelProperty={timelineBy} />
+          <EventTimeline events={events} labelProperty={timelineBy} searchQuery={searchQuery} />
         </div>
       ) : (
         <div className="flex flex-col gap-8 px-4 pb-4">
-          <EventsList data={events} fullDisplay />
+          <EventsList data={events} fullDisplay searchQuery={searchQuery} />
         </div>
       )}
     </div>

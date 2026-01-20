@@ -1,4 +1,4 @@
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { EventFilterKey, getFilterPath, useInitiatorFilter } from './global-state'
 import Link from 'next/link'
 
@@ -6,7 +6,7 @@ export function DisplayInitiator({
   initiator,
   link,
 }: {
-  initiator: EventInitiator
+  initiator: EventInitiatorFilter
   link?: 'soft' | boolean
 }) {
   if (link === 'soft') {
@@ -22,7 +22,7 @@ export function DisplayInitiator({
   }
 }
 
-function SoftLinkInitiator({ initiator }: { initiator: EventInitiator }) {
+function SoftLinkInitiator({ initiator }: { initiator: EventInitiatorFilter }) {
   const [_, setInitiatorFilter] = useInitiatorFilter()
   return (
     <div onClick={() => setInitiatorFilter(initiator)} className="cursor-pointer">
@@ -31,13 +31,13 @@ function SoftLinkInitiator({ initiator }: { initiator: EventInitiator }) {
   )
 }
 
-function RenderedInitiator({ initiator }: { initiator: EventInitiator }) {
+function RenderedInitiator({ initiator }: { initiator: EventInitiatorFilter }) {
   switch (initiator) {
-    case EventInitiator.WORKER_LED:
+    case EventInitiatorFilter.WORKER_LED:
       return <span className="text-blue-400 font-semibold">Worker-led</span>
-    case EventInitiator.BOSS_LED:
+    case EventInitiatorFilter.BOSS_LED:
       return <span className="text-gw-orange font-semibold">Boss-led</span>
-    case EventInitiator.OTHER:
+    case EventInitiatorFilter.OTHER:
       return <span className="text-gray-400 font-semibold">Other</span>
     default:
       return <span className="text-gray-400 font-semibold">All</span>

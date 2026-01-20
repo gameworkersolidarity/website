@@ -6,10 +6,36 @@ import Image from 'next/image'
 import { Rss } from 'lucide-react'
 import { DateTime } from '@/components/DateTime'
 import { draftMode } from 'next/headers'
+import { projectStrings } from '@/project-strings'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Articles',
-  description: 'News & articles from the Game Workers Solidarity Project.',
+export async function generateMetadata(): Promise<Metadata> {
+  const title = 'Articles'
+  const description = 'News & articles from the Game Workers Solidarity Project.'
+  const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: shareImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [shareImage],
+    },
+  }
 }
 
 export default async function BlogPage() {

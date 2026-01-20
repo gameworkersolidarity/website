@@ -1,6 +1,6 @@
 'use client'
 
-import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
 import {
   useCategoryFilter,
@@ -13,7 +13,22 @@ import {
 } from '@/utils/global-state'
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { create, insertMultiple, search } from '@orama/orama'
+import { Highlight } from '@orama/highlight'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+
+export type HighlightRange = {
+  field: string
+  start: number
+  end: number
+}
+
+export type EventHighlights = {
+  [eventId: string]: {
+    [field: string]: Array<[number, number]>
+  }
+}
 
 export const EventFilterContext = createContext<{
   filteredEvents: Event[]
@@ -35,19 +50,25 @@ export const EventFilterContext = createContext<{
   filteredInitiator?: EventInitiatorFilter | null
   filteredYear?: number[] | null
   availableYears: number[]
-  setCountryISOA2Filter: (value: string[] | null) => void
-  setCategoryFilter: (value: string[] | null) => void
-  setCompanyFilter: (value: string[] | null) => void
-  setOrganisingGroupFilter: (value: string[] | null) => void
-  setCampaignFilter: (value: string[] | null) => void
-  setInitiatorFilter: (value: EventInitiator | null) => void
-  setYearFilter: (value: string | number | string[] | number[] | null) => void
-  setSelectedPopupIds: (value: string[] | null) => void
+  searchQuery: string
+  setSearchQuery: Dispatch<SetStateAction<string>>
+  highlights: EventHighlights
+  setCountryISOA2Filter: ReturnType<typeof useCountryISOA2Filter>[1]
+  setCategoryFilter: ReturnType<typeof useCategoryFilter>[1]
+  setCompanyFilter: ReturnType<typeof useCompanyFilter>[1]
+  setOrganisingGroupFilter: ReturnType<typeof useOrganisingGroupFilter>[1]
+  setCampaignFilter: ReturnType<typeof useCampaignFilter>[1]
+  setInitiatorFilter: ReturnType<typeof useInitiatorFilter>[1]
+  setYearFilter: ReturnType<typeof useYearFilter>[1]
+  setSelectedPopupIds: Dispatch<SetStateAction<string[] | null>>
   selectedPopupIds: string[] | null
 }>({
   filteredEvents: [],
   selectedPopupIds: null,
   availableYears: [],
+  searchQuery: '',
+  setSearchQuery: noop,
+  highlights: {},
   setCountryISOA2Filter: noop,
   setCategoryFilter: noop,
   setCompanyFilter: noop,
@@ -80,6 +101,60 @@ export type EventFilterContextProviderProps = {
   campaigns: Campaign[]
 }
 
+// Helper function to create a searchable version of an event with description converted to plain text
+function createSearchableEvent(event: Event) {
+  let descriptionText: string | undefined
+  if (event.description) {
+    try {
+      descriptionText = lexicalToPlainText(event.description)
+    } catch (e) {
+      // If conversion fails, skip description
+    }
+  }
+
+  return {
+    id: event.id,
+    eventId: event.id, // Store event ID for retrieval
+    name: event.name || '',
+    description: descriptionText || '',
+    location: event.location || '',
+    source: event.source || '',
+    categories: {
+      name: event.categories
+        ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
+        .filter(Boolean) || [],
+    },
+    countries: {
+      name: event.countries
+        ?.map((country) =>
+          typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    companies: {
+      name: event.companies
+        ?.map((company) =>
+          typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    organisingGroups: {
+      name: event.organisingGroups
+        ?.map((og) =>
+          typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    campaigns: {
+      name: event.campaigns?.docs
+        ?.map((campaign) =>
+          typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+  }
+}
+
 export function EventFilterContextProvider({
   events,
   children,
@@ -97,6 +172,7 @@ export function EventFilterContextProvider({
   overrideFilteredYear,
 }: EventFilterContextProviderProps) {
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
     overrideFilteredCountryISOA2,
   )
@@ -147,7 +223,8 @@ export function EventFilterContextProvider({
     return Array.from(years).sort((a, b) => b - a) // Sort descending (newest first)
   }, [events])
 
-  const filteredEvents = useMemo(() => {
+  // First apply all non-search filters
+  const preFilteredEvents = useMemo(() => {
     if (!events?.length) {
       return []
     }
@@ -206,6 +283,7 @@ export function EventFilterContextProvider({
     if (filteredYear && filteredYear.length > 0) {
       filtered = filtered.filter((event) => filteredYear.includes(getYear(new Date(event.date))))
     }
+
     return filtered
   }, [
     events,
@@ -218,6 +296,151 @@ export function EventFilterContextProvider({
     filteredYear,
     selectedPopupIds,
   ])
+
+  // Apply text search using Orama (async)
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(preFilteredEvents)
+  const [highlights, setHighlights] = useState<EventHighlights>({})
+
+  // Update filteredEvents when preFilteredEvents changes and there's no search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredEvents(preFilteredEvents)
+      setHighlights({})
+    }
+  }, [preFilteredEvents, searchQuery])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      return
+    }
+
+    const cancelledRef = { current: false }
+
+    // Perform async search
+    ;(async () => {
+      // Build search index with searchable event data
+      const searchIndex = preFilteredEvents.map((event) => createSearchableEvent(event))
+
+      // Create a map from event ID to original event for quick lookup
+      const eventMap = new Map<string, Event>()
+      preFilteredEvents.forEach((event) => {
+        eventMap.set(event.id, event)
+      })
+
+      // Create Orama database with nested schema
+      const db = await create({
+        schema: {
+          id: 'string',
+          eventId: 'string',
+          name: 'string',
+          description: 'string',
+          location: 'string',
+          source: 'string',
+          categories: {
+            name: 'string[]',
+          },
+          countries: {
+            name: 'string[]',
+          },
+          companies: {
+            name: 'string[]',
+          },
+          organisingGroups: {
+            name: 'string[]',
+          },
+          campaigns: {
+            name: 'string[]',
+          },
+        },
+      })
+
+      // Insert all documents
+      await insertMultiple(db, searchIndex)
+
+      // Perform search with field boosting using nested property paths
+      const searchResults = await search(db, {
+        term: searchQuery.trim(),
+        properties: [
+          'name',
+          'description',
+          'location',
+          'source',
+          'categories.name',
+          'countries.name',
+          'companies.name',
+          'organisingGroups.name',
+          'campaigns.name',
+        ],
+        boost: {
+          name: 2,
+          description: 2,
+        },
+        tolerance: 1, // Typo tolerance (1 character)
+      })
+
+      const matchedEvents = searchResults.hits
+        .map((hit) => eventMap.get(hit.document.eventId as string))
+        .filter((event): event is Event => event !== undefined)
+
+      // Initialize highlighter
+      const highlighter = new Highlight({
+        caseSensitive: false,
+        HTMLTag: 'mark',
+        CSSClass: 'orama-highlight',
+      })
+
+      // Collect match ranges for highlighting by field
+      const newHighlights: EventHighlights = {}
+      searchResults.hits.forEach((hit) => {
+        const eventId = hit.document.eventId as string
+        if (!newHighlights[eventId]) {
+          newHighlights[eventId] = {}
+        }
+
+        // Get the original event to access field values for highlighting
+        const originalEvent = eventMap.get(eventId)
+        if (!originalEvent) return
+
+        // Get the searchable event to access field values
+        const searchableEvent = searchIndex.find((item) => item.eventId === eventId)
+        if (!searchableEvent) return
+
+        // Highlight each field that might contain matches
+        // For simple string fields that are displayed in the UI
+        const simpleFields = ['name', 'description'] as const
+        simpleFields.forEach((field) => {
+          let fieldValue: string | undefined
+          if (field === 'description') {
+            try {
+              fieldValue = originalEvent.description ? lexicalToPlainText(originalEvent.description) : undefined
+            } catch (e) {
+              // Skip if conversion fails
+            }
+          } else {
+            fieldValue = searchableEvent[field] || undefined
+          }
+
+          if (fieldValue && typeof fieldValue === 'string' && fieldValue.length > 0) {
+            const highlighted = highlighter.highlight(fieldValue, searchQuery.trim())
+            if (highlighted.positions && highlighted.positions.length > 0) {
+              newHighlights[eventId][field] = highlighted.positions.map(
+                (pos) => [pos.start, pos.end] as [number, number],
+              )
+            }
+          }
+        })
+      })
+
+      if (!cancelledRef.current) {
+        setFilteredEvents(matchedEvents)
+        setHighlights(newHighlights)
+      }
+    })()
+
+    return () => {
+      cancelledRef.current = true
+    }
+  }, [preFilteredEvents, searchQuery])
 
   return (
     <EventFilterContext.Provider
@@ -236,6 +459,9 @@ export function EventFilterContextProvider({
         filteredCampaigns,
         filteredYear: filteredYear || null,
         availableYears,
+        searchQuery,
+        setSearchQuery,
+        highlights,
         setCountryISOA2Filter,
         setCategoryFilter,
         setCompanyFilter,
@@ -269,6 +495,7 @@ export function useEventFilterContext() {
     context.setInitiatorFilter(null)
     context.setYearFilter(null)
     context.setSelectedPopupIds(null)
+    context.setSearchQuery('')
   }
 
   return {

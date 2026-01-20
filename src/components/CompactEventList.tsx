@@ -28,22 +28,25 @@ import { useAtom } from 'jotai/react'
 import { EventFilterKey, getFilterPath, sortOrderAtom } from '@/utils/global-state'
 import pluralize from 'pluralize'
 import { DisplayInitiator } from '@/utils/displayInitiator'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { twMerge } from 'tailwind-merge'
 import { useEventFilterContext } from './EventFilterContextProvider'
 import { CountryLabel } from './CountryLabel'
 import { CategoryLabel } from './CategoryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
+import { HighlightText } from './HighlightText'
 
 export function CompactEventList({
   events,
   linkStyle = 'hard',
+  searchQuery,
 }: {
   events: Event[]
   linkStyle?: 'soft' | 'hard'
+  searchQuery?: string
 }) {
-  const { filteredCampaignSlug } = useEventFilterContext()
+  const { filteredCampaignSlug, highlights } = useEventFilterContext()
 
   const columns = useMemo(() => {
     const columns: ColumnDef<Event>[] = [
@@ -88,10 +91,16 @@ export function CompactEventList({
         accessorKey: 'name',
         header: 'Name',
         size: 250,
-        cell: ({ cell, row }) => (
-          <TableCell key={cell.id} className="overflow-hidden text-ellipsis">
-            <Link href={row.original.path || '/'}>
-              <div className="font-medium text-wrap w-[250px]">{row.getValue('name')}</div>
+        cell: ({ cell, row }) => {
+          const eventHighlights = highlights[row.original.id]
+          const nameRanges = eventHighlights?.name
+
+          return (
+            <TableCell key={cell.id} className="overflow-hidden text-ellipsis">
+              <Link href={row.original.path || '/'}>
+                <div className="font-medium text-wrap w-[250px]">
+                  <HighlightText text={row.getValue('name')} ranges={nameRanges} />
+                </div>
               {!filteredCampaignSlug && row.original.campaigns?.docs?.length ? (
                 <div className="text-xs opacity-50 flex items-center gap-1">
                   <Star fill="currentColor" className="w-3 h-3 text-snot-400" />
@@ -106,9 +115,10 @@ export function CompactEventList({
                   </span>
                 </div>
               ) : null}
-            </Link>
-          </TableCell>
-        ),
+              </Link>
+            </TableCell>
+          )
+        },
       },
       {
         accessorKey: 'categories',
@@ -298,13 +308,13 @@ export function CompactEventList({
         header: 'Actor',
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="text-xs uppercase font-mono">
-            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiator} link="soft" />
+            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiatorFilter} link="soft" />
           </TableCell>
         ),
       },
     ]
     return columns
-  }, [linkStyle, filteredCampaignSlug])
+  }, [linkStyle, filteredCampaignSlug, highlights])
 
   const [sorting, setSorting] = useAtom(sortOrderAtom)
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -357,8 +367,8 @@ export function CompactEventList({
               className={twMerge(
                 'bg-white hover:bg-snot-300',
                 row.getIsSelected() && 'bg-snot-300',
-                // row.original.initiator === EventInitiator.WORKER_LED && 'bg-blue-50',
-                row.original.initiator === EventInitiator.BOSS_LED && 'bg-orange-50',
+                // row.original.initiator === EventInitiatorFilter.WORKER_LED && 'bg-blue-50',
+                row.original.initiator === EventInitiatorFilter.BOSS_LED && 'bg-orange-50',
               )}
             >
               {row.getVisibleCells().map((cell) => (

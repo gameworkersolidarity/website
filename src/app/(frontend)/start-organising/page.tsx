@@ -9,11 +9,80 @@ import { CountryLabel } from '@/components/CountryLabel'
 import type { OrganisingGroup, Country, Media } from '@/payload-types'
 import { OrganisingGroupLinks } from '../organising-groups/[slug]/OrganisingGroupPage'
 import { notFound } from 'next/navigation'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { projectStrings } from '@/project-strings'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Start Organising',
-  description:
-    'Find organising groups and unions by country to get started with worker organising.',
+export async function generateMetadata(): Promise<Metadata> {
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await draftMode()).isEnabled
+
+  try {
+    const startOrganisingData = await payload.findGlobal({
+      slug: 'startOrganising',
+      draft: isDraftMode,
+    })
+
+    const title = 'Start Organising'
+    const description =
+      (startOrganisingData?.description
+        ? lexicalToPlainText(startOrganisingData.description)
+        : '') ||
+      'Find organising groups and unions by country to get started with worker organising.'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  } catch (error) {
+    const title = 'Start Organising'
+    const description =
+      'Find organising groups and unions by country to get started with worker organising.'
+    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: shareImage,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [shareImage],
+      },
+    }
+  }
 }
 
 export default async function StartOrganisingPage() {

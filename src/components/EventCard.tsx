@@ -26,9 +26,36 @@ import { CountryLabel } from './CountryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CategoryLabel } from './CategoryLabel'
-import { EventInitiator } from '@/collections/enums'
+import { EventInitiatorFilter } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { CampaignLabel } from './CampaignLabel'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { HighlightText } from './HighlightText'
+import { useEventFilterContext } from './EventFilterContextProvider'
+
+// Helper component to highlight search terms in Lexical description
+function HighlightedDescription({
+  content,
+  eventId,
+}: {
+  content: NonNullable<Event['description']>
+  eventId: string
+}) {
+  const { highlights } = useEventFilterContext()
+  const eventHighlights = highlights[eventId]
+  const descriptionRanges = eventHighlights?.description
+
+  try {
+    const plainText = lexicalToPlainText(content)
+    if (descriptionRanges && descriptionRanges.length > 0) {
+      return <HighlightText text={plainText} ranges={descriptionRanges} />
+    }
+    return <>{plainText}</>
+  } catch (e) {
+    // Fallback to regular renderer if conversion fails
+    return <LexicalRenderer content={content} />
+  }
+}
 
 interface ListProps {
   data: Event[]
@@ -51,6 +78,7 @@ interface CardProps {
   contextProps?: Partial<ContextProps>
   displayStandaloneInfo?: boolean
   links?: 'soft' | boolean
+  searchQuery?: string
 }
 
 interface ContextProps {
@@ -84,7 +112,8 @@ export function EventsList({
   gridStyle = 'grid-cols-1',
   mini,
   fullDisplay = false,
-}: ListProps) {
+  searchQuery,
+}: ListProps & { searchQuery?: string }) {
   const [openYears, setOpenYears] = useState<string[]>([])
 
   const actionsByYear = useMemo(() => {
@@ -140,9 +169,9 @@ export function EventsList({
                   // <Link key={action.id} href={action.path!} shallow>
                   <div key={action.id} className="transition group" id={action.slug}>
                     {fullDisplay ? (
-                      <EventCard data={action} links={'soft'} />
+                      <EventCard data={action} links={'soft'} searchQuery={searchQuery} />
                     ) : (
-                      <EventItem data={action} links={'soft'} />
+                      <EventItem data={action} links={'soft'} searchQuery={searchQuery} />
                     )}
                   </div>
                   // </Link>
@@ -152,9 +181,9 @@ export function EventsList({
                     // <Link key={action.id} href={action.path!}>
                     <div key={action.id} className="transition group" id={action.slug}>
                       {fullDisplay ? (
-                        <EventCard data={action} links={'soft'} />
+                        <EventCard data={action} links={'soft'} searchQuery={searchQuery} />
                       ) : (
-                        <EventItem data={action} links={'soft'} />
+                        <EventItem data={action} links={'soft'} searchQuery={searchQuery} />
                       )}
                     </div>
                     // </Link>
@@ -197,7 +226,19 @@ export function EventsList({
   )
 }
 
-export function EventItem({ data, links }: { data: Event; links?: 'soft' | boolean }) {
+export function EventItem({
+  data,
+  links,
+  searchQuery,
+}: {
+  data: Event
+  links?: 'soft' | boolean
+  searchQuery?: string
+}) {
+  const { highlights } = useEventFilterContext()
+  const eventHighlights = highlights[data.id]
+  const nameRanges = eventHighlights?.name
+
   const Wrapper = links
     ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
     : ({ children }: { children: React.ReactNode }) => children
@@ -207,17 +248,19 @@ export function EventItem({ data, links }: { data: Event; links?: 'soft' | boole
       style={{
         // @ts-expect-error - CSS variables are not typed
         '--glow-color':
-          data.initiator === EventInitiator.BOSS_LED
+          data.initiator === EventInitiatorFilter.BOSS_LED
             ? 'var(--color-gw-orange)'
             : 'var(--color-gw-blue)',
       }}
       className={twMerge(
         'event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
-        data.initiator === EventInitiator.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
+        data.initiator === EventInitiatorFilter.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
       )}
     >
       <Wrapper>
-        <h3 className="text-2xl leading-tight font-semibold max-w-3xl">{data.name}</h3>
+        <h3 className="text-2xl leading-tight font-semibold max-w-3xl">
+          <HighlightText text={data.name} ranges={nameRanges} />
+        </h3>
       </Wrapper>
       {(!!data.link || !!data.documents?.length) && (
         <div className="flex flex-row mt-3 flex-wrap">
@@ -320,9 +363,9 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
           ))}
         </div>
       )}
-      {!!data.initiator && data.initiator === EventInitiator.BOSS_LED && (
+      {!!data.initiator && data.initiator === EventInitiatorFilter.BOSS_LED && (
         <div className="inline-flex flex-wrap gap-x-2">
-          <DisplayInitiator initiator={data.initiator as EventInitiator} link={link} />
+          <DisplayInitiator initiator={data.initiator as EventInitiatorFilter} link={link} />
         </div>
       )}
       {!!data.organisingGroups?.length && (
@@ -340,7 +383,17 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
   )
 }
 
-export function EventCard({ data, displayStandaloneInfo = false, links = true }: CardProps) {
+export function EventCard({
+  data,
+  displayStandaloneInfo = false,
+  links = true,
+  searchQuery,
+}: CardProps) {
+  const { highlights } = useEventFilterContext()
+  const eventHighlights = highlights[data.id]
+  const nameRanges = eventHighlights?.name
+  const hasDescriptionHighlights = eventHighlights?.description && eventHighlights.description.length > 0
+
   const Wrapper = links
     ? ({ children }: { children: React.ReactNode }) => (
         <Link href={data.path!} className="block order-0 md:order-1">
@@ -358,14 +411,20 @@ export function EventCard({ data, displayStandaloneInfo = false, links = true }:
           </div>
           <Wrapper>
             <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
-              {data.name}
+              <HighlightText text={data.name} ranges={nameRanges} />
             </h3>
           </Wrapper>
           {data.description && (
-            <LexicalRenderer
-              content={data.description}
-              className={'w-full text-lg font-light order-2 md:order-2'}
-            />
+            <div className={'w-full text-lg font-light order-2 md:order-2'}>
+              {hasDescriptionHighlights ? (
+                <HighlightedDescription
+                  content={data.description}
+                  eventId={data.id}
+                />
+              ) : (
+                <LexicalRenderer content={data.description} />
+              )}
+            </div>
           )}
           {data.link && links && (
             <div className="flex flex-row space-x-4 text-sm">
