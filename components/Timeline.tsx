@@ -260,22 +260,32 @@ export function SolidarityActionsTimeline ({
       <div className="flex flex-col lg:flex-row">
         <section className='relative bg-white flex-1'>
           <div className='p-4 lg:p-5 xl:pl-7 flex flex-col flex-nowrap md:h-screen sticky top-5 space-y-4'>
-            <section className='flex-grow-0'>
-              <div className='flex flex-wrap w-full justify-between text-sm'>
-                <h3 className='text-base text-left left-0 font-semibold mb-2'>
-                  Filter by
-                </h3>
-                {hasFilters ? (
-                  <div className='cursor-pointer rounded-lg inline-block hover:text-gwPink'
-                    onClick={clearAllFilters}
-                  >
-                    <span className='underline'>Clear all filters</span>
-                    &nbsp;
-                    <span className='inline-block transform rotate-45 text-base'>+</span>
-                  </div>
-                ) : null}
-              </div>
-              <div className='relative flex flex-wrap w-full'>
+            <Disclosure defaultOpen={true}>
+              {({ open }) => (
+                <>
+                  <section className='flex-grow-0'>
+                    <div className='flex flex-wrap w-full justify-between text-sm'>
+                      <Disclosure.Button className='lg:cursor-default w-auto lg:pointer-events-none'>
+                        <h3 className='text-base text-left left-0 font-semibold mb-2 flex items-center'>
+                          <span className='lg:hidden mr-2'>
+                            <ChevronRightIcon
+                              className={`${open ? "rotate-90" : ""} transform w-4 inline-block`}
+                            />
+                          </span>
+                          Filter by
+                        </h3>
+                      </Disclosure.Button>
+                      {hasFilters ? (
+                        <div className='cursor-pointer rounded-lg inline-block hover:text-gwPink'
+                          onClick={clearAllFilters}
+                        >
+                          <span className='underline'>Clear all filters</span>
+                          &nbsp;
+                          <span className='inline-block transform rotate-45 text-base'>+</span>
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className={cx('relative flex flex-wrap w-full', !open && 'hidden lg:flex')}>
                 <div className='filter-item'>
                   <Listbox value={filteredCountrySlugs} onChange={v => toggleCountry(v as any)}>
                   {({ open }) => (
@@ -461,6 +471,9 @@ export function SolidarityActionsTimeline ({
                 </div>
               </div>
             </section>
+                </>
+              )}
+            </Disclosure>
             <section className='w-full flex-grow h-[40vh] md:h-auto'>
               <Map data={JSON.parse(JSON.stringify(filteredActions))} onSelectCountry={iso2 => {
                 const countrySlug = countries.find(c => c.fields.countryCode === iso2)?.fields.Slug
