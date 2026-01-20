@@ -128,7 +128,7 @@ export function EventFilter({
           {/* Search input - expand on click, visible when non-empty */}
           {(searchExpanded || searchQuery) && (
             <div className="relative flex items-center">
-              <Search className="absolute left-2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
               <Input
                 type="text"
                 placeholder="Search events..."
@@ -139,7 +139,7 @@ export function EventFilter({
                     setSearchExpanded(false)
                   }
                 }}
-                className="pl-8 pr-8 h-8 text-sm"
+                className="px-5 text-sm shrink-0 grow"
                 autoFocus={searchExpanded}
               />
               {searchQuery && (
@@ -148,7 +148,7 @@ export function EventFilter({
                     setSearchQuery('')
                     setSearchExpanded(false)
                   }}
-                  className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600"
+                  className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600 grow-0"
                   aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
@@ -159,7 +159,7 @@ export function EventFilter({
           {!searchExpanded && !searchQuery && (
             <button
               onClick={() => setSearchExpanded(true)}
-              className="flex items-center justify-center h-8 w-8 text-gray-400 hover:text-gray-600 rounded"
+              className="flex items-center justify-center w-8 text-gray-400 hover:text-gray-600 rounded"
               aria-label="Search events"
             >
               <Search className="h-4 w-4" />
