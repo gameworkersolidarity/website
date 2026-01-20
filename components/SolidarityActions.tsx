@@ -137,7 +137,19 @@ export function SolidarityActionsList({
       return bins
     }, {} as { [key: string]: SolidarityAction[] })
 
-    return Object.entries(group).sort(([year1, d], [year2, D]) => parseInt(year2) - parseInt(year1))
+    // Sort years descending, and within each year, prioritize featured events
+    return Object.entries(group)
+      .map(([year, actions]) => {
+        const sortedActions = actions.sort((a, b) => {
+          const aFeatured = a.fields.DisplayStyle === 'Featured' ? 1 : 0
+          const bFeatured = b.fields.DisplayStyle === 'Featured' ? 1 : 0
+          // Featured items first, then by date
+          if (aFeatured !== bFeatured) return bFeatured - aFeatured
+          return new Date(b.fields.Date).getTime() - new Date(a.fields.Date).getTime()
+        })
+        return [year, sortedActions] as [string, SolidarityAction[]]
+      })
+      .sort(([year1], [year2]) => parseInt(year2) - parseInt(year1))
   }, [solidarityActions])
 
   const router = useRouter()
@@ -172,12 +184,21 @@ export function SolidarityActionsList({
 
           let hasHiddenActions = false;
 
-          if (actions.length > 3) {
+          // Separate featured and non-featured actions
+          const featuredActions = actions.filter(a => a.fields.DisplayStyle === 'Featured')
+          const nonFeaturedActions = actions.filter(a => a.fields.DisplayStyle !== 'Featured')
+
+          // Always show all featured actions
+          shownActions = [...featuredActions]
+
+          // Add non-featured actions up to the limit
+          const remainingSlots = Math.max(0, 3 - featuredActions.length)
+          if (nonFeaturedActions.length > remainingSlots) {
             hasHiddenActions = true;
-            shownActions = actions.slice(0, 3)
-            hiddenActions = actions.slice(3, actions.length)
+            shownActions = [...shownActions, ...nonFeaturedActions.slice(0, remainingSlots)]
+            hiddenActions = nonFeaturedActions.slice(remainingSlots)
           } else {
-            shownActions = actions
+            shownActions = [...shownActions, ...nonFeaturedActions]
           }
 
           const hiddenActionsOpen = openYears.includes(yearString);
@@ -275,11 +296,19 @@ export function SolidarityActionItem({ data }: { data: SolidarityAction }) {
   const isFeatured = data.fields.DisplayStyle === 'Featured'
 
   return (
-    <article className={cx('bg-white rounded-xl p-4 text-sm glowable')}>
+    <article className={cx(
+      'bg-white rounded-xl p-4 text-sm glowable',
+      isFeatured && 'border-4 border-gwYellow shadow-lg relative'
+    )}>
+      {isFeatured && (
+        <div className='absolute top-2 right-2 bg-gwYellow px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-wide'>
+          ⭐ Featured
+        </div>
+      )}
       <ActionMetadata data={data} />
       <div>
         {isFeatured ? <>
-          <h2 className='text-3xl leading-tight font-semibold max-w-3xl mt-3'>
+          <h2 className='text-3xl leading-tight font-semibold max-w-3xl mt-3 pr-24'>
             <Highlighter
               highlightClassName="bg-gwYellow"
               searchWords={[search || '']}
