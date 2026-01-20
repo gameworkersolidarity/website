@@ -3,7 +3,7 @@
 import React from 'react'
 
 /**
- * Highlights text using character ranges from Fuse.js matches.
+ * Highlights text using character ranges from Orama search matches.
  * This provides more accurate highlighting than regex-based approaches.
  */
 export function HighlightText({
