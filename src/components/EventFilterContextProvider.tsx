@@ -119,36 +119,39 @@ function createSearchableEvent(event: Event) {
     description: descriptionText || '',
     location: event.location || '',
     source: event.source || '',
-    categoryNames: event.categories
-      ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
-      .filter(Boolean)
-      .join(' ') || '',
-    countryNames: event.countries
-      ?.map((country) =>
-        typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    companyNames: event.companies
-      ?.map((company) =>
-        typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    organisingGroupNames: event.organisingGroups
-      ?.map((og) =>
-        typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    campaignNames: event.campaigns?.docs
-      ?.map((campaign) =>
-        typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
-      )
-      .filter(Boolean)
-      .join(' ') || '',
-    // Store the original event for retrieval
-    _originalEvent: event,
+    categories: {
+      name: event.categories
+        ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
+        .filter(Boolean) || [],
+    },
+    countries: {
+      name: event.countries
+        ?.map((country) =>
+          typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    companies: {
+      name: event.companies
+        ?.map((company) =>
+          typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    organisingGroups: {
+      name: event.organisingGroups
+        ?.map((og) =>
+          typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
+        )
+        .filter(Boolean) || [],
+    },
+    campaigns: {
+      name: event.campaigns?.docs
+        ?.map((campaign) =>
+          typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
+        )
+        .filter(Boolean) || [],
+    },
   }
 }
 
@@ -320,11 +323,11 @@ export function EventFilterContextProvider({
 
       // Create a map from event ID to original event for quick lookup
       const eventMap = new Map<string, Event>()
-      searchIndex.forEach((item) => {
-        eventMap.set(item.eventId, item._originalEvent)
+      preFilteredEvents.forEach((event) => {
+        eventMap.set(event.id, event)
       })
 
-      // Create Orama database
+      // Create Orama database with nested schema
       const db = await create({
         schema: {
           id: 'string',
@@ -333,21 +336,41 @@ export function EventFilterContextProvider({
           description: 'string',
           location: 'string',
           source: 'string',
-          categoryNames: 'string',
-          countryNames: 'string',
-          companyNames: 'string',
-          organisingGroupNames: 'string',
-          campaignNames: 'string',
+          categories: {
+            name: 'string[]',
+          },
+          countries: {
+            name: 'string[]',
+          },
+          companies: {
+            name: 'string[]',
+          },
+          organisingGroups: {
+            name: 'string[]',
+          },
+          campaigns: {
+            name: 'string[]',
+          },
         },
       })
 
       // Insert all documents
       await insertMultiple(db, searchIndex)
 
-      // Perform search with field boosting
+      // Perform search with field boosting using nested property paths
       const searchResults = await search(db, {
         term: searchQuery.trim(),
-        properties: ['name', 'description', 'location', 'source', 'categoryNames', 'countryNames', 'companyNames', 'organisingGroupNames', 'campaignNames'],
+        properties: [
+          'name',
+          'description',
+          'location',
+          'source',
+          'categories.name',
+          'countries.name',
+          'companies.name',
+          'organisingGroups.name',
+          'campaigns.name',
+        ],
         boost: {
           name: 2,
           description: 2,
@@ -374,25 +397,29 @@ export function EventFilterContextProvider({
           newHighlights[eventId] = {}
         }
 
-        // Get the original searchable event to access field values
+        // Get the original event to access field values for highlighting
+        const originalEvent = eventMap.get(eventId)
+        if (!originalEvent) return
+
+        // Get the searchable event to access field values
         const searchableEvent = searchIndex.find((item) => item.eventId === eventId)
         if (!searchableEvent) return
 
         // Highlight each field that might contain matches
-        const fieldsToHighlight = [
-          'name',
-          'description',
-          'location',
-          'source',
-          'categoryNames',
-          'countryNames',
-          'companyNames',
-          'organisingGroupNames',
-          'campaignNames',
-        ]
+        // For simple string fields that are displayed in the UI
+        const simpleFields = ['name', 'description'] as const
+        simpleFields.forEach((field) => {
+          let fieldValue: string | undefined
+          if (field === 'description') {
+            try {
+              fieldValue = originalEvent.description ? lexicalToPlainText(originalEvent.description) : undefined
+            } catch (e) {
+              // Skip if conversion fails
+            }
+          } else {
+            fieldValue = searchableEvent[field] || undefined
+          }
 
-        fieldsToHighlight.forEach((field) => {
-          const fieldValue = searchableEvent[field as keyof typeof searchableEvent] as string
           if (fieldValue && typeof fieldValue === 'string' && fieldValue.length > 0) {
             const highlighted = highlighter.highlight(fieldValue, searchQuery.trim())
             if (highlighted.positions && highlighted.positions.length > 0) {
