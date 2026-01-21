@@ -59,146 +59,144 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji'
+  | 'Pacific/Fiji';
 
 export interface Config {
   auth: {
-    users: UserAuthOperations
-  }
-  blocks: {}
+    users: UserAuthOperations;
+  };
+  blocks: {};
   collections: {
-    users: User
-    media: Media
-    staticPages: StaticPage
-    blogPosts: BlogPost
-    countries: Country
-    companies: Company
-    categories: Category
-    organisingGroups: OrganisingGroup
-    campaigns: Campaign
-    actions: Action
-    'payload-kv': PayloadKv
-    'payload-jobs': PayloadJob
-    'payload-locked-documents': PayloadLockedDocument
-    'payload-preferences': PayloadPreference
-    'payload-migrations': PayloadMigration
-  }
+    users: User;
+    media: Media;
+    staticPages: StaticPage;
+    blogPosts: BlogPost;
+    countries: Country;
+    companies: Company;
+    categories: Category;
+    organisingGroups: OrganisingGroup;
+    campaigns: Campaign;
+    actions: Action;
+    'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
+    'payload-locked-documents': PayloadLockedDocument;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
+  };
   collectionsJoins: {
     companies: {
-      actions: 'actions'
-    }
+      actions: 'actions';
+    };
     organisingGroups: {
-      actions: 'actions'
-    }
+      actions: 'actions';
+    };
     actions: {
-      campaigns: 'campaigns'
-    }
-  }
+      campaigns: 'campaigns';
+    };
+  };
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>
-    media: MediaSelect<false> | MediaSelect<true>
-    staticPages: StaticPagesSelect<false> | StaticPagesSelect<true>
-    blogPosts: BlogPostsSelect<false> | BlogPostsSelect<true>
-    countries: CountriesSelect<false> | CountriesSelect<true>
-    companies: CompaniesSelect<false> | CompaniesSelect<true>
-    categories: CategoriesSelect<false> | CategoriesSelect<true>
-    organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>
-    campaigns: CampaignsSelect<false> | CampaignsSelect<true>
-    actions: ActionsSelect<false> | ActionsSelect<true>
-    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
-    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>
-    'payload-locked-documents':
-      | PayloadLockedDocumentsSelect<false>
-      | PayloadLockedDocumentsSelect<true>
-    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
-    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
-  }
+    users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    staticPages: StaticPagesSelect<false> | StaticPagesSelect<true>;
+    blogPosts: BlogPostsSelect<false> | BlogPostsSelect<true>;
+    countries: CountriesSelect<false> | CountriesSelect<true>;
+    companies: CompaniesSelect<false> | CompaniesSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>;
+    campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    actions: ActionsSelect<false> | ActionsSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+  };
   db: {
-    defaultIDType: string
-  }
-  fallbackLocale: null
+    defaultIDType: string;
+  };
+  fallbackLocale: null;
   globals: {
-    header: Header
-    footer: Footer
-    startOrganising: StartOrganising
-    aboutPage: AboutPage
-    campaignsPage: CampaignsPage
-    dataPage: DataPage
-    actionSubmissionPage: ActionSubmissionPage
-  }
+    header: Header;
+    footer: Footer;
+    startOrganising: StartOrganising;
+    aboutPage: AboutPage;
+    campaignsPage: CampaignsPage;
+    dataPage: DataPage;
+    actionSubmissionPage: ActionSubmissionPage;
+  };
   globalsSelect: {
-    header: HeaderSelect<false> | HeaderSelect<true>
-    footer: FooterSelect<false> | FooterSelect<true>
-    startOrganising: StartOrganisingSelect<false> | StartOrganisingSelect<true>
-    aboutPage: AboutPageSelect<false> | AboutPageSelect<true>
-    campaignsPage: CampaignsPageSelect<false> | CampaignsPageSelect<true>
-    dataPage: DataPageSelect<false> | DataPageSelect<true>
-    actionSubmissionPage: ActionSubmissionPageSelect<false> | ActionSubmissionPageSelect<true>
-  }
-  locale: null
+    header: HeaderSelect<false> | HeaderSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    startOrganising: StartOrganisingSelect<false> | StartOrganisingSelect<true>;
+    aboutPage: AboutPageSelect<false> | AboutPageSelect<true>;
+    campaignsPage: CampaignsPageSelect<false> | CampaignsPageSelect<true>;
+    dataPage: DataPageSelect<false> | DataPageSelect<true>;
+    actionSubmissionPage: ActionSubmissionPageSelect<false> | ActionSubmissionPageSelect<true>;
+  };
+  locale: null;
   user: User & {
-    collection: 'users'
-  }
+    collection: 'users';
+  };
   jobs: {
     tasks: {
-      schedulePublish: TaskSchedulePublish
+      schedulePublish: TaskSchedulePublish;
       inline: {
-        input: unknown
-        output: unknown
-      }
-    }
-    workflows: unknown
-  }
+        input: unknown;
+        output: unknown;
+      };
+    };
+    workflows: unknown;
+  };
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   login: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   registerFirstUser: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   unlock: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string
-  updatedAt: string
-  createdAt: string
-  email: string
-  resetPasswordToken?: string | null
-  resetPasswordExpiration?: string | null
-  salt?: string | null
-  hash?: string | null
-  loginAttempts?: number | null
-  lockUntil?: string | null
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
   sessions?:
     | {
-        id: string
-        createdAt?: string | null
-        expiresAt: string
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
-    | null
-  password?: string | null
+    | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: string
-  alt?: string | null
+  id: string;
+  alt?: string | null;
   /**
    * Cloudinary Media Information
    */
@@ -206,369 +204,369 @@ export interface Media {
     /**
      * Cloudinary Public ID (used for transformations)
      */
-    public_id?: string | null
+    public_id?: string | null;
     /**
      * Type of the resource (image, video, raw)
      */
-    resource_type?: string | null
+    resource_type?: string | null;
     /**
      * File format
      */
-    format?: string | null
+    format?: string | null;
     /**
      * Secure delivery URL
      */
-    secure_url?: string | null
+    secure_url?: string | null;
     /**
      * File size in bytes
      */
-    bytes?: number | null
+    bytes?: number | null;
     /**
      * Creation timestamp
      */
-    created_at?: string | null
+    created_at?: string | null;
     /**
      * Current version number
      */
-    version?: string | null
+    version?: string | null;
     /**
      * Unique version identifier
      */
-    version_id?: string | null
+    version_id?: string | null;
     /**
      * Width in pixels
      */
-    width?: number | null
+    width?: number | null;
     /**
      * Height in pixels
      */
-    height?: number | null
+    height?: number | null;
     /**
      * Duration in seconds (for videos)
      */
-    duration?: number | null
+    duration?: number | null;
     /**
      * Number of pages (for PDFs)
      */
-    pages?: number | null
+    pages?: number | null;
     /**
      * Which page of the PDF to use for thumbnails (changes will apply after saving)
      */
-    selected_page?: number | null
+    selected_page?: number | null;
     /**
      * URL for the thumbnail image (automatically generated for PDFs)
      */
-    thumbnail_url?: string | null
-  }
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
-  url?: string | null
-  thumbnailURL?: string | null
-  filename?: string | null
-  mimeType?: string | null
-  filesize?: number | null
-  width?: number | null
-  height?: number | null
-  focalX?: number | null
-  focalY?: number | null
+    thumbnail_url?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "staticPages".
  */
 export interface StaticPage {
-  id: string
+  id: string;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  title: string
+  generateSlug?: boolean | null;
+  slug: string;
+  title: string;
   /**
    * A short summary of the page. Used for SEO and social media.
    */
-  summary?: string | null
+  summary?: string | null;
   body: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  }
-  path?: string
-  url?: string
-  adminPath?: string
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogPosts".
  */
 export interface BlogPost {
-  id: string
-  adminPath?: string
+  id: string;
+  adminPath?: string;
   /**
    * When the post was published.
    */
-  date: string
+  date: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
-  airtableId?: string | null
+  airtableId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  title: string
+  generateSlug?: boolean | null;
+  slug: string;
+  title: string;
   /**
    * Who wrote this post?
    */
-  byline?: string | null
-  image?: (string | null) | Media
+  byline?: string | null;
+  image?: (string | null) | Media;
   body: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  }
-  path?: string
-  url?: string
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  path?: string;
+  url?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "countries".
  */
 export interface Country {
-  id: string
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
-  airtableId?: string | null
+  airtableId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  name: string
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  featuredImage?: (string | null) | Media
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
   /**
    * Choose a color for this page
    */
-  primaryColor?: string | null
-  color?: string
-  isoA2: string
-  emoji?: string
+  primaryColor?: string | null;
+  color?: string;
+  isoA2: string;
+  emoji?: string;
   bbox?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
-  isoA3?: string
+    | null;
+  isoA3?: string;
   coordinates?: {
-    latitude: number
-    longitude: number
-    [k: string]: unknown
-  }
-  path?: string
-  url?: string
-  adminPath?: string
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+    latitude: number;
+    longitude: number;
+    [k: string]: unknown;
+  };
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "companies".
  */
 export interface Company {
-  id: string
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
-  airtableId?: string | null
+  airtableId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  name: string
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  featuredImage?: (string | null) | Media
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
   /**
    * Choose a color for this page
    */
-  primaryColor?: string | null
-  color?: string
+  primaryColor?: string | null;
+  color?: string;
   /**
    * Countries where this company has workers.
    */
-  countries?: (string | Country)[] | null
+  countries?: (string | Country)[] | null;
   /**
    * Actions associated with this company.
    */
   actions?: {
-    docs?: (string | Action)[]
-    hasNextPage?: boolean
-    totalDocs?: number
-  }
-  path?: string
-  url?: string
+    docs?: (string | Action)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  path?: string;
+  url?: string;
   /**
    * Parents of this company.
    */
   parents?:
     | {
-        doc?: (string | null) | Company
-        url?: string | null
-        label?: string | null
-        id?: string | null
+        doc?: (string | null) | Company;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
       }[]
-    | null
-  adminPath?: string
-  parent?: (string | null) | Company
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+    | null;
+  adminPath?: string;
+  parent?: (string | null) | Company;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actions".
  */
 export interface Action {
-  id: string
+  id: string;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  name: string
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
   /**
    * Legacy Airtable ID for url redirects.
    */
-  airtableId?: string | null
+  airtableId?: string | null;
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Internal notes on where this data came from. Will be prefilled in the case of automatic ingestions from other datasets.
    */
-  source?: string | null
-  date: string
+  source?: string | null;
+  date: string;
   /**
    * Optional end date for the action, if the action spans multiple days.
    */
-  endDate?: string | null
+  endDate?: string | null;
   /**
    * What kind of action is this?
    */
-  categories?: (string | Category)[] | null
+  categories?: (string | Category)[] | null;
   /**
    * How many workers were involved in, or affected by, this action.
    */
-  headcount?: number | null
+  headcount?: number | null;
   /**
    * Who led this? Used to decide whether to display the action on timelines and so on.
    */
-  initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null
+  initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null;
   /**
    * Third party URL that evidences this action.
    */
-  link?: string | null
-  documents?: (string | Media)[] | null
-  location?: string | null
-  countries?: (string | Country)[] | null
+  link?: string | null;
+  documents?: (string | Media)[] | null;
+  location?: string | null;
+  countries?: (string | Country)[] | null;
   /**
    * Coordinates of the action. Will be automatically populated if the location, or country, is provided.
    */
   coordinates?: {
-    latitude: number
-    longitude: number
-    [k: string]: unknown
-  }
-  companies?: (string | Company)[] | null
-  organisingGroups?: (string | OrganisingGroup)[] | null
+    latitude: number;
+    longitude: number;
+    [k: string]: unknown;
+  };
+  companies?: (string | Company)[] | null;
+  organisingGroups?: (string | OrganisingGroup)[] | null;
   /**
    * Campaigns this action is part of.
    */
   campaigns?: {
-    docs?: (string | Campaign)[]
-    hasNextPage?: boolean
-    totalDocs?: number
-  }
+    docs?: (string | Campaign)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * Link related actions and they will appear on the same timeline
    */
@@ -577,982 +575,974 @@ export interface Action {
         /**
          * The action this is related to
          */
-        action: string | Action
+        action: string | Action;
         /**
          * How are these actions related?
          */
-        connectionType: 'DIRECT' | 'INDIRECT'
+        connectionType: 'DIRECT' | 'INDIRECT';
         /**
          * Description of how these actions are related (e.g., "The same organiser went on to do this other thing")
          */
-        description: string
-        id?: string | null
+        description: string;
+        id?: string | null;
       }[]
-    | null
-  path?: string
-  url?: string
-  adminPath?: string
+    | null;
+  path?: string;
+  url?: string;
+  adminPath?: string;
   /**
    * Featured actions will be highlighted on timelines and show descriptions in preview mode
    */
-  featured?: boolean | null
+  featured?: boolean | null;
   /**
    * Contact information provided by the person who submitted this action
    */
-  submissionContactDetails?: string | null
+  submissionContactDetails?: string | null;
   /**
    * User consented to Game Worker Solidarity Project publishing this information online and offline
    */
-  consent?: boolean | null
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+  consent?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
-  id: string
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
-  airtableId?: string | null
+  airtableId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  name: string
-  emoji?: string | null
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  emoji?: string | null;
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  featuredImage?: (string | null) | Media
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
   /**
    * Choose a color for this page
    */
-  primaryColor?: string | null
-  color?: string
-  path?: string
-  url?: string
-  adminPath?: string
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+  primaryColor?: string | null;
+  color?: string;
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "organisingGroups".
  */
 export interface OrganisingGroup {
-  id: string
+  id: string;
   /**
    * Legacy Airtable ID for URL redirects
    */
-  airtableId?: string | null
+  airtableId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  name: string
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  featuredImage?: (string | null) | Media
-  logo?: (string | null) | Media
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
+  logo?: (string | null) | Media;
   /**
    * Choose a color for this page
    */
-  primaryColor?: string | null
-  color?: string
-  fullName?: string | null
+  primaryColor?: string | null;
+  color?: string;
+  fullName?: string | null;
   /**
    * Countries where this group organises.
    */
-  countries?: (string | Country)[] | null
+  countries?: (string | Country)[] | null;
   /**
    * Companies this group organises workers within.
    */
-  companies?: (string | Company)[] | null
+  companies?: (string | Company)[] | null;
   /**
    * Parents of this organising group.
    */
   parents?:
     | {
-        doc?: (string | null) | OrganisingGroup
-        url?: string | null
-        label?: string | null
-        id?: string | null
+        doc?: (string | null) | OrganisingGroup;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
       }[]
-    | null
-  isUnion?: boolean | null
+    | null;
+  isUnion?: boolean | null;
   /**
    * If checked, this group will be displayed on the start-organising page
    */
-  highlighted?: boolean | null
+  highlighted?: boolean | null;
   /**
    * Actions associated with this organising group.
    */
   actions?: {
-    docs?: (string | Action)[]
-    hasNextPage?: boolean
-    totalDocs?: number
-  }
-  website?: string | null
-  webshiteHostname?: string | null
-  bluesky?: string | null
-  blueskyHandle?: string | null
-  twitter?: string | null
-  twitterHandle?: string | null
-  path?: string
-  url?: string
-  adminPath?: string
-  parent?: (string | null) | OrganisingGroup
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+    docs?: (string | Action)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  website?: string | null;
+  webshiteHostname?: string | null;
+  bluesky?: string | null;
+  blueskyHandle?: string | null;
+  twitter?: string | null;
+  twitterHandle?: string | null;
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  parent?: (string | null) | OrganisingGroup;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns".
  */
 export interface Campaign {
-  id: string
+  id: string;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  generateSlug?: boolean | null
-  slug: string
-  name: string
-  featuredImage?: (string | null) | Media
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  featuredImage?: (string | null) | Media;
   /**
    * Go into more detail.
    */
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Used to illustrate the campaign label.
    */
-  emoji?: string | null
-  actions?: (string | Action)[] | null
+  emoji?: string | null;
+  actions?: (string | Action)[] | null;
   /**
    * Select which value to display in the timeline labels for this campaign.
    */
   highlightedActionAttribute?:
-    | (
-        | 'companies'
-        | 'countries'
-        | 'organisingGroups'
-        | 'categories'
-        | 'headcount'
-        | 'location'
-        | 'name'
-      )
-    | null
-  path?: string
-  url?: string
-  adminPath?: string
-  apiPath?: string
-  collectionSlug?: string
-  updatedAt: string
-  createdAt: string
-  deletedAt?: string | null
-  _status?: ('draft' | 'published') | null
+    | ('companies' | 'countries' | 'organisingGroups' | 'categories' | 'headcount' | 'location' | 'name')
+    | null;
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  apiPath?: string;
+  collectionSlug?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string
-  key: string
+  id: string;
+  key: string;
   data:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: string
+  id: string;
   /**
    * Input data provided to the job
    */
   input?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
+    | null;
   taskStatus?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
-  completedAt?: string | null
-  totalTried?: number | null
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
   /**
    * If hasError is true this job will not be retried
    */
-  hasError?: boolean | null
+  hasError?: boolean | null;
   /**
    * If hasError is true, this is the error that caused it
    */
   error?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
+    | null;
   /**
    * Task execution log
    */
   log?:
     | {
-        executedAt: string
-        completedAt: string
-        taskSlug: 'inline' | 'schedulePublish'
-        taskID: string
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
         input?:
           | {
-              [k: string]: unknown
+              [k: string]: unknown;
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null
+          | null;
         output?:
           | {
-              [k: string]: unknown
+              [k: string]: unknown;
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null
-        state: 'failed' | 'succeeded'
+          | null;
+        state: 'failed' | 'succeeded';
         error?:
           | {
-              [k: string]: unknown
+              [k: string]: unknown;
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null
-        id?: string | null
+          | null;
+        id?: string | null;
       }[]
-    | null
-  taskSlug?: ('inline' | 'schedulePublish') | null
-  queue?: string | null
-  waitUntil?: string | null
-  processing?: boolean | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string
+  id: string;
   document?:
     | ({
-        relationTo: 'users'
-        value: string | User
+        relationTo: 'users';
+        value: string | User;
       } | null)
     | ({
-        relationTo: 'media'
-        value: string | Media
+        relationTo: 'media';
+        value: string | Media;
       } | null)
     | ({
-        relationTo: 'staticPages'
-        value: string | StaticPage
+        relationTo: 'staticPages';
+        value: string | StaticPage;
       } | null)
     | ({
-        relationTo: 'blogPosts'
-        value: string | BlogPost
+        relationTo: 'blogPosts';
+        value: string | BlogPost;
       } | null)
     | ({
-        relationTo: 'countries'
-        value: string | Country
+        relationTo: 'countries';
+        value: string | Country;
       } | null)
     | ({
-        relationTo: 'companies'
-        value: string | Company
+        relationTo: 'companies';
+        value: string | Company;
       } | null)
     | ({
-        relationTo: 'categories'
-        value: string | Category
+        relationTo: 'categories';
+        value: string | Category;
       } | null)
     | ({
-        relationTo: 'organisingGroups'
-        value: string | OrganisingGroup
+        relationTo: 'organisingGroups';
+        value: string | OrganisingGroup;
       } | null)
     | ({
-        relationTo: 'campaigns'
-        value: string | Campaign
+        relationTo: 'campaigns';
+        value: string | Campaign;
       } | null)
     | ({
-        relationTo: 'actions'
-        value: string | Action
-      } | null)
-  globalSlug?: string | null
+        relationTo: 'actions';
+        value: string | Action;
+      } | null);
+  globalSlug?: string | null;
   user: {
-    relationTo: 'users'
-    value: string | User
-  }
-  updatedAt: string
-  createdAt: string
+    relationTo: 'users';
+    value: string | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string
+  id: string;
   user: {
-    relationTo: 'users'
-    value: string | User
-  }
-  key?: string | null
+    relationTo: 'users';
+    value: string | User;
+  };
+  key?: string | null;
   value?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string
-  name?: string | null
-  batch?: number | null
-  updatedAt: string
-  createdAt: string
+  id: string;
+  name?: string | null;
+  batch?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  updatedAt?: T
-  createdAt?: T
-  email?: T
-  resetPasswordToken?: T
-  resetPasswordExpiration?: T
-  salt?: T
-  hash?: T
-  loginAttempts?: T
-  lockUntil?: T
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
   sessions?:
     | T
     | {
-        id?: T
-        createdAt?: T
-        expiresAt?: T
-      }
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  alt?: T
+  alt?: T;
   cloudinary?:
     | T
     | {
-        public_id?: T
-        resource_type?: T
-        format?: T
-        secure_url?: T
-        bytes?: T
-        created_at?: T
-        version?: T
-        version_id?: T
-        width?: T
-        height?: T
-        duration?: T
-        pages?: T
-        selected_page?: T
-        thumbnail_url?: T
-      }
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
-  url?: T
-  thumbnailURL?: T
-  filename?: T
-  mimeType?: T
-  filesize?: T
-  width?: T
-  height?: T
-  focalX?: T
-  focalY?: T
+        public_id?: T;
+        resource_type?: T;
+        format?: T;
+        secure_url?: T;
+        bytes?: T;
+        created_at?: T;
+        version?: T;
+        version_id?: T;
+        width?: T;
+        height?: T;
+        duration?: T;
+        pages?: T;
+        selected_page?: T;
+        thumbnail_url?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "staticPages_select".
  */
 export interface StaticPagesSelect<T extends boolean = true> {
-  generateSlug?: T
-  slug?: T
-  title?: T
-  summary?: T
-  body?: T
-  path?: T
-  url?: T
-  adminPath?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+  generateSlug?: T;
+  slug?: T;
+  title?: T;
+  summary?: T;
+  body?: T;
+  path?: T;
+  url?: T;
+  adminPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogPosts_select".
  */
 export interface BlogPostsSelect<T extends boolean = true> {
-  adminPath?: T
-  date?: T
-  airtableId?: T
-  generateSlug?: T
-  slug?: T
-  title?: T
-  byline?: T
-  image?: T
-  body?: T
-  path?: T
-  url?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+  adminPath?: T;
+  date?: T;
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  title?: T;
+  byline?: T;
+  image?: T;
+  body?: T;
+  path?: T;
+  url?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "countries_select".
  */
 export interface CountriesSelect<T extends boolean = true> {
-  airtableId?: T
-  generateSlug?: T
-  slug?: T
-  name?: T
-  description?: T
-  featuredImage?: T
-  primaryColor?: T
-  color?: T
-  isoA2?: T
-  emoji?: T
-  bbox?: T
-  isoA3?: T
-  coordinates?: T
-  path?: T
-  url?: T
-  adminPath?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  name?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
+  color?: T;
+  isoA2?: T;
+  emoji?: T;
+  bbox?: T;
+  isoA3?: T;
+  coordinates?: T;
+  path?: T;
+  url?: T;
+  adminPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "companies_select".
  */
 export interface CompaniesSelect<T extends boolean = true> {
-  airtableId?: T
-  generateSlug?: T
-  slug?: T
-  name?: T
-  description?: T
-  featuredImage?: T
-  primaryColor?: T
-  color?: T
-  countries?: T
-  actions?: T
-  path?: T
-  url?: T
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  name?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
+  color?: T;
+  countries?: T;
+  actions?: T;
+  path?: T;
+  url?: T;
   parents?:
     | T
     | {
-        doc?: T
-        url?: T
-        label?: T
-        id?: T
-      }
-  adminPath?: T
-  parent?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  adminPath?: T;
+  parent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
-  airtableId?: T
-  generateSlug?: T
-  slug?: T
-  name?: T
-  emoji?: T
-  description?: T
-  featuredImage?: T
-  primaryColor?: T
-  color?: T
-  path?: T
-  url?: T
-  adminPath?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  name?: T;
+  emoji?: T;
+  description?: T;
+  featuredImage?: T;
+  primaryColor?: T;
+  color?: T;
+  path?: T;
+  url?: T;
+  adminPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "organisingGroups_select".
  */
 export interface OrganisingGroupsSelect<T extends boolean = true> {
-  airtableId?: T
-  generateSlug?: T
-  slug?: T
-  name?: T
-  description?: T
-  featuredImage?: T
-  logo?: T
-  primaryColor?: T
-  color?: T
-  fullName?: T
-  countries?: T
-  companies?: T
+  airtableId?: T;
+  generateSlug?: T;
+  slug?: T;
+  name?: T;
+  description?: T;
+  featuredImage?: T;
+  logo?: T;
+  primaryColor?: T;
+  color?: T;
+  fullName?: T;
+  countries?: T;
+  companies?: T;
   parents?:
     | T
     | {
-        doc?: T
-        url?: T
-        label?: T
-        id?: T
-      }
-  isUnion?: T
-  highlighted?: T
-  actions?: T
-  website?: T
-  webshiteHostname?: T
-  bluesky?: T
-  blueskyHandle?: T
-  twitter?: T
-  twitterHandle?: T
-  path?: T
-  url?: T
-  adminPath?: T
-  parent?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  isUnion?: T;
+  highlighted?: T;
+  actions?: T;
+  website?: T;
+  webshiteHostname?: T;
+  bluesky?: T;
+  blueskyHandle?: T;
+  twitter?: T;
+  twitterHandle?: T;
+  path?: T;
+  url?: T;
+  adminPath?: T;
+  parent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns_select".
  */
 export interface CampaignsSelect<T extends boolean = true> {
-  generateSlug?: T
-  slug?: T
-  name?: T
-  featuredImage?: T
-  description?: T
-  emoji?: T
-  actions?: T
-  highlightedActionAttribute?: T
-  path?: T
-  url?: T
-  adminPath?: T
-  apiPath?: T
-  collectionSlug?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+  generateSlug?: T;
+  slug?: T;
+  name?: T;
+  featuredImage?: T;
+  description?: T;
+  emoji?: T;
+  actions?: T;
+  highlightedActionAttribute?: T;
+  path?: T;
+  url?: T;
+  adminPath?: T;
+  apiPath?: T;
+  collectionSlug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actions_select".
  */
 export interface ActionsSelect<T extends boolean = true> {
-  generateSlug?: T
-  slug?: T
-  name?: T
-  airtableId?: T
-  description?: T
-  source?: T
-  date?: T
-  endDate?: T
-  categories?: T
-  headcount?: T
-  initiator?: T
-  link?: T
-  documents?: T
-  location?: T
-  countries?: T
-  coordinates?: T
-  companies?: T
-  organisingGroups?: T
-  campaigns?: T
+  generateSlug?: T;
+  slug?: T;
+  name?: T;
+  airtableId?: T;
+  description?: T;
+  source?: T;
+  date?: T;
+  endDate?: T;
+  categories?: T;
+  headcount?: T;
+  initiator?: T;
+  link?: T;
+  documents?: T;
+  location?: T;
+  countries?: T;
+  coordinates?: T;
+  companies?: T;
+  organisingGroups?: T;
+  campaigns?: T;
   relatedActions?:
     | T
     | {
-        action?: T
-        connectionType?: T
-        description?: T
-        id?: T
-      }
-  path?: T
-  url?: T
-  adminPath?: T
-  featured?: T
-  submissionContactDetails?: T
-  consent?: T
-  updatedAt?: T
-  createdAt?: T
-  deletedAt?: T
-  _status?: T
+        action?: T;
+        connectionType?: T;
+        description?: T;
+        id?: T;
+      };
+  path?: T;
+  url?: T;
+  adminPath?: T;
+  featured?: T;
+  submissionContactDetails?: T;
+  consent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-  key?: T
-  data?: T
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
-  input?: T
-  taskStatus?: T
-  completedAt?: T
-  totalTried?: T
-  hasError?: T
-  error?: T
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
   log?:
     | T
     | {
-        executedAt?: T
-        completedAt?: T
-        taskSlug?: T
-        taskID?: T
-        input?: T
-        output?: T
-        state?: T
-        error?: T
-        id?: T
-      }
-  taskSlug?: T
-  queue?: T
-  waitUntil?: T
-  processing?: T
-  updatedAt?: T
-  createdAt?: T
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T
-  globalSlug?: T
-  user?: T
-  updatedAt?: T
-  createdAt?: T
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T
-  key?: T
-  value?: T
-  updatedAt?: T
-  createdAt?: T
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T
-  batch?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
-  id: string
+  id: string;
   navigation?:
     | {
-        label: string
-        url: string
-        id?: string | null
+        label: string;
+        url: string;
+        id?: string | null;
       }[]
-    | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+    | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
 export interface Footer {
-  id: string
+  id: string;
   navigation?:
     | {
-        label: string
-        url: string
-        id?: string | null
+        label: string;
+        url: string;
+        id?: string | null;
       }[]
-    | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+    | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "startOrganising".
  */
 export interface StartOrganising {
-  id: string
+  id: string;
   /**
    * Rich text description for the start organising page
    */
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "aboutPage".
  */
 export interface AboutPage {
-  id: string
+  id: string;
   /**
    * Rich text description for the about page
    */
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Rich text credits for the about page. Will be displayed in columns after the description.
    */
   credits?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaignsPage".
  */
 export interface CampaignsPage {
-  id: string
+  id: string;
   /**
    * Rich text description for the campaigns page
    */
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "dataPage".
  */
 export interface DataPage {
-  id: string
+  id: string;
   /**
    * Rich text description for the data page
    */
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actionSubmissionPage".
  */
 export interface ActionSubmissionPage {
-  id: string
+  id: string;
   /**
    * Title for the action submission page
    */
-  title?: string | null
+  title?: string | null;
   /**
    * Rich text description for the action submission page
    */
   description?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  _status?: ('draft' | 'published') | null
-  updatedAt?: string | null
-  createdAt?: string | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1562,14 +1552,14 @@ export interface HeaderSelect<T extends boolean = true> {
   navigation?:
     | T
     | {
-        label?: T
-        url?: T
-        id?: T
-      }
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1579,71 +1569,71 @@ export interface FooterSelect<T extends boolean = true> {
   navigation?:
     | T
     | {
-        label?: T
-        url?: T
-        id?: T
-      }
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "startOrganising_select".
  */
 export interface StartOrganisingSelect<T extends boolean = true> {
-  description?: T
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+  description?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "aboutPage_select".
  */
 export interface AboutPageSelect<T extends boolean = true> {
-  description?: T
-  credits?: T
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+  description?: T;
+  credits?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaignsPage_select".
  */
 export interface CampaignsPageSelect<T extends boolean = true> {
-  description?: T
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+  description?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "dataPage_select".
  */
 export interface DataPageSelect<T extends boolean = true> {
-  description?: T
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+  description?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actionSubmissionPage_select".
  */
 export interface ActionSubmissionPageSelect<T extends boolean = true> {
-  title?: T
-  description?: T
-  _status?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+  title?: T;
+  description?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1651,67 +1641,60 @@ export interface ActionSubmissionPageSelect<T extends boolean = true> {
  */
 export interface TaskSchedulePublish {
   input: {
-    type?: ('publish' | 'unpublish') | null
-    locale?: string | null
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
     doc?:
       | ({
-          relationTo: 'media'
-          value: string | Media
+          relationTo: 'media';
+          value: string | Media;
         } | null)
       | ({
-          relationTo: 'staticPages'
-          value: string | StaticPage
+          relationTo: 'staticPages';
+          value: string | StaticPage;
         } | null)
       | ({
-          relationTo: 'blogPosts'
-          value: string | BlogPost
+          relationTo: 'blogPosts';
+          value: string | BlogPost;
         } | null)
       | ({
-          relationTo: 'countries'
-          value: string | Country
+          relationTo: 'countries';
+          value: string | Country;
         } | null)
       | ({
-          relationTo: 'companies'
-          value: string | Company
+          relationTo: 'companies';
+          value: string | Company;
         } | null)
       | ({
-          relationTo: 'categories'
-          value: string | Category
+          relationTo: 'categories';
+          value: string | Category;
         } | null)
       | ({
-          relationTo: 'organisingGroups'
-          value: string | OrganisingGroup
+          relationTo: 'organisingGroups';
+          value: string | OrganisingGroup;
         } | null)
       | ({
-          relationTo: 'campaigns'
-          value: string | Campaign
+          relationTo: 'campaigns';
+          value: string | Campaign;
         } | null)
       | ({
-          relationTo: 'actions'
-          value: string | Action
-        } | null)
+          relationTo: 'actions';
+          value: string | Action;
+        } | null);
     global?:
-      | (
-          | 'header'
-          | 'footer'
-          | 'startOrganising'
-          | 'aboutPage'
-          | 'campaignsPage'
-          | 'dataPage'
-          | 'actionSubmissionPage'
-        )
-      | null
-    user?: (string | null) | User
-  }
-  output?: unknown
+      | ('header' | 'footer' | 'startOrganising' | 'aboutPage' | 'campaignsPage' | 'dataPage' | 'actionSubmissionPage')
+      | null;
+    user?: (string | null) | User;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown
+  [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
