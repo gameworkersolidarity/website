@@ -17,8 +17,8 @@ export const projectStrings = {
     .default('https://github.com/gameworkersolidarity/website')
     .asString(),
   submissionNotificationEmail: env
-    .get('NEXT_PUBLIC_SUBMISSION_NOTIFICATION_EMAIL')
+    .get('SUBMISSION_NOTIFICATION_EMAIL')
     .default('austin@austinkelmore.com')
     .asString(),
-  STORAGE_TYPE: env.get('NEXT_PUBLIC_STORAGE_TYPE').default('local').asString(),
+  STORAGE_TYPE: env.get('STORAGE_TYPE').default('local').asString(),
 }
