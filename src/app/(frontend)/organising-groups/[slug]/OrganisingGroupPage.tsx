@@ -1,7 +1,7 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
-import type { OrganisingGroup, Action, Company, Country } from '@/payload-types'
+import type { OrganisingGroup, Action, Company, Country, Media } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
@@ -21,6 +21,7 @@ import { ZoomLevel } from '@/utils/global-state'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
+import { getMediaUrl } from '@/utils/media'
 
 export function OrganisingGroupPage({
   initialGroup,
@@ -46,6 +47,13 @@ export function OrganisingGroupPage({
 
   const primaryColor = page.color!
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
+  const featuredMedia =
+    page.featuredImage && typeof page.featuredImage === 'object'
+      ? (page.featuredImage as Media)
+      : null
+  const featuredImageUrl = getMediaUrl(featuredMedia)
+  const logoMedia = page.logo && typeof page.logo === 'object' ? (page.logo as Media) : null
+  const logoUrl = getMediaUrl(logoMedia)
   const metadataSectionCount = [
     !!descendants?.length && descendants.length > 1,
     !!companies?.length,
@@ -71,10 +79,7 @@ export function OrganisingGroupPage({
           <header
             className={twMerge(
               'bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl',
-              page.featuredImage &&
-                typeof page.featuredImage === 'object' &&
-                page.featuredImage.url &&
-                'grid grid-cols-1 md:grid-cols-3 gap-4',
+              featuredImageUrl && 'grid grid-cols-1 md:grid-cols-3 gap-4',
             )}
           >
             <div className="col-span-2">
@@ -98,34 +103,29 @@ export function OrganisingGroupPage({
                     </p>
                   )}
                 </div>
-                {projectStrings.STORAGE_TYPE === 'cloudinary' &&
-                  page.logo &&
-                  typeof page.logo === 'object' &&
-                  page.logo.url && (
-                    <div className="shrink-0">
-                      <Image
-                        src={page.logo.cloudinary!.secure_url!}
-                        alt={page.logo.alt || `${page.fullName || page.name} logo`}
-                        width={120}
-                        height={120}
-                        className="object-contain"
-                      />
-                    </div>
-                  )}
+                {logoUrl && (
+                  <div className="shrink-0">
+                    <Image
+                      src={logoUrl}
+                      alt={logoMedia?.alt || `${page.fullName || page.name} logo`}
+                      width={120}
+                      height={120}
+                      className="object-contain"
+                    />
+                  </div>
+                )}
               </div>
             </div>
-            {page.featuredImage &&
-              typeof page.featuredImage === 'object' &&
-              page.featuredImage.url && (
-                <div className="mb-4">
-                  <Image
-                    src={page.featuredImage.url}
-                    alt={page.featuredImage.alt || ''}
-                    width={1000}
-                    height={1000}
-                  />
-                </div>
-              )}
+            {featuredImageUrl && (
+              <div className="mb-4">
+                <Image
+                  src={featuredImageUrl}
+                  alt={featuredMedia?.alt || ''}
+                  width={1000}
+                  height={1000}
+                />
+              </div>
+            )}
           </header>
           {(page.website || page.twitter || page.bluesky) && (
             <div className="bg-white px-4 md:px-6 py-4 flex flex-col gap-2">

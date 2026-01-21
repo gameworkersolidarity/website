@@ -9,6 +9,7 @@ import { capitalize } from 'lodash'
 import { backupShareCard } from '@/app/(frontend)/layout'
 import { Metadata } from 'next'
 import { OpenGraph } from 'next/dist/lib/metadata/types/opengraph-types'
+import { getMediaUrl } from '@/utils/media'
 
 type MetadataOptions = {
   collection: CollectionSlug
@@ -145,7 +146,7 @@ export async function generateMetadataForSlug({
       (record as any).featuredImage || (record as any).image || (record as any).logo
     if (imageField) {
       const media = imageField as Media
-      const imageUrl = media.cloudinary?.secure_url || media.url
+      const imageUrl = getMediaUrl(media)
       if (imageUrl) {
         images = [imageUrl]
       }

@@ -12,6 +12,7 @@ import { RefreshRouteOnSave } from '@/components/RefreshRouteOnSave'
 import { projectStrings } from '@/project-strings'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { getMediaUrl } from '@/utils/media'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -98,6 +99,8 @@ export default async function BlogPost({ params }: Props) {
       ? allPosts.docs[currentIndex + 1]
       : null
 
+  const imageUrl = post.image && typeof post.image === 'object' ? getMediaUrl(post.image) : null
+
   return (
     <div>
       <RefreshRouteOnSave />
@@ -109,9 +112,9 @@ export default async function BlogPost({ params }: Props) {
           {post.createdAt && <DateTime date={post.createdAt} />}
           {post.byline && <div>{post.byline}</div>}
         </div>
-        {post.image && typeof post.image === 'object' && 'url' in post.image && (
+        {imageUrl && (
           <Image
-            src={post.image.url as string}
+            src={imageUrl}
             alt={post.title || ''}
             width={post.image.width!}
             height={post.image.height!}

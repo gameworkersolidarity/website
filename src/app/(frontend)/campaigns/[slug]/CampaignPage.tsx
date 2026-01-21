@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { ArrowDownIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { format, isSameMonth, isSameYear } from 'date-fns'
+import { getMediaUrl } from '@/utils/media'
 
 const Back = ({ className }: { className?: string }) => (
   <div className={className}>
@@ -40,6 +41,11 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
   const campaign = page as Campaign
 
   const actions = page.actions as Action[]
+  const featuredMedia =
+    page.featuredImage && typeof page.featuredImage === 'object'
+      ? (page.featuredImage as Media)
+      : null
+  const featuredImageUrl = getMediaUrl(featuredMedia)
 
   const earliestAction = useMemo(() => {
     return actions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
@@ -60,13 +66,13 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
   return (
     <div>
       <AdminEditBanner page={page} />
-      {page.featuredImage && typeof page.featuredImage === 'object' && page.featuredImage?.url ? (
+      {featuredImageUrl ? (
         <div className="relative">
           <Image
-            src={(campaign.featuredImage as Media).cloudinary?.secure_url || page.featuredImage.url}
+            src={featuredImageUrl}
             alt={page.name}
-            width={page.featuredImage.width || 1000}
-            height={page.featuredImage.height || 1000}
+            width={featuredMedia?.width || 1000}
+            height={featuredMedia?.height || 1000}
             className="w-full h-auto object-cover z-10 max-h-[66vh]"
           />
           <article className="absolute top-0 left-0 w-full">

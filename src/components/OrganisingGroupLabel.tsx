@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Users } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { getSlug } from '@/utils/payloadPath'
-import { projectStrings } from '@/project-strings'
+import { getMediaUrl } from '@/utils/media'
 
 export function OrganisingGroupLabel({
   organisingGroup,
@@ -75,15 +75,16 @@ export function RenderedOrganisingGroupLabel({
   textClassName?: string
   logo?: boolean | number
 }) {
+  const logoUrl =
+    organisingGroup.logo && typeof organisingGroup.logo === 'object'
+      ? getMediaUrl(organisingGroup.logo as Media)
+      : null
+
   return (
     <span className="flex items-center gap-1 wrap-anywhere" key={organisingGroup.id}>
-      {!!logo &&
-      organisingGroup.logo &&
-      typeof organisingGroup.logo === 'object' &&
-      projectStrings.STORAGE_TYPE === 'cloudinary' &&
-      (organisingGroup.logo as Media).cloudinary?.secure_url ? (
+      {!!logo && logoUrl ? (
         <Image
-          src={(organisingGroup.logo as Media).cloudinary!.secure_url!}
+          src={logoUrl}
           alt={(organisingGroup.logo as Media).alt || `${organisingGroup.name} logo`}
           width={typeof logo === 'number' ? logo : 16}
           height={typeof logo === 'number' ? logo : 16}

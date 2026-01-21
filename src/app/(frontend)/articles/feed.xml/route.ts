@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import { headers } from 'next/headers'
 import config from '@/payload.config'
+import { getMediaUrl } from '@/utils/media'
 
 type LexicalNode = {
   type: string
@@ -166,8 +167,7 @@ export async function GET() {
       // Full HTML content for content:encoded
       const fullContent = post.body ? lexicalToHtml(post.body as LexicalRoot) : ''
 
-      const imageUrl =
-        typeof post.image === 'object' && post.image?.url ? `${baseUrl}${post.image.url}` : null
+      const imageUrl = typeof post.image === 'object' ? getMediaUrl(post.image, { baseUrl }) : null
 
       let itemXml = `    <item>
       <title>${title}</title>

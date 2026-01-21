@@ -10,6 +10,7 @@ import { CampaignLabel } from '@/components/CampaignLabel'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
+import { getMediaUrl } from '@/utils/media'
 
 export async function generateMetadata(): Promise<Metadata> {
   const payloadConfig = await config
@@ -134,10 +135,9 @@ export default async function CampaignsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {campaigns.map((campaign) => {
-            const imageUrl =
-              typeof campaign.featuredImage === 'object' && campaign.featuredImage?.url
-                ? campaign.featuredImage.cloudinary?.secure_url || campaign.featuredImage.url
-                : null
+            const featuredMedia =
+              typeof campaign.featuredImage === 'object' ? campaign.featuredImage : null
+            const imageUrl = featuredMedia ? getMediaUrl(featuredMedia) : null
 
             return (
               <Link
@@ -159,18 +159,16 @@ export default async function CampaignsPage() {
                     </div>
                   )}
                 </header>
-                {imageUrl &&
-                  typeof campaign.featuredImage === 'object' &&
-                  campaign.featuredImage?.url && (
-                    <Image
-                      src={imageUrl}
-                      alt={campaign.name || ''}
-                      width={campaign.featuredImage.width!}
-                      height={campaign.featuredImage.height!}
-                      objectFit="cover"
-                      className="w-full h-60 object-cover overflow-hidden my-4"
-                    />
-                  )}
+                {imageUrl && typeof campaign.featuredImage === 'object' && (
+                  <Image
+                    src={imageUrl}
+                    alt={campaign.name || ''}
+                    width={featuredMedia?.width || 1000}
+                    height={featuredMedia?.height || 1000}
+                    objectFit="cover"
+                    className="w-full h-60 object-cover overflow-hidden my-4"
+                  />
+                )}
                 {campaign.description && (
                   <LexicalRenderer content={campaign.description} className="p-4 md:p-5 pt-3!" />
                 )}

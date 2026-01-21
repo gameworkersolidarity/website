@@ -8,6 +8,7 @@ import { DateTime } from '@/components/DateTime'
 import { draftMode } from 'next/headers'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
+import { getMediaUrl } from '@/utils/media'
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Articles'
@@ -77,8 +78,7 @@ export default async function BlogPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {blogPostsResult.docs.map((post) => {
-            const imageUrl =
-              typeof post.image === 'object' && post.image?.url ? post.image.url : null
+            const imageUrl = typeof post.image === 'object' ? getMediaUrl(post.image) : null
 
             return (
               <Link
@@ -93,7 +93,7 @@ export default async function BlogPage() {
                     {post.byline && <div>{post.byline}</div>}
                   </div>
                 </header>
-                {imageUrl && typeof post.image === 'object' && post.image?.url && (
+                {imageUrl && typeof post.image === 'object' && (
                   <Image
                     src={imageUrl}
                     alt={post.title || ''}
