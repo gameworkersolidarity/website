@@ -116,7 +116,17 @@ export function FrequencyChart({
         return null
       }
     },
-    [size.width, size.height, countBy],
+    [
+      size.width,
+      size.height,
+      countBy,
+      extraFilteredEvents,
+      dateFrom,
+      color,
+      highlightDate,
+      highlightColor,
+      transformPlotConfig,
+    ],
   )
 
   if (extraFilteredEvents.length === 0) {
