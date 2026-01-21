@@ -17,7 +17,8 @@
     "set:password": "tsx scripts/set-password.ts",
     "payload": "payload",
     "start": "next start",
-    "test": "pnpm run test:int && pnpm run test:e2e"
+    "test": "pnpm run test:int && pnpm run test:e2e",
+    "prepare": "husky"
   },
   "dependencies": {
     "@atelier-disko/payload-lexical-react-renderer": "^1.2.0",
@@ -159,6 +160,19 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
     ]
   }
 }
