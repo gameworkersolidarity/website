@@ -10,6 +10,11 @@ import Image from 'next/image'
 import { EventExplorer } from '../../components/EventExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 import { EventInitiatorFilter } from '@/collections/enums'
+import pluralize from 'pluralize'
+import Link from 'next/link'
+import { ArrowDownIcon } from 'lucide-react'
+import { useMemo } from 'react'
+import { format, isSameMonth, isSameYear } from 'date-fns';
 
 export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign }) {
   if (!initialCampaign) notFound()
@@ -25,26 +30,60 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
 
   const events = page.events as Event[]
 
+  const earliestEvent = useMemo(() => {
+    return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
+  }, [events])
+
+  const latestEvent = useMemo(() => {
+    return events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+  }, [events])
+
+  const sameYear = useMemo(() => {
+    return isSameYear(earliestEvent.date, latestEvent.date)
+  }, [earliestEvent, latestEvent])
+
+  const sameMonth = useMemo(() => {
+    return isSameMonth(earliestEvent.date, latestEvent.date)
+  }, [earliestEvent, latestEvent])
+
   return (
     <div>
       <AdminEditBanner page={page} />
       {page.featuredImage && typeof page.featuredImage === 'object' && page.featuredImage?.url ? (
-        <div className="w-full mx-auto grid md:grid-cols-2 bg-white">
-          <div className="flex flex-col gap-4 p-4 md:p-5 lg:p-6 xl:p-8">
-            <header>
-              <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
-              <h1 className="text-4xl md:text-5xl font-bold font-identity">{page.name}</h1>
-            </header>
-            {page.description && <LexicalRenderer content={page.description} />}
-          </div>
+        <>
           <Image
             src={(campaign.featuredImage as Media).cloudinary?.secure_url || page.featuredImage.url}
             alt={page.name}
             width={page.featuredImage.width || 1000}
             height={page.featuredImage.height || 1000}
-            className="sticky top-6 h-full max-h-screen w-full object-cover"
+            className="w-full h-auto object-cover z-10 max-h-[66vh]"
           />
-        </div>
+          <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4 -mt-8 z-20 relative">
+            <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
+              <header>
+                <div className="font-mono uppercase text-sm opacity-50 text-center">
+                  
+                <span>
+                    {format(earliestEvent.date, sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy')} &rarr; {format(latestEvent.date, 'dd MMM yyyy')}
+                  </span>
+
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold font-identity text-center">{page.name}</h1>
+                {/* Count of events */}
+                <div className="mt-4 opacity-50 hover:opacity-100 transition-opacity duration-300 text-center cursor-pointer flex items-center justify-center gap-1 font-mono text-sm uppercase" onClick={() => {
+                  const eventsElement = document.getElementById('events')
+                  if (eventsElement) {
+                    eventsElement.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}>
+                  <span>{pluralize('event', events.length, true)}</span> 
+                  <ArrowDownIcon className="w-4 h-4 inline-block" />
+                </div>
+              </header>
+              {page.description && <LexicalRenderer content={page.description} className='mt-4 mx-auto' />}
+            </section>
+          </article>
+        </>
       ) : (
         <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4">
           <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
@@ -57,20 +96,22 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
         </article>
       )}
 
-      <EventExplorer
-        overrideDefaultZoomLevel={ZoomLevel.Timeline}
-        eventFilterContextProps={{
-          overrideFilteredInitiator: EventInitiatorFilter.ALL,
-        }}
-        events={events}
-        linkStyle="hard"
-        timelineBy={page.highlightedEventAttribute || 'categories'}
-        eventFilterProps={{
-          campaigns: false,
-          years: false,
-          initiators: false,
-        }}
-      />
+      <div className='bg-background relative' id="events">
+        <EventExplorer
+          overrideDefaultZoomLevel={ZoomLevel.Timeline}
+          eventFilterContextProps={{
+            overrideFilteredInitiator: EventInitiatorFilter.ALL,
+          }}
+          events={events}
+          linkStyle="hard"
+          timelineBy={page.highlightedEventAttribute || 'categories'}
+          eventFilterProps={{
+            campaigns: false,
+            years: false,
+            initiators: false,
+          }}
+        />
+      </div>
     </div>
   )
 }

@@ -595,7 +595,7 @@ export function Timeline({
                 {/* <pre className="text-xs">{JSON.stringify(positionMetadata, null, 2)}</pre> */}
                 <div
                   className={twMerge(
-                    'whitespace-nowrap flex flex-col items-center text-center',
+                    'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
                     event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
                   )}
                   style={{
@@ -603,6 +603,7 @@ export function Timeline({
                     width: 'max-content',
                     maxWidth: `${estimatedWidth}px`,
                   }}
+                  onClick={() => handleClick(event)}
                 >
                   {event.id === currentEventId && (
                     <div className="text-xs">{formatDate(new Date(event.date), 'dd MMM yyyy')}</div>
