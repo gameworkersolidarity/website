@@ -49,6 +49,16 @@ export default buildConfig({
         './app/(payload)/admin/components/HomepageLink#HomepageLink',
       ],
     },
+    dashboard: {
+      widgets: [
+        {
+          slug: 'stats',
+          ComponentPath: './app/(payload)/admin/components/StatsWidget#default',
+          minWidth: 'medium',
+          maxWidth: 'full',
+        },
+      ],
+    },
     autoRefresh: true,
     autoLogin:
       process.env.NODE_ENV === 'development'
