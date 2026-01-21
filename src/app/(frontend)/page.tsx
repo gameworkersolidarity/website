@@ -9,13 +9,13 @@ export default async function HomePage() {
   const payload = await getPayload({ config: payloadConfig })
   const isDraftMode = (await draftMode()).isEnabled
 
-  // Fetch all events with related data
+  // Fetch all actions with related data
   // Include both published and legacy records (where _status is null)
   // Fetch all filter options
-  const [eventsResult, categoriesResult, companiesResult, organisingGroupsResult, campaignResult] =
+  const [actionsResult, categoriesResult, companiesResult, organisingGroupsResult, campaignResult] =
     await Promise.all([
       await payload.find({
-        collection: 'events',
+        collection: 'actions',
         where: {
           // Only fetch published content when not in draft mode
           ...(!isDraftMode
@@ -79,14 +79,14 @@ export default async function HomePage() {
     ])
 
   const uniqueCountries = Array.from(
-    new Set(eventsResult.docs.flatMap((event) => event.countries as Country[])),
+    new Set(actionsResult.docs.flatMap((action) => action.countries as Country[])),
   )
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <HomepageClient
-      events={eventsResult.docs}
+      actions={actionsResult.docs}
       countries={uniqueCountries}
       categories={categoriesResult.docs}
       companies={companiesResult.docs}

@@ -1,8 +1,8 @@
 'use client'
 
-import { Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import { Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { EventCard } from './EventCard'
+import { ActionCard } from './ActionCard'
 import {
   differenceInDays,
   differenceInMonths,
@@ -29,36 +29,38 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { TimelineLabelProperty } from '@/global-types'
 
-export function EventTimeline({
-  events,
+export function ActionTimeline({
+  actions,
   labelProperty,
   searchQuery,
 }: {
-  events: Event[]
+  actions: Action[]
   labelProperty?: TimelineLabelProperty
   searchQuery?: string
 }) {
-  const sortedEvents = useMemo(
-    () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-    [events],
+  const sortedActions = useMemo(
+    () => [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [actions],
   )
-  const [currentEventId, setCurrentEventId] = useState<string | null>(sortedEvents[0]?.id || null)
+  const [currentActionId, setCurrentActionId] = useState<string | null>(
+    sortedActions[0]?.id || null,
+  )
 
   return (
     <div className="@container">
       <div className="py-4 px-5 @5xl:px-8">
         <Timeline
-          events={events}
-          currentEventId={currentEventId}
-          setCurrentEventId={setCurrentEventId}
+          actions={actions}
+          currentActionId={currentActionId}
+          setCurrentActionId={setCurrentActionId}
           labelProperty={labelProperty}
         />
       </div>
       <div>
         <Slideshow
-          events={events}
-          currentEventId={currentEventId}
-          setCurrentEventId={setCurrentEventId}
+          actions={actions}
+          currentActionId={currentActionId}
+          setCurrentActionId={setCurrentActionId}
           searchQuery={searchQuery}
         />
       </div>
@@ -67,33 +69,33 @@ export function EventTimeline({
 }
 
 export function Slideshow({
-  events,
-  currentEventId,
-  setCurrentEventId: __setCurrentEventId,
+  actions,
+  currentActionId,
+  setCurrentActionId: __setCurrentActionId,
   searchQuery,
 }: {
-  events: Event[]
-  currentEventId: string | null
-  setCurrentEventId: (id: string) => void
+  actions: Action[]
+  currentActionId: string | null
+  setCurrentActionId: (id: string) => void
   searchQuery?: string
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map())
   const [autoplay, setAutoplay] = useState(false)
 
-  const setCurrentEventId = useCallback(
+  const setCurrentActionId = useCallback(
     (id: string, autoplay: boolean = false) => {
-      __setCurrentEventId(id)
+      __setCurrentActionId(id)
       setAutoplay(autoplay)
     },
-    [__setCurrentEventId, setAutoplay],
+    [__setCurrentActionId, setAutoplay],
   )
 
-  // Scroll to current event when it changes
+  // Scroll to current action when it changes
   useEffect(() => {
-    if (!currentEventId || !scrollContainerRef.current) return
+    if (!currentActionId || !scrollContainerRef.current) return
 
-    const itemElement = itemRefs.current.get(currentEventId)
+    const itemElement = itemRefs.current.get(currentActionId)
     if (itemElement) {
       itemElement.scrollIntoView({
         // @ts-expect-error - container is a valid option for scrollIntoView
@@ -103,9 +105,9 @@ export function Slideshow({
         inline: 'center',
       })
     }
-  }, [currentEventId])
+  }, [currentActionId])
 
-  // Handle scroll events to update current event
+  // Handle scroll actions to update current action
   const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current) return
     const container = scrollContainerRef.current
@@ -121,27 +123,27 @@ export function Slideshow({
         closestItem = { id, distance }
       }
     }
-    if (closestItem && closestItem.id !== currentEventId) {
-      setCurrentEventId(closestItem.id)
+    if (closestItem && closestItem.id !== currentActionId) {
+      setCurrentActionId(closestItem.id)
     }
-  }, [currentEventId, setCurrentEventId])
+  }, [currentActionId, setCurrentActionId])
 
   useEffect(() => {
     if (autoplay) {
       const interval = setInterval(() => {
-        const index = events.findIndex((e) => e.id === currentEventId)
+        const index = actions.findIndex((e) => e.id === currentActionId)
         if (index === -1) return
-        setCurrentEventId(index < events.length - 1 ? events[index + 1].id : events[0].id)
+        setCurrentActionId(index < actions.length - 1 ? actions[index + 1].id : actions[0].id)
       }, 5000)
       return () => clearInterval(interval)
     }
-  }, [autoplay, currentEventId, events, setCurrentEventId])
+  }, [autoplay, currentActionId, actions, setCurrentActionId])
 
-  const sortedEvents = useMemo(
-    function sortEventsByOldestFirst() {
-      return [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  const sortedActions = useMemo(
+    function sortActionsByOldestFirst() {
+      return [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     },
-    [events],
+    [actions],
   )
 
   return (
@@ -151,14 +153,14 @@ export function Slideshow({
         onScrollEndCapture={handleScroll}
         className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth items-start py-4"
       >
-        {sortedEvents.map((event, index, list) => (
+        {sortedActions.map((action, index, list) => (
           <div
-            key={event.id}
+            key={action.id}
             ref={(el) => {
               if (el) {
-                itemRefs.current.set(event.id, el)
+                itemRefs.current.set(action.id, el)
               } else {
-                itemRefs.current.delete(event.id)
+                itemRefs.current.delete(action.id)
               }
             }}
             className="shrink-0 w-full snap-center flex items-center justify-center gap-1 @md:gap-4"
@@ -166,16 +168,16 @@ export function Slideshow({
             <ArrowLeft
               className={twMerge('w-20 cursor-pointer', index > 0 ? 'block' : 'invisible')}
               size={20}
-              onClick={() => setCurrentEventId(list[index - 1].id)}
+              onClick={() => setCurrentActionId(list[index - 1].id)}
             />
-            <EventCard data={event} links searchQuery={searchQuery} />
+            <ActionCard data={action} links searchQuery={searchQuery} />
             <ArrowRight
               className={twMerge(
                 'w-20 cursor-pointer',
-                index < events.length - 1 ? 'block' : 'invisible',
+                index < actions.length - 1 ? 'block' : 'invisible',
               )}
               size={20}
-              onClick={() => setCurrentEventId(list[index + 1].id)}
+              onClick={() => setCurrentActionId(list[index + 1].id)}
             />
           </div>
         ))}
@@ -185,14 +187,14 @@ export function Slideshow({
 }
 
 export function Timeline({
-  events,
-  currentEventId,
-  setCurrentEventId,
+  actions,
+  currentActionId,
+  setCurrentActionId,
   labelProperty = 'categories',
 }: {
-  events: Event[]
-  currentEventId: string | null
-  setCurrentEventId: (id: string) => void
+  actions: Action[]
+  currentActionId: string | null
+  setCurrentActionId: (id: string) => void
   labelProperty?: TimelineLabelProperty
 }) {
   const [elementRef, size] = useElementSize()
@@ -216,7 +218,7 @@ export function Timeline({
   const timelineY = height / 2
 
   // Calculate date range
-  const dateRange = useMemo(() => extent(events.map((e) => new Date(e.date))), [events])
+  const dateRange = useMemo(() => extent(actions.map((e) => new Date(e.date))), [actions])
   const minDate = useMemo(() => dateRange[0] || new Date(), [dateRange])
   const maxDate = useMemo(() => dateRange[1] || new Date(), [dateRange])
   const dayRange = useMemo(() => differenceInDays(maxDate, minDate), [maxDate, minDate])
@@ -294,84 +296,84 @@ export function Timeline({
     [minDate, maxDate, width],
   )
 
-  // Sort events by date
-  const sortedEvents = useMemo(
-    () => [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-    [events],
+  // Sort actions by date
+  const sortedActions = useMemo(
+    () => [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [actions],
   )
 
-  // Handle click on event
+  // Handle click on action
   const handleClick = useCallback(
-    (event: Event) => {
-      setCurrentEventId(event.id)
+    (action: Action) => {
+      setCurrentActionId(action.id)
     },
-    [setCurrentEventId],
+    [setCurrentActionId],
   )
 
-  // Get color for event
-  const getEventColor = useCallback((event: Event) => {
-    return event.initiator === 'WORKER_LED'
+  // Get color for action
+  const getActionColor = useCallback((action: Action) => {
+    return action.initiator === 'WORKER_LED'
       ? getCSSVariable('--color-gw-blue', false, '#000')
       : getCSSVariable('--color-gw-orange', false, '#000')
   }, [])
 
-  // Get radius for event
-  const getEventRadius = useCallback(
-    (event: Event) => {
-      if (event.id === currentEventId) return 8
-      if (event.featured) return 7
+  // Get radius for action
+  const getActionRadius = useCallback(
+    (action: Action) => {
+      if (action.id === currentActionId) return 8
+      if (action.featured) return 7
       return 5
     },
-    [currentEventId],
+    [currentActionId],
   )
 
-  const eventsWithBins = useMemo(() => {
-    return sortedEvents.map((event) => {
+  const actionsWithBins = useMemo(() => {
+    return sortedActions.map((action) => {
       return {
-        event,
-        bin: getBin(new Date(event.date)),
+        action,
+        bin: getBin(new Date(action.date)),
       }
     })
-  }, [sortedEvents, getBin])
+  }, [sortedActions, getBin])
 
-  const binnedEvents = useMemo(() => {
-    const binFn = bin<Event, Date>()
+  const binnedActions = useMemo(() => {
+    const binFn = bin<Action, Date>()
       .domain([minDate, maxDate])
       .value(
-        // @ts-expect-error - d is an Event
+        // @ts-expect-error - d is an Action
         (d) => (d?.date ? new Date(d?.date).getTime() : new Date().getTime()),
       )
       .thresholds(xScale.ticks(numBins))
-    const bins = binFn(sortedEvents)
+    const bins = binFn(sortedActions)
     return bins
-  }, [sortedEvents, minDate, maxDate, numBins, xScale])
+  }, [sortedActions, minDate, maxDate, numBins, xScale])
 
   const histogramYScale = useMemo(
     () =>
       scaleLinear({
-        domain: [0, max(binnedEvents.map((e) => e.length))],
+        domain: [0, max(binnedActions.map((e) => e.length))],
         range: [0, height / 3.75],
       }),
-    [binnedEvents, height],
+    [binnedActions, height],
   )
 
-  function getLabelPositionMetadata(event: Event) {
-    if (!event.id || !currentEventId) {
+  function getLabelPositionMetadata(action: Action) {
+    if (!action.id || !currentActionId) {
       return {
         shouldAppear: false,
         indexInBin: 0,
         dynamicSkipCount: 0,
       }
     }
-    // Always show featured events and currently selected event
-    if (event.featured || event.id === currentEventId) {
+    // Always show featured actions and currently selected action
+    if (action.featured || action.id === currentActionId) {
       return {
         shouldAppear: true,
         indexInBin: 0,
         dynamicSkipCount: 0,
       }
     }
-    if (!event[labelProperty]) {
+    if (!action[labelProperty]) {
       return {
         shouldAppear: false,
         indexInBin: 0,
@@ -379,27 +381,27 @@ export function Timeline({
       }
     }
 
-    const targetBin = getBin(new Date(event.date))
-    // How many events in the same Bin?
-    const eventsInBin = eventsWithBins.filter((e) => e.bin === targetBin)
+    const targetBin = getBin(new Date(action.date))
+    // How many actions in the same Bin?
+    const actionsInBin = actionsWithBins.filter((e) => e.bin === targetBin)
     // Dynamic skipCount: more in the Bin = higher skip
-    // For many events display fewer: set minSkip 1, maxSkip e.g. 7
+    // For many actions display fewer: set minSkip 1, maxSkip e.g. 7
     const dynamicSkipCount = Math.max(
-      Math.min(Math.ceil(eventsInBin.length / itemsPerBin), maxSkip),
+      Math.min(Math.ceil(actionsInBin.length / itemsPerBin), maxSkip),
       minSkip,
     )
 
     // For deterministic spacing within Bin, get positions in this Bin
-    const thisBinIndices = eventsWithBins
-      .map((e, i) => ({ id: e.event.id, b: e.bin, idx: i }))
+    const thisBinIndices = actionsWithBins
+      .map((e, i) => ({ id: e.action.id, b: e.bin, idx: i }))
       .filter((row) => row.b === targetBin)
 
-    const thisEventIndexInBin = thisBinIndices.findIndex((row) => row.id === event.id)
+    const thisActionIndexInBin = thisBinIndices.findIndex((row) => row.id === action.id)
 
     // Show one every dynamicSkipCount in the same Bin
     return {
-      shouldAppear: thisEventIndexInBin % dynamicSkipCount === 0,
-      indexInBin: thisEventIndexInBin,
+      shouldAppear: thisActionIndexInBin % dynamicSkipCount === 0,
+      indexInBin: thisActionIndexInBin,
       dynamicSkipCount,
     }
   }
@@ -409,47 +411,47 @@ export function Timeline({
     const indexMap = new Map<string, number>()
     let globalIndex = 0
 
-    sortedEvents.forEach((event) => {
-      if (!event.id || !currentEventId) {
+    sortedActions.forEach((action) => {
+      if (!action.id || !currentActionId) {
         return
       }
 
-      // Always show featured events and currently selected event
-      if (event.featured || event.id === currentEventId) {
-        indexMap.set(event.id, globalIndex)
+      // Always show featured actions and currently selected action
+      if (action.featured || action.id === currentActionId) {
+        indexMap.set(action.id, globalIndex)
         globalIndex++
         return
       }
 
-      const targetBin = getBin(new Date(event.date))
-      // How many events in the same Bin?
-      const eventsInBin = sortedEvents.filter((e) => getBin(new Date(e.date)) === targetBin)
+      const targetBin = getBin(new Date(action.date))
+      // How many actions in the same Bin?
+      const actionsInBin = sortedActions.filter((e) => getBin(new Date(e.date)) === targetBin)
       // Dynamic skipCount: more in the Bin = higher skip
-      // For many events display fewer: set minSkip 1, maxSkip e.g. 7
+      // For many actions display fewer: set minSkip 1, maxSkip e.g. 7
       const dynamicSkipCount = Math.max(
-        Math.min(Math.ceil(eventsInBin.length / itemsPerBin), maxSkip),
+        Math.min(Math.ceil(actionsInBin.length / itemsPerBin), maxSkip),
         minSkip,
       )
 
       // For deterministic spacing within Bin, get positions in this Bin
-      const thisBinIndices = sortedEvents
+      const thisBinIndices = sortedActions
         .map((e, i) => ({ id: e.id, b: getBin(new Date(e.date)), idx: i }))
         .filter((row) => row.b === targetBin)
 
-      const thisEventIndexInBin = thisBinIndices.findIndex((row) => row.id === event.id)
+      const thisActionIndexInBin = thisBinIndices.findIndex((row) => row.id === action.id)
 
       // Show one every dynamicSkipCount in the same Bin
-      if (thisEventIndexInBin % dynamicSkipCount === 0) {
-        indexMap.set(event.id, globalIndex)
+      if (thisActionIndexInBin % dynamicSkipCount === 0) {
+        indexMap.set(action.id, globalIndex)
         globalIndex++
       }
     })
 
     return indexMap
-  }, [sortedEvents, currentEventId, getBin, minSkip, maxSkip, itemsPerBin])
+  }, [sortedActions, currentActionId, getBin, minSkip, maxSkip, itemsPerBin])
 
-  function getLabelPosition(globalIndex: number, eventId: string | null, offset: number = 0) {
-    if (currentEventId && eventId === currentEventId) {
+  function getLabelPosition(globalIndex: number, actionId: string | null, offset: number = 0) {
+    if (currentActionId && actionId === currentActionId) {
       const aboveBelow = -1
       const level = numLevels + 1
       const y = timelineY + aboveBelow * level * gap + offset * aboveBelow
@@ -479,10 +481,10 @@ export function Timeline({
         className="z-30 relative"
       >
         <Group left={margin.left} top={margin.top}>
-          {/* Histogram of events */}
-          {!!sortedEvents.length &&
-            sortedEvents.length > 10 &&
-            binnedEvents.map((bin) => {
+          {/* Histogram of actions */}
+          {!!sortedActions.length &&
+            sortedActions.length > 10 &&
+            binnedActions.map((bin) => {
               const barHeight = histogramYScale(bin.length)
               return (
                 <Bar
@@ -516,7 +518,7 @@ export function Timeline({
 
           {/* Timeline line */}
           <LinePath
-            data={sortedEvents}
+            data={sortedActions}
             x={(d) => xScale(new Date(d.date))}
             y={timelineY}
             stroke="#9ca3af"
@@ -524,45 +526,45 @@ export function Timeline({
           />
 
           {/* Vertical ines from circle to text labels */}
-          {sortedEvents.map((event, index) => {
-            const x = xScale(new Date(event.date))
-            const { shouldAppear } = getLabelPositionMetadata(event)
+          {sortedActions.map((action, index) => {
+            const x = xScale(new Date(action.date))
+            const { shouldAppear } = getLabelPositionMetadata(action)
             if (!shouldAppear) return null
-            const globalIndex = globalLabelIndex.get(event.id) ?? 0
+            const globalIndex = globalLabelIndex.get(action.id) ?? 0
             const { y } = getLabelPosition(
               globalIndex,
-              event.id,
-              event.id === currentEventId ? highlightOffset : 0,
+              action.id,
+              action.id === currentActionId ? highlightOffset : 0,
             )
             return (
               <Line
-                key={`line-${event.id}`}
+                key={`line-${action.id}`}
                 x1={x}
                 y1={timelineY}
                 x2={x}
                 y2={y}
-                stroke={getEventColor(event)}
+                stroke={getActionColor(action)}
                 strokeWidth={1}
               />
             )
           })}
 
-          {/* Event dots */}
-          {sortedEvents.map((event) => {
-            const x = xScale(new Date(event.date))
-            const color = getEventColor(event)
-            const radius = getEventRadius(event)
+          {/* Action dots */}
+          {sortedActions.map((action) => {
+            const x = xScale(new Date(action.date))
+            const color = getActionColor(action)
+            const radius = getActionRadius(action)
             return (
-              <g key={event.id}>
+              <g key={action.id}>
                 <Circle
                   cx={x}
                   cy={timelineY}
                   r={radius}
                   fill={color}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => handleClick(event)}
+                  onClick={() => handleClick(action)}
                 />
-                {event.featured && (
+                {action.featured && (
                   <>
                     <Circle
                       cx={x}
@@ -572,7 +574,7 @@ export function Timeline({
                       stroke={color}
                       strokeWidth={2}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => handleClick(event)}
+                      onClick={() => handleClick(action)}
                     />
                   </>
                 )}
@@ -581,24 +583,24 @@ export function Timeline({
           })}
 
           {/* Labels above timeline */}
-          {sortedEvents.map((event, index) => {
-            const positionMetadata = getLabelPositionMetadata(event)
+          {sortedActions.map((action, index) => {
+            const positionMetadata = getLabelPositionMetadata(action)
             if (!positionMetadata.shouldAppear) return null
-            const x = xScale(new Date(event.date))
-            const globalIndex = globalLabelIndex.get(event.id) ?? 0
+            const x = xScale(new Date(action.date))
+            const globalIndex = globalLabelIndex.get(action.id) ?? 0
             const { y, aboveBelow } = getLabelPosition(
               globalIndex,
-              event.id,
-              event.id === currentEventId ? highlightOffset : 0,
+              action.id,
+              action.id === currentActionId ? highlightOffset : 0,
             )
             // Estimate label dimensions - generous defaults for Firefox/Safari compatibility
             // Firefox/Safari require explicit width/height on foreignObject
             const estimatedWidth = 300 // px - generous width to accommodate longer labels
-            // const estimatedHeight = event.id === currentEventId ? 60 : 40 // px - more height if date is shown
+            // const estimatedHeight = action.id === currentActionId ? 60 : 40 // px - more height if date is shown
 
             return (
               <HtmlLabel
-                key={`label-${event.id}`}
+                key={`label-${action.id}`}
                 x={x}
                 y={y}
                 horizontalAnchor="middle"
@@ -606,39 +608,41 @@ export function Timeline({
                 showAnchorLine={false}
                 containerStyle={{
                   overflow: 'visible',
-                  pointerEvents: 'auto',
+                  pointerActions: 'auto',
                 }}
               >
                 {/* <pre className="text-xs">{JSON.stringify(positionMetadata, null, 2)}</pre> */}
                 <div
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
-                    event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
-                    event.featured && 'underline',
+                    action.id === currentActionId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
+                    action.featured && 'underline',
                   )}
                   style={{
                     display: 'flex',
                     width: 'max-content',
                     maxWidth: `${estimatedWidth}px`,
                   }}
-                  onClick={() => handleClick(event)}
+                  onClick={() => handleClick(action)}
                 >
-                  {event.id === currentEventId && (
-                    <div className="text-xs">{formatDate(new Date(event.date), 'dd MMM yyyy')}</div>
+                  {action.id === currentActionId && (
+                    <div className="text-xs">
+                      {formatDate(new Date(action.date), 'dd MMM yyyy')}
+                    </div>
                   )}
                   <div className="text-xs font-bold flex flex-row flex-wrap justify-center items-center">
                     {labelProperty === 'categories'
-                      ? event.categories?.map((c) => (
+                      ? action.categories?.map((c) => (
                           <CategoryLabel category={c as Category} key={(c as Category).id} />
                         ))
                       : null}
                     {labelProperty === 'companies'
-                      ? event.companies?.map((c) => (
+                      ? action.companies?.map((c) => (
                           <CompanyLabel company={c as Company} key={(c as Company).id} />
                         ))
                       : null}
                     {labelProperty === 'organisingGroups'
-                      ? event.organisingGroups?.map((c) => (
+                      ? action.organisingGroups?.map((c) => (
                           <OrganisingGroupLabel
                             organisingGroup={c as OrganisingGroup}
                             key={(c as OrganisingGroup).id}
@@ -646,20 +650,20 @@ export function Timeline({
                         ))
                       : null}
                     {labelProperty === 'countries'
-                      ? event.countries?.map((c) => (
+                      ? action.countries?.map((c) => (
                           <CountryLabel country={c as Country} key={(c as unknown as Country).id} />
                         ))
                       : null}
-                    {labelProperty === 'location' ? event.location : null}
-                    {labelProperty === 'name' ? event.name : null}
+                    {labelProperty === 'location' ? action.location : null}
+                    {labelProperty === 'name' ? action.name : null}
                   </div>
                 </div>
               </HtmlLabel>
               // <Group
-              //   key={`label-${event.id}`}
-              //   transform={`translate(${x}, ${getLabelY(index, event.id)})`}
+              //   key={`label-${action.id}`}
+              //   transform={`translate(${x}, ${getLabelY(index, action.id)})`}
               // >
-              //   {event.id === currentEventId && (
+              //   {action.id === currentActionId && (
               //     <g className="-translate-y-4" fill="#fde68a">
               //       <rect
               //         x={-50}
@@ -677,7 +681,7 @@ export function Timeline({
               //         fill="currentColor"
               //         dy="-9"
               //       >
-              //         {formatDate(new Date(event.date), 'dd MMM yy')}
+              //         {formatDate(new Date(action.date), 'dd MMM yy')}
               //       </Text>
               //     </g>
               //   )}
@@ -689,12 +693,12 @@ export function Timeline({
           })}
 
           {/* Date labels below timeline */}
-          {/* {sortedEvents.map((event) => {
-            const x = xScale(new Date(event.date))
-            const dateText = formatDate(new Date(event.date), 'dd MMM yy')
+          {/* {sortedActions.map((action) => {
+            const x = xScale(new Date(action.date))
+            const dateText = formatDate(new Date(action.date), 'dd MMM yy')
             return (
               <Text
-                key={`date-${event.id}`}
+                key={`date-${action.id}`}
                 x={x}
                 y={timelineY + 30}
                 textAnchor="middle"

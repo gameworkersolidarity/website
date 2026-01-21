@@ -77,7 +77,7 @@ export async function generateMetadataForSlug({
       case 'companies':
       case 'categories':
       case 'countries':
-      case 'events':
+      case 'actions':
         title = (record as any).name || 'Untitled'
         break
       default:

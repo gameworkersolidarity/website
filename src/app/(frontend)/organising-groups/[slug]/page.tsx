@@ -78,7 +78,7 @@ export default async function Page({ params }: Props) {
 
   // Query solidarity actions directly where this organising group is related
   const actionsResult = await payload.find({
-    collection: 'events',
+    collection: 'actions',
     sort: '-date',
     where: {
       and: [
@@ -103,12 +103,12 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const events = actionsResult.docs
+  const actions = actionsResult.docs
 
   // Extract unique companies from solidarity actions
   const companiesSet = new Map<string, Company>()
 
-  events.forEach((action) => {
+  actions.forEach((action) => {
     // Extract companies
     if (action.companies && Array.isArray(action.companies)) {
       action.companies.forEach((company) => {
@@ -133,7 +133,7 @@ export default async function Page({ params }: Props) {
     .sort((a, b) => a.name.localeCompare(b.name))
 
   const uniqueCountries = Array.from(
-    new Set(events.flatMap((event) => event.countries as Country[])),
+    new Set(actions.flatMap((action) => action.countries as Country[])),
   )
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -141,7 +141,7 @@ export default async function Page({ params }: Props) {
   return (
     <OrganisingGroupPage
       initialGroup={group}
-      events={events}
+      actions={actions}
       companies={uniqueCompanies}
       descendants={descendants}
       countries={uniqueCountries}

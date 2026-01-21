@@ -14,15 +14,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const isDraftMode = (await draftMode()).isEnabled
 
   try {
-    const eventSubmissionPageData = await payload.findGlobal({
-      slug: 'eventSubmissionPage',
+    const actionSubmissionPageData = await payload.findGlobal({
+      slug: 'actionSubmissionPage',
       draft: isDraftMode,
     })
 
-    const title = eventSubmissionPageData?.title || 'Submit an Action'
+    const title = actionSubmissionPageData?.title || 'Submit an Action'
     const description =
-      (eventSubmissionPageData?.description
-        ? lexicalToPlainText(eventSubmissionPageData.description)
+      (actionSubmissionPageData?.description
+        ? lexicalToPlainText(actionSubmissionPageData.description)
         : '') || 'Submit a new action to the Game Workers Solidarity Platform'
     const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
 
@@ -85,12 +85,12 @@ export default async function SubmitActionPage() {
 
   try {
     // Fetch the global data for the page
-    const eventSubmissionPageData = await payload.findGlobal({
-      slug: 'eventSubmissionPage',
+    const actionSubmissionPageData = await payload.findGlobal({
+      slug: 'actionSubmissionPage',
       draft: isDraftMode,
     })
 
-    if (!eventSubmissionPageData) {
+    if (!actionSubmissionPageData) {
       return notFound()
     }
 
@@ -126,11 +126,11 @@ export default async function SubmitActionPage() {
       <div className="mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-4 max-w-4xl">
         <div className="columns-1">
           <h1 className="text-4xl lg:text-5xl font-bold font-identity mb-4">
-            {eventSubmissionPageData.title || 'Submit an Action'}
+            {actionSubmissionPageData.title || 'Submit an Action'}
           </h1>
-          {eventSubmissionPageData.description && (
+          {actionSubmissionPageData.description && (
             <div className="mb-6">
-              <LexicalRenderer content={eventSubmissionPageData.description} />
+              <LexicalRenderer content={actionSubmissionPageData.description} />
             </div>
           )}
         </div>

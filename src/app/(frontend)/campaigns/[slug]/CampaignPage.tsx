@@ -2,14 +2,14 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import type { Campaign, Event, Media } from '@/payload-types'
+import type { Campaign, Action, Media } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import { projectStrings } from '@/project-strings'
 import Image from 'next/image'
-import { EventExplorer } from '../../components/EventExplorer'
+import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
-import { EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiatorFilter } from '@/collections/enums'
 import pluralize from 'pluralize'
 import Link from 'next/link'
 import { ArrowDownIcon } from 'lucide-react'
@@ -39,23 +39,23 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
 
   const campaign = page as Campaign
 
-  const events = page.events as Event[]
+  const actions = page.actions as Action[]
 
-  const earliestEvent = useMemo(() => {
-    return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
-  }, [events])
+  const earliestAction = useMemo(() => {
+    return actions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
+  }, [actions])
 
-  const latestEvent = useMemo(() => {
-    return events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
-  }, [events])
+  const latestAction = useMemo(() => {
+    return actions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+  }, [actions])
 
   const sameYear = useMemo(() => {
-    return isSameYear(earliestEvent.date, latestEvent.date)
-  }, [earliestEvent, latestEvent])
+    return isSameYear(earliestAction.date, latestAction.date)
+  }, [earliestAction, latestAction])
 
   const sameMonth = useMemo(() => {
-    return isSameMonth(earliestEvent.date, latestEvent.date)
-  }, [earliestEvent, latestEvent])
+    return isSameMonth(earliestAction.date, latestAction.date)
+  }, [earliestAction, latestAction])
 
   return (
     <div>
@@ -80,26 +80,26 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
                 <div className="font-mono uppercase text-sm opacity-50 text-center">
                   <span>
                     {format(
-                      earliestEvent.date,
+                      earliestAction.date,
                       sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy',
                     )}{' '}
-                    &rarr; {format(latestEvent.date, 'dd MMM yyyy')}
+                    &rarr; {format(latestAction.date, 'dd MMM yyyy')}
                   </span>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold font-identity text-center">
                   {page.name}
                 </h1>
-                {/* Count of events */}
+                {/* Count of actions */}
                 <div
                   className="mt-4 opacity-50 hover:opacity-100 transition-opacity duration-300 text-center cursor-pointer flex items-center justify-center gap-1 font-mono text-sm uppercase"
                   onClick={() => {
-                    const eventsElement = document.getElementById('events')
-                    if (eventsElement) {
-                      eventsElement.scrollIntoView({ behavior: 'smooth' })
+                    const actionsElement = document.getElementById('actions')
+                    if (actionsElement) {
+                      actionsElement.scrollIntoView({ behavior: 'smooth' })
                     }
                   }}
                 >
-                  <span>{pluralize('event', events.length, true)}</span>
+                  <span>{pluralize('action', actions.length, true)}</span>
                   <ArrowDownIcon className="w-4 h-4 inline-block" />
                 </div>
               </header>
@@ -122,17 +122,17 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
         </article>
       )}
 
-      <div className="bg-background relative" id="events">
-        <EventExplorer
+      <div className="bg-background relative" id="actions">
+        <ActionExplorer
           graphs={false}
           overrideDefaultZoomLevel={ZoomLevel.Timeline}
-          eventFilterContextProps={{
-            overrideFilteredInitiator: EventInitiatorFilter.ALL,
+          actionFilterContextProps={{
+            overrideFilteredInitiator: ActionInitiatorFilter.ALL,
           }}
-          events={events}
+          actions={actions}
           linkStyle="hard"
-          timelineBy={page.highlightedEventAttribute || 'categories'}
-          eventFilterProps={{
+          timelineBy={page.highlightedActionAttribute || 'categories'}
+          actionFilterProps={{
             campaigns: false,
             years: false,
             initiators: false,

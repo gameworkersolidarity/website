@@ -1,69 +1,76 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { useEventFilterContext } from './EventFilterContextProvider'
+import { useActionFilterContext } from './ActionFilterContextProvider'
 import { getCSSVariable } from '@/utils/css'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
-import { EventInitiatorFilter } from '@/collections/enums'
-import { Category, Event } from '@/payload-types'
+import { ActionInitiatorFilter } from '@/collections/enums'
+import { Category, Action } from '@/payload-types'
 import { Map } from './Map/Map'
 import { twMerge } from 'tailwind-merge'
 import { FrequencyChart } from './FrequencyChart'
 import { getYear } from 'date-fns'
 
-export function EventStats({ color, graphs = true }: { color?: string; graphs?: boolean }) {
+export function ActionStats({ color, graphs = true }: { color?: string; graphs?: boolean }) {
   const [elementRef, size] = useElementSize()
-  const { filteredEvents, filteredInitiator, filteredYear, setYearFilter } = useEventFilterContext()
+  const { filteredActions, filteredInitiator, filteredYear, setYearFilter } =
+    useActionFilterContext()
 
-  const workerEventsFilter = useCallback(
-    (event: Event) => event.initiator === EventInitiatorFilter.WORKER_LED,
+  const workerActionsFilter = useCallback(
+    (action: Action) => action.initiator === ActionInitiatorFilter.WORKER_LED,
     [],
   )
 
   const redundancyFilter = useCallback(
-    (event: Event) =>
-      (event.initiator === EventInitiatorFilter.BOSS_LED &&
-        event.categories?.some((category) => (category as Category).name === 'Redundancy')) ||
+    (action: Action) =>
+      (action.initiator === ActionInitiatorFilter.BOSS_LED &&
+        action.categories?.some((category) => (category as Category).name === 'Redundancy')) ||
       false,
     [],
   )
 
-  const otherEventsFilter = useCallback(
-    (event: Event) => event.initiator === EventInitiatorFilter.OTHER,
+  const otherActionsFilter = useCallback(
+    (action: Action) => action.initiator === ActionInitiatorFilter.OTHER,
     [],
   )
 
-  const extraFilteredEvents = useMemo(() => {
-    if (filteredInitiator === EventInitiatorFilter.BOSS_LED) {
-      return filteredEvents.filter(redundancyFilter)
-    } else if (filteredInitiator === EventInitiatorFilter.WORKER_LED) {
-      return filteredEvents.filter(workerEventsFilter)
-    } else if (filteredInitiator === EventInitiatorFilter.OTHER) {
-      return filteredEvents.filter(otherEventsFilter)
+  const extraFilteredActions = useMemo(() => {
+    if (filteredInitiator === ActionInitiatorFilter.BOSS_LED) {
+      return filteredActions.filter(redundancyFilter)
+    } else if (filteredInitiator === ActionInitiatorFilter.WORKER_LED) {
+      return filteredActions.filter(workerActionsFilter)
+    } else if (filteredInitiator === ActionInitiatorFilter.OTHER) {
+      return filteredActions.filter(otherActionsFilter)
     } else {
-      return filteredEvents
+      return filteredActions
     }
-  }, [filteredEvents, workerEventsFilter, redundancyFilter, otherEventsFilter, filteredInitiator])
+  }, [
+    filteredActions,
+    workerActionsFilter,
+    redundancyFilter,
+    otherActionsFilter,
+    filteredInitiator,
+  ])
 
-  const { filteredCountryISOA2, setCountryISOA2Filter } = useEventFilterContext()
+  const { filteredCountryISOA2, setCountryISOA2Filter } = useActionFilterContext()
 
   const earliestYear = useMemo(() => {
-    if (!extraFilteredEvents?.length) {
+    if (!extraFilteredActions?.length) {
       return 2025
     }
-    return Math.min(...extraFilteredEvents.map((event) => getYear(new Date(event.date))))
-  }, [extraFilteredEvents])
+    return Math.min(...extraFilteredActions.map((action) => getYear(new Date(action.date))))
+  }, [extraFilteredActions])
 
   const statsCount = !graphs
     ? 0
-    : filteredInitiator === EventInitiatorFilter.WORKER_LED
+    : filteredInitiator === ActionInitiatorFilter.WORKER_LED
       ? 1
-      : filteredInitiator === EventInitiatorFilter.BOSS_LED
+      : filteredInitiator === ActionInitiatorFilter.BOSS_LED
         ? 1
         : 2
 
-  const onMouseEvent = useCallback(
-    (value: any, event: MouseEvent) => {
+  const onMouseInteraction = useCallback(
+    (value: any, mouseEvent: MouseEvent) => {
       const date = value && Array.isArray(value) ? value[0]?.date : null
       if (date) {
         const year = getYear(new Date(date))
@@ -88,9 +95,9 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
         <Map
           countryFilter={filteredCountryISOA2}
           onSelectCountry={setCountryISOA2Filter}
-          data={extraFilteredEvents}
+          data={extraFilteredActions}
           colorRange={
-            filteredInitiator === EventInitiatorFilter.BOSS_LED
+            filteredInitiator === ActionInitiatorFilter.BOSS_LED
               ? [
                   getCSSVariable(`--color-orange-50`, true),
                   getCSSVariable(`--color-orange-200`, true),
@@ -106,35 +113,35 @@ export function EventStats({ color, graphs = true }: { color?: string; graphs?: 
       </div>
       {graphs && (
         <>
-          {(filteredInitiator === EventInitiatorFilter.WORKER_LED ||
+          {(filteredInitiator === ActionInitiatorFilter.WORKER_LED ||
             !filteredInitiator ||
-            filteredInitiator === EventInitiatorFilter.ALL) && (
+            filteredInitiator === ActionInitiatorFilter.ALL) && (
             <div className="px-4 mb-4">
               <h2 className="text-xl font-bold font-identity mb-2">Worker actions</h2>
               <div ref={elementRef} className="h-full w-full">
                 <FrequencyChart
                   size={size}
-                  eventFilter={workerEventsFilter}
+                  actionFilter={workerActionsFilter}
                   color={color || getCSSVariable(`--color-gw-blue`, true)}
                   minYear={earliestYear}
-                  // onMouseEvent={onMouseEvent}
+                  // onMouseInteraction={onMouseInteraction}
                 />
               </div>
             </div>
           )}
-          {(filteredInitiator === EventInitiatorFilter.BOSS_LED ||
+          {(filteredInitiator === ActionInitiatorFilter.BOSS_LED ||
             !filteredInitiator ||
-            filteredInitiator === EventInitiatorFilter.ALL) && (
+            filteredInitiator === ActionInitiatorFilter.ALL) && (
             <div className="px-4 mb-4">
               <h2 className="text-xl font-bold font-identity mb-2">Redundancies</h2>
               <div ref={elementRef} className="h-full w-full">
                 <FrequencyChart
                   size={size}
                   countBy="headcount"
-                  eventFilter={redundancyFilter}
+                  actionFilter={redundancyFilter}
                   color={getCSSVariable(`--color-gw-orange`, true)}
                   minYear={earliestYear}
-                  // onMouseEvent={onMouseEvent}
+                  // onMouseInteraction={onMouseInteraction}
                 />
               </div>
             </div>

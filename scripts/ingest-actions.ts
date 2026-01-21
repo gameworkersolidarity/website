@@ -11,8 +11,8 @@ import env from 'env-var'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { writeFile, unlink } from 'fs/promises'
-import { BlogPost, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
-import { EventInitiator } from '@/collections/enums'
+import { BlogPost, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
+import { ActionInitiator } from '@/collections/enums'
 import { htmlToLexical } from '@/utils/htmlToLexical'
 
 interface AirtableRecord {
@@ -438,7 +438,7 @@ async function migrateOrganisingGroups(payload: any) {
 }
 
 async function migrateSolidarityActions(payload: any) {
-  console.log('\n📂 Migrating Solidarity Actions from Airtable to Events...')
+  console.log('\n📂 Migrating Solidarity Actions from Airtable to Actions...')
   const base = airtableBase()
   const tableName = env
     .get('AIRTABLE_SOLIDARITY_ACTIONS_TABLE')
@@ -494,10 +494,10 @@ async function migrateSolidarityActions(payload: any) {
         }
       }
 
-      // Check if event already exists (same title + date)
+      // Check if action already exists (same title + date)
       try {
         const existing = await payload.find({
-          collection: 'events',
+          collection: 'actions',
           where: {
             and: [{ title: { equals: name } }, { date: { equals: date } }],
           },
@@ -505,7 +505,7 @@ async function migrateSolidarityActions(payload: any) {
         })
 
         if (existing.docs.length > 0) {
-          console.log(`✓ Event "${name}" already exists, skipping`)
+          console.log(`✓ Action "${name}" already exists, skipping`)
           stats.solidarityActions.skipped++
           solidarityActionIdMap.set(record.id, existing.docs[0].id)
           continue
@@ -514,8 +514,8 @@ async function migrateSolidarityActions(payload: any) {
         // If lookup fails, continue anyway
       }
 
-      // Create event data from solidarity action
-      const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
+      // Create action data from solidarity action
+      const actionData: Omit<Action, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         slug: record.fields.Slug as string,
         airtableId: record.id,
         name: name,
@@ -526,20 +526,20 @@ async function migrateSolidarityActions(payload: any) {
         companies: companyIds.length > 0 ? companyIds : undefined,
         organisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
         categories: categoryIds.length > 0 ? categoryIds : undefined,
-        initiator: EventInitiator.WORKER_LED,
+        initiator: ActionInitiator.WORKER_LED,
       }
 
       try {
         const result = await payload.create({
-          collection: 'events',
-          data: eventData,
+          collection: 'actions',
+          data: actionData,
         })
 
         solidarityActionIdMap.set(record.id, result.id)
         stats.solidarityActions.created++
-        console.log(`✓ Created event from solidarity action: ${name}`)
+        console.log(`✓ Created action from solidarity action: ${name}`)
       } catch (error) {
-        console.error(`✗ Error creating event from solidarity action ${name}:`, error)
+        console.error(`✗ Error creating action from solidarity action ${name}:`, error)
         stats.solidarityActions.skipped++
       }
     }

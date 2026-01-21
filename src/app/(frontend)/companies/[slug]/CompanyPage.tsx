@@ -2,7 +2,7 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import type { Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import type { Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
@@ -14,9 +14,9 @@ import { getSlug } from '@/utils/payloadPath'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { Building } from 'lucide-react'
 import { CountryLabel } from '@/components/CountryLabel'
-import { EventExplorer } from '../../components/EventExplorer'
+import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
-import { EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiatorFilter } from '@/collections/enums'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
@@ -24,13 +24,13 @@ import pluralize from 'pluralize'
 export function CompanyPage({
   initialCompany,
   descendants,
-  events,
+  actions,
   organisingGroups,
   countries,
 }: {
   initialCompany: Company
   descendants: ArchiveBreadcrumb[] | null
-  events: Event[]
+  actions: Action[]
   organisingGroups: OrganisingGroup[]
   countries: Country[]
 }) {
@@ -133,18 +133,18 @@ export function CompanyPage({
         </article>
       </div>
 
-      <EventExplorer
+      <ActionExplorer
         showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
-        eventFilterContextProps={{
+        actionFilterContextProps={{
           overrideFilteredCompanySlug: getSlug('companies', page),
-          overrideFilteredInitiator: EventInitiatorFilter.ALL,
+          overrideFilteredInitiator: ActionInitiatorFilter.ALL,
         }}
-        events={events}
+        actions={actions}
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="categories"
-        eventFilterProps={{
+        actionFilterProps={{
           companies: false,
           years: false,
           campaigns: false,

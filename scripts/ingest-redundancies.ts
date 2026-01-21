@@ -3,8 +3,8 @@ import { compareTwoStrings } from 'string-similarity'
 import * as fs from 'fs'
 import * as path from 'path'
 import config from '../src/payload.config'
-import { EventInitiator } from '@/collections/enums'
-import { Company, Event } from '@/payload-types'
+import { ActionInitiator } from '@/collections/enums'
+import { Company, Action } from '@/payload-types'
 import { slugify } from 'payload/shared'
 import { payloadGetOrCreateModel } from '@/utils/payloadServer'
 import { htmlToLexical } from '@/utils/htmlToLexical'
@@ -283,12 +283,14 @@ async function getOrCreateCompany(
   }
 }
 
-// Process redundancies from CSV and create Events
+// Process redundancies from CSV and create Actions
 async function processRedundancies(
   filePath: string,
   payload: Awaited<ReturnType<typeof getPayload>>,
 ) {
-  console.log(`\n📂 Processing redundancies from ${path.basename(filePath)} and creating Events...`)
+  console.log(
+    `\n📂 Processing redundancies from ${path.basename(filePath)} and creating Actions...`,
+  )
 
   const rows = parseCsv(filePath)
   console.log(`\n📊 Found ${rows.length} redundancy records to process`)
@@ -390,25 +392,25 @@ async function processRedundancies(
       // Try to continue with original date string
     }
 
-    // Check if event already exists (same title + date)
-    const eventTitle = `Redundancies at ${studioName}`
-    console.log(`  🔍 Checking for existing event...`)
+    // Check if action already exists (same title + date)
+    const actionTitle = `Redundancies at ${studioName}`
+    console.log(`  🔍 Checking for existing action...`)
     const existing = await payload.find({
-      collection: 'events',
+      collection: 'actions',
       where: {
-        and: [{ name: { equals: eventTitle } }, { date: { equals: normalizedDate } }],
+        and: [{ name: { equals: actionTitle } }, { date: { equals: normalizedDate } }],
       },
       limit: 1,
     })
 
     if (existing.docs.length > 0) {
       console.log(
-        `  ⏭️  Skipping duplicate: ${eventTitle} on ${normalizedDate} (found existing: ${existing.docs[0].id})`,
+        `  ⏭️  Skipping duplicate: ${actionTitle} on ${normalizedDate} (found existing: ${existing.docs[0].id})`,
       )
       stats.skipped++
       continue
     }
-    console.log(`  ✓ No existing event found, proceeding...`)
+    console.log(`  ✓ No existing action found, proceeding...`)
 
     // Parse headcount
     let headcount: number | undefined
@@ -511,7 +513,7 @@ async function processRedundancies(
     if (companyId) {
       companyIds.push(companyId.id.toString())
     }
-    // Note: Parent companies are linked via the company's Parents relationship, not added to event
+    // Note: Parent companies are linked via the company's Parents relationship, not added to action
 
     // Collect country IDs
     const countryIds: string[] = []
@@ -520,46 +522,46 @@ async function processRedundancies(
     }
 
     // Determine location (prefer studio location, fallback to parent location)
-    const eventLocation =
+    const actionLocation =
       row['Studio Location']?.trim() || row['Parent Location']?.trim() || undefined
 
-    // Create event record
-    const eventData: Omit<Event, 'id' | 'updatedAt' | 'createdAt'> = {
-      name: eventTitle,
-      slug: slugify(eventTitle) || eventTitle,
+    // Create action record
+    const actionData: Omit<Action, 'id' | 'updatedAt' | 'createdAt'> = {
+      name: actionTitle,
+      slug: slugify(actionTitle) || actionTitle,
       date: normalizedDate,
       headcount: headcount || undefined,
-      location: eventLocation,
+      location: actionLocation,
       description: await htmlToLexical(descriptionText),
       source: 'https://publish.obsidian.md/vg-layoffs/Archive/2025',
       companies: companyIds.length > 0 ? companyIds : undefined,
       countries: countryIds.length > 0 ? countryIds : undefined,
-      initiator: EventInitiator.BOSS_LED,
+      initiator: ActionInitiator.BOSS_LED,
       categories: [REDUNDANCY_CATEGORY.id],
     }
 
-    console.log(`  💾 Creating event record with data:`, {
-      name: eventData.name,
-      date: eventData.date,
-      headcount: eventData.headcount,
-      location: eventData.location,
+    console.log(`  💾 Creating action record with data:`, {
+      name: actionData.name,
+      date: actionData.date,
+      headcount: actionData.headcount,
+      location: actionData.location,
       companyIds: companyIds.length > 0 ? companyIds : 'none',
       countryIds: countryIds.length > 0 ? countryIds : 'none',
     })
 
     try {
       const created = await payload.create({
-        collection: 'events',
-        data: eventData,
+        collection: 'actions',
+        data: actionData,
       })
 
       stats.created++
       console.log(
-        `  ✅ Successfully created event (ID: ${created.id}): ${eventTitle} (${headcount || 'unknown'} affected) - ${normalizedDate}`,
+        `  ✅ Successfully created action (ID: ${created.id}): ${actionTitle} (${headcount || 'unknown'} affected) - ${normalizedDate}`,
       )
     } catch (error: any) {
       console.error(`  ❌ Error processing row ${i + 1}:`, error.message)
-      console.error(JSON.stringify({ eventData }, null, 2))
+      console.error(JSON.stringify({ actionData }, null, 2))
       console.error(`  Error details:`, error)
       if (error.stack) {
         console.error(`  Stack trace:`, error.stack)
@@ -608,7 +610,7 @@ async function processRedundancies(
 
 // Main function
 async function main() {
-  console.log('🚀 Starting redundancy ingestion (creating Events)...\n')
+  console.log('🚀 Starting redundancy ingestion (creating Actions)...\n')
   console.log(`Working directory: ${process.cwd()}`)
 
   console.log('\n📦 Initializing Payload...')
@@ -619,13 +621,13 @@ async function main() {
   // Verify collections exist
   console.log('\n🔍 Verifying collections...')
   try {
-    const eventsCheck = await payload.find({
-      collection: 'events',
+    const actionsCheck = await payload.find({
+      collection: 'actions',
       limit: 1,
     })
-    console.log(`✓ Events collection accessible (existing records: ${eventsCheck.totalDocs})`)
+    console.log(`✓ Actions collection accessible (existing records: ${actionsCheck.totalDocs})`)
   } catch (error: any) {
-    console.error(`✗ Error accessing events collection:`, error.message)
+    console.error(`✗ Error accessing actions collection:`, error.message)
   }
 
   try {

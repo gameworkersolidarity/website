@@ -2,40 +2,40 @@
 
 import React, { useMemo } from 'react'
 import Link from 'next/link'
-import type { Event } from '@/payload-types'
+import type { Action } from '@/payload-types'
 
-interface TimelineEvent {
+interface TimelineAction {
   id?: string
-  event: number | Event
-  parentEvent?: number | Event | null
+  action: number | Action
+  parentAction?: number | Action | null
   linkType?: 'strong' | 'weak' | 'none' | null
   linkDescription?: string | null
   displayOrder?: number | null
 }
 
 interface CampaignTimelineProps {
-  timelineEvents: TimelineEvent[]
+  timelineActions: TimelineAction[]
 }
 
 interface TimelineNode {
-  event: Event
+  action: Action
   linkType: 'strong' | 'weak' | 'none'
   linkDescription?: string | null
   children: TimelineNode[]
 }
 
-export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
+export function CampaignTimeline({ timelineActions }: CampaignTimelineProps) {
   // Build hierarchical tree structure
   const timelineTree = useMemo(() => {
-    // First, resolve all events (convert IDs to objects)
-    const eventMap = new Map<number | string, Event>()
-    const nodes: Array<{ timelineEvent: TimelineEvent; event: Event | null }> = []
+    // First, resolve all actions (convert IDs to objects)
+    const eventMap = new Map<number | string, Action>()
+    const nodes: Array<{ timelineAction: TimelineAction; action: Action | null }> = []
 
-    timelineEvents.forEach((timelineEvent) => {
-      const event = typeof timelineEvent.event === 'object' ? timelineEvent.event : null
-      if (event) {
-        eventMap.set(event.id, event)
-        nodes.push({ timelineEvent, event })
+    timelineActions.forEach((timelineAction) => {
+      const action = typeof timelineAction.action === 'object' ? timelineAction.action : null
+      if (action) {
+        eventMap.set(action.id, action)
+        nodes.push({ timelineAction, action })
       }
     })
 
@@ -44,34 +44,34 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
     const rootNodes: TimelineNode[] = []
 
     // First pass: create all nodes
-    nodes.forEach(({ timelineEvent, event }) => {
-      if (!event) return
+    nodes.forEach(({ timelineAction, action }) => {
+      if (!action) return
 
       const node: TimelineNode = {
-        event,
-        linkType: (timelineEvent.linkType || 'none') as 'strong' | 'weak' | 'none',
-        linkDescription: timelineEvent.linkDescription,
+        action,
+        linkType: (timelineAction.linkType || 'none') as 'strong' | 'weak' | 'none',
+        linkDescription: timelineAction.linkDescription,
         children: [],
       }
-      nodeMap.set(event.id, node)
+      nodeMap.set(action.id, node)
     })
 
     // Second pass: build parent-child relationships
-    nodes.forEach(({ timelineEvent, event }) => {
-      if (!event) return
-      const node = nodeMap.get(event.id)
+    nodes.forEach(({ timelineAction, action }) => {
+      if (!action) return
+      const node = nodeMap.get(action.id)
       if (!node) return
 
-      const parentEvent =
-        typeof timelineEvent.parentEvent === 'object'
-          ? timelineEvent.parentEvent
-          : timelineEvent.parentEvent && eventMap.get(timelineEvent.parentEvent)
-            ? eventMap.get(timelineEvent.parentEvent)!
+      const parentAction =
+        typeof timelineAction.parentAction === 'object'
+          ? timelineAction.parentAction
+          : timelineAction.parentAction && eventMap.get(timelineAction.parentAction)
+            ? eventMap.get(timelineAction.parentAction)!
             : null
 
-      if (parentEvent && parentEvent.id !== event.id) {
+      if (parentAction && parentAction.id !== action.id) {
         // Avoid self-referential parents
-        const parentNode = nodeMap.get(parentEvent.id)
+        const parentNode = nodeMap.get(parentAction.id)
         if (parentNode) {
           parentNode.children.push(node)
         } else {
@@ -87,19 +87,19 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
     // Sort children by date
     const sortNode = (node: TimelineNode) => {
       node.children.sort((a, b) => {
-        return new Date(a.event.date).getTime() - new Date(b.event.date).getTime()
+        return new Date(a.action.date).getTime() - new Date(b.action.date).getTime()
       })
       node.children.forEach(sortNode)
     }
 
     rootNodes.forEach(sortNode)
-    rootNodes.sort((a, b) => new Date(a.event.date).getTime() - new Date(b.event.date).getTime())
+    rootNodes.sort((a, b) => new Date(a.action.date).getTime() - new Date(b.action.date).getTime())
 
     return rootNodes
-  }, [timelineEvents])
+  }, [timelineActions])
 
   const renderNode = (node: TimelineNode, level: number = 0): React.ReactNode => {
-    const date = new Date(node.event.date)
+    const date = new Date(node.action.date)
     const formattedDate = date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
@@ -113,7 +113,7 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
       node.linkType === 'strong' ? 'solid' : node.linkType === 'weak' ? 'dashed' : 'solid'
 
     return (
-      <div key={node.event.id} style={{ marginLeft: `${level * 2}rem`, marginBottom: '1.5rem' }}>
+      <div key={node.action.id} style={{ marginLeft: `${level * 2}rem`, marginBottom: '1.5rem' }}>
         <div
           style={{
             padding: '1rem',
@@ -135,8 +135,8 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
             <span style={{ fontSize: '0.875rem', color: '#666', fontWeight: '500' }}>
               {formattedDate}
             </span>
-            {node.event.location && (
-              <span style={{ fontSize: '0.875rem', color: '#888' }}>• {node.event.location}</span>
+            {node.action.location && (
+              <span style={{ fontSize: '0.875rem', color: '#888' }}>• {node.action.location}</span>
             )}
             {node.linkType !== 'none' && (
               <span
@@ -157,9 +157,9 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
             )}
           </div>
 
-          {node.event.slug ? (
+          {node.action.slug ? (
             <Link
-              href={`/events/${node.event.slug}`}
+              href={`/actions/${node.action.slug}`}
               style={{
                 fontSize: '1.125rem',
                 fontWeight: '600',
@@ -168,11 +168,11 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
                 textDecoration: 'none',
               }}
             >
-              {node.event.name}
+              {node.action.name}
             </Link>
           ) : (
             <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-              {node.event.name}
+              {node.action.name}
             </h4>
           )}
 
@@ -191,9 +191,9 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
             </p>
           )}
 
-          {node.event.link && (
+          {node.action.link && (
             <a
-              href={node.event.link}
+              href={node.action.link}
               target="_blank"
               rel="noopener noreferrer"
               style={{ fontSize: '0.875rem', color: '#4A90E2', textDecoration: 'none' }}
@@ -215,7 +215,7 @@ export function CampaignTimeline({ timelineEvents }: CampaignTimelineProps) {
   if (timelineTree.length === 0) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
-        No timeline events available.
+        No timeline actions available.
       </div>
     )
   }

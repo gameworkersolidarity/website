@@ -106,12 +106,12 @@ export const Companies: CollectionConfig = {
       },
     },
     {
-      name: 'events',
+      name: 'actions',
       type: 'join',
-      collection: 'events',
+      collection: 'actions',
       on: 'companies',
       admin: {
-        description: 'Events associated with this company.',
+        description: 'Actions associated with this company.',
       },
     },
     {

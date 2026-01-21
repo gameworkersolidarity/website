@@ -1,4 +1,4 @@
-import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiator, ActionInitiatorFilter } from '@/collections/enums'
 import { projectStrings } from '@/project-strings'
 import { SortingState } from '@tanstack/react-table'
 import { atom, useAtom } from 'jotai'
@@ -20,7 +20,7 @@ export const sortOrderAtom = atomWithStorage<SortingState>('sortOrder', [
   },
 ])
 
-export enum EventFilterKey {
+export enum ActionFilterKey {
   Country = 'country',
   Category = 'category',
   Company = 'company',
@@ -36,13 +36,13 @@ export const categoryFilterAtom = atom<string[] | null>(null)
 export const companyFilterAtom = atom<string[] | null>(null)
 export const organisingGroupFilterAtom = atom<string[] | null>(null)
 export const campaignFilterAtom = atom<string[] | null>(null)
-export const initiatorFilterAtom = atom<EventInitiatorFilter | null>(
-  EventInitiatorFilter.WORKER_LED,
+export const initiatorFilterAtom = atom<ActionInitiatorFilter | null>(
+  ActionInitiatorFilter.WORKER_LED,
 )
 export const yearFilterAtom = atom<string[] | null>(null)
 
 export function getFilterPath(
-  filter: { [key in EventFilterKey]?: string | number },
+  filter: { [key in ActionFilterKey]?: string | number },
   keepExistingQuery: boolean = true,
   keepExistingPath: boolean = false,
 ) {
@@ -107,7 +107,7 @@ export function useCampaignFilter(override?: string | string[] | null) {
   return [campaign, setCampaign] as const
 }
 
-export function useInitiatorFilter(override?: EventInitiatorFilter | null) {
+export function useInitiatorFilter(override?: ActionInitiatorFilter | null) {
   const [initiator, setInitiator] = useAtom(initiatorFilterAtom)
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }

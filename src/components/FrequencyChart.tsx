@@ -1,7 +1,7 @@
 'use client'
 
-import { useEventFilterContext } from './EventFilterContextProvider'
-import { Event } from '@/payload-types'
+import { useActionFilterContext } from './ActionFilterContextProvider'
+import { Action } from '@/payload-types'
 import { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 const RenderPlot = dynamic(() => import('./Plot').then((mod) => mod.RenderPlot), { ssr: false })
@@ -13,37 +13,39 @@ import { formatDate, getYear } from 'date-fns'
 
 export function FrequencyChart({
   size,
-  eventFilter,
+  actionFilter,
   color,
   minYear,
   transformPlotConfig,
   highlightDate,
   highlightColor,
-  onMouseEvent,
-  countBy = 'events',
+  onMouseInteraction,
+  countBy = 'actions',
 }: {
   size: { width: number; height: number }
-  eventFilter?: (event: Event) => boolean
+  actionFilter?: (action: Action) => boolean
   color: string
   minYear?: number
-  countBy?: 'headcount' | 'events'
+  countBy?: 'headcount' | 'actions'
   transformPlotConfig?: (config: PlotOptions, plot: typeof Plot) => PlotOptions
   highlightDate?: Date
   highlightColor?: string
-  onMouseEvent?: PlotMouseEvent<any>
+  onMouseInteraction?: PlotMouseEvent<any>
 }) {
-  const { filteredEvents } = useEventFilterContext()
+  const { filteredActions } = useActionFilterContext()
 
-  const extraFilteredEvents = useMemo(() => {
-    return eventFilter ? filteredEvents.filter(eventFilter) : filteredEvents
-  }, [filteredEvents, eventFilter])
+  const extraFilteredActions = useMemo(() => {
+    return actionFilter ? filteredActions.filter(actionFilter) : filteredActions
+  }, [filteredActions, actionFilter])
 
   const dateFrom = useMemo(() => {
     if (minYear) {
       return new Date(minYear, 0, 1)
     }
-    return new Date(Math.min(...extraFilteredEvents.map((event) => new Date(event.date).getTime())))
-  }, [extraFilteredEvents, minYear])
+    return new Date(
+      Math.min(...extraFilteredActions.map((action) => new Date(action.date).getTime())),
+    )
+  }, [extraFilteredActions, minYear])
 
   const plotConfig = usePlotConfig(
     (Plot) => {
@@ -69,19 +71,19 @@ export function FrequencyChart({
               tickSize: 0,
             }),
             Plot.rectY(
-              extraFilteredEvents,
+              extraFilteredActions,
               Plot.binX(
                 {
                   y: countBy === 'headcount' ? 'sum' : 'count',
                 },
                 {
-                  x: (d: Event) => new Date(d.date),
+                  x: (d: Action) => new Date(d.date),
                   ...(countBy === 'headcount' ? { y: 'headcount' } : {}),
                   // y: countBy,
                   interval: Plot.utcInterval(`1 ${getDateInterval(domain)}`),
                   // @ts-expect-error - fill is, in fact, a valid property for BinXInputs
                   // fill: color,
-                  fill: (d: Event) => {
+                  fill: (d: Action) => {
                     try {
                       if (highlightDate && getYear(new Date(d.date)) === getYear(highlightDate)) {
                         return highlightColor
@@ -99,7 +101,7 @@ export function FrequencyChart({
             //   ? Plot.ruleX([new Date(highlightDate)], { stroke: highlightColor, strokeWidth: 3 })
             //   : null,
             // Plot.tip(
-            //   extraFilteredEvents,
+            //   extraFilteredActions,
             //   Plot.pointerX({
             //     x: (d) => new Date(d.date),
             //     y: 'initiator',
@@ -120,7 +122,7 @@ export function FrequencyChart({
       size.width,
       size.height,
       countBy,
-      extraFilteredEvents,
+      extraFilteredActions,
       dateFrom,
       color,
       highlightDate,
@@ -129,7 +131,7 @@ export function FrequencyChart({
     ],
   )
 
-  if (extraFilteredEvents.length === 0) {
+  if (extraFilteredActions.length === 0) {
     return (
       <div className="pt-5 w-full flex items-center justify-center">
         <p className="opacity-50 text-sm">No data</p>
@@ -137,5 +139,5 @@ export function FrequencyChart({
     )
   }
 
-  return <RenderPlot plot={plotConfig} onMouseEvent={onMouseEvent} />
+  return <RenderPlot plot={plotConfig} onMouseInteraction={onMouseInteraction} />
 }

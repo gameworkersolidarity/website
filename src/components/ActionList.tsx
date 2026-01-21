@@ -2,13 +2,13 @@
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { History, Newspaper, Rows2, Rows4 } from 'lucide-react'
-import { CompactEventList } from './CompactEventList'
-import { EventsList } from './EventCard'
+import { CompactActionList } from './CompactActionList'
+import { ActionsList } from './ActionCard'
 import { ZoomLevel } from '@/utils/global-state'
-import { useEventFilterContext } from './EventFilterContextProvider'
+import { useActionFilterContext } from './ActionFilterContextProvider'
 import pluralize from 'pluralize'
-import { EventTimeline } from './EventsTimeline'
-import { EventFilter, EventFilterProps } from '@/app/(frontend)/components/EventFilter'
+import { ActionTimeline } from './ActionsTimeline'
+import { ActionFilter, ActionFilterProps } from '@/app/(frontend)/components/ActionFilter'
 import { TimelineLabelProperty } from '@/global-types'
 
 export function ZoomlevelSelector({
@@ -42,13 +42,13 @@ export function ZoomlevelSelector({
   )
 }
 
-export function EventList({
+export function ActionList({
   linkStyle = 'hard',
   timelineBy,
   zoomLevel,
   setZoomLevel,
   showFilter,
-  eventFilterProps,
+  actionFilterProps,
 }: {
   linkStyle?: 'soft' | 'hard'
   timelineBy?: TimelineLabelProperty
@@ -56,9 +56,9 @@ export function EventList({
   setZoomLevel: (value: ZoomLevel) => void
   showFilter?: boolean
   hideYear?: boolean
-  eventFilterProps?: Partial<EventFilterProps>
+  actionFilterProps?: Partial<ActionFilterProps>
 }) {
-  const { filteredEvents: events, searchQuery } = useEventFilterContext()
+  const { filteredActions: actions, searchQuery } = useActionFilterContext()
 
   return (
     <div className="flex flex-col gap-2 @container">
@@ -66,7 +66,7 @@ export function EventList({
         <div className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 pb-2">
           <div className="flex flex-col gap-2">
             <h2 className="text-4xl lg:text-5xl font-bold font-identity">
-              {pluralize('event', events.length, true)}
+              {pluralize('action', actions.length, true)}
             </h2>
           </div>
           <ZoomlevelSelector
@@ -77,25 +77,25 @@ export function EventList({
         </div>
         {showFilter && (
           <div className="px-4 py-2 border-t border-b border-gray-200">
-            <EventFilter {...(eventFilterProps || {})} />
+            <ActionFilter {...(actionFilterProps || {})} />
           </div>
         )}
       </header>
       {zoomLevel === ZoomLevel.Compact ? (
         <div>
-          <CompactEventList events={events} linkStyle={linkStyle} searchQuery={searchQuery} />
+          <CompactActionList actions={actions} linkStyle={linkStyle} searchQuery={searchQuery} />
         </div>
       ) : zoomLevel === ZoomLevel.Preview ? (
         <div className="flex flex-col gap-4 px-4 pb-4">
-          <EventsList data={events} searchQuery={searchQuery} />
+          <ActionsList data={actions} searchQuery={searchQuery} />
         </div>
       ) : zoomLevel === ZoomLevel.Timeline ? (
         <div className="flex flex-col gap-4 px-4 pb-4">
-          <EventTimeline events={events} labelProperty={timelineBy} searchQuery={searchQuery} />
+          <ActionTimeline actions={actions} labelProperty={timelineBy} searchQuery={searchQuery} />
         </div>
       ) : (
         <div className="flex flex-col gap-8 px-4 pb-4">
-          <EventsList data={events} fullDisplay searchQuery={searchQuery} />
+          <ActionsList data={actions} fullDisplay searchQuery={searchQuery} />
         </div>
       )}
     </div>

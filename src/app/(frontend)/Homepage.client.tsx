@@ -1,23 +1,23 @@
 'use client'
 
-import { EventFilterContextProvider } from '@/components/EventFilterContextProvider'
-import { EventFilter } from './components/EventFilter'
-import { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import { ActionFilterContextProvider } from '@/components/ActionFilterContextProvider'
+import { ActionFilter } from './components/ActionFilter'
+import { Campaign, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { EventStats } from '@/components/EventStats'
-import { EventList } from '@/components/EventList'
+import { ActionStats } from '@/components/ActionStats'
+import { ActionList } from '@/components/ActionList'
 import { useState } from 'react'
 import { ZoomLevel } from '@/utils/global-state'
 
 export function HomepageClient({
-  events,
+  actions,
   countries,
   categories,
   companies,
   organisingGroups,
   campaigns,
 }: {
-  events: Event[]
+  actions: Action[]
   countries: Country[]
   categories: Category[]
   companies: Company[]
@@ -27,8 +27,8 @@ export function HomepageClient({
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.Preview)
 
   return (
-    <EventFilterContextProvider
-      events={events}
+    <ActionFilterContextProvider
+      actions={actions}
       countries={countries}
       categories={categories}
       companies={companies}
@@ -39,17 +39,17 @@ export function HomepageClient({
         <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
           <ResizablePanel defaultSize={40} className="hidden md:block">
             <div className="sticky top-6 h-[calc(100vh-60px)]">
-              <EventStats />
+              <ActionStats />
             </div>
           </ResizablePanel>
           <ResizableHandle className="hidden md:flex" />
           <ResizablePanel defaultSize={60}>
-            <EventList
+            <ActionList
               linkStyle="soft"
               zoomLevel={zoomLevel}
               setZoomLevel={setZoomLevel}
               showFilter
-              eventFilterProps={{
+              actionFilterProps={{
                 years: false,
                 campaigns: false,
               }}
@@ -57,6 +57,6 @@ export function HomepageClient({
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-    </EventFilterContextProvider>
+    </ActionFilterContextProvider>
   )
 }

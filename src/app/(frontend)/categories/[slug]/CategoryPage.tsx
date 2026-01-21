@@ -2,23 +2,23 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import type { Category, Event } from '@/payload-types'
+import type { Category, Action } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
 import { twMerge } from 'tailwind-merge'
 import { projectStrings } from '@/project-strings'
 import { getSlug } from '@/utils/payloadPath'
-import { EventInitiatorFilter } from '@/collections/enums'
-import { EventExplorer } from '../../components/EventExplorer'
+import { ActionInitiatorFilter } from '@/collections/enums'
+import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 
 export function CategoryPage({
   initialCategory,
-  events,
+  actions,
 }: {
   initialCategory: Category
-  events: Event[]
+  actions: Action[]
 }) {
   if (!initialCategory) notFound()
 
@@ -61,21 +61,21 @@ export function CategoryPage({
         )}
       </article>
 
-      <EventExplorer
+      <ActionExplorer
         showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
-        eventFilterContextProps={{
+        actionFilterContextProps={{
           overrideFilteredCategorySlug: getSlug('categories', page),
           overrideFilteredInitiator:
             getSlug('categories', page) === 'redundancy'
-              ? EventInitiatorFilter.BOSS_LED
-              : EventInitiatorFilter.WORKER_LED,
+              ? ActionInitiatorFilter.BOSS_LED
+              : ActionInitiatorFilter.WORKER_LED,
         }}
-        events={events}
+        actions={actions}
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="countries"
-        eventFilterProps={{
+        actionFilterProps={{
           categories: false,
           years: false,
           campaigns: false,

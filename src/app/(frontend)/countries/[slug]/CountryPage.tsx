@@ -2,7 +2,7 @@
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
-import type { Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import type { Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
@@ -11,21 +11,21 @@ import { projectStrings } from '@/project-strings'
 import { CountryLabel } from '@/components/CountryLabel'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
-import { EventExplorer } from '../../components/EventExplorer'
+import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
-import { EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiatorFilter } from '@/collections/enums'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
 
 export function CountryPage({
   initialCountry,
-  events,
+  actions,
   companies,
   organisingGroups,
 }: {
   initialCountry: Country
-  events: Event[]
+  actions: Action[]
   companies: Company[]
   organisingGroups: OrganisingGroup[]
 }) {
@@ -108,18 +108,18 @@ export function CountryPage({
         )}
       </article>
 
-      <EventExplorer
+      <ActionExplorer
         showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
-        eventFilterContextProps={{
+        actionFilterContextProps={{
           overrideFilteredCountryISOA2: page.isoA2,
-          overrideFilteredInitiator: EventInitiatorFilter.ALL,
+          overrideFilteredInitiator: ActionInitiatorFilter.ALL,
         }}
-        events={events}
+        actions={actions}
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="categories"
-        eventFilterProps={{
+        actionFilterProps={{
           countries: false,
           years: false,
           campaigns: false,

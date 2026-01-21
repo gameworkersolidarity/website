@@ -12,7 +12,7 @@ import { DateTime } from '@/components/DateTime'
 import {
   Category,
   Country,
-  Event,
+  Action,
   Media,
   OrganisingGroup,
   Company,
@@ -26,24 +26,24 @@ import { CountryLabel } from './CountryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CategoryLabel } from './CategoryLabel'
-import { EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiatorFilter } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { CampaignLabel } from './CampaignLabel'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { HighlightText } from './HighlightText'
-import { useEventFilterContext } from './EventFilterContextProvider'
+import { useActionFilterContext } from './ActionFilterContextProvider'
 
 // Helper component to highlight search terms in Lexical description
 function HighlightedDescription({
   content,
-  eventId,
+  actionId,
 }: {
-  content: NonNullable<Event['description']>
-  eventId: string
+  content: NonNullable<Action['description']>
+  actionId: string
 }) {
-  const { highlights } = useEventFilterContext()
-  const eventHighlights = highlights[eventId]
-  const descriptionRanges = eventHighlights?.description
+  const { highlights } = useActionFilterContext()
+  const actionHighlights = highlights[actionId]
+  const descriptionRanges = actionHighlights?.description
 
   try {
     const plainText = lexicalToPlainText(content)
@@ -58,7 +58,7 @@ function HighlightedDescription({
 }
 
 interface ListProps {
-  data: Event[]
+  data: Action[]
   withDialog?: boolean
   gridStyle?: string
   dialogProps?: Partial<DialogProps>
@@ -67,14 +67,14 @@ interface ListProps {
 }
 
 interface DialogProps {
-  selectedEvent?: Event
+  selectedAction?: Action
   returnHref?: string
   cardProps?: Partial<CardProps>
   key?: string
 }
 
 interface CardProps {
-  data: Event
+  data: Action
   contextProps?: Partial<ContextProps>
   displayStandaloneInfo?: boolean
   links?: 'soft' | boolean
@@ -107,8 +107,8 @@ const UpArrow = (
   </svg>
 )
 
-export function EventsList({
-  data: events,
+export function ActionsList({
+  data: actions,
   gridStyle = 'grid-cols-1',
   mini,
   fullDisplay = false,
@@ -117,25 +117,25 @@ export function EventsList({
   const [openYears, setOpenYears] = useState<string[]>([])
 
   const actionsByYear = useMemo(() => {
-    const group = (events || []).reduce(
+    const group = (actions || []).reduce(
       (bins, action) => {
         const key = `${getYear(new Date(action.date))}`
         bins[key] ??= []
         bins[key].push(action)
         return bins
       },
-      {} as { [key: string]: Event[] },
+      {} as { [key: string]: Action[] },
     )
 
     return Object.entries(group).sort(([year1, d], [year2, D]) => parseInt(year2) - parseInt(year1))
-  }, [events])
+  }, [actions])
 
   return (
     <>
       <div className={`grid gap-4 ${gridStyle}`}>
         {actionsByYear.map(([yearString, actions], i) => {
-          let hiddenActions = [] as Event[]
-          let shownActions = [] as Event[]
+          let hiddenActions = [] as Action[]
+          let shownActions = [] as Action[]
 
           let hasHiddenActions = false
 
@@ -169,9 +169,9 @@ export function EventsList({
                   // <Link key={action.id} href={action.path!} shallow>
                   <div key={action.id} className="transition group" id={action.slug}>
                     {fullDisplay ? (
-                      <EventCard data={action} links={'soft'} searchQuery={searchQuery} />
+                      <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
                     ) : (
-                      <EventItem data={action} links={'soft'} searchQuery={searchQuery} />
+                      <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
                     )}
                   </div>
                   // </Link>
@@ -181,9 +181,9 @@ export function EventsList({
                     // <Link key={action.id} href={action.path!}>
                     <div key={action.id} className="transition group" id={action.slug}>
                       {fullDisplay ? (
-                        <EventCard data={action} links={'soft'} searchQuery={searchQuery} />
+                        <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
                       ) : (
-                        <EventItem data={action} links={'soft'} searchQuery={searchQuery} />
+                        <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
                       )}
                     </div>
                     // </Link>
@@ -226,20 +226,20 @@ export function EventsList({
   )
 }
 
-export function EventItem({
+export function ActionItem({
   data,
   links,
   searchQuery,
 }: {
-  data: Event
+  data: Action
   links?: 'soft' | boolean
   searchQuery?: string
 }) {
-  const { highlights } = useEventFilterContext()
-  const eventHighlights = highlights[data.id]
-  const nameRanges = eventHighlights?.name
+  const { highlights } = useActionFilterContext()
+  const actionHighlights = highlights[data.id]
+  const nameRanges = actionHighlights?.name
   const hasDescriptionHighlights =
-    eventHighlights?.description && eventHighlights.description.length > 0
+    actionHighlights?.description && actionHighlights.description.length > 0
 
   const Wrapper = links
     ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
@@ -252,13 +252,13 @@ export function EventItem({
       style={{
         // @ts-expect-error - CSS variables are not typed
         '--glow-color':
-          data.initiator === EventInitiatorFilter.BOSS_LED
+          data.initiator === ActionInitiatorFilter.BOSS_LED
             ? 'var(--color-gw-orange)'
             : 'var(--color-gw-blue)',
       }}
       className={twMerge(
-        'event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
-        data.initiator === EventInitiatorFilter.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
+        'action-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
+        data.initiator === ActionInitiatorFilter.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
         data.featured && 'outline-2 outline-snot-400 outline-offset-2',
       )}
     >
@@ -276,7 +276,7 @@ export function EventItem({
                 className={twMerge('w-full text-lg font-light order-2 md:order-2 pt-1')}
               >
                 {hasDescriptionHighlights ? (
-                  <HighlightedDescription content={description} eventId={data.id} />
+                  <HighlightedDescription content={description} actionId={data.id} />
                 ) : (
                   <LexicalRenderer content={description} />
                 )}
@@ -355,7 +355,7 @@ export function DocumentLink({
   }
 }
 
-export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | boolean }) {
+export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | boolean }) {
   return (
     <div className="flex flex-wrap tracking-tight gap-4 gap-y-1">
       <span className="font-semibold">
@@ -392,9 +392,9 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
           ))}
         </div>
       )}
-      {!!data.initiator && data.initiator === EventInitiatorFilter.BOSS_LED && (
+      {!!data.initiator && data.initiator === ActionInitiatorFilter.BOSS_LED && (
         <div className="inline-flex flex-wrap gap-x-2">
-          <DisplayInitiator initiator={data.initiator as EventInitiatorFilter} link={link} />
+          <DisplayInitiator initiator={data.initiator as ActionInitiatorFilter} link={link} />
         </div>
       )}
       {!!data.organisingGroups?.length && (
@@ -412,17 +412,17 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
   )
 }
 
-export function EventCard({
+export function ActionCard({
   data,
   displayStandaloneInfo = false,
   links = true,
   searchQuery,
 }: CardProps) {
-  const { highlights } = useEventFilterContext()
-  const eventHighlights = highlights[data.id]
-  const nameRanges = eventHighlights?.name
+  const { highlights } = useActionFilterContext()
+  const actionHighlights = highlights[data.id]
+  const nameRanges = actionHighlights?.name
   const hasDescriptionHighlights =
-    eventHighlights?.description && eventHighlights.description.length > 0
+    actionHighlights?.description && actionHighlights.description.length > 0
   const [isPreviewMode, setIsPreviewMode] = useState(false)
 
   useEffect(() => {
@@ -470,7 +470,7 @@ export function EventCard({
                   className={twMerge('w-full text-lg font-light order-2 md:order-2')}
                 >
                   {hasDescriptionHighlights ? (
-                    <HighlightedDescription content={description} eventId={data.id} />
+                    <HighlightedDescription content={description} actionId={data.id} />
                   ) : (
                     <LexicalRenderer content={description} />
                   )}

@@ -3,7 +3,7 @@ import config from '@/payload.config'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import { LexicalRenderer } from '../components/LexicalRenderer'
-import type { Campaign, Event } from '@/payload-types'
+import type { Campaign, Action } from '@/payload-types'
 import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
 import { CampaignLabel } from '@/components/CampaignLabel'
@@ -112,10 +112,10 @@ export default async function CampaignsPage() {
 
   const campaigns = __campaigns.sort((a, b) => {
     const startA = Math.min(
-      ...(a.events as Event[])?.map((event) => new Date(event.date).getTime()),
+      ...(a.actions as Action[])?.map((action) => new Date(action.date).getTime()),
     )
     const startB = Math.min(
-      ...(b.events as Event[])?.map((event) => new Date(event.date).getTime()),
+      ...(b.actions as Action[])?.map((action) => new Date(action.date).getTime()),
     )
     return startA - startB
   })
@@ -149,12 +149,12 @@ export default async function CampaignsPage() {
                   <h2 className="text-2xl font-bold font-identity">
                     <CampaignLabel campaign={campaign} />
                   </h2>
-                  {campaign.events && campaign.events.length > 0 && (
+                  {campaign.actions && campaign.actions.length > 0 && (
                     <div className="flex flex-row gap-1">
-                      <DateTime date={(campaign.events[0] as Event).date} />
+                      <DateTime date={(campaign.actions[0] as Action).date} />
                       <span>to</span>
                       <DateTime
-                        date={(campaign.events[campaign.events.length - 1] as Event).date}
+                        date={(campaign.actions[campaign.actions.length - 1] as Action).date}
                       />
                     </div>
                   )}

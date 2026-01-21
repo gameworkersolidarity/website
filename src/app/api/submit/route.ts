@@ -10,24 +10,24 @@ export async function POST(request: NextRequest) {
 
     const data = await request.json()
 
-    // Ensure the event is saved as a draft
-    const eventData = {
+    // Ensure the action is saved as a draft
+    const actionData = {
       ...data,
       slug: `${slugify(data.date)}-${slugify(data.name)}`,
       _status: 'draft' as const,
     }
 
-    // Create the event
-    const event = await payload.create({
-      collection: 'events',
-      data: eventData,
+    // Create the action
+    const action = await payload.create({
+      collection: 'actions',
+      data: actionData,
       draft: true,
     })
 
     return NextResponse.json(
       {
         success: true,
-        id: event.id,
+        id: action.id,
         message: 'Action submitted successfully',
       },
       { status: 201 },

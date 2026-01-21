@@ -76,7 +76,7 @@ export default async function Page({ params }: Props) {
 
   // Query solidarity actions directly where this country is related
   const actionsResult = await payload.find({
-    collection: 'events',
+    collection: 'actions',
     where: {
       and: [
         {
@@ -101,13 +101,13 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const events = actionsResult.docs
+  const actions = actionsResult.docs
 
   // Extract unique companies from solidarity actions
   const companiesSet = new Map<string, Company>()
   const organisingGroupsSet = new Map<string, OrganisingGroup>()
 
-  events.forEach((action) => {
+  actions.forEach((action) => {
     if (action.companies && Array.isArray(action.companies)) {
       action.companies.forEach((company) => {
         if (
@@ -169,7 +169,7 @@ export default async function Page({ params }: Props) {
   return (
     <CountryPage
       initialCountry={country}
-      events={events}
+      actions={actions}
       companies={uniqueCompanies}
       organisingGroups={organisingGroups}
     />

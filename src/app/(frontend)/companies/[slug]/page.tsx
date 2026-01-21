@@ -79,8 +79,8 @@ export default async function Page({ params }: Props) {
   const descendants = await getDescendants('companies', getSlug('companies', company))
 
   // Query solidarity actions and redundancies directly where this company is related
-  const eventResults = await payload.find({
-    collection: 'events',
+  const actionResults = await payload.find({
+    collection: 'actions',
     where: {
       and: [
         {
@@ -105,16 +105,16 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const events = eventResults.docs
+  const actions = actionResults.docs
 
   const uniqueOrganisingGroups = Array.from(
-    new Set(events.flatMap((event) => event.organisingGroups as OrganisingGroup[])),
+    new Set(actions.flatMap((action) => action.organisingGroups as OrganisingGroup[])),
   )
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 
   const uniqueCountries = Array.from(
-    new Set(events.flatMap((event) => event.countries as Country[])),
+    new Set(actions.flatMap((action) => action.countries as Country[])),
   )
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -123,7 +123,7 @@ export default async function Page({ params }: Props) {
     <CompanyPage
       initialCompany={company}
       descendants={descendants.length > 1 ? descendants : null}
-      events={events}
+      actions={actions}
       organisingGroups={uniqueOrganisingGroups}
       countries={uniqueCountries}
     />

@@ -30,7 +30,7 @@ export default async function CompaniesPage() {
   const companiesWithData = await Promise.all(
     companiesResult.docs.map(async (company) => {
       const actionsResult = await payload.find({
-        collection: 'events',
+        collection: 'actions',
         where: {
           companies: {
             in: [company.id],

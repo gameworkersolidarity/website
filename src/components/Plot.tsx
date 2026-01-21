@@ -34,10 +34,10 @@ export function RenderPlot({
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleMouseEvent(event: Event) {
-      console.log('mouse event checker', (plot as any).value, event)
+    function handleMouseEvent(action: Event) {
+      console.log('mouse action checker', (plot as any).value, action)
       if (onMouseEvent && plot) {
-        onMouseEvent((plot as any).value, event as MouseEvent)
+        onMouseEvent((plot as any).value, action as MouseEvent)
       }
     }
 

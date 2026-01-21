@@ -1,7 +1,7 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
-import type { OrganisingGroup, Event, Company, Country } from '@/payload-types'
+import type { OrganisingGroup, Action, Company, Country } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { AdminEditBanner } from '@/components/Me'
 import chroma from 'chroma-js'
@@ -12,11 +12,11 @@ import { Descendants } from '../../components/Descendants'
 import { ArchiveBreadcrumb } from '@/utils/payloadTree'
 import { CountryLabel } from '@/components/CountryLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
-import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiator, ActionInitiatorFilter } from '@/collections/enums'
 import { Link2, Users } from 'lucide-react'
 import XOutlinedIcon from '@/components/X.com'
 import Image from 'next/image'
-import { EventExplorer } from '../../components/EventExplorer'
+import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
@@ -24,13 +24,13 @@ import pluralize from 'pluralize'
 
 export function OrganisingGroupPage({
   initialGroup,
-  events,
+  actions,
   companies,
   descendants,
   countries,
 }: {
   initialGroup: OrganisingGroup
-  events: Event[]
+  actions: Action[]
   companies: Company[]
   descendants?: ArchiveBreadcrumb[] | null
   countries?: Country[] | null
@@ -205,18 +205,18 @@ export function OrganisingGroupPage({
         </article>
       </div>
 
-      <EventExplorer
+      <ActionExplorer
         showFilter
         overrideDefaultZoomLevel={ZoomLevel.Timeline}
-        eventFilterContextProps={{
+        actionFilterContextProps={{
           overrideFilteredOrganisingGroupSlug: page.slug,
-          overrideFilteredInitiator: EventInitiatorFilter.WORKER_LED,
+          overrideFilteredInitiator: ActionInitiatorFilter.WORKER_LED,
         }}
-        events={events}
+        actions={actions}
         primaryColor={primaryColor}
         linkStyle="hard"
         timelineBy="categories"
-        eventFilterProps={{
+        actionFilterProps={{
           organisingGroups: false,
           years: false,
           campaigns: false,

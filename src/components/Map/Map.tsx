@@ -26,12 +26,12 @@ import {
 } from 'react'
 import Supercluster from 'supercluster'
 import { bboxToBounds, getViewportForFeatures } from '@/utils/geo'
-import { ActionMetadata } from '@/components/EventCard'
-import { Category, Country, Event } from '@/payload-types'
+import { ActionMetadata } from '@/components/ActionCard'
+import { Category, Country, Action } from '@/payload-types'
 import MapGL from '@urbica/react-map-gl'
 import { getCSSVariable } from '@/utils/css'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
-import { useEventFilterContext } from '../EventFilterContextProvider'
+import { useActionFilterContext } from '../ActionFilterContextProvider'
 import { getSlug } from '@/utils/payloadPath'
 import { twMerge } from 'tailwind-merge'
 
@@ -43,8 +43,8 @@ const defaultViewport = {
 
 const ViewportContext = createContext(defaultViewport)
 
-function createIdFromActions(events: Event[]) {
-  return events
+function createIdFromActions(actions: Action[]) {
+  return actions
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map(({ id }) => id)
     .join('-')
@@ -57,7 +57,7 @@ export function Map({
   countryFilter,
   ...initialViewport
 }: {
-  data: Event[]
+  data: Action[]
   width?: any
   height?: any
   onSelectCountry?: (iso2id: string[] | null) => void
@@ -75,8 +75,8 @@ export function Map({
   const displayStyle = 'detail'
 
   const countryCounts = useMemo(() => {
-    const counts = data.reduce((countries, event) => {
-      for (const code of event.countries || []) {
+    const counts = data.reduce((countries, action) => {
+      for (const code of action.countries || []) {
         const cc = (code as Country).isoA2
         countries[cc] ??= 0
         countries[cc]++
@@ -104,12 +104,12 @@ export function Map({
     null,
   )
 
-  function groupActionsByCountry(events: Event[]) {
-    const eventsWithSingleCountry = events.reduce((events, event) => {
-      event.countries?.forEach((_country, i) => {
+  function groupActionsByCountry(actions: Action[]) {
+    const actionsWithSingleCountry = actions.reduce((actions, action) => {
+      action.countries?.forEach((_country, i) => {
         const country = _country as Country
-        events.push(
-          merge(event, {
+        actions.push(
+          merge(action, {
             geography: {
               country: [country],
             },
@@ -119,13 +119,13 @@ export function Map({
               countrySlug: [getSlug('countries', country)],
               Country: [country],
             },
-          } as Partial<Event>),
+          } as Partial<Action>),
         )
       })
-      return events
-    }, [] as Event[])
+      return actions
+    }, [] as Action[])
 
-    return groupBy(eventsWithSingleCountry, (d) => {
+    return groupBy(actionsWithSingleCountry, (d) => {
       return (d.countries?.[0] as Country)?.isoA2
     })
   }
@@ -199,7 +199,7 @@ export function Map({
     calculateViewportForActions()
   }, [calculateViewportForActions, elementDimensions])
 
-  const { selectedPopupIds, setSelectedPopupIds } = useEventFilterContext()
+  const { selectedPopupIds, setSelectedPopupIds } = useActionFilterContext()
 
   useEffect(() => {
     mapRef.current?.getMap()?.resize()
@@ -244,13 +244,13 @@ export function Map({
               iso2id ? onSelectCountry?.(iso2id) : onSelectCountry?.(null)
             }
           />
-          {/* National events */}
+          {/* National actions */}
           {displayStyle === 'detail' &&
-            Object.entries(nationalActionsByCountryNoLocation).map(([isoA2, eventsUnlocated]) => {
-              const clusterMarkerId = createIdFromActions(eventsUnlocated)
+            Object.entries(nationalActionsByCountryNoLocation).map(([isoA2, actionsUnlocated]) => {
+              const clusterMarkerId = createIdFromActions(actionsUnlocated)
               if (
-                !eventsUnlocated[0].coordinates?.longitude ||
-                !eventsUnlocated[0].coordinates?.latitude
+                !actionsUnlocated[0].coordinates?.longitude ||
+                !actionsUnlocated[0].coordinates?.latitude
               ) {
                 return null
               }
@@ -258,21 +258,21 @@ export function Map({
                 <ClusterMarker
                   clusterMarkerId={clusterMarkerId}
                   key={clusterMarkerId}
-                  longitude={eventsUnlocated[0].coordinates?.longitude}
-                  latitude={eventsUnlocated[0].coordinates?.latitude}
-                  events={eventsUnlocated}
+                  longitude={actionsUnlocated[0].coordinates?.longitude}
+                  latitude={actionsUnlocated[0].coordinates?.latitude}
+                  actions={actionsUnlocated}
                   label={
                     <Emoji
-                      symbol={(eventsUnlocated[0].countries?.[0] as Country)?.emoji || ''}
-                      label={(eventsUnlocated[0].countries?.[0] as Country)?.name}
+                      symbol={(actionsUnlocated[0].countries?.[0] as Country)?.emoji || ''}
+                      label={(actionsUnlocated[0].countries?.[0] as Country)?.name}
                     />
                   }
                   isSelected={
                     !!(
-                      eventsUnlocated.length > 0 &&
+                      actionsUnlocated.length > 0 &&
                       selectedPopupIds &&
                       selectedPopupIds.length > 0 &&
-                      new Set(eventsUnlocated.map((e) => e.id)).difference(
+                      new Set(actionsUnlocated.map((e) => e.id)).difference(
                         new Set(selectedPopupIds),
                       ).size === 0
                     )
@@ -289,21 +289,21 @@ export function Map({
               extent={512}
               nodeSize={64}
               component={(cluster: any) => {
-                const events = _cluster.current?._cluster
+                const actions = _cluster.current?._cluster
                   .getLeaves(cluster.clusterId)
                   .map((p) => p.properties.props.data)
-                const clusterMarkerId = createIdFromActions(events || [])
+                const clusterMarkerId = createIdFromActions(actions || [])
 
                 return (
                   <ClusterMarker
                     clusterMarkerId={clusterMarkerId}
                     key={clusterMarkerId}
                     {...cluster}
-                    events={events}
+                    actions={actions}
                     isSelected={
-                      events &&
+                      actions &&
                       selectedPopupIds &&
-                      new Set(events?.map((e) => e.id) || []).difference(
+                      new Set(actions?.map((e) => e.id) || []).difference(
                         new Set(selectedPopupIds || []),
                       ).size === 0
                     }
@@ -327,10 +327,10 @@ export function Map({
   return el
 }
 
-function ActionSource({ data }: { data: Event[] }) {
+function ActionSource({ data }: { data: Action[] }) {
   return (
     <Source
-      id="events"
+      id="actions"
       type="geojson"
       data={{
         type: 'FeatureCollection',
@@ -374,7 +374,7 @@ const CountryLayer = ({
   countryFilter?: string[] | null
   onSelectCountry: (iso2id: string[] | null) => void
 }) => {
-  // const [event, setEvent] = useState<{ lng: number; lat: number }>()
+  // const [action, setAction] = useState<{ lng: number; lat: number }>()
   // const [hoverCountry, setHoverCountry] = useState<{
   //   color_group: number
   //   disputed: string
@@ -448,30 +448,30 @@ const CountryLayer = ({
         }}
       />
       <Layer
-        onClick={(event: MapMouseEvent) => {
-          const country = event.features?.[0]?.properties
+        onClick={(action: MapMouseEvent) => {
+          const country = action.features?.[0]?.properties
           if (country?.iso_3166_1) {
             if (countryFilter?.includes(country.iso_3166_1)) {
-              // setEvent(undefined)
+              // setAction(undefined)
               // setHoverCountry(undefined)
               onSelectCountry(
                 countryFilter?.filter((iso2id) => iso2id !== country.iso_3166_1) || null,
               )
             } else if (
               Object.keys(countryCounts).includes(country.iso_3166_1) &&
-              event.features?.[0]?.properties
+              action.features?.[0]?.properties
             ) {
               onSelectCountry([...(countryFilter || []), country.iso_3166_1])
             }
           }
         }}
-        onHover={(event: MapMouseEvent) => {
-          const country = event.features?.[0]?.properties
+        onHover={(action: MapMouseEvent) => {
+          const country = action.features?.[0]?.properties
           if (country && Object.keys(countryCounts).includes(country.iso_3166_1)) {
             map.getCanvas().style.cursor = 'pointer'
           }
         }}
-        onLeave={(event: MapMouseEvent) => {
+        onLeave={(action: MapMouseEvent) => {
           map.getCanvas().style.cursor = ''
         }}
         {...{
@@ -489,7 +489,7 @@ const CountryLayer = ({
   )
 }
 
-function getCoordinatesForAction(data: Event) {
+function getCoordinatesForAction(data: Action) {
   let geoData = {
     latitude: (data.countries?.[0] as Country)?.coordinates?.latitude,
     longitude: (data.countries?.[0] as Country)?.coordinates?.longitude,
@@ -503,19 +503,19 @@ function getCoordinatesForAction(data: Event) {
   return geoData
 }
 
-const MapMarker = ({ data, ...coords }: { data: Event; latitude: number; longitude: number }) => {
+const MapMarker = ({ data, ...coords }: { data: Action; latitude: number; longitude: number }) => {
   const router = useRouter()
 
   return (
     <Marker {...coords}>
       <div
         onMouseEnter={(e) => {
-          e.preventDefault()
+          e.practionDefault()
           e.stopPropagation()
           router.prefetch(data.path!)
         }}
         onClick={(e) => {
-          e.preventDefault()
+          e.practionDefault()
           e.stopPropagation()
           router.push(
             data.path!,
@@ -540,7 +540,7 @@ const MapMarker = ({ data, ...coords }: { data: Event; latitude: number; longitu
 const ClusterMarker = ({
   longitude,
   latitude,
-  events,
+  actions,
   label,
   isSelected,
   setSelectedPopupIds,
@@ -549,7 +549,7 @@ const ClusterMarker = ({
   clusterMarkerId: string
   longitude: number
   latitude: number
-  events: Event[]
+  actions: Action[]
   label?: any
   isSelected: boolean
   setSelectedPopupIds: (value: string[] | null) => void
@@ -583,23 +583,23 @@ const ClusterMarker = ({
             isSelected ? 'bg-snot-200' : 'bg-white',
           )}
           onClick={(e) => {
-            e.preventDefault()
+            e.practionDefault()
             e.stopPropagation()
             if (isSelected) {
               setSelectedPopupIds(null)
             } else {
-              setSelectedPopupIds(Array.from(new Set(events.map((e) => e.id))))
+              setSelectedPopupIds(Array.from(new Set(actions.map((e) => e.id))))
             }
           }}
         >
           <span className="text-sm align-middle pr-1 leading-none">
             {label ||
-              events
-                .reduce((categories, event) => {
+              actions
+                .reduce((categories, action) => {
                   return Array.from(
                     new Set(
                       categories.concat(
-                        event.categories?.map((category) => (category as Category).emoji || '') ||
+                        action.categories?.map((category) => (category as Category).emoji || '') ||
                           [],
                       ),
                     ),
@@ -607,7 +607,7 @@ const ClusterMarker = ({
                 }, [] as string[])
                 .map((emoji) => <Emoji symbol={emoji} key={emoji} className="leading-none" />)}
           </span>
-          <span className="align-middle text-sm">{events.length}</span>
+          <span className="align-middle text-sm">{actions.length}</span>
         </div>
       </div>
     </Marker>

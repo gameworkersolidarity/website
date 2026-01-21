@@ -1,9 +1,9 @@
 'use client'
 
 import { twMerge } from 'tailwind-merge'
-import { EventInitiator, EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiator, ActionInitiatorFilter } from '@/collections/enums'
 import { DisplayInitiator } from '@/utils/displayInitiator'
-import { useEventFilterContext } from '@/components/EventFilterContextProvider'
+import { useActionFilterContext } from '@/components/ActionFilterContextProvider'
 import Link from 'next/link'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
@@ -30,7 +30,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import { CollapsibleListButton } from '@/components/CollapsibleList'
 import { Input } from '@/components/ui/input'
 
-export type EventFilterProps = {
+export type ActionFilterProps = {
   years?: boolean
   categories?: boolean
   companies?: boolean
@@ -40,7 +40,7 @@ export type EventFilterProps = {
   initiators?: boolean
 }
 
-export function EventFilter({
+export function ActionFilter({
   years = true,
   categories = true,
   companies = true,
@@ -48,7 +48,7 @@ export function EventFilter({
   campaigns = true,
   countries = true,
   initiators = true,
-}: EventFilterProps) {
+}: ActionFilterProps) {
   const {
     filteredCountryISOA2,
     filteredCountries,
@@ -76,7 +76,7 @@ export function EventFilter({
     searchQuery,
     setSearchQuery,
     ...filterContext
-  } = useEventFilterContext()
+  } = useActionFilterContext()
 
   const countEnabledFilters = [
     years,
@@ -119,7 +119,7 @@ export function EventFilter({
             (filteredCompanySlug && filteredCompanySlug.length > 0) ||
             (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) ||
             (filteredCampaignSlug && filteredCampaignSlug.length > 0) ||
-            (filteredInitiator && filteredInitiator !== EventInitiator.WORKER_LED) ||
+            (filteredInitiator && filteredInitiator !== ActionInitiator.WORKER_LED) ||
             (filteredYear && filteredYear.length > 0)) && (
             <div className="link" onClick={clearAllFilters}>
               reset ⤬
@@ -133,7 +133,7 @@ export function EventFilter({
               <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
               <Input
                 type="text"
-                placeholder="Search events..."
+                placeholder="Search actions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onBlur={() => {
@@ -162,7 +162,7 @@ export function EventFilter({
             <button
               onClick={() => setSearchExpanded(true)}
               className="flex items-center justify-center w-8 text-gray-400 hover:text-gray-600 rounded"
-              aria-label="Search events"
+              aria-label="Search actions"
             >
               <Search className="h-4 w-4" />
             </button>
@@ -170,19 +170,19 @@ export function EventFilter({
           {initiators && (
             <RadioGroup
               value={filteredInitiator || ''}
-              onValueChange={(value) => setInitiatorFilter(value as EventInitiatorFilter)}
+              onValueChange={(value) => setInitiatorFilter(value as ActionInitiatorFilter)}
               className="hidden md:flex flex-row items-right gap-3"
             >
               {[
-                { label: 'Worker-led', value: EventInitiatorFilter.WORKER_LED },
-                { label: 'Boss-led', value: EventInitiatorFilter.BOSS_LED },
-                { label: 'All', value: EventInitiatorFilter.ALL },
+                { label: 'Worker-led', value: ActionInitiatorFilter.WORKER_LED },
+                { label: 'Boss-led', value: ActionInitiatorFilter.BOSS_LED },
+                { label: 'All', value: ActionInitiatorFilter.ALL },
               ].map((initiator) => (
                 <div key={initiator.label} className="flex items-center gap-2">
                   <Label htmlFor={initiator.label} className="text-xs uppercase">
                     <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
                     <DisplayInitiator
-                      initiator={initiator.value as EventInitiatorFilter}
+                      initiator={initiator.value as ActionInitiatorFilter}
                       link="soft"
                     />
                   </Label>
@@ -224,7 +224,7 @@ export function EventFilter({
                         <span className="font-medium link hover:bg-snot-300 lowercase!">
                           {category.name}
                         </span>{' '}
-                        events →
+                        actions →
                       </Link>
                     ))}
                   </div>
@@ -404,7 +404,7 @@ export function EventFilter({
         </div>
         {selectedPopupIds && selectedPopupIds.length > 0 && (
           <div className="mt-2 text-xs flex flex-row flex-wrap items-center gap-2">
-            You&apos;re viewing a selection of {pluralize('event', selectedPopupIds.length, true)}.{' '}
+            You&apos;re viewing a selection of {pluralize('action', selectedPopupIds.length, true)}.{' '}
             <div
               className="link"
               onClick={() => {

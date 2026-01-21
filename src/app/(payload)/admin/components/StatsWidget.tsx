@@ -2,24 +2,24 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import type { Event, BlogPost } from '@/payload-types'
+import type { Action, BlogPost } from '@/payload-types'
 
 export default function StatsWidget() {
-  const [eventCount, setEventCount] = useState<number | null>(null)
-  const [submissions, setSubmissions] = useState<Event[]>([])
+  const [actionCount, setActionCount] = useState<number | null>(null)
+  const [submissions, setSubmissions] = useState<Action[]>([])
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchAllData() {
       try {
-        // Fetch event count
-        const countResponse = await fetch('/api/events?limit=0&where[_status][equals]=published', {
+        // Fetch action count
+        const countResponse = await fetch('/api/actions?limit=0&where[_status][equals]=published', {
           credentials: 'include',
         })
         if (countResponse.ok) {
           const countData = await countResponse.json()
-          setEventCount(countData.totalDocs || 0)
+          setActionCount(countData.totalDocs || 0)
         }
 
         // Fetch recent submissions
@@ -29,7 +29,7 @@ export default function StatsWidget() {
           'where[submissionContactDetails][exists]': 'true',
           sort: '-createdAt',
         })
-        const submissionsResponse = await fetch(`/api/events?${submissionsParams.toString()}`, {
+        const submissionsResponse = await fetch(`/api/actions?${submissionsParams.toString()}`, {
           credentials: 'include',
         })
         if (submissionsResponse.ok) {
@@ -108,18 +108,18 @@ export default function StatsWidget() {
           width: '100%',
         }}
       >
-        {/* Event Count */}
+        {/* Action Count */}
         <div
           style={{ padding: '1rem', background: 'var(--theme-elevation-100)', borderRadius: '4px' }}
         >
           <div style={{ fontSize: '0.875rem', color: 'var(--theme-text)', marginBottom: '0.5rem' }}>
-            Total Events
+            Total Actions
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--theme-success-500)' }}>
-            {(eventCount ?? 0).toLocaleString()}
+            {(actionCount ?? 0).toLocaleString()}
           </div>
           <Link
-            href="/admin/collections/events"
+            href="/admin/collections/actions"
             style={{
               display: 'inline-block',
               marginTop: '0.5rem',
@@ -154,7 +154,7 @@ export default function StatsWidget() {
                 {submissions.map((submission) => (
                   <Link
                     key={submission.id}
-                    href={`/admin/collections/events/${submission.id}`}
+                    href={`/admin/collections/actions/${submission.id}`}
                     style={{
                       display: 'block',
                       padding: '0.5rem',
@@ -166,7 +166,7 @@ export default function StatsWidget() {
                     }}
                   >
                     <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
-                      {submission.name || 'Untitled Event'}
+                      {submission.name || 'Untitled Action'}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
                       {submission.date ? new Date(submission.date).toLocaleDateString() : 'No date'}
@@ -176,7 +176,7 @@ export default function StatsWidget() {
                 ))}
               </div>
               <Link
-                href="/admin/collections/events?where[_status][equals]=draft&where[submissionContactDetails][exists]=true"
+                href="/admin/collections/actions?where[_status][equals]=draft&where[submissionContactDetails][exists]=true"
                 style={{
                   display: 'inline-block',
                   marginTop: '0.75rem',

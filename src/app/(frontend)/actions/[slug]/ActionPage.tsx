@@ -1,14 +1,14 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
-import { EventCard } from '@/components/EventCard'
+import { ActionCard } from '@/components/ActionCard'
 import type {
   Campaign,
   Category,
   Company,
   Config,
   Country,
-  Event,
+  Action,
   OrganisingGroup,
 } from '@/payload-types'
 import { AdminEditBanner } from '@/components/Me'
@@ -24,76 +24,91 @@ import { CompanyLabel } from '@/components/CompanyLabel'
 import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CampaignLabel } from '@/components/CampaignLabel'
 import { twMerge } from 'tailwind-merge'
-import { EventHistogramContext } from '@/components/EventHistogramContext'
+import { ActionHistogramContext } from '@/components/ActionHistogramContext'
 
-export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eventNav: EventNav }) {
-  if (!initialEvent) notFound()
+export function ActionPage({
+  initialAction,
+  actionNav,
+}: {
+  initialAction: Action
+  actionNav: ActionNav
+}) {
+  if (!initialAction) notFound()
 
   // Use the Payload API URL (where the admin panel is hosted)
-  const { data: event } = useLivePreview({
-    initialData: initialEvent,
+  const { data: action } = useLivePreview({
+    initialData: initialAction,
     serverURL: projectStrings.baseUrl,
     depth: 2,
   })
 
-  const hasPreviousEvents =
+  const hasPreviousActions =
     Object.values({
-      ...eventNav?.previousInCountry,
-      ...eventNav?.previousInCategory,
-      ...eventNav?.previousInCompany,
-      ...eventNav?.previousInOrganisingGroup,
-      ...eventNav?.previousInCampaign,
+      ...actionNav?.previousInCountry,
+      ...actionNav?.previousInCategory,
+      ...actionNav?.previousInCompany,
+      ...actionNav?.previousInOrganisingGroup,
+      ...actionNav?.previousInCampaign,
     }).filter(Boolean).length > 0
 
-  const hasNextEvents =
+  const hasNextActions =
     Object.values({
-      ...eventNav?.nextInCountry,
-      ...eventNav?.nextInCategory,
-      ...eventNav?.nextInCompany,
-      ...eventNav?.nextInOrganisingGroup,
-      ...eventNav?.nextInCampaign,
+      ...actionNav?.nextInCountry,
+      ...actionNav?.nextInCategory,
+      ...actionNav?.nextInCompany,
+      ...actionNav?.nextInOrganisingGroup,
+      ...actionNav?.nextInCampaign,
     }).filter(Boolean).length > 0
 
-  const hasSameDayEvents =
+  const hasSameDayActions =
     Object.values({
-      ...eventNav?.sameDayInCountry,
-      ...eventNav?.sameDayInCategory,
-      ...eventNav?.sameDayInCompany,
-      ...eventNav?.sameDayInOrganisingGroup,
-      ...eventNav?.sameDayInCampaign,
+      ...actionNav?.sameDayInCountry,
+      ...actionNav?.sameDayInCategory,
+      ...actionNav?.sameDayInCompany,
+      ...actionNav?.sameDayInOrganisingGroup,
+      ...actionNav?.sameDayInCampaign,
     }).filter(Boolean).length > 0
 
-  const previousRelatedEvents = event.relatedEvents
-    ?.filter((relation) => relation.id !== event.id && (relation.event as Event).date < event.date)
+  const previousRelatedActions = action.relatedActions
+    ?.filter(
+      (relation) => relation.id !== action.id && (relation.action as Action).date < action.date,
+    )
     .sort(
       (b, a) =>
-        new Date((a.event as Event).date).getTime() - new Date((b.event as Event).date).getTime(),
+        new Date((a.action as Action).date).getTime() -
+        new Date((b.action as Action).date).getTime(),
     )
 
-  const nextRelatedEvents = event.relatedEvents
-    ?.filter((relation) => relation.id !== event.id && (relation.event as Event).date > event.date)
+  const nextRelatedActions = action.relatedActions
+    ?.filter(
+      (relation) => relation.id !== action.id && (relation.action as Action).date > action.date,
+    )
     .sort(
       (a, b) =>
-        new Date((b.event as Event).date).getTime() - new Date((a.event as Event).date).getTime(),
+        new Date((b.action as Action).date).getTime() -
+        new Date((a.action as Action).date).getTime(),
     )
 
   return (
     <div className="bg-gwBackground" style={{ minHeight: '66vh' }}>
-      <AdminEditBanner page={event} />
+      <AdminEditBanner page={action} />
       <div className="mx-auto py-4 md:py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
-          {hasPreviousEvents && (
-            <PreviousEvents eventNav={eventNav} previousRelatedEvents={previousRelatedEvents} />
+          {hasPreviousActions && (
+            <PreviousActions
+              actionNav={actionNav}
+              previousRelatedActions={previousRelatedActions}
+            />
           )}
         </aside>
         <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
-          <EventCard data={event} links displayStandaloneInfo />
-          {hasSameDayEvents && <SameDayEvents events={eventNav} />}
-          <EventHistogramContext event={event} />
+          <ActionCard data={action} links displayStandaloneInfo />
+          {hasSameDayActions && <SameDayActions actions={actionNav} />}
+          <ActionHistogramContext action={action} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
-          {hasNextEvents && (
-            <FollowingEvents eventNav={eventNav} nextRelatedEvents={nextRelatedEvents} />
+          {hasNextActions && (
+            <FollowingActions actionNav={actionNav} nextRelatedActions={nextRelatedActions} />
           )}
         </aside>
       </div>
@@ -101,69 +116,69 @@ export function EventPage({ initialEvent, eventNav }: { initialEvent: Event; eve
   )
 }
 
-function FollowingEvents({
-  eventNav,
-  nextRelatedEvents,
+function FollowingActions({
+  actionNav,
+  nextRelatedActions,
 }: {
-  eventNav: EventNav
-  nextRelatedEvents: Event['relatedEvents']
+  actionNav: ActionNav
+  nextRelatedActions: Action['relatedActions']
 }) {
   return (
     <>
-      <div className="text-sm text-zinc-500 font-semibold">Following events</div>
-      {Object.values(eventNav?.nextInCampaign ?? {}).map(
-        (event) =>
-          event &&
-          event.campaigns?.docs?.[0] && (
-            <EventBreadcrumbNavLink
+      <div className="text-sm text-zinc-500 font-semibold">Following actions</div>
+      {Object.values(actionNav?.nextInCampaign ?? {}).map(
+        (action) =>
+          action &&
+          action.campaigns?.docs?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="next"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="campaigns"
             />
           ),
       )}
-      {nextRelatedEvents?.map((relation) => (
-        <EventBreadcrumbNavLink
+      {nextRelatedActions?.map((relation) => (
+        <ActionBreadcrumbNavLink
           direction="next"
-          event={relation.event as Event}
+          action={relation.action as Action}
           key={relation.id}
           label={relation.connectionType}
           description={relation.description}
         />
       ))}
-      {Object.values(eventNav?.nextInCountry ?? {}).map(
-        (event) =>
-          event &&
-          event.countries?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.nextInCountry ?? {}).map(
+        (action) =>
+          action &&
+          action.countries?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="next"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="countries"
             />
           ),
       )}
-      {Object.values(eventNav?.nextInCategory ?? {}).map(
-        (event) =>
-          event &&
-          event.categories?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.nextInCategory ?? {}).map(
+        (action) =>
+          action &&
+          action.categories?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="next"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="categories"
             />
           ),
       )}
-      {Object.values(eventNav?.nextInOrganisingGroup ?? {}).map(
-        (event) =>
-          event &&
-          event.organisingGroups?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.nextInOrganisingGroup ?? {}).map(
+        (action) =>
+          action &&
+          action.organisingGroups?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="next"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="organisingGroups"
             />
           ),
@@ -172,81 +187,81 @@ function FollowingEvents({
   )
 }
 
-function PreviousEvents({
-  eventNav,
-  previousRelatedEvents,
+function PreviousActions({
+  actionNav,
+  previousRelatedActions,
 }: {
-  eventNav: EventNav
-  previousRelatedEvents: Event['relatedEvents']
+  actionNav: ActionNav
+  previousRelatedActions: Action['relatedActions']
 }) {
   return (
     <>
-      <div className="text-sm text-zinc-500 font-semibold mb-2">Previous events</div>
-      {Object.values(eventNav?.previousInCampaign ?? {}).map(
-        (event) =>
-          event &&
-          event.campaigns?.docs?.[0] && (
-            <EventBreadcrumbNavLink
+      <div className="text-sm text-zinc-500 font-semibold mb-2">Previous actions</div>
+      {Object.values(actionNav?.previousInCampaign ?? {}).map(
+        (action) =>
+          action &&
+          action.campaigns?.docs?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="previous"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="campaigns"
             />
           ),
       )}
-      {previousRelatedEvents?.map((relation) => (
-        <EventBreadcrumbNavLink
+      {previousRelatedActions?.map((relation) => (
+        <ActionBreadcrumbNavLink
           label={relation.connectionType}
           direction="previous"
-          event={relation.event as Event}
+          action={relation.action as Action}
           key={relation.id}
           description={relation.description}
         />
       ))}
-      {Object.values(eventNav?.previousInCountry ?? {}).map(
-        (event) =>
-          event &&
-          event.countries?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.previousInCountry ?? {}).map(
+        (action) =>
+          action &&
+          action.countries?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="previous"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="countries"
             />
           ),
       )}
-      {Object.values(eventNav?.previousInCategory ?? {}).map(
-        (event) =>
-          event &&
-          event.categories?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.previousInCategory ?? {}).map(
+        (action) =>
+          action &&
+          action.categories?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="previous"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="categories"
             />
           ),
       )}
-      {Object.values(eventNav?.previousInCompany ?? {}).map(
-        (event) =>
-          event &&
-          event.companies?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.previousInCompany ?? {}).map(
+        (action) =>
+          action &&
+          action.companies?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="previous"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="companies"
             />
           ),
       )}
-      {Object.values(eventNav?.previousInOrganisingGroup ?? {}).map(
-        (event) =>
-          event &&
-          event.organisingGroups?.[0] && (
-            <EventBreadcrumbNavLink
+      {Object.values(actionNav?.previousInOrganisingGroup ?? {}).map(
+        (action) =>
+          action &&
+          action.organisingGroups?.[0] && (
+            <ActionBreadcrumbNavLink
               direction="previous"
-              event={event}
-              key={event.id}
+              action={action}
+              key={action.id}
               label="organisingGroups"
             />
           ),
@@ -254,63 +269,63 @@ function PreviousEvents({
     </>
   )
 }
-function SameDayEvents({ events }: { events: EventNav }) {
+function SameDayActions({ actions }: { actions: ActionNav }) {
   return (
     <div className="flex flex-col gap-2">
       <h2 className="text-sm text-zinc-500 font-semibold">Also on this day</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-        {Object.values(events?.sameDayInCampaign ?? {}).map(
-          (event) =>
-            event &&
-            event.campaigns?.docs?.[0] && (
-              <EventBreadcrumbNavLink
+        {Object.values(actions?.sameDayInCampaign ?? {}).map(
+          (action) =>
+            action &&
+            action.campaigns?.docs?.[0] && (
+              <ActionBreadcrumbNavLink
                 direction="sameDay"
-                event={event}
-                key={event.id}
+                action={action}
+                key={action.id}
                 label="campaigns"
               />
             ),
         )}
-        {Object.values(events?.sameDayInCountry ?? {}).map(
-          (event) =>
-            event && (
-              <EventBreadcrumbNavLink
+        {Object.values(actions?.sameDayInCountry ?? {}).map(
+          (action) =>
+            action && (
+              <ActionBreadcrumbNavLink
                 direction="sameDay"
-                event={event}
-                key={event.id}
+                action={action}
+                key={action.id}
                 label="countries"
               />
             ),
         )}
-        {Object.values(events?.sameDayInCategory ?? {}).map(
-          (event) =>
-            event && (
-              <EventBreadcrumbNavLink
+        {Object.values(actions?.sameDayInCategory ?? {}).map(
+          (action) =>
+            action && (
+              <ActionBreadcrumbNavLink
                 direction="sameDay"
-                event={event}
-                key={event.id}
+                action={action}
+                key={action.id}
                 label="categories"
               />
             ),
         )}
-        {Object.values(events?.sameDayInCompany ?? {}).map(
-          (event) =>
-            event && (
-              <EventBreadcrumbNavLink
+        {Object.values(actions?.sameDayInCompany ?? {}).map(
+          (action) =>
+            action && (
+              <ActionBreadcrumbNavLink
                 direction="sameDay"
-                event={event}
-                key={event.id}
+                action={action}
+                key={action.id}
                 label="organisingGroups"
               />
             ),
         )}
-        {Object.values(events?.sameDayInOrganisingGroup ?? {}).map(
-          (event) =>
-            event && (
-              <EventBreadcrumbNavLink
+        {Object.values(actions?.sameDayInOrganisingGroup ?? {}).map(
+          (action) =>
+            action && (
+              <ActionBreadcrumbNavLink
                 direction="sameDay"
-                event={event}
-                key={event.id}
+                action={action}
+                key={action.id}
                 label="organisingGroups"
               />
             ),
@@ -320,23 +335,23 @@ function SameDayEvents({ events }: { events: EventNav }) {
   )
 }
 
-function EventBreadcrumbNavLink({
-  event,
+function ActionBreadcrumbNavLink({
+  action,
   label,
   direction,
   description,
 }: {
-  event: Event
+  action: Action
   label:
     | CollectionSlug
-    | NonNullable<Config['collections']['events']['relatedEvents']>[0]['connectionType']
+    | NonNullable<Config['collections']['actions']['relatedActions']>[0]['connectionType']
   direction: 'previous' | 'next' | 'sameDay'
   description?: string
 }) {
   return (
     <Link
-      key={event.path!}
-      href={event.path!}
+      key={action.path!}
+      href={action.path!}
       className={twMerge('flex items-center gap-2 hover:bg-snot-200 p-2 rounded-md justify-start')}
     >
       <ArrowLeftIcon
@@ -370,7 +385,7 @@ function EventBreadcrumbNavLink({
                   : 'Also today in'}
           </span>
           {label === 'countries' ? (
-            event.countries
+            action.countries
               ?.slice(0, 3)
               .map((country) => (
                 <CountryLabel
@@ -379,7 +394,7 @@ function EventBreadcrumbNavLink({
                 />
               ))
           ) : label === 'categories' ? (
-            event.categories
+            action.categories
               ?.slice(0, 3)
               .map((category) => (
                 <CategoryLabel
@@ -388,7 +403,7 @@ function EventBreadcrumbNavLink({
                 />
               ))
           ) : label === 'companies' ? (
-            event.companies
+            action.companies
               ?.slice(0, 3)
               .map((company) => (
                 <CompanyLabel
@@ -397,7 +412,7 @@ function EventBreadcrumbNavLink({
                 />
               ))
           ) : label === 'organisingGroups' ? (
-            event.organisingGroups
+            action.organisingGroups
               ?.slice(0, 3)
               .map((organisingGroup) => (
                 <OrganisingGroupLabel
@@ -406,7 +421,7 @@ function EventBreadcrumbNavLink({
                 />
               ))
           ) : label === 'campaigns' ? (
-            event.campaigns?.docs
+            action.campaigns?.docs
               ?.slice(0, 3)
               .map((campaign) => (
                 <CampaignLabel
@@ -419,18 +434,18 @@ function EventBreadcrumbNavLink({
           ) : label === 'DIRECT' ? (
             <div>Direct connection</div>
           ) : null}
-          {label === 'categories' && <span className="text-xs text-zinc-400">report</span>}
+          {label === 'categories' && <span className="text-xs text-zinc-400">action</span>}
         </div>
-        <div className="text-base font-medium leading-snug">{event.name}</div>
+        <div className="text-base font-medium leading-snug">{action.name}</div>
         {description && <div className="text-xs text-zinc-400 italic mt-0.5">{description}</div>}
-        {event.date && (
+        {action.date && (
           <span
             className={twMerge(
               'text-xs text-zinc-400 ltr',
               direction === 'previous' ? 'text-right ml-auto' : 'text-left',
             )}
           >
-            <DateTime date={event.date} />
+            <DateTime date={action.date} />
           </span>
         )}
       </div>
@@ -438,55 +453,55 @@ function EventBreadcrumbNavLink({
   )
 }
 
-export interface EventNav {
+export interface ActionNav {
   // Country
   previousInCountry?: {
-    [isoA2: string]: Event | null | undefined
+    [isoA2: string]: Action | null | undefined
   }
   sameDayInCountry?: {
-    [isoA2: string]: Event | null | undefined
+    [isoA2: string]: Action | null | undefined
   }
   nextInCountry?: {
-    [isoA2: string]: Event | null | undefined
+    [isoA2: string]: Action | null | undefined
   }
   // Category
   previousInCategory?: {
-    [category: string]: Event | null | undefined
+    [category: string]: Action | null | undefined
   }
   sameDayInCategory?: {
-    [category: string]: Event | null | undefined
+    [category: string]: Action | null | undefined
   }
   nextInCategory?: {
-    [category: string]: Event | null | undefined
+    [category: string]: Action | null | undefined
   }
   // Company
   previousInCompany?: {
-    [company: string]: Event | null | undefined
+    [company: string]: Action | null | undefined
   }
   sameDayInCompany?: {
-    [company: string]: Event | null | undefined
+    [company: string]: Action | null | undefined
   }
   nextInCompany?: {
-    [company: string]: Event | null | undefined
+    [company: string]: Action | null | undefined
   }
   // Organising Group
   previousInOrganisingGroup?: {
-    [organisingGroup: string]: Event | null | undefined
+    [organisingGroup: string]: Action | null | undefined
   }
   sameDayInOrganisingGroup?: {
-    [organisingGroup: string]: Event | null | undefined
+    [organisingGroup: string]: Action | null | undefined
   }
   nextInOrganisingGroup?: {
-    [organisingGroup: string]: Event | null | undefined
+    [organisingGroup: string]: Action | null | undefined
   }
   // Campaign
   previousInCampaign?: {
-    [campaign: string]: Event | null | undefined
+    [campaign: string]: Action | null | undefined
   }
   sameDayInCampaign?: {
-    [campaign: string]: Event | null | undefined
+    [campaign: string]: Action | null | undefined
   }
   nextInCampaign?: {
-    [campaign: string]: Event | null | undefined
+    [campaign: string]: Action | null | undefined
   }
 }

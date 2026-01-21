@@ -1,6 +1,6 @@
-import { Event } from './payload-types'
+import { Action } from './payload-types'
 
-export type LexicalContent = Event['description']
+export type LexicalContent = Action['description']
 
 export type TimelineLabelProperty =
   | 'categories'

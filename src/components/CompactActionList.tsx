@@ -20,36 +20,36 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import { Campaign, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import Emoji from 'a11y-react-emoji'
 import { useAtom } from 'jotai/react'
-import { EventFilterKey, getFilterPath, sortOrderAtom } from '@/utils/global-state'
+import { ActionFilterKey, getFilterPath, sortOrderAtom } from '@/utils/global-state'
 import pluralize from 'pluralize'
 import { DisplayInitiator } from '@/utils/displayInitiator'
-import { EventInitiatorFilter } from '@/collections/enums'
+import { ActionInitiatorFilter } from '@/collections/enums'
 import { twMerge } from 'tailwind-merge'
-import { useEventFilterContext } from './EventFilterContextProvider'
+import { useActionFilterContext } from './ActionFilterContextProvider'
 import { CountryLabel } from './CountryLabel'
 import { CategoryLabel } from './CategoryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { HighlightText } from './HighlightText'
 
-export function CompactEventList({
-  events,
+export function CompactActionList({
+  actions,
   linkStyle = 'hard',
   searchQuery,
 }: {
-  events: Event[]
+  actions: Action[]
   linkStyle?: 'soft' | 'hard'
   searchQuery?: string
 }) {
-  const { filteredCampaignSlug, highlights } = useEventFilterContext()
+  const { filteredCampaignSlug, highlights } = useActionFilterContext()
 
   const columns = useMemo(() => {
-    const columns: ColumnDef<Event>[] = [
+    const columns: ColumnDef<Action>[] = [
       {
         accessorKey: 'date',
         header: ({ column, table }) => {
@@ -92,8 +92,8 @@ export function CompactEventList({
         header: 'Name',
         size: 250,
         cell: ({ cell, row }) => {
-          const eventHighlights = highlights[row.original.id]
-          const nameRanges = eventHighlights?.name
+          const actionHighlights = highlights[row.original.id]
+          const nameRanges = actionHighlights?.name
 
           return (
             <TableCell key={cell.id} className="overflow-hidden text-ellipsis">
@@ -309,7 +309,7 @@ export function CompactEventList({
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="text-xs uppercase font-mono">
             <DisplayInitiator
-              initiator={row.getValue('initiator') as EventInitiatorFilter}
+              initiator={row.getValue('initiator') as ActionInitiatorFilter}
               link="soft"
             />
           </TableCell>
@@ -324,7 +324,7 @@ export function CompactEventList({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
   const table = useReactTable({
-    data: events,
+    data: actions,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -370,8 +370,8 @@ export function CompactEventList({
               className={twMerge(
                 'bg-white hover:bg-snot-300',
                 row.getIsSelected() && 'bg-snot-300',
-                // row.original.initiator === EventInitiatorFilter.WORKER_LED && 'bg-blue-50',
-                row.original.initiator === EventInitiatorFilter.BOSS_LED && 'bg-orange-50',
+                // row.original.initiator === ActionInitiatorFilter.WORKER_LED && 'bg-blue-50',
+                row.original.initiator === ActionInitiatorFilter.BOSS_LED && 'bg-orange-50',
               )}
             >
               {row.getVisibleCells().map((cell) => (

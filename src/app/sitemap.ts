@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     categories,
     companies,
     countries,
-    events,
+    actions,
     organisingGroups,
   ] = await Promise.all([
     payload.find({
@@ -75,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       pagination: false,
     }),
     payload.find({
-      collection: 'events',
+      collection: 'actions',
       where: {
         _status: {
           equals: 'published',
@@ -196,10 +196,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     })),
-    // Events
-    ...events.docs.map((event) => ({
-      url: `${baseUrl}${getPath('events', event)}`,
-      lastModified: event.updatedAt ? new Date(event.updatedAt) : new Date(),
+    // Actions
+    ...actions.docs.map((action) => ({
+      url: `${baseUrl}${getPath('actions', action)}`,
+      lastModified: action.updatedAt ? new Date(action.updatedAt) : new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     })),

@@ -12,7 +12,7 @@ import { Companies } from './collections/Companies'
 import { Categories } from './collections/Categories'
 import { OrganisingGroups } from './collections/OrganisingGroups'
 import { Campaigns } from './collections/Campaigns'
-import { Events } from './collections/Events'
+import { Actions } from './collections/Actions'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { StartOrganising } from './globals/StartOrganising'
@@ -30,7 +30,7 @@ import { getPath, getSlug } from './utils/payloadPath'
 import { AboutPage } from './globals/AboutPage'
 import { CampaignsPage } from './globals/CampaignsPage'
 import { DataPage } from './globals/DataPage'
-import { EventSubmissionPage } from './globals/EventSubmissionPage'
+import { ActionSubmissionPage } from './globals/ActionSubmissionPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -87,7 +87,7 @@ export default buildConfig({
         return `${baseURL}/preview?${encodedParams.toString()}`
       },
       collections: [
-        'events',
+        'actions',
         'campaigns',
         'categories',
         'companies',
@@ -134,7 +134,7 @@ export default buildConfig({
     Categories,
     OrganisingGroups,
     Campaigns,
-    Events,
+    Actions,
   ],
   globals: [
     Header,
@@ -143,7 +143,7 @@ export default buildConfig({
     AboutPage,
     CampaignsPage,
     DataPage,
-    EventSubmissionPage,
+    ActionSubmissionPage,
   ],
   editor: lexicalEditor(),
   secret: env.get('PAYLOAD_SECRET').required().asString(),

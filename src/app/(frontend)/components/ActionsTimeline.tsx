@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import React from 'react'
-import type { Event, Country, Category } from '@/payload-types'
+import type { Action, Country, Category } from '@/payload-types'
 
 interface ActionsTimelineProps {
-  events: Event[]
+  actions: Action[]
 }
 
 // Helper function to get country flag emoji from country code
@@ -49,22 +49,22 @@ function isCategory(obj: Category['id'] | Category): obj is Category {
   return typeof obj === 'object' && obj !== null && 'Name' in obj
 }
 
-export function ActionsTimeline({ events }: ActionsTimelineProps) {
-  // Group events by year
-  const eventsByYear = events.reduce(
-    (acc, event) => {
-      const year = new Date(event.date).getFullYear()
+export function ActionsTimeline({ actions }: ActionsTimelineProps) {
+  // Group actions by year
+  const actionsByYear = actions.reduce(
+    (acc, action) => {
+      const year = new Date(action.date).getFullYear()
       if (!acc[year]) {
         acc[year] = []
       }
-      acc[year].push(event)
+      acc[year].push(action)
       return acc
     },
-    {} as Record<number, Event[]>,
+    {} as Record<number, Action[]>,
   )
 
   // Sort years in descending order
-  const years = Object.keys(eventsByYear)
+  const years = Object.keys(actionsByYear)
     .map(Number)
     .sort((a, b) => b - a)
 
@@ -77,33 +77,33 @@ export function ActionsTimeline({ events }: ActionsTimelineProps) {
               {year}
             </h2>
             <div className="year-action-count">
-              {eventsByYear[year].length} event{eventsByYear[year].length !== 1 ? 's' : ''}
+              {actionsByYear[year].length} action{actionsByYear[year].length !== 1 ? 's' : ''}
             </div>
           </div>
           <div className="actions-list">
-            {eventsByYear[year].map((event) => {
-              const date = new Date(event.date)
+            {actionsByYear[year].map((action) => {
+              const date = new Date(action.date)
               const formattedDate = formatDate(date)
 
               // Get country flags
-              const countries = Array.isArray(event.countries)
-                ? event.countries.filter(isCountry)
+              const countries = Array.isArray(action.countries)
+                ? action.countries.filter(isCountry)
                 : []
 
               // Get categories with emojis
-              const categories = Array.isArray(event.categories)
-                ? event.categories.filter(isCategory)
+              const categories = Array.isArray(action.categories)
+                ? action.categories.filter(isCategory)
                 : []
 
               const cardContent = (
                 <>
                   {/* Metadata line */}
                   <div className="timeline-action-metadata">
-                    <time dateTime={event.date} className="timeline-action-date">
+                    <time dateTime={action.date} className="timeline-action-date">
                       {formattedDate}
                     </time>
-                    {event.location && (
-                      <span className="timeline-action-location">{event.location}</span>
+                    {action.location && (
+                      <span className="timeline-action-location">{action.location}</span>
                     )}
                     {countries.map((country, idx) => (
                       <span key={idx} className="timeline-action-metadata-item">
@@ -127,20 +127,20 @@ export function ActionsTimeline({ events }: ActionsTimelineProps) {
                   </div>
 
                   {/* Title */}
-                  <h3 className="timeline-action-title">{event.name}</h3>
+                  <h3 className="timeline-action-title">{action.name}</h3>
                 </>
               )
 
-              return event.slug ? (
+              return action.slug ? (
                 <Link
-                  key={event.id}
-                  href={`/events/${event.slug}`}
+                  key={action.id}
+                  href={`/actions/${action.slug}`}
                   className="timeline-action-card-link"
                 >
                   <article className="timeline-action-card">{cardContent}</article>
                 </Link>
               ) : (
-                <article key={event.id} className="timeline-action-card">
+                <article key={action.id} className="timeline-action-card">
                   {cardContent}
                 </article>
               )

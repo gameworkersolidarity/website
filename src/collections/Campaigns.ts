@@ -3,10 +3,10 @@ import { getPayload, slugField, type CollectionConfig } from 'payload'
 import config from '@/payload.config'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
-import { Campaign, Event } from '@/payload-types'
+import { Campaign, Action } from '@/payload-types'
 import { TimelineLabelProperty } from '@/global-types'
 
-const highlightedEventAttributeOptions: Array<{ label: string; value: TimelineLabelProperty }> = [
+const highlightedActionAttributeOptions: Array<{ label: string; value: TimelineLabelProperty }> = [
   // Pick from companies, countries, categories, organising groups, headcount
   {
     label: 'Companies',
@@ -38,7 +38,7 @@ const highlightedEventAttributeOptions: Array<{ label: string; value: TimelineLa
   },
 ]
 
-const defaultHighlightedEventAttribute: TimelineLabelProperty = 'categories'
+const defaultHighlightedActionAttribute: TimelineLabelProperty = 'categories'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
@@ -106,27 +106,27 @@ export const Campaigns: CollectionConfig = {
       },
     },
     {
-      label: 'Events',
+      label: 'Actions',
       type: 'group',
       admin: {
         description:
-          'Configure which events to include in this campaign. You can either select individual events or create a dynamic list of events based on selected companies, countries, categories, and organising groups.',
+          'Configure which actions to include in this campaign. You can either select individual actions or create a dynamic list of actions based on selected companies, countries, categories, and organising groups.',
       },
       fields: [
         {
-          name: 'events',
-          label: 'Events',
+          name: 'actions',
+          label: 'Actions',
           type: 'relationship',
-          relationTo: 'events',
+          relationTo: 'actions',
           hasMany: true,
         },
       ],
     },
     {
-      name: 'highlightedEventAttribute',
+      name: 'highlightedActionAttribute',
       type: 'select',
-      defaultValue: defaultHighlightedEventAttribute,
-      options: highlightedEventAttributeOptions,
+      defaultValue: defaultHighlightedActionAttribute,
+      options: highlightedActionAttributeOptions,
       admin: {
         description: 'Select which value to display in the timeline labels for this campaign.',
         position: 'sidebar',

@@ -1,13 +1,13 @@
 import { getPayload, slugField, type CollectionConfig } from 'payload'
-import { EventInitiator } from './enums'
+import { ActionInitiator } from './enums'
 import { projectStrings } from '@/project-strings'
 import { geocodeOpenStreetMap } from '@/utils/geo'
 import config from '@/payload.config'
 import { getPath } from '@/utils/payloadPath'
-import { Event } from '@/payload-types'
+import { Action } from '@/payload-types'
 
-export const Events: CollectionConfig = {
-  slug: 'events',
+export const Actions: CollectionConfig = {
+  slug: 'actions',
   trash: true,
   admin: {
     useAsTitle: 'name',
@@ -21,8 +21,8 @@ export const Events: CollectionConfig = {
       const slug = doc.slug
       const encodedParams = new URLSearchParams({
         slug,
-        collection: 'events',
-        path: getPath('events', doc as unknown as Event),
+        collection: 'actions',
+        path: getPath('actions', doc as unknown as Action),
         previewSecret,
       })
 
@@ -86,7 +86,7 @@ export const Events: CollectionConfig = {
           name: 'endDate',
           type: 'date',
           admin: {
-            description: 'Optional end date for the event, if the event spans multiple days.',
+            description: 'Optional end date for the action, if the action spans multiple days.',
           },
         },
         {
@@ -95,14 +95,14 @@ export const Events: CollectionConfig = {
           relationTo: 'categories',
           hasMany: true,
           admin: {
-            description: 'What kind of event is this?',
+            description: 'What kind of action is this?',
           },
         },
         {
           name: 'headcount',
           type: 'number',
           admin: {
-            description: 'How many workers were involved in, or affected by, this event.',
+            description: 'How many workers were involved in, or affected by, this action.',
           },
         },
         {
@@ -111,21 +111,21 @@ export const Events: CollectionConfig = {
           options: [
             {
               label: 'Worker-led (e.g. an action or worker news)',
-              value: EventInitiator.WORKER_LED,
+              value: ActionInitiator.WORKER_LED,
             },
             {
               label: 'Boss-led (e.g. a redundancy or a policy change)',
-              value: EventInitiator.BOSS_LED,
+              value: ActionInitiator.BOSS_LED,
             },
             {
               label: 'Other (neither worker-led nor boss-led)',
-              value: EventInitiator.OTHER,
+              value: ActionInitiator.OTHER,
             },
           ],
-          defaultValue: EventInitiator.WORKER_LED,
+          defaultValue: ActionInitiator.WORKER_LED,
           admin: {
             description:
-              'Who led this? Used to decide whether to display the event on timelines and so on.',
+              'Who led this? Used to decide whether to display the action on timelines and so on.',
           },
         },
       ],
@@ -138,7 +138,7 @@ export const Events: CollectionConfig = {
           name: 'link',
           type: 'text',
           admin: {
-            description: 'Third party URL that evidences this event.',
+            description: 'Third party URL that evidences this action.',
           },
         },
         {
@@ -170,7 +170,7 @@ export const Events: CollectionConfig = {
             hidden: true,
             readOnly: true,
             description:
-              'Coordinates of the event. Will be automatically populated if the location, or country, is provided.',
+              'Coordinates of the action. Will be automatically populated if the location, or country, is provided.',
           },
           typescriptSchema: [
             ({ jsonSchema }) => ({
@@ -207,26 +207,26 @@ export const Events: CollectionConfig = {
           name: 'campaigns',
           type: 'join',
           collection: 'campaigns',
-          on: 'events',
+          on: 'actions',
           admin: {
-            description: 'Campaigns this event is part of.',
+            description: 'Campaigns this action is part of.',
           },
         },
         {
-          name: 'relatedEvents',
+          name: 'relatedActions',
           type: 'array',
-          label: 'Related events',
+          label: 'Related actions',
           admin: {
-            description: 'Link related events and they will appear on the same timeline',
+            description: 'Link related actions and they will appear on the same timeline',
           },
           fields: [
             {
-              name: 'event',
+              name: 'action',
               type: 'relationship',
-              relationTo: 'events',
+              relationTo: 'actions',
               required: true,
               admin: {
-                description: 'The event this is related to',
+                description: 'The action this is related to',
               },
             },
             {
@@ -245,7 +245,7 @@ export const Events: CollectionConfig = {
               required: true,
               defaultValue: 'DIRECT',
               admin: {
-                description: 'How are these events related?',
+                description: 'How are these actions related?',
               },
             },
             {
@@ -254,7 +254,7 @@ export const Events: CollectionConfig = {
               required: true,
               admin: {
                 description:
-                  'Description of how these events are related (e.g., "The same organiser went on to do this other thing")',
+                  'Description of how these actions are related (e.g., "The same organiser went on to do this other thing")',
               },
             },
           ],
@@ -270,7 +270,7 @@ export const Events: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return getPath('events', siblingData as unknown as Event)
+            return getPath('actions', siblingData as unknown as Action)
           },
         ],
       },
@@ -285,7 +285,7 @@ export const Events: CollectionConfig = {
         afterRead: [
           ({ siblingData }) => {
             return new URL(
-              getPath('events', siblingData as unknown as Event),
+              getPath('actions', siblingData as unknown as Action),
               projectStrings.baseUrl,
             ).toString()
           },
@@ -304,7 +304,7 @@ export const Events: CollectionConfig = {
       hooks: {
         afterRead: [
           ({ siblingData }) => {
-            return `/admin/collections/events/${siblingData.id}`
+            return `/admin/collections/actions/${siblingData.id}`
           },
         ],
       },
@@ -315,7 +315,7 @@ export const Events: CollectionConfig = {
       label: 'Featured',
       admin: {
         description:
-          'Featured events will be highlighted on timelines and show descriptions in preview mode',
+          'Featured actions will be highlighted on timelines and show descriptions in preview mode',
         position: 'sidebar',
       },
     },
@@ -324,7 +324,7 @@ export const Events: CollectionConfig = {
       type: 'textarea',
       label: 'Contact Details',
       admin: {
-        description: 'Contact information provided by the person who submitted this event',
+        description: 'Contact information provided by the person who submitted this action',
         position: 'sidebar',
       },
     },
@@ -386,17 +386,17 @@ export const Events: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc, operation, req }) => {
-        // Send email notification when a new event is created as a draft
+        // Send email notification when a new action is created as a draft
         if (operation === 'create' && doc._status === 'draft' && doc.submissionContactDetails) {
           try {
             await req.payload.sendEmail({
               to: projectStrings.submissionNotificationEmail,
               from: projectStrings.email,
-              subject: `New Event Submission: ${doc.name || 'Untitled Event'}`,
+              subject: `New Action Submission: ${doc.name || 'Untitled Action'}`,
               html: `
-                <h2>New Event Submission</h2>
-                <p>A new event has been submitted and saved as a draft.</p>
-                <h3>Event Details:</h3>
+                <h2>New Action Submission</h2>
+                <p>A new action has been submitted and saved as a draft.</p>
+                <h3>Action Details:</h3>
                 <ul>
                   <li><strong>Name:</strong> ${doc.name || 'N/A'}</li>
                   <li><strong>Date:</strong> ${doc.date || 'N/A'}</li>
@@ -405,14 +405,14 @@ export const Events: CollectionConfig = {
                 </ul>
                 <h3>Contact Details:</h3>
                 <p>${doc.submissionContactDetails || 'N/A'}</p>
-                <p><a href="${projectStrings.baseUrl}/admin/collections/events/${doc.id}">View in Admin Panel</a></p>
+                <p><a href="${projectStrings.baseUrl}/admin/collections/actions/${doc.id}">View in Admin Panel</a></p>
               `,
               text: `
-New Event Submission
+New Action Submission
 
-A new event has been submitted and saved as a draft.
+A new action has been submitted and saved as a draft.
 
-Event Details:
+Action Details:
 - Name: ${doc.name || 'N/A'}
 - Date: ${doc.date || 'N/A'}
 - Location: ${doc.location || 'N/A'}
@@ -421,7 +421,7 @@ Event Details:
 Contact Details:
 ${doc.submissionContactDetails || 'N/A'}
 
-View in Admin Panel: ${projectStrings.baseUrl}/admin/collections/events/${doc.id}
+View in Admin Panel: ${projectStrings.baseUrl}/admin/collections/actions/${doc.id}
               `,
             })
           } catch (error) {

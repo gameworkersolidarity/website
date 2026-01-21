@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, FormAction } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { MultiSelect } from '@/components/MultiSelect'
-import type { Category, Country, Company, OrganisingGroup, Event } from '@/payload-types'
-import { EventInitiator } from '@/collections/enums'
+import type { Category, Country, Company, OrganisingGroup, Action } from '@/payload-types'
+import { ActionInitiator } from '@/collections/enums'
 import { RenderedCategoryLabel } from '@/components/CategoryLabel'
 import { RenderedCompanyLabel } from '@/components/CompanyLabel'
 import { RenderedCountryLabel } from '@/components/CountryLabel'
@@ -35,8 +35,8 @@ export function ActionSubmissionForm({
   const [selectedOrganisingGroups, setSelectedOrganisingGroups] = useState<string[]>([])
   const [consent, setConsent] = useState(false)
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = async (e: FormAction<HTMLFormElement>) => {
+    e.practionDefault()
     setIsSubmitting(true)
     setSubmitStatus('idle')
     setErrorMessage('')
@@ -52,7 +52,7 @@ export function ActionSubmissionForm({
     }
 
     const formData = new FormData(e.currentTarget)
-    const initiatorValue = formData.get('initiator') as EventInitiator | null
+    const initiatorValue = formData.get('initiator') as ActionInitiator | null
 
     // Validate initiator
     if (!initiatorValue) {
@@ -62,7 +62,7 @@ export function ActionSubmissionForm({
       return
     }
 
-    const data: Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'slug'> = {
+    const data: Omit<Action, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'slug'> = {
       name: formData.get('name') as string,
       description: formData.get('description')
         ? {
@@ -233,13 +233,13 @@ export function ActionSubmissionForm({
             <option value="" disabled>
               Select an initiator...
             </option>
-            <option value={EventInitiator.WORKER_LED}>
+            <option value={ActionInitiator.WORKER_LED}>
               Worker-led (e.g. an action or worker news)
             </option>
-            <option value={EventInitiator.BOSS_LED}>
+            <option value={ActionInitiator.BOSS_LED}>
               Boss-led (e.g. a redundancy or a policy change)
             </option>
-            <option value={EventInitiator.OTHER}>Other (neither worker-led nor boss-led)</option>
+            <option value={ActionInitiator.OTHER}>Other (neither worker-led nor boss-led)</option>
           </select>
         </div>
       </section>

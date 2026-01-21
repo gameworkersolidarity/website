@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
-export const EventSubmissionPage: GlobalConfig = {
-  slug: 'eventSubmissionPage',
+export const ActionSubmissionPage: GlobalConfig = {
+  slug: 'actionSubmissionPage',
   access: {
     read: () => true,
   },
@@ -19,16 +19,16 @@ export const EventSubmissionPage: GlobalConfig = {
       type: 'text',
       label: 'Page Title',
       admin: {
-        description: 'Title for the event submission page',
+        description: 'Title for the action submission page',
       },
-      defaultValue: 'Submit an Event',
+      defaultValue: 'Submit an Action',
     },
     {
       name: 'description',
       type: 'richText',
       label: 'Description',
       admin: {
-        description: 'Rich text description for the event submission page',
+        description: 'Rich text description for the action submission page',
       },
     },
   ],

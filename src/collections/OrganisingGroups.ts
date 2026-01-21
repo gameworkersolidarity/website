@@ -145,12 +145,12 @@ export const OrganisingGroups: CollectionConfig = {
       },
     },
     {
-      name: 'events',
+      name: 'actions',
       type: 'join',
-      collection: 'events',
+      collection: 'actions',
       on: 'organisingGroups',
       admin: {
-        description: 'Events associated with this organising group.',
+        description: 'Actions associated with this organising group.',
       },
     },
     {

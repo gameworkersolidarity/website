@@ -1,7 +1,7 @@
 'use client'
 
-import { EventInitiatorFilter } from '@/collections/enums'
-import type { Campaign, Category, Company, Country, Event, OrganisingGroup } from '@/payload-types'
+import { ActionInitiatorFilter } from '@/collections/enums'
+import type { Campaign, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import {
   useCategoryFilter,
   useYearFilter,
@@ -33,14 +33,14 @@ export type HighlightRange = {
   end: number
 }
 
-export type EventHighlights = {
-  [eventId: string]: {
+export type ActionHighlights = {
+  [actionId: string]: {
     [field: string]: Array<[number, number]>
   }
 }
 
-export const EventFilterContext = createContext<{
-  filteredEvents: Event[]
+export const ActionFilterContext = createContext<{
+  filteredActions: Action[]
   countries: Country[]
   categories: Category[]
   companies: Company[]
@@ -56,12 +56,12 @@ export const EventFilterContext = createContext<{
   filteredCompanies?: Company[] | null
   filteredCampaigns?: Campaign[] | null
   filteredOrganisingGroups?: OrganisingGroup[] | null
-  filteredInitiator?: EventInitiatorFilter | null
+  filteredInitiator?: ActionInitiatorFilter | null
   filteredYear?: number[] | null
   availableYears: number[]
   searchQuery: string
   setSearchQuery: Dispatch<SetStateAction<string>>
-  highlights: EventHighlights
+  highlights: ActionHighlights
   setCountryISOA2Filter: ReturnType<typeof useCountryISOA2Filter>[1]
   setCategoryFilter: ReturnType<typeof useCategoryFilter>[1]
   setCompanyFilter: ReturnType<typeof useCompanyFilter>[1]
@@ -72,7 +72,7 @@ export const EventFilterContext = createContext<{
   setSelectedPopupIds: Dispatch<SetStateAction<string[] | null>>
   selectedPopupIds: string[] | null
 }>({
-  filteredEvents: [],
+  filteredActions: [],
   selectedPopupIds: null,
   availableYears: [],
   searchQuery: '',
@@ -93,15 +93,15 @@ export const EventFilterContext = createContext<{
   campaigns: [],
 })
 
-export type EventFilterContextProviderProps = {
-  events: Event[]
+export type ActionFilterContextProviderProps = {
+  actions: Action[]
   children: React.ReactNode
   overrideFilteredCountryISOA2?: string | string[] | null
   overrideFilteredCategorySlug?: string | string[] | null
   overrideFilteredCompanySlug?: string | string[] | null
   overrideFilteredOrganisingGroupSlug?: string | string[] | null
   overrideFilteredCampaignSlug?: string | string[] | null
-  overrideFilteredInitiator?: EventInitiatorFilter | null
+  overrideFilteredInitiator?: ActionInitiatorFilter | null
   overrideFilteredYear?: string | number | string[] | number[] | null
   countries: Country[]
   categories: Category[]
@@ -110,27 +110,27 @@ export type EventFilterContextProviderProps = {
   campaigns: Campaign[]
 }
 
-// Helper function to create a searchable version of an event with description converted to plain text
-function createSearchableEvent(event: Event) {
+// Helper function to create a searchable version of an action with description converted to plain text
+function createSearchableAction(action: Action) {
   let descriptionText: string | undefined
-  if (event.description) {
+  if (action.description) {
     try {
-      descriptionText = lexicalToPlainText(event.description)
+      descriptionText = lexicalToPlainText(action.description)
     } catch (e) {
       // If conversion fails, skip description
     }
   }
 
   return {
-    id: event.id,
-    eventId: event.id, // Store event ID for retrieval
-    name: event.name || '',
+    id: action.id,
+    actionId: action.id, // Store action ID for retrieval
+    name: action.name || '',
     description: descriptionText || '',
-    location: event.location || '',
-    source: event.source || '',
+    location: action.location || '',
+    source: action.source || '',
     categories: {
       name:
-        event.categories
+        action.categories
           ?.map((cat) =>
             typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : '',
           )
@@ -138,7 +138,7 @@ function createSearchableEvent(event: Event) {
     },
     countries: {
       name:
-        event.countries
+        action.countries
           ?.map((country) =>
             typeof country === 'object' && country !== null && 'name' in country
               ? (country as Country).name
@@ -148,7 +148,7 @@ function createSearchableEvent(event: Event) {
     },
     companies: {
       name:
-        event.companies
+        action.companies
           ?.map((company) =>
             typeof company === 'object' && company !== null && 'name' in company
               ? (company as Company).name
@@ -158,7 +158,7 @@ function createSearchableEvent(event: Event) {
     },
     organisingGroups: {
       name:
-        event.organisingGroups
+        action.organisingGroups
           ?.map((og) =>
             typeof og === 'object' && og !== null && 'name' in og
               ? (og as OrganisingGroup).name
@@ -168,7 +168,7 @@ function createSearchableEvent(event: Event) {
     },
     campaigns: {
       name:
-        event.campaigns?.docs
+        action.campaigns?.docs
           ?.map((campaign) =>
             typeof campaign === 'object' && campaign !== null && 'name' in campaign
               ? (campaign as Campaign).name
@@ -179,8 +179,8 @@ function createSearchableEvent(event: Event) {
   }
 }
 
-export function EventFilterContextProvider({
-  events,
+export function ActionFilterContextProvider({
+  actions,
   children,
   countries,
   categories,
@@ -194,7 +194,7 @@ export function EventFilterContextProvider({
   overrideFilteredCampaignSlug,
   overrideFilteredInitiator,
   overrideFilteredYear,
-}: EventFilterContextProviderProps) {
+}: ActionFilterContextProviderProps) {
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
@@ -234,45 +234,45 @@ export function EventFilterContextProvider({
   }, [organisingGroups, filteredOrganisingGroupSlug])
 
   const availableYears = useMemo(() => {
-    if (!events?.length) {
+    if (!actions?.length) {
       return []
     }
     const years = new Set<number>()
-    events.forEach((event) => {
-      if (event.date) {
-        const year = getYear(new Date(event.date))
+    actions.forEach((action) => {
+      if (action.date) {
+        const year = getYear(new Date(action.date))
         years.add(year)
       }
     })
     return Array.from(years).sort((a, b) => b - a) // Sort descending (newest first)
-  }, [events])
+  }, [actions])
 
   // First apply all non-search filters
-  const preFilteredEvents = useMemo(() => {
-    if (!events?.length) {
+  const preFilteredActions = useMemo(() => {
+    if (!actions?.length) {
       return []
     }
-    let filtered = [...events]
+    let filtered = [...actions]
     if (selectedPopupIds && selectedPopupIds.length > 0) {
-      filtered = filtered.filter((event) => selectedPopupIds.includes(event.id))
+      filtered = filtered.filter((action) => selectedPopupIds.includes(action.id))
     }
     if (filteredCountryISOA2 && filteredCountryISOA2.length > 0) {
-      filtered = filtered.filter((event) =>
-        event.countries?.some((country) =>
+      filtered = filtered.filter((action) =>
+        action.countries?.some((country) =>
           filteredCountryISOA2.includes((country as Country).isoA2),
         ),
       )
     }
     if (filteredCategorySlug && filteredCategorySlug.length > 0) {
-      filtered = filtered.filter((event) =>
-        event.categories?.some((category) =>
+      filtered = filtered.filter((action) =>
+        action.categories?.some((category) =>
           filteredCategorySlug.includes((category as Category).slug),
         ),
       )
     }
     if (filteredCompanySlug && filteredCompanySlug.length > 0) {
-      filtered = filtered.filter((event) =>
-        event.companies?.some((company) => {
+      filtered = filtered.filter((action) =>
+        action.companies?.some((company) => {
           return (
             filteredCompanySlug.includes((company as Company).slug) ||
             (company as Company).parents?.some((parent) =>
@@ -283,8 +283,8 @@ export function EventFilterContextProvider({
       )
     }
     if (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) {
-      filtered = filtered.filter((event) =>
-        event.organisingGroups?.some((organisingGroup) => {
+      filtered = filtered.filter((action) =>
+        action.organisingGroups?.some((organisingGroup) => {
           return (
             filteredOrganisingGroupSlug.includes((organisingGroup as OrganisingGroup).slug) ||
             (organisingGroup as OrganisingGroup).parents?.some((parent) =>
@@ -295,22 +295,22 @@ export function EventFilterContextProvider({
       )
     }
     if (filteredCampaignSlug && filteredCampaignSlug.length > 0) {
-      filtered = filtered.filter((event) =>
-        event.campaigns?.docs?.some((campaign) =>
+      filtered = filtered.filter((action) =>
+        action.campaigns?.docs?.some((campaign) =>
           filteredCampaignSlug.includes((campaign as Campaign).slug),
         ),
       )
     }
-    if (filteredInitiator && filteredInitiator !== EventInitiatorFilter.ALL) {
-      filtered = filtered.filter((event) => event.initiator === filteredInitiator)
+    if (filteredInitiator && filteredInitiator !== ActionInitiatorFilter.ALL) {
+      filtered = filtered.filter((action) => action.initiator === filteredInitiator)
     }
     if (filteredYear && filteredYear.length > 0) {
-      filtered = filtered.filter((event) => filteredYear.includes(getYear(new Date(event.date))))
+      filtered = filtered.filter((action) => filteredYear.includes(getYear(new Date(action.date))))
     }
 
     return filtered
   }, [
-    events,
+    actions,
     filteredCountryISOA2,
     filteredCategorySlug,
     filteredCompanySlug,
@@ -322,16 +322,16 @@ export function EventFilterContextProvider({
   ])
 
   // Apply text search using Orama (async)
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(preFilteredEvents)
-  const [highlights, setHighlights] = useState<EventHighlights>({})
+  const [filteredActions, setFilteredActions] = useState<Action[]>(preFilteredActions)
+  const [highlights, setHighlights] = useState<ActionHighlights>({})
 
-  // Update filteredEvents when preFilteredEvents changes and there's no search query
+  // Update filteredActions when preFilteredActions changes and there's no search query
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredEvents(preFilteredEvents)
+      setFilteredActions(preFilteredActions)
       setHighlights({})
     }
-  }, [preFilteredEvents, searchQuery])
+  }, [preFilteredActions, searchQuery])
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -342,20 +342,20 @@ export function EventFilterContextProvider({
 
     // Perform async search
     ;(async () => {
-      // Build search index with searchable event data
-      const searchIndex = preFilteredEvents.map((event) => createSearchableEvent(event))
+      // Build search index with searchable action data
+      const searchIndex = preFilteredActions.map((action) => createSearchableAction(action))
 
-      // Create a map from event ID to original event for quick lookup
-      const eventMap = new Map<string, Event>()
-      preFilteredEvents.forEach((event) => {
-        eventMap.set(event.id, event)
+      // Create a map from action ID to original action for quick lookup
+      const actionMap = new Map<string, Action>()
+      preFilteredActions.forEach((action) => {
+        actionMap.set(action.id, action)
       })
 
       // Create Orama database with nested schema
       const db = await create({
         schema: {
           id: 'string',
-          eventId: 'string',
+          actionId: 'string',
           name: 'string',
           description: 'string',
           location: 'string',
@@ -402,9 +402,9 @@ export function EventFilterContextProvider({
         tolerance: 1, // Typo tolerance (1 character)
       })
 
-      const matchedEvents = searchResults.hits
-        .map((hit) => eventMap.get(hit.document.eventId as string))
-        .filter((event): event is Event => event !== undefined)
+      const matchedActions = searchResults.hits
+        .map((hit) => actionMap.get(hit.document.actionId as string))
+        .filter((action): action is Action => action !== undefined)
 
       // Initialize highlighter
       const highlighter = new Highlight({
@@ -414,20 +414,20 @@ export function EventFilterContextProvider({
       })
 
       // Collect match ranges for highlighting by field
-      const newHighlights: EventHighlights = {}
+      const newHighlights: ActionHighlights = {}
       searchResults.hits.forEach((hit) => {
-        const eventId = hit.document.eventId as string
-        if (!newHighlights[eventId]) {
-          newHighlights[eventId] = {}
+        const actionId = hit.document.actionId as string
+        if (!newHighlights[actionId]) {
+          newHighlights[actionId] = {}
         }
 
-        // Get the original event to access field values for highlighting
-        const originalEvent = eventMap.get(eventId)
-        if (!originalEvent) return
+        // Get the original action to access field values for highlighting
+        const originalAction = actionMap.get(actionId)
+        if (!originalAction) return
 
-        // Get the searchable event to access field values
-        const searchableEvent = searchIndex.find((item) => item.eventId === eventId)
-        if (!searchableEvent) return
+        // Get the searchable action to access field values
+        const searchableAction = searchIndex.find((item) => item.actionId === actionId)
+        if (!searchableAction) return
 
         // Highlight each field that might contain matches
         // For simple string fields that are displayed in the UI
@@ -436,20 +436,20 @@ export function EventFilterContextProvider({
           let fieldValue: string | undefined
           if (field === 'description') {
             try {
-              fieldValue = originalEvent.description
-                ? lexicalToPlainText(originalEvent.description)
+              fieldValue = originalAction.description
+                ? lexicalToPlainText(originalAction.description)
                 : undefined
             } catch (e) {
               // Skip if conversion fails
             }
           } else {
-            fieldValue = searchableEvent[field] || undefined
+            fieldValue = searchableAction[field] || undefined
           }
 
           if (fieldValue && typeof fieldValue === 'string' && fieldValue.length > 0) {
             const highlighted = highlighter.highlight(fieldValue, searchQuery.trim())
             if (highlighted.positions && highlighted.positions.length > 0) {
-              newHighlights[eventId][field] = highlighted.positions.map(
+              newHighlights[actionId][field] = highlighted.positions.map(
                 (pos) => [pos.start, pos.end] as [number, number],
               )
             }
@@ -458,7 +458,7 @@ export function EventFilterContextProvider({
       })
 
       if (!cancelledRef.current) {
-        setFilteredEvents(matchedEvents)
+        setFilteredActions(matchedActions)
         setHighlights(newHighlights)
       }
     })()
@@ -466,12 +466,12 @@ export function EventFilterContextProvider({
     return () => {
       cancelledRef.current = true
     }
-  }, [preFilteredEvents, searchQuery])
+  }, [preFilteredActions, searchQuery])
 
   return (
-    <EventFilterContext.Provider
+    <ActionFilterContext.Provider
       value={{
-        filteredEvents,
+        filteredActions,
         filteredCountryISOA2,
         filteredCategorySlug,
         filteredCompanySlug,
@@ -505,12 +505,12 @@ export function EventFilterContextProvider({
       }}
     >
       {children}
-    </EventFilterContext.Provider>
+    </ActionFilterContext.Provider>
   )
 }
 
-export function useEventFilterContext() {
-  const context = useContext(EventFilterContext)
+export function useActionFilterContext() {
+  const context = useContext(ActionFilterContext)
 
   function clearAllFilters() {
     context.setCountryISOA2Filter(null)

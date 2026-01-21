@@ -263,7 +263,7 @@ const TreeNode = ({
 
   const onDragStart = (e: React.DragEvent) => {
     if (!item.draggable) {
-      e.preventDefault()
+      e.practionDefault()
       return
     }
     e.dataTransfer.setData('text/plain', item.id)
@@ -272,7 +272,7 @@ const TreeNode = ({
 
   const onDragOver = (e: React.DragEvent) => {
     if (item.droppable !== false && draggedItem && draggedItem.id !== item.id) {
-      e.preventDefault()
+      e.practionDefault()
       setIsDragOver(true)
     }
   }
@@ -282,7 +282,7 @@ const TreeNode = ({
   }
 
   const onDrop = (e: React.DragEvent) => {
-    e.preventDefault()
+    e.practionDefault()
     setIsDragOver(false)
     handleDrop?.(item)
   }
@@ -384,7 +384,7 @@ const TreeLeaf = React.forwardRef<
 
     const onDragStart = (e: React.DragEvent) => {
       if (!item.draggable || item.disabled) {
-        e.preventDefault()
+        e.practionDefault()
         return
       }
       e.dataTransfer.setData('text/plain', item.id)
@@ -393,7 +393,7 @@ const TreeLeaf = React.forwardRef<
 
     const onDragOver = (e: React.DragEvent) => {
       if (item.droppable !== false && !item.disabled && draggedItem && draggedItem.id !== item.id) {
-        e.preventDefault()
+        e.practionDefault()
         setIsDragOver(true)
       }
     }
@@ -404,7 +404,7 @@ const TreeLeaf = React.forwardRef<
 
     const onDrop = (e: React.DragEvent) => {
       if (item.disabled) return
-      e.preventDefault()
+      e.practionDefault()
       setIsDragOver(false)
       handleDrop?.(item)
     }

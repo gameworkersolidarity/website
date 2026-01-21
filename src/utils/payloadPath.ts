@@ -6,7 +6,7 @@ import type {
   Category,
   Campaign,
   OrganisingGroup,
-  Event,
+  Action,
   BlogPost,
   StaticPage,
 } from '@/payload-types'
@@ -23,8 +23,8 @@ export function getSlug<C extends CollectionSlug>(collection: C, record: Config[
       return (record as Campaign).slug
     case 'organisingGroups':
       return (record as OrganisingGroup).slug
-    case 'events':
-      return (record as Event).slug
+    case 'actions':
+      return (record as Action).slug
     case 'blogPosts':
       return (record as BlogPost).slug
     case 'staticPages':
@@ -46,8 +46,8 @@ export function getPath<C extends CollectionSlug>(collection: C, record: Config[
       return `/campaigns/${getSlug(collection, record)}`
     case 'organisingGroups':
       return `/organising-groups/${getSlug(collection, record)}`
-    case 'events':
-      return `/events/${getSlug(collection, record)}`
+    case 'actions':
+      return `/actions/${getSlug(collection, record)}`
     case 'blogPosts':
       return `/articles/${getSlug(collection, record)}`
     case 'staticPages':

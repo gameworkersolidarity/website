@@ -77,7 +77,7 @@ export default async function Page({ params }: Props) {
 
   // Query solidarity actions directly where this category is related
   const actionsResult = await payload.find({
-    collection: 'events',
+    collection: 'actions',
     where: {
       and: [
         {
@@ -102,7 +102,7 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const events = actionsResult.docs
+  const actions = actionsResult.docs
 
-  return <CategoryPage initialCategory={category} events={events} />
+  return <CategoryPage initialCategory={category} actions={actions} />
 }
