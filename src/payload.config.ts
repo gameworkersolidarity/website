@@ -48,6 +48,10 @@ export default buildConfig({
       beforeNavLinks: [
         './app/(payload)/admin/components/HomepageLink#HomepageLink',
       ],
+      graphics: {
+        Logo: './app/(payload)/admin/components/Logo#default',
+        Icon: './app/(payload)/admin/components/Icon#default',
+      },
     },
     dashboard: {
       widgets: [
