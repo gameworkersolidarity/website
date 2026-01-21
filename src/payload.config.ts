@@ -44,6 +44,11 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      beforeNavLinks: [
+        './app/(payload)/admin/components/HomepageLink#HomepageLink',
+      ],
+    },
     autoRefresh: true,
     autoLogin:
       process.env.NODE_ENV === 'development'

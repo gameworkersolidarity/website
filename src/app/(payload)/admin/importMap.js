@@ -23,6 +23,7 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ColorPickerFieldComponent as ColorPickerFieldComponent_56382d00d995093a4105439881d9acdf } from '../../../components/payloadcms/ColourPickerField/components/index'
+import { HomepageLink as HomepageLink_0684fe86f9ac81ffc7bbaec5d60a470d } from '../../../app/(payload)/admin/components/HomepageLink'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
@@ -51,5 +52,6 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/components/payloadcms/ColourPickerField/components/index#ColorPickerFieldComponent": ColorPickerFieldComponent_56382d00d995093a4105439881d9acdf,
+  "./app/(payload)/admin/components/HomepageLink#HomepageLink": HomepageLink_0684fe86f9ac81ffc7bbaec5d60a470d,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
 }
