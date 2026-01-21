@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
+import { OrganisingGroupCard } from '@/components/OrganisingGroupCard'
 
 export async function generateMetadata(): Promise<Metadata> {
   const payloadConfig = await config
@@ -185,25 +186,7 @@ export default async function StartOrganisingPage() {
                 </header>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {groups.map((group) => (
-                    <div key={group.id} className="bg-white rounded-xl p-4">
-                      <Link key={group.id} href={group.path!}>
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold">
-                              <OrganisingGroupLabel organisingGroup={group} link logo={36} />
-                            </div>
-                            {group.fullName && (
-                              <div className="text-sm text-gray-600 mt-1">{group.fullName}</div>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                      {!!(group.website || group.twitter || group.bluesky) && (
-                        <div className="text-sm text-gray-600 mt-1">
-                          <OrganisingGroupLinks page={group} />
-                        </div>
-                      )}
-                    </div>
+                    <OrganisingGroupCard key={group.id} group={group} />
                   ))}
                 </div>
               </div>

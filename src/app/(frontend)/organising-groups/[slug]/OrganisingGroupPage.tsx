@@ -243,17 +243,6 @@ export function OrganisingGroupLinks({ page }: { page: OrganisingGroup }) {
           </span>
         </a>
       )}
-      {page.twitter && (
-        <a
-          href={page.twitter}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1"
-        >
-          <XOutlinedIcon className="h-4 w-4" />
-          <span className="align-baseline underline text-inherit link">@{page.twitterHandle}</span>
-        </a>
-      )}
       {page.bluesky && (
         <a
           href={page.bluesky}
@@ -268,6 +257,17 @@ export function OrganisingGroupLinks({ page }: { page: OrganisingGroup }) {
             ></path>
           </svg>
           <span className="align-baseline underline text-inherit link">@{page.blueskyHandle}</span>
+        </a>
+      )}
+      {page.twitter && (
+        <a
+          href={page.twitter}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1"
+        >
+          <XOutlinedIcon className="h-4 w-4" />
+          <span className="align-baseline underline text-inherit link">@{page.twitterHandle}</span>
         </a>
       )}
     </div>
