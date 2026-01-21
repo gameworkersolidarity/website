@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import pluralize from 'pluralize'
 import qs from 'query-string'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import useSWR from 'swr'
 import { DateTime } from '@/components/DateTime'
 import {
@@ -238,10 +238,13 @@ export function EventItem({
   const { highlights } = useEventFilterContext()
   const eventHighlights = highlights[data.id]
   const nameRanges = eventHighlights?.name
+  const hasDescriptionHighlights = eventHighlights?.description && eventHighlights.description.length > 0
 
   const Wrapper = links
     ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
     : ({ children }: { children: React.ReactNode }) => children
+
+  const shouldShowDescription = !!data.description && data.featured
 
   return (
     <article
@@ -255,12 +258,29 @@ export function EventItem({
       className={twMerge(
         'event-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
         data.initiator === EventInitiatorFilter.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
+        data.featured && 'outline-2 outline-snot-400 outline-offset-2'
       )}
     >
       <Wrapper>
         <h3 className="text-2xl leading-tight font-semibold max-w-3xl">
           <HighlightText text={data.name} ranges={nameRanges} />
         </h3>
+        {shouldShowDescription && (() => {
+          const description = data.description
+          if (!description) return null
+          return (
+            <div key="description" className={twMerge('w-full text-lg font-light order-2 md:order-2 pt-1')}>
+              {hasDescriptionHighlights ? (
+                <HighlightedDescription
+                  content={description}
+                  eventId={data.id}
+                />
+              ) : (
+                <LexicalRenderer content={description} />
+              )}
+            </div>
+          )
+        })()}
       </Wrapper>
       {(!!data.link || !!data.documents?.length) && (
         <div className="flex flex-row mt-3 flex-wrap">
@@ -339,6 +359,11 @@ export function ActionMetadata({ data, link }: { data: Event; link?: 'soft' | bo
       <span className="font-semibold">
         <DateTime date={data.date} />
       </span>
+      {data.featured && (
+        <div className="inline-flex items-center gap-1 text-xs bg-snot-400 uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
+          Featured
+        </div>
+      )}
       {!!data.countries?.length && (
         <div className="inline-flex flex-wrap gap-x-2">
           {data.countries.map((country) => (
@@ -395,6 +420,13 @@ export function EventCard({
   const eventHighlights = highlights[data.id]
   const nameRanges = eventHighlights?.name
   const hasDescriptionHighlights = eventHighlights?.description && eventHighlights.description.length > 0
+  const [isPreviewMode, setIsPreviewMode] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsPreviewMode(window.location.search.includes('previewSecret'))
+    }
+  }, [])
 
   const Wrapper = links
     ? ({ children }: { children: React.ReactNode }) => (
@@ -404,9 +436,11 @@ export function EventCard({
       )
     : ({ children }: { children: React.ReactNode }) => children
 
+  const shouldShowDescription = data.description && (isPreviewMode ? data.featured : true)
+
   return (
     <>
-      <article className={twMerge('space-y-2px rounded-xl overflow-hidden')}>
+      <article className={twMerge('space-y-2px rounded-xl overflow-hidden', data.featured && 'outline-2 outline-snot-400 outline-offset-2')}>
         <div className={twMerge('p-4 lg:px-8 bg-white flex flex-col gap-4')}>
           <div className="text-sm order-1 md:order-0">
             <ActionMetadata data={data} link={links} />
@@ -418,18 +452,22 @@ export function EventCard({
             </h3>
           </Wrapper>
           {/* Description */}
-          {data.description && (
-            <div key="description" className={'w-full text-lg font-light order-2 md:order-2'}>
-              {hasDescriptionHighlights ? (
-                <HighlightedDescription
-                  content={data.description}
-                  eventId={data.id}
-                />
-              ) : (
-                <LexicalRenderer content={data.description} />
-              )}
-            </div>
-          )}
+          {shouldShowDescription && (() => {
+            const description = data.description
+            if (!description) return null
+            return (
+              <div key="description" className={twMerge('w-full text-lg font-light order-2 md:order-2')}>
+                {hasDescriptionHighlights ? (
+                  <HighlightedDescription
+                    content={description}
+                    eventId={data.id}
+                  />
+                ) : (
+                  <LexicalRenderer content={description} />
+                )}
+              </div>
+            )
+          })()}
           {data.link && links && (
             <div key="links" className="flex flex-row space-x-4 text-sm order-3">
               <Link href={data.link} className="block my-1">

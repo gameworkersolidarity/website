@@ -753,6 +753,10 @@ export interface Event {
   url?: string;
   adminPath?: string;
   /**
+   * Featured events will be highlighted on timelines and show descriptions in preview mode
+   */
+  featured?: boolean | null;
+  /**
    * Contact information provided by the person who submitted this event
    */
   submissionContactDetails?: string | null;
@@ -1241,6 +1245,7 @@ export interface EventsSelect<T extends boolean = true> {
   path?: T;
   url?: T;
   adminPath?: T;
+  featured?: T;
   submissionContactDetails?: T;
   consent?: T;
   updatedAt?: T;

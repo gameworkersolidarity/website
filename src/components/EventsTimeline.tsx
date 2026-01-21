@@ -318,7 +318,9 @@ export function Timeline({
   // Get radius for event
   const getEventRadius = useCallback(
     (event: Event) => {
-      return event.id === currentEventId ? 8 : 5
+      if (event.id === currentEventId) return 8
+      if (event.featured) return 7
+      return 5
     },
     [currentEventId],
   )
@@ -361,17 +363,17 @@ export function Timeline({
         dynamicSkipCount: 0,
       }
     }
-    if (!event[labelProperty]) {
+    // Always show featured events and currently selected event
+    if (event.featured || event.id === currentEventId) {
       return {
-        shouldAppear: false,
+        shouldAppear: true,
         indexInBin: 0,
         dynamicSkipCount: 0,
       }
     }
-    // Always show currently selected event
-    if (event.id === currentEventId) {
+    if (!event[labelProperty]) {
       return {
-        shouldAppear: true,
+        shouldAppear: false,
         indexInBin: 0,
         dynamicSkipCount: 0,
       }
@@ -412,8 +414,8 @@ export function Timeline({
         return
       }
 
-      // Always show currently selected event
-      if (event.id === currentEventId) {
+      // Always show featured events and currently selected event
+      if (event.featured || event.id === currentEventId) {
         indexMap.set(event.id, globalIndex)
         globalIndex++
         return
@@ -551,15 +553,30 @@ export function Timeline({
             const color = getEventColor(event)
             const radius = getEventRadius(event)
             return (
-              <Circle
-                key={event.id}
-                cx={x}
-                cy={timelineY}
-                r={radius}
-                fill={color}
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleClick(event)}
-              />
+              <g key={event.id}>
+                <Circle
+                  cx={x}
+                  cy={timelineY}
+                  r={radius}
+                  fill={color}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleClick(event)}
+                />
+                {event.featured && (
+                  <>
+                  <Circle
+                    cx={x}
+                    cy={timelineY}
+                    r={radius + 2}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth={2}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleClick(event)}
+                  />
+                  </>
+                )}
+              </g>
             )
           })}
 
@@ -597,6 +614,7 @@ export function Timeline({
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
                     event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
+                    event.featured && 'underline'
                   )}
                   style={{
                     display: 'flex',
