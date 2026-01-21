@@ -12,6 +12,7 @@ import { Campaign, Company, Country, OrganisingGroup, Category, Event } from '@/
 import { TimelineLabelProperty } from '@/global-types'
 import { getRelatedObjects } from '@/utils/getRelatedObjects'
 import { EventFilterProps } from './EventFilter'
+import { getCSSVariable } from '@/utils/css'
 
 export function EventExplorer({
   eventFilterContextProps,
@@ -22,6 +23,7 @@ export function EventExplorer({
   linkStyle,
   timelineBy,
   overrideDefaultZoomLevel,
+  graphs = true,
 }: {
   eventFilterContextProps?: Partial<EventFilterContextProviderProps>
   eventFilterProps?: Partial<EventFilterProps>
@@ -31,6 +33,7 @@ export function EventExplorer({
   linkStyle: 'soft' | 'hard'
   timelineBy?: TimelineLabelProperty
   overrideDefaultZoomLevel?: ZoomLevel
+  graphs?: boolean
 }) {
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(
     overrideDefaultZoomLevel || ZoomLevel.Preview,
@@ -66,7 +69,7 @@ export function EventExplorer({
           className="transition-all duration-500 ease-in-out hidden md:block"
         >
           <div className="sticky top-6 h-[calc(100vh-60px)]">
-            <EventStats color={primaryColor} graphs={false} />
+            <EventStats graphs={graphs} />
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle className="hidden md:flex" />

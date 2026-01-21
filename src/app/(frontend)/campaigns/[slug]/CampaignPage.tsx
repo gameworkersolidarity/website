@@ -14,7 +14,18 @@ import pluralize from 'pluralize'
 import Link from 'next/link'
 import { ArrowDownIcon } from 'lucide-react'
 import { useMemo } from 'react'
-import { format, isSameMonth, isSameYear } from 'date-fns';
+import { format, isSameMonth, isSameYear } from 'date-fns'
+
+const Back = ({ className }: { className?: string }) => (
+  <div className={className}>
+    <Link
+      href="/campaigns"
+      className="mb-2 rounded-md px-2 py-1 bg-background/80 hover:bg-snot-400/80 transition-colors duration-300 inline-flex items-center gap-1 w-auto"
+    >
+      &larr; All campaigns
+    </Link>
+  </div>
+)
 
 export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign }) {
   if (!initialCampaign) notFound()
@@ -50,7 +61,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
     <div>
       <AdminEditBanner page={page} />
       {page.featuredImage && typeof page.featuredImage === 'object' && page.featuredImage?.url ? (
-        <>
+        <div className="relative">
           <Image
             src={(campaign.featuredImage as Media).cloudinary?.secure_url || page.featuredImage.url}
             alt={page.name}
@@ -58,34 +69,49 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
             height={page.featuredImage.height || 1000}
             className="w-full h-auto object-cover z-10 max-h-[66vh]"
           />
+          <article className="absolute top-0 left-0 w-full">
+            <div className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4 z-20">
+              <Back />
+            </div>
+          </article>
           <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4 -mt-8 z-20 relative">
             <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
               <header>
                 <div className="font-mono uppercase text-sm opacity-50 text-center">
-                  
-                <span>
-                    {format(earliestEvent.date, sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy')} &rarr; {format(latestEvent.date, 'dd MMM yyyy')}
+                  <span>
+                    {format(
+                      earliestEvent.date,
+                      sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy',
+                    )}{' '}
+                    &rarr; {format(latestEvent.date, 'dd MMM yyyy')}
                   </span>
-
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold font-identity text-center">{page.name}</h1>
+                <h1 className="text-4xl md:text-5xl font-bold font-identity text-center">
+                  {page.name}
+                </h1>
                 {/* Count of events */}
-                <div className="mt-4 opacity-50 hover:opacity-100 transition-opacity duration-300 text-center cursor-pointer flex items-center justify-center gap-1 font-mono text-sm uppercase" onClick={() => {
-                  const eventsElement = document.getElementById('events')
-                  if (eventsElement) {
-                    eventsElement.scrollIntoView({ behavior: 'smooth' })
-                  }
-                }}>
-                  <span>{pluralize('event', events.length, true)}</span> 
+                <div
+                  className="mt-4 opacity-50 hover:opacity-100 transition-opacity duration-300 text-center cursor-pointer flex items-center justify-center gap-1 font-mono text-sm uppercase"
+                  onClick={() => {
+                    const eventsElement = document.getElementById('events')
+                    if (eventsElement) {
+                      eventsElement.scrollIntoView({ behavior: 'smooth' })
+                    }
+                  }}
+                >
+                  <span>{pluralize('event', events.length, true)}</span>
                   <ArrowDownIcon className="w-4 h-4 inline-block" />
                 </div>
               </header>
-              {page.description && <LexicalRenderer content={page.description} className='mt-4 mx-auto' />}
+              {page.description && (
+                <LexicalRenderer content={page.description} className="mt-4 mx-auto" />
+              )}
             </section>
           </article>
-        </>
+        </div>
       ) : (
         <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4">
+          <Back />
           <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
             <header>
               <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
@@ -96,8 +122,9 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
         </article>
       )}
 
-      <div className='bg-background relative' id="events">
+      <div className="bg-background relative" id="events">
         <EventExplorer
+          graphs={false}
           overrideDefaultZoomLevel={ZoomLevel.Timeline}
           eventFilterContextProps={{
             overrideFilteredInitiator: EventInitiatorFilter.ALL,
