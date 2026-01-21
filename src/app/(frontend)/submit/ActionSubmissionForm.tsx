@@ -13,19 +13,19 @@ import { RenderedCompanyLabel } from '@/components/CompanyLabel'
 import { RenderedCountryLabel } from '@/components/CountryLabel'
 import { RenderedOrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 
-interface EventSubmissionFormProps {
+interface ActionSubmissionFormProps {
   categories: Category[]
   countries: Country[]
   companies: Company[]
   organisingGroups: OrganisingGroup[]
 }
 
-export function EventSubmissionForm({
+export function ActionSubmissionForm({
   categories,
   countries,
   companies,
   organisingGroups,
-}: EventSubmissionFormProps) {
+}: ActionSubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState<string>('')
@@ -50,6 +50,16 @@ export function EventSubmissionForm({
     }
 
     const formData = new FormData(e.currentTarget)
+    const initiatorValue = formData.get('initiator') as EventInitiator | null
+    
+    // Validate initiator
+    if (!initiatorValue) {
+      setSubmitStatus('error')
+      setErrorMessage('Please select an initiator')
+      setIsSubmitting(false)
+      return
+    }
+
     const data: Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'slug'> = {
       name: formData.get('name') as string,
       description: formData.get('description')
@@ -88,10 +98,10 @@ export function EventSubmissionForm({
       headcount: formData.get('headcount')
         ? parseInt(formData.get('headcount') as string, 10)
         : undefined,
-      initiator: (formData.get('initiator') as EventInitiator) || EventInitiator.WORKER_LED,
+      initiator: initiatorValue,
       location: (formData.get('location') as string) || undefined,
       countries: selectedCountries.length > 0 ? selectedCountries : undefined,
-      link: (formData.get('link') as string) || undefined,
+      link: formData.get('link') as string,
       companies: selectedCompanies.length > 0 ? selectedCompanies : undefined,
       organisingGroups: selectedOrganisingGroups.length > 0 ? selectedOrganisingGroups : undefined,
       submissionContactDetails: formData.get('submissionContactDetails') as string,
@@ -100,7 +110,7 @@ export function EventSubmissionForm({
     }
 
     try {
-      const response = await fetch('/api/submit-event', {
+      const response = await fetch('/api/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +121,7 @@ export function EventSubmissionForm({
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to submit event')
+        throw new Error(result.message || 'Failed to submit action')
       }
 
       setSubmitStatus('success')
@@ -124,7 +134,7 @@ export function EventSubmissionForm({
       setConsent(false)
     } catch (error: any) {
       setSubmitStatus('error')
-      setErrorMessage(error.message || 'An error occurred while submitting the event')
+      setErrorMessage(error.message || 'An error occurred while submitting the action')
     } finally {
       setIsSubmitting(false)
     }
@@ -135,7 +145,7 @@ export function EventSubmissionForm({
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <h2 className="text-xl font-bold text-green-800 mb-2">Thank you!</h2>
         <p className="text-green-700">
-          Your event submission has been received and saved as a draft. We&apos;ll review it and get
+          Your action submission has been received and saved as a draft. We&apos;ll review it and get
           back to you soon.
         </p>
       </div>
@@ -150,7 +160,7 @@ export function EventSubmissionForm({
 
         <div>
           <Label htmlFor="name">
-            Event Name <span className="text-red-500">*</span>
+            Action Name <span className="text-red-500">*</span>
           </Label>
           <Input id="name" name="name" required className="mt-1" />
         </div>
@@ -208,13 +218,19 @@ export function EventSubmissionForm({
         </div>
 
         <div>
-          <Label htmlFor="initiator">Initiator</Label>
+          <Label htmlFor="initiator">
+            Initiator <span className="text-red-500">*</span>
+          </Label>
           <select
             id="initiator"
             name="initiator"
+            required
             className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-            defaultValue={EventInitiator.WORKER_LED}
+            defaultValue=""
           >
+            <option value="" disabled>
+              Select an initiator...
+            </option>
             <option value={EventInitiator.WORKER_LED}>
               Worker-led (e.g. an action or worker news)
             </option>
@@ -261,15 +277,18 @@ export function EventSubmissionForm({
         <h2 className="text-2xl font-bold">Media</h2>
 
         <div>
-          <Label htmlFor="link">Evidence Link</Label>
+          <Label htmlFor="link">
+            Evidence Link <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="link"
             name="link"
             type="url"
+            required
             className="mt-1"
             placeholder="https://example.com/article"
           />
-          <p className="text-sm text-gray-500 mt-1">Third party URL that evidences this event</p>
+          <p className="text-sm text-gray-500 mt-1">Third party URL that evidences this action</p>
         </div>
       </section>
 
@@ -358,7 +377,7 @@ export function EventSubmissionForm({
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting} className="min-w-32">
-          {isSubmitting ? 'Submitting...' : 'Submit Event'}
+          {isSubmitting ? 'Submitting...' : 'Submit Action'}
         </Button>
       </div>
     </form>

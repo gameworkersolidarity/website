@@ -3,7 +3,7 @@ import config from '@/payload.config'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { LexicalRenderer } from '../components/LexicalRenderer'
-import { EventSubmissionForm } from './EventSubmissionForm'
+import { ActionSubmissionForm } from './ActionSubmissionForm'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
@@ -19,11 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
       draft: isDraftMode,
     })
 
-    const title = eventSubmissionPageData?.title || 'Submit an Event'
+    const title = eventSubmissionPageData?.title || 'Submit an Action'
     const description =
       (eventSubmissionPageData?.description
         ? lexicalToPlainText(eventSubmissionPageData.description)
-        : '') || 'Submit a new event to the Game Workers Solidarity Platform'
+        : '') || 'Submit a new action to the Game Workers Solidarity Platform'
     const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
 
     return {
@@ -49,8 +49,8 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     }
   } catch (error) {
-    const title = 'Submit an Event'
-    const description = 'Submit a new event to the Game Workers Solidarity Platform'
+    const title = 'Submit an Action'
+    const description = 'Submit a new action to the Game Workers Solidarity Platform'
     const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
 
     return {
@@ -78,7 +78,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function SubmitEventPage() {
+export default async function SubmitActionPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
   const isDraftMode = (await draftMode()).isEnabled
@@ -126,7 +126,7 @@ export default async function SubmitEventPage() {
       <div className="mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-4 max-w-4xl">
         <div className="columns-1">
           <h1 className="text-4xl lg:text-5xl font-bold font-identity mb-4">
-            {eventSubmissionPageData.title || 'Submit an Event'}
+            {eventSubmissionPageData.title || 'Submit an Action'}
           </h1>
           {eventSubmissionPageData.description && (
             <div className="mb-6">
@@ -135,7 +135,7 @@ export default async function SubmitEventPage() {
           )}
         </div>
 
-        <EventSubmissionForm
+        <ActionSubmissionForm
           categories={categories.docs}
           countries={countries.docs}
           companies={companies.docs}
@@ -144,7 +144,7 @@ export default async function SubmitEventPage() {
       </div>
     )
   } catch (error) {
-    console.error('Error loading submit event page:', error)
+    console.error('Error loading submit action page:', error)
     return notFound()
   }
 }

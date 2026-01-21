@@ -145,7 +145,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/submit-event`,
+      url: `${baseUrl}/submit`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,

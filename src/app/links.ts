@@ -10,8 +10,8 @@ export const navLinks = [
     emoji: '✊',
   },
   {
-    label: 'Submit Event',
-    url: '/submit-event',
+    label: 'Submit Action',
+    url: '/submit',
     emoji: '➕',
   },
   {

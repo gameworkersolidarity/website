@@ -28,21 +28,19 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         id: event.id,
-        message: 'Event submitted successfully',
+        message: 'Action submitted successfully',
       },
       { status: 201 },
     )
   } catch (error: any) {
-    console.error('Error submitting event:', error)
+    console.error('Error submitting action:', error)
     return NextResponse.json(
       {
         success: false,
-        message: error.message || 'Failed to submit event',
+        message: error.message || 'Failed to submit action',
         errors: error.errors || [],
       },
       { status: 400 },
     )
   }
 }
-
-
