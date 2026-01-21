@@ -11,6 +11,7 @@ import { DateTime } from '@/components/DateTime'
 import { RefreshRouteOnSave } from '@/components/RefreshRouteOnSave'
 import { projectStrings } from '@/project-strings'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -22,6 +23,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     collection: 'blogPosts',
     slug,
     notFoundTitle: 'Article Not Found',
+    getDescription: async (record: any) => {
+      // Extract summary from body content
+      if (record.body) {
+        const bodyText = lexicalToPlainText(record.body)
+        if (bodyText) {
+          // Take first paragraph or first 300 characters for share card
+          const firstParagraph = bodyText.split('\n\n')[0] || bodyText.split('\n')[0] || bodyText
+          const summary = firstParagraph.length > 300 
+            ? firstParagraph.substring(0, 297) + '...' 
+            : firstParagraph
+          
+          if (summary.trim()) {
+            return summary.trim()
+          }
+        }
+      }
+      
+      // Fallback
+      return `Read about worker organising in the video game industry.`
+    },
   })
 }
 

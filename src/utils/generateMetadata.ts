@@ -6,6 +6,9 @@ import { getSlug } from '@/utils/payloadPath'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { Media, Config } from '@/payload-types'
 import { capitalize } from 'lodash'
+import { backupShareCard } from '@/app/(frontend)/layout'
+import { Metadata } from 'next'
+import { OpenGraph } from 'next/dist/lib/metadata/types/opengraph-types'
 
 type MetadataOptions = {
   collection: CollectionSlug
@@ -23,7 +26,7 @@ export async function generateMetadataForSlug({
   getTitle,
   getDescription,
   getImages,
-}: MetadataOptions) {
+}: MetadataOptions): Promise<Metadata> {
   const isDraftMode = (await draftMode()).isEnabled
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -35,13 +38,13 @@ export async function generateMetadataForSlug({
         equals: slug,
       },
       // Only fetch published content when not in draft mode
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
+      // ...(!isDraftMode
+      //   ? {
+      //       _status: {
+      //         equals: 'published',
+      //       },
+      //     }
+      //   : {}),
     },
     depth: 1,
     draft: isDraftMode,
@@ -133,7 +136,7 @@ export async function generateMetadataForSlug({
   }
 
   // Get images
-  let images: string[] | undefined
+  let images: OpenGraph['images']
   if (getImages) {
     images = getImages(record)
   } else {
@@ -147,6 +150,10 @@ export async function generateMetadataForSlug({
         images = [imageUrl]
       }
     }
+  }
+
+  if (!images || (Array.isArray(images) && images.length === 0)) {
+    images = [backupShareCard]
   }
 
   return {

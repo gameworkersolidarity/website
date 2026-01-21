@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     collection: 'countries',
     slug,
     notFoundTitle: 'Country Not Found',
-    getTitle: (country) => `Worker organising in ${country.name}`,
+    getTitle: (country) => `Game worker solidarity in ${country.name}`,
   })
 }
 

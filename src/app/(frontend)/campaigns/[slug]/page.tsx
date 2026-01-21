@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { CampaignPage } from './CampaignPage'
 import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 
 export async function generateStaticParams() {
   const payloadConfig = await config
@@ -27,6 +28,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return generateMetadataForSlug({
     collection: 'campaigns',
     slug,
+    getDescription: async (record: any) => {
+      // Use description if available
+      if (record.description) {
+        const descText = lexicalToPlainText(record.description)
+        if (descText) {
+          // Truncate to fit share card (max ~300 chars for campaigns)
+          return descText.length > 300 ? descText.substring(0, 297) + '...' : descText
+        }
+      }
+      
+      // Fallback with campaign name
+      return `Explore the ${record.name || 'campaign'} and learn about worker organising in the video game industry.`
+    },
   })
 }
 

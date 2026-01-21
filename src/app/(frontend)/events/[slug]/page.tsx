@@ -8,6 +8,8 @@ import { EventNav, EventPage } from './EventPage'
 import { Event } from '@/payload-types'
 import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { format } from 'date-fns'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -247,5 +249,64 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     collection: 'events',
     slug,
     notFoundTitle: 'Event Not Found',
+    getDescription: async (record: any) => {
+      const parts: string[] = []
+      
+      // Add date information
+      if (record.date) {
+        const eventDate = new Date(record.date)
+        const dateStr = format(eventDate, 'e MMM yy')
+        parts.push(dateStr)
+      }
+      
+      // Add location information
+      if (record.location) {
+        parts.push(record.location)
+      } else if (record.countries && Array.isArray(record.countries) && record.countries.length > 0) {
+        const countryNames = record.countries
+          .map((c: any) => (typeof c === 'object' ? c.name : null))
+          .filter(Boolean)
+          .slice(0, 2)
+        if (countryNames.length > 0) {
+          parts.push(countryNames.join(', '))
+        }
+      }
+      
+      // Add company information
+      // if (record.companies && Array.isArray(record.companies) && record.companies.length > 0) {
+      //   const companyNames = record.companies
+      //     .map((c: any) => (typeof c === 'object' ? c.name : null))
+      //     .filter(Boolean)
+      //     .slice(0, 2)
+      //   if (companyNames.length > 0) {
+      //     parts.push(`at ${companyNames.join(', ')}`)
+      //   }
+      // }
+      
+      // // Add headcount if available
+      // if (record.headcount) {
+      //   parts.push(`${record.headcount} workers affected`)
+      // }
+      
+      // Add description if available
+      if (record.description) {
+        const descText = lexicalToPlainText(record.description)
+        if (descText) {
+          // Truncate description to fit in share card (max ~200 chars)
+          const truncatedDesc = descText.length > 200 ? descText.substring(0, 197) + '...' : descText
+          parts.push(truncatedDesc)
+        }
+      }
+      
+      // Build final description
+      let description = parts.join(' • ')
+      
+      // Fallback if no parts
+      if (!description) {
+        description = `Learn about this worker organising event in the video game industry.`
+      }
+      
+      return description
+    },
   })
 }
