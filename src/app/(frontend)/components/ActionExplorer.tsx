@@ -69,7 +69,7 @@ export function ActionExplorer({
           className="transition-all duration-500 ease-in-out hidden md:block"
         >
           <div className="sticky top-6 h-[calc(100vh-60px)]">
-            <ActionStats graphs={graphs} />
+            <ActionStats graphs={false} />
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle className="hidden md:flex" />
