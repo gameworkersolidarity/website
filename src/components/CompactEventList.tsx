@@ -101,20 +101,20 @@ export function CompactEventList({
                 <div className="font-medium text-wrap w-[250px]">
                   <HighlightText text={row.getValue('name')} ranges={nameRanges} />
                 </div>
-              {!filteredCampaignSlug && row.original.campaigns?.docs?.length ? (
-                <div className="text-xs opacity-50 flex items-center gap-1">
-                  <Star fill="currentColor" className="w-3 h-3 text-snot-400" />
-                  <span className="text-xs">Part of the</span>
-                  <span className="italic font-medium">
-                    {row.original.campaigns?.docs
-                      ?.map((campaign) => (campaign as Campaign).name)
-                      .join(', ')}
-                  </span>{' '}
-                  <span className="text-xs">
-                    {pluralize('campaign', row.original.campaigns?.docs?.length)}
-                  </span>
-                </div>
-              ) : null}
+                {!filteredCampaignSlug && row.original.campaigns?.docs?.length ? (
+                  <div className="text-xs opacity-50 flex items-center gap-1">
+                    <Star fill="currentColor" className="w-3 h-3 text-snot-400" />
+                    <span className="text-xs">Part of the</span>
+                    <span className="italic font-medium">
+                      {row.original.campaigns?.docs
+                        ?.map((campaign) => (campaign as Campaign).name)
+                        .join(', ')}
+                    </span>{' '}
+                    <span className="text-xs">
+                      {pluralize('campaign', row.original.campaigns?.docs?.length)}
+                    </span>
+                  </div>
+                ) : null}
               </Link>
             </TableCell>
           )
@@ -308,7 +308,10 @@ export function CompactEventList({
         header: 'Actor',
         cell: ({ cell, row }) => (
           <TableCell key={cell.id} className="text-xs uppercase font-mono">
-            <DisplayInitiator initiator={row.getValue('initiator') as EventInitiatorFilter} link="soft" />
+            <DisplayInitiator
+              initiator={row.getValue('initiator') as EventInitiatorFilter}
+              link="soft"
+            />
           </TableCell>
         ),
       },

@@ -24,9 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
     const title = 'Worker organising campaigns'
     const description =
-      (campaignPageData?.description
-        ? lexicalToPlainText(campaignPageData.description)
-        : '') || 'Stories about worker organising in the video game industry.'
+      (campaignPageData?.description ? lexicalToPlainText(campaignPageData.description) : '') ||
+      'Stories about worker organising in the video game industry.'
     const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
 
     return {

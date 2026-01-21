@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
 import type { Event, BlogPost } from '@/payload-types'
 
 export default function StatsWidget() {
@@ -61,16 +62,25 @@ export default function StatsWidget() {
 
   if (loading) {
     return (
-      <div style={{ 
-        width: '100%',
-        maxWidth: '100%',
-        padding: '1.5rem', 
-        background: 'var(--theme-elevation-50)', 
-        borderRadius: '4px',
-        boxSizing: 'border-box',
-        margin: 0
-      }}>
-        <div style={{ fontSize: '1rem', fontWeight: '500', color: 'var(--theme-text)', marginBottom: '1rem' }}>
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          padding: '1.5rem',
+          background: 'var(--theme-elevation-50)',
+          borderRadius: '4px',
+          boxSizing: 'border-box',
+          margin: 0,
+        }}
+      >
+        <div
+          style={{
+            fontSize: '1rem',
+            fontWeight: '500',
+            color: 'var(--theme-text)',
+            marginBottom: '1rem',
+          }}
+        >
           Statistics
         </div>
         <div style={{ fontSize: '0.875rem', color: 'var(--theme-text)' }}>Loading...</div>
@@ -79,25 +89,36 @@ export default function StatsWidget() {
   }
 
   return (
-    <div style={{ 
-      width: '100%',
-      maxWidth: '100%',
-      padding: '1.5rem', 
-      background: 'var(--theme-elevation-50)', 
-      borderRadius: '4px',
-      boxSizing: 'border-box',
-      margin: 0
-    }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', width: '100%' }}>
+    <div
+      style={{
+        width: '100%',
+        maxWidth: '100%',
+        padding: '1.5rem',
+        background: 'var(--theme-elevation-50)',
+        borderRadius: '4px',
+        boxSizing: 'border-box',
+        margin: 0,
+      }}
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1.5rem',
+          width: '100%',
+        }}
+      >
         {/* Event Count */}
-        <div style={{ padding: '1rem', background: 'var(--theme-elevation-100)', borderRadius: '4px' }}>
+        <div
+          style={{ padding: '1rem', background: 'var(--theme-elevation-100)', borderRadius: '4px' }}
+        >
           <div style={{ fontSize: '0.875rem', color: 'var(--theme-text)', marginBottom: '0.5rem' }}>
             Total Events
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--theme-success-500)' }}>
             {(eventCount ?? 0).toLocaleString()}
           </div>
-          <a
+          <Link
             href="/admin/collections/events"
             style={{
               display: 'inline-block',
@@ -108,12 +129,19 @@ export default function StatsWidget() {
             }}
           >
             View all →
-          </a>
+          </Link>
         </div>
 
         {/* Recent Submissions */}
         <div>
-          <div style={{ fontSize: '0.875rem', color: 'var(--theme-text)', marginBottom: '0.75rem', fontWeight: '500' }}>
+          <div
+            style={{
+              fontSize: '0.875rem',
+              color: 'var(--theme-text)',
+              marginBottom: '0.75rem',
+              fontWeight: '500',
+            }}
+          >
             Recent Submissions
           </div>
           {submissions.length === 0 ? (
@@ -124,7 +152,7 @@ export default function StatsWidget() {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {submissions.map((submission) => (
-                  <a
+                  <Link
                     key={submission.id}
                     href={`/admin/collections/events/${submission.id}`}
                     style={{
@@ -141,15 +169,13 @@ export default function StatsWidget() {
                       {submission.name || 'Untitled Event'}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
-                      {submission.date
-                        ? new Date(submission.date).toLocaleDateString()
-                        : 'No date'}
+                      {submission.date ? new Date(submission.date).toLocaleDateString() : 'No date'}
                       {submission.location && ` • ${submission.location}`}
                     </div>
-                  </a>
+                  </Link>
                 ))}
               </div>
-              <a
+              <Link
                 href="/admin/collections/events?where[_status][equals]=draft&where[submissionContactDetails][exists]=true"
                 style={{
                   display: 'inline-block',
@@ -160,14 +186,21 @@ export default function StatsWidget() {
                 }}
               >
                 View all submissions →
-              </a>
+              </Link>
             </>
           )}
         </div>
 
         {/* Recent Blog Posts */}
         <div>
-          <div style={{ fontSize: '0.875rem', color: 'var(--theme-text)', marginBottom: '0.75rem', fontWeight: '500' }}>
+          <div
+            style={{
+              fontSize: '0.875rem',
+              color: 'var(--theme-text)',
+              marginBottom: '0.75rem',
+              fontWeight: '500',
+            }}
+          >
             Recent Blog Posts
           </div>
           {posts.length === 0 ? (
@@ -178,7 +211,7 @@ export default function StatsWidget() {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {posts.map((post) => (
-                  <a
+                  <Link
                     key={post.id}
                     href={`/admin/collections/blogPosts/${post.id}`}
                     style={{
@@ -198,10 +231,10 @@ export default function StatsWidget() {
                       {post.date ? new Date(post.date).toLocaleDateString() : 'No date'}
                       {post.byline && ` • ${post.byline}`}
                     </div>
-                  </a>
+                  </Link>
                 ))}
               </div>
-              <a
+              <Link
                 href="/admin/collections/blogPosts"
                 style={{
                   display: 'inline-block',
@@ -212,7 +245,7 @@ export default function StatsWidget() {
                 }}
               >
                 View all posts →
-              </a>
+              </Link>
             </>
           )}
         </div>

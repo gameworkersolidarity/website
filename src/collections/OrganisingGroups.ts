@@ -130,7 +130,7 @@ export const OrganisingGroups: CollectionConfig = {
       name: 'parents',
       admin: {
         description: 'Parents of this organising group.',
-        hidden: true
+        hidden: true,
       },
     }),
     {

@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
           return descText.length > 300 ? descText.substring(0, 297) + '...' : descText
         }
       }
-      
+
       // Fallback with campaign name
       return `Explore the ${record.name || 'campaign'} and learn about worker organising in the video game industry.`
     },

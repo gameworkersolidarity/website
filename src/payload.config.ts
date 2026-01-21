@@ -45,9 +45,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     components: {
-      beforeNavLinks: [
-        './app/(payload)/admin/components/HomepageLink#HomepageLink',
-      ],
+      beforeNavLinks: ['./app/(payload)/admin/components/HomepageLink#HomepageLink'],
       graphics: {
         Logo: './app/(payload)/admin/components/Logo#default',
         Icon: './app/(payload)/admin/components/Icon#default',

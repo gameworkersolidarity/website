@@ -11,9 +11,9 @@ export default function Logo() {
         width={40}
         height={40}
         alt="Game Worker Solidarity Logo"
-        style={{ 
+        style={{
           objectFit: 'contain',
-          filter: 'drop-shadow(0 2px 4px rgba(221, 150, 255, 0.2))'
+          filter: 'drop-shadow(0 2px 4px rgba(221, 150, 255, 0.2))',
         }}
         className="dark:opacity-90"
       />

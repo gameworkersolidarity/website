@@ -13,7 +13,16 @@ import {
 } from '@/utils/global-state'
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
-import { createContext, Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { create, insertMultiple, search } from '@orama/orama'
 import { Highlight } from '@orama/highlight'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -120,37 +129,52 @@ function createSearchableEvent(event: Event) {
     location: event.location || '',
     source: event.source || '',
     categories: {
-      name: event.categories
-        ?.map((cat) => (typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : ''))
-        .filter(Boolean) || [],
+      name:
+        event.categories
+          ?.map((cat) =>
+            typeof cat === 'object' && cat !== null && 'name' in cat ? (cat as Category).name : '',
+          )
+          .filter(Boolean) || [],
     },
     countries: {
-      name: event.countries
-        ?.map((country) =>
-          typeof country === 'object' && country !== null && 'name' in country ? (country as Country).name : '',
-        )
-        .filter(Boolean) || [],
+      name:
+        event.countries
+          ?.map((country) =>
+            typeof country === 'object' && country !== null && 'name' in country
+              ? (country as Country).name
+              : '',
+          )
+          .filter(Boolean) || [],
     },
     companies: {
-      name: event.companies
-        ?.map((company) =>
-          typeof company === 'object' && company !== null && 'name' in company ? (company as Company).name : '',
-        )
-        .filter(Boolean) || [],
+      name:
+        event.companies
+          ?.map((company) =>
+            typeof company === 'object' && company !== null && 'name' in company
+              ? (company as Company).name
+              : '',
+          )
+          .filter(Boolean) || [],
     },
     organisingGroups: {
-      name: event.organisingGroups
-        ?.map((og) =>
-          typeof og === 'object' && og !== null && 'name' in og ? (og as OrganisingGroup).name : '',
-        )
-        .filter(Boolean) || [],
+      name:
+        event.organisingGroups
+          ?.map((og) =>
+            typeof og === 'object' && og !== null && 'name' in og
+              ? (og as OrganisingGroup).name
+              : '',
+          )
+          .filter(Boolean) || [],
     },
     campaigns: {
-      name: event.campaigns?.docs
-        ?.map((campaign) =>
-          typeof campaign === 'object' && campaign !== null && 'name' in campaign ? (campaign as Campaign).name : '',
-        )
-        .filter(Boolean) || [],
+      name:
+        event.campaigns?.docs
+          ?.map((campaign) =>
+            typeof campaign === 'object' && campaign !== null && 'name' in campaign
+              ? (campaign as Campaign).name
+              : '',
+          )
+          .filter(Boolean) || [],
     },
   }
 }
@@ -412,7 +436,9 @@ export function EventFilterContextProvider({
           let fieldValue: string | undefined
           if (field === 'description') {
             try {
-              fieldValue = originalEvent.description ? lexicalToPlainText(originalEvent.description) : undefined
+              fieldValue = originalEvent.description
+                ? lexicalToPlainText(originalEvent.description)
+                : undefined
             } catch (e) {
               // Skip if conversion fails
             }

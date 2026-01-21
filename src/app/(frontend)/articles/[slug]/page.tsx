@@ -30,16 +30,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         if (bodyText) {
           // Take first paragraph or first 300 characters for share card
           const firstParagraph = bodyText.split('\n\n')[0] || bodyText.split('\n')[0] || bodyText
-          const summary = firstParagraph.length > 300 
-            ? firstParagraph.substring(0, 297) + '...' 
-            : firstParagraph
-          
+          const summary =
+            firstParagraph.length > 300 ? firstParagraph.substring(0, 297) + '...' : firstParagraph
+
           if (summary.trim()) {
             return summary.trim()
           }
         }
       }
-      
+
       // Fallback
       return `Read about worker organising in the video game industry.`
     },

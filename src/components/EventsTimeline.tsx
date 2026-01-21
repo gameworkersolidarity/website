@@ -564,16 +564,16 @@ export function Timeline({
                 />
                 {event.featured && (
                   <>
-                  <Circle
-                    cx={x}
-                    cy={timelineY}
-                    r={radius + 2}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={2}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleClick(event)}
-                  />
+                    <Circle
+                      cx={x}
+                      cy={timelineY}
+                      r={radius + 2}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={2}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleClick(event)}
+                    />
                   </>
                 )}
               </g>
@@ -595,7 +595,7 @@ export function Timeline({
             // Firefox/Safari require explicit width/height on foreignObject
             const estimatedWidth = 300 // px - generous width to accommodate longer labels
             // const estimatedHeight = event.id === currentEventId ? 60 : 40 // px - more height if date is shown
-            
+
             return (
               <HtmlLabel
                 key={`label-${event.id}`}
@@ -604,7 +604,7 @@ export function Timeline({
                 horizontalAnchor="middle"
                 verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
                 showAnchorLine={false}
-                containerStyle={{ 
+                containerStyle={{
                   overflow: 'visible',
                   pointerEvents: 'auto',
                 }}
@@ -614,7 +614,7 @@ export function Timeline({
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
                     event.id === currentEventId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
-                    event.featured && 'underline'
+                    event.featured && 'underline',
                   )}
                   style={{
                     display: 'flex',

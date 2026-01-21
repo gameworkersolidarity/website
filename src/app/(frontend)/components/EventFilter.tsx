@@ -110,7 +110,9 @@ export function EventFilter({
         <div className="flex flex-row items-baseline gap-2">
           <CollapsibleTrigger className="flex flex-row items-center gap-2 cursor-pointer">
             <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
-            {isMobile && <CollapsibleListButton open={open} className="w-3.5 h-3.5 text-stone-500" />}
+            {isMobile && (
+              <CollapsibleListButton open={open} className="w-3.5 h-3.5 text-stone-500" />
+            )}
           </CollapsibleTrigger>
           {/* {((filteredCountryISOA2 && filteredCountryISOA2.length > 0) ||
             (filteredCategorySlug && filteredCategorySlug.length > 0) ||
@@ -179,7 +181,10 @@ export function EventFilter({
                 <div key={initiator.label} className="flex items-center gap-2">
                   <Label htmlFor={initiator.label} className="text-xs uppercase">
                     <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
-                    <DisplayInitiator initiator={initiator.value as EventInitiatorFilter} link="soft" />
+                    <DisplayInitiator
+                      initiator={initiator.value as EventInitiatorFilter}
+                      link="soft"
+                    />
                   </Label>
                 </div>
               ))}

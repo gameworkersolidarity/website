@@ -1,1 +1,25 @@
-["^ ","~:classpath",["~#set",[]],"~:project-hash","","~:project-root","/Users/jan/dev/gwsp","~:settings-hash","99914b932bd37a50b983c5e7c90ae93b","~:kondo-config-hash","c0e9e79444d30049217497beee5dd55a45a019c5ebadad344c3d7513f5b473af","~:dependency-scheme","jar","~:analysis",null,"~:analysis-checksums",["^ "],"~:project-analysis-type","~:project-and-full-dependencies","~:version",13,"~:stubs-generation-namespaces",["^1",[]]]
+[
+  "^ ",
+  "~:classpath",
+  ["~#set", []],
+  "~:project-hash",
+  "",
+  "~:project-root",
+  "/Users/jan/dev/gwsp",
+  "~:settings-hash",
+  "99914b932bd37a50b983c5e7c90ae93b",
+  "~:kondo-config-hash",
+  "c0e9e79444d30049217497beee5dd55a45a019c5ebadad344c3d7513f5b473af",
+  "~:dependency-scheme",
+  "jar",
+  "~:analysis",
+  null,
+  "~:analysis-checksums",
+  ["^ "],
+  "~:project-analysis-type",
+  "~:project-and-full-dependencies",
+  "~:version",
+  13,
+  "~:stubs-generation-namespaces",
+  ["^1", []]
+]

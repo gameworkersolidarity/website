@@ -44,14 +44,16 @@ export function ActionSubmissionForm({
     // Validate consent
     if (!consent) {
       setSubmitStatus('error')
-      setErrorMessage('You must consent to Game Worker Solidarity Project publishing this information')
+      setErrorMessage(
+        'You must consent to Game Worker Solidarity Project publishing this information',
+      )
       setIsSubmitting(false)
       return
     }
 
     const formData = new FormData(e.currentTarget)
     const initiatorValue = formData.get('initiator') as EventInitiator | null
-    
+
     // Validate initiator
     if (!initiatorValue) {
       setSubmitStatus('error')
@@ -145,8 +147,8 @@ export function ActionSubmissionForm({
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <h2 className="text-xl font-bold text-green-800 mb-2">Thank you!</h2>
         <p className="text-green-700">
-          Your action submission has been received and saved as a draft. We&apos;ll review it and get
-          back to you soon.
+          Your action submission has been received and saved as a draft. We&apos;ll review it and
+          get back to you soon.
         </p>
       </div>
     )

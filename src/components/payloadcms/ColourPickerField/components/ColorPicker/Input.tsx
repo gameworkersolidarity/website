@@ -2,7 +2,15 @@
 import type { ChangeEvent } from 'react'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Button, fieldBaseClass, FieldDescription, FieldError, FieldLabel, RenderCustomComponent, useTranslation } from '@payloadcms/ui'
+import {
+  Button,
+  fieldBaseClass,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  RenderCustomComponent,
+  useTranslation,
+} from '@payloadcms/ui'
 import React, { useState, useRef } from 'react'
 import { HexColorPicker } from 'react-colorful'
 
@@ -57,13 +65,7 @@ export const ColorPickerInput: React.FC<ColorPickerInputProps> = (props) => {
 
   return (
     <div
-      className={[
-        fieldBaseClass,
-        'color',
-        className,
-        showError && 'error',
-        readOnly && 'read-only',
-      ]
+      className={[fieldBaseClass, 'color', className, showError && 'error', readOnly && 'read-only']
         .filter(Boolean)
         .join(' ')}
       style={style}
@@ -82,7 +84,7 @@ export const ColorPickerInput: React.FC<ColorPickerInputProps> = (props) => {
         {BeforeInput}
         <div
           className={`${baseClass}__input-container`}
-          onBlur={e => {
+          onBlur={(e) => {
             if (!e.currentTarget.contains(e.relatedTarget)) {
               setFieldIsFocused(false)
             }
@@ -154,7 +156,7 @@ export const ColorPickerInput: React.FC<ColorPickerInputProps> = (props) => {
             )}
             <HexColorPicker
               color={value || ''}
-              onChange={v => {
+              onChange={(v) => {
                 if (v !== value) {
                   onChange?.({
                     target: {

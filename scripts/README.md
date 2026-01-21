@@ -86,6 +86,7 @@ This script migrates data from Airtable to Payload CMS collections.
 ## Prerequisites
 
 1. Copy the example environment file and configure it:
+
    ```bash
    cp .env.example .env
    ```
@@ -120,7 +121,7 @@ tsx scripts/ingest-actions.ts
 The script migrates data in the following order:
 
 1. **Countries** - Independent entities
-2. **Companies** - Independent entities  
+2. **Companies** - Independent entities
 3. **Categories** - Independent entities
 4. **Organising Groups** - Has relationships to Countries
 5. **Solidarity Actions** - Has relationships to Countries, Companies, Categories, and Organising Groups
@@ -139,21 +140,25 @@ The script migrates data in the following order:
 ## Field Mappings
 
 ### Countries
+
 - `Name` → Name
 - `isoA2` → isoA2
 - `Slug` → Slug
 - `Summary` → Summary (converted to rich text)
 
 ### Companies
+
 - `Name` → Name
 - `Summary` → Summary (converted to rich text)
 
 ### Categories
+
 - `Name` → Name
 - `Emoji` → Emoji
 - `Summary` → Summary (converted to rich text)
 
 ### Organising Groups
+
 - `Name` → Name
 - `slug` → slug
 - `Full Name` → FullName
@@ -165,6 +170,7 @@ The script migrates data in the following order:
 - `LastModified` → LastModified
 
 ### Solidarity Actions
+
 - `Name` → Name
 - `slug` → slug
 - `Location` → Location
@@ -182,6 +188,7 @@ The script migrates data in the following order:
 - `Public` → Public
 
 ### Blog Posts
+
 - `Slug` → Slug
 - `Title` → Title
 - `ByLine` → ByLine
@@ -192,6 +199,7 @@ The script migrates data in the following order:
 - `Public` → Public
 
 ### Solidarity Actions - Files
+
 - `Document` (attachments array) → Document (uploads all attachments to Media collection)
 
 ## Notes
@@ -204,4 +212,3 @@ The script migrates data in the following order:
 - HTML tags are stripped from content when converting to rich text
 - Date fields are parsed and converted to ISO format
 - The script checks for existing records using `airtableId` to avoid duplicates
-

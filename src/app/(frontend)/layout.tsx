@@ -9,8 +9,7 @@ import { ThemeProvider } from '@/components/NextTheme'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next/dist/types'
 
-export const backupShareCard = 
-{
+export const backupShareCard = {
   url: `${projectStrings.baseUrl}/icon/icon.png`,
   width: 1200,
   height: 630,
@@ -53,9 +52,7 @@ export const metadata: Metadata = {
     title: 'Game Workers Solidarity Platform',
     description:
       'Tracking solidarity actions across the global video game industry. Archive of worker organizing, strikes, unionization efforts, and collective action in game development.',
-    images: [
-      backupShareCard
-    ],
+    images: [backupShareCard],
   },
   twitter: {
     card: 'summary_large_image',

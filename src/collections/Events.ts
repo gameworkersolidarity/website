@@ -314,7 +314,8 @@ export const Events: CollectionConfig = {
       type: 'checkbox',
       label: 'Featured',
       admin: {
-        description: 'Featured events will be highlighted on timelines and show descriptions in preview mode',
+        description:
+          'Featured events will be highlighted on timelines and show descriptions in preview mode',
         position: 'sidebar',
       },
     },
@@ -332,10 +333,11 @@ export const Events: CollectionConfig = {
       type: 'checkbox',
       label: 'Consent',
       admin: {
-        description: 'User consented to Game Worker Solidarity Project publishing this information online and offline',
+        description:
+          'User consented to Game Worker Solidarity Project publishing this information online and offline',
         position: 'sidebar',
       },
-    }
+    },
   ],
   hooks: {
     beforeChange: [
