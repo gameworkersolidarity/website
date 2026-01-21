@@ -312,9 +312,11 @@ export function DocumentLink({
         <span className={twMerge(withPreview && 'block')}>
           <Emoji symbol="📑" label="File attachment" className="align-baseline" />
           &nbsp;
-          <span className="align-baseline underline text-inherit">{document.filename}</span>
-          &nbsp;
-          <span className="text-gray-500">{document.mimeType}</span>
+          <span className="align-baseline link">
+            <span className="align-baseline underline text-inherit">{document.filename}</span>
+            &nbsp;
+            <span className="text-gray-500">{document.mimeType}</span>
+          </span>
         </span>
         {withPreview && (
           <div className="inline-block overflow-hidden border border-black rounded-xl mt-4">
@@ -410,12 +412,14 @@ export function EventCard({
             <ActionMetadata data={data} link={links} />
           </div>
           <Wrapper>
-            <h3 className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
+            {/* Title */}
+            <h3 key="title" className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
               <HighlightText text={data.name} ranges={nameRanges} />
             </h3>
           </Wrapper>
+          {/* Description */}
           {data.description && (
-            <div className={'w-full text-lg font-light order-2 md:order-2'}>
+            <div key="description" className={'w-full text-lg font-light order-2 md:order-2'}>
               {hasDescriptionHighlights ? (
                 <HighlightedDescription
                   content={data.description}
@@ -427,11 +431,11 @@ export function EventCard({
             </div>
           )}
           {data.link && links && (
-            <div className="flex flex-row space-x-4 text-sm">
+            <div key="links" className="flex flex-row space-x-4 text-sm order-3">
               <Link href={data.link} className="block my-1">
                 <Emoji symbol="🔗" label="Link" className="align-baseline" />
                 &nbsp;
-                <span className="align-baseline underline text-inherit">
+                <span className="align-baseline text-inherit link">
                   {new URL(data.link).hostname}
                 </span>
               </Link>
