@@ -84,6 +84,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    companies: {
+      events: 'events';
+    };
     events: {
       campaigns: 'campaigns';
     };
@@ -456,6 +459,14 @@ export interface Company {
    * Countries where this company has workers.
    */
   countries?: (string | Country)[] | null;
+  /**
+   * Events associated with this company.
+   */
+  events?: {
+    docs?: (string | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   path?: string;
   url?: string;
   /**
@@ -471,6 +482,123 @@ export interface Company {
     | null;
   adminPath?: string;
   parent?: (string | null) | Company;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  /**
+   * Legacy Airtable ID for url redirects.
+   */
+  airtableId?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Internal notes on where this data came from. Will be prefilled in the case of automatic ingestions from other datasets.
+   */
+  source?: string | null;
+  date: string;
+  /**
+   * Optional end date for the event, if the event spans multiple days.
+   */
+  endDate?: string | null;
+  /**
+   * What kind of event is this?
+   */
+  categories?: (string | Category)[] | null;
+  /**
+   * How many workers were involved in, or affected by, this event.
+   */
+  headcount?: number | null;
+  /**
+   * Who led this? Used to decide whether to display the event on timelines and so on.
+   */
+  initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null;
+  /**
+   * Third party URL that evidences this event.
+   */
+  link?: string | null;
+  documents?: (string | Media)[] | null;
+  location?: string | null;
+  countries?: (string | Country)[] | null;
+  /**
+   * Coordinates of the event. Will be automatically populated if the location, or country, is provided.
+   */
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+    [k: string]: unknown;
+  };
+  companies?: (string | Company)[] | null;
+  organisingGroups?: (string | OrganisingGroup)[] | null;
+  /**
+   * Campaigns this event is part of.
+   */
+  campaigns?: {
+    docs?: (string | Campaign)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Link related events and they will appear on the same timeline
+   */
+  relatedEvents?:
+    | {
+        /**
+         * The event this is related to
+         */
+        event: string | Event;
+        /**
+         * How are these events related?
+         */
+        connectionType: 'DIRECT' | 'INDIRECT';
+        /**
+         * Description of how these events are related (e.g., "The same organiser went on to do this other thing")
+         */
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  /**
+   * Featured events will be highlighted on timelines and show descriptions in preview mode
+   */
+  featured?: boolean | null;
+  /**
+   * Contact information provided by the person who submitted this event
+   */
+  submissionContactDetails?: string | null;
+  /**
+   * User consented to Game Worker Solidarity Project publishing this information online and offline
+   */
+  consent?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -647,123 +775,6 @@ export interface Campaign {
   adminPath?: string;
   apiPath?: string;
   collectionSlug?: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events".
- */
-export interface Event {
-  id: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  name: string;
-  /**
-   * Legacy Airtable ID for url redirects.
-   */
-  airtableId?: string | null;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Internal notes on where this data came from. Will be prefilled in the case of automatic ingestions from other datasets.
-   */
-  source?: string | null;
-  date: string;
-  /**
-   * Optional end date for the event, if the event spans multiple days.
-   */
-  endDate?: string | null;
-  /**
-   * What kind of event is this?
-   */
-  categories?: (string | Category)[] | null;
-  /**
-   * How many workers were involved in, or affected by, this event.
-   */
-  headcount?: number | null;
-  /**
-   * Who led this? Used to decide whether to display the event on timelines and so on.
-   */
-  initiator?: ('WORKER_LED' | 'BOSS_LED' | 'OTHER') | null;
-  /**
-   * Third party URL that evidences this event.
-   */
-  link?: string | null;
-  documents?: (string | Media)[] | null;
-  location?: string | null;
-  countries?: (string | Country)[] | null;
-  /**
-   * Coordinates of the event. Will be automatically populated if the location, or country, is provided.
-   */
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-    [k: string]: unknown;
-  };
-  companies?: (string | Company)[] | null;
-  organisingGroups?: (string | OrganisingGroup)[] | null;
-  /**
-   * Campaigns this event is part of.
-   */
-  campaigns?: {
-    docs?: (string | Campaign)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  /**
-   * Link related events and they will appear on the same timeline
-   */
-  relatedEvents?:
-    | {
-        /**
-         * The event this is related to
-         */
-        event: string | Event;
-        /**
-         * How are these events related?
-         */
-        connectionType: 'DIRECT' | 'INDIRECT';
-        /**
-         * Description of how these events are related (e.g., "The same organiser went on to do this other thing")
-         */
-        description: string;
-        id?: string | null;
-      }[]
-    | null;
-  path?: string;
-  url?: string;
-  adminPath?: string;
-  /**
-   * Featured events will be highlighted on timelines and show descriptions in preview mode
-   */
-  featured?: boolean | null;
-  /**
-   * Contact information provided by the person who submitted this event
-   */
-  submissionContactDetails?: string | null;
-  /**
-   * User consented to Game Worker Solidarity Project publishing this information online and offline
-   */
-  consent?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1106,6 +1117,7 @@ export interface CompaniesSelect<T extends boolean = true> {
   primaryColor?: T;
   color?: T;
   countries?: T;
+  events?: T;
   path?: T;
   url?: T;
   parents?:

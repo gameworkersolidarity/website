@@ -106,6 +106,15 @@ export const Companies: CollectionConfig = {
       },
     },
     {
+      name: 'events',
+      type: 'join',
+      collection: 'events',
+      on: 'companies',
+      admin: {
+        description: 'Events associated with this company.',
+      },
+    },
+    {
       name: 'path',
       type: 'text',
       virtual: true,
