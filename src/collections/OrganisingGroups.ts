@@ -126,6 +126,13 @@ export const OrganisingGroups: CollectionConfig = {
         description: 'Companies this group organises workers within.',
       },
     },
+    createBreadcrumbsField('organisingGroups', {
+      name: 'parents',
+      admin: {
+        description: 'Parents of this organising group.',
+        hidden: true
+      },
+    }),
     {
       name: 'isUnion',
       type: 'checkbox',
@@ -138,8 +145,20 @@ export const OrganisingGroups: CollectionConfig = {
       },
     },
     {
+      name: 'events',
+      type: 'join',
+      collection: 'events',
+      on: 'organisingGroups',
+      admin: {
+        description: 'Events associated with this organising group.',
+      },
+    },
+    {
       name: 'website',
       type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'webshiteHostname',
@@ -162,6 +181,9 @@ export const OrganisingGroups: CollectionConfig = {
     {
       name: 'bluesky',
       type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'blueskyHandle',
@@ -184,6 +206,9 @@ export const OrganisingGroups: CollectionConfig = {
     {
       name: 'twitter',
       type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'twitterHandle',
@@ -234,13 +259,6 @@ export const OrganisingGroups: CollectionConfig = {
         ],
       },
     },
-    createBreadcrumbsField('organisingGroups', {
-      name: 'parents',
-      admin: {
-        description: 'Parents of this organising group.',
-        hidden: true,
-      },
-    }),
     {
       name: 'adminPath',
       type: 'text',

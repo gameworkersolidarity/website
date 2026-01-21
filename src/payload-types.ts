@@ -87,6 +87,9 @@ export interface Config {
     companies: {
       events: 'events';
     };
+    organisingGroups: {
+      events: 'events';
+    };
     events: {
       campaigns: 'campaigns';
     };
@@ -697,19 +700,6 @@ export interface OrganisingGroup {
    * Companies this group organises workers within.
    */
   companies?: (string | Company)[] | null;
-  isUnion?: boolean | null;
-  /**
-   * If checked, this group will be displayed on the start-organising page
-   */
-  highlighted?: boolean | null;
-  website?: string | null;
-  webshiteHostname?: string | null;
-  bluesky?: string | null;
-  blueskyHandle?: string | null;
-  twitter?: string | null;
-  twitterHandle?: string | null;
-  path?: string;
-  url?: string;
   /**
    * Parents of this organising group.
    */
@@ -721,6 +711,27 @@ export interface OrganisingGroup {
         id?: string | null;
       }[]
     | null;
+  isUnion?: boolean | null;
+  /**
+   * If checked, this group will be displayed on the start-organising page
+   */
+  highlighted?: boolean | null;
+  /**
+   * Events associated with this organising group.
+   */
+  events?: {
+    docs?: (string | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  website?: string | null;
+  webshiteHostname?: string | null;
+  bluesky?: string | null;
+  blueskyHandle?: string | null;
+  twitter?: string | null;
+  twitterHandle?: string | null;
+  path?: string;
+  url?: string;
   adminPath?: string;
   parent?: (string | null) | OrganisingGroup;
   updatedAt: string;
@@ -1174,16 +1185,6 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   fullName?: T;
   countries?: T;
   companies?: T;
-  isUnion?: T;
-  highlighted?: T;
-  website?: T;
-  webshiteHostname?: T;
-  bluesky?: T;
-  blueskyHandle?: T;
-  twitter?: T;
-  twitterHandle?: T;
-  path?: T;
-  url?: T;
   parents?:
     | T
     | {
@@ -1192,6 +1193,17 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  isUnion?: T;
+  highlighted?: T;
+  events?: T;
+  website?: T;
+  webshiteHostname?: T;
+  bluesky?: T;
+  blueskyHandle?: T;
+  twitter?: T;
+  twitterHandle?: T;
+  path?: T;
+  url?: T;
   adminPath?: T;
   parent?: T;
   updatedAt?: T;
