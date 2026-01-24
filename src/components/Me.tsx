@@ -2,6 +2,7 @@
 
 import { useAsync } from '@/utils/query'
 import { payloadClient } from '@/utils/payload'
+import { useUser } from '@/utils/UserContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -29,11 +30,9 @@ export function AdminEditBanner({
 }
 
 export function LoggedIn({ children }: { children: React.ReactNode }) {
-  const client = useAsync('/me', () =>
-    payloadClient.me({ collection: 'users' }).then((res) => res.user),
-  )
+  const user = useUser()
 
-  if (!client.data?.id) {
+  if (!user?.id) {
     return null
   }
 
