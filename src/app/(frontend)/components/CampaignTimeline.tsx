@@ -28,13 +28,13 @@ export function CampaignTimeline({ timelineActions }: CampaignTimelineProps) {
   // Build hierarchical tree structure
   const timelineTree = useMemo(() => {
     // First, resolve all actions (convert IDs to objects)
-    const eventMap = new Map<number | string, Action>()
+    const actionMap = new Map<number | string, Action>()
     const nodes: Array<{ timelineAction: TimelineAction; action: Action | null }> = []
 
     timelineActions.forEach((timelineAction) => {
       const action = typeof timelineAction.action === 'object' ? timelineAction.action : null
       if (action) {
-        eventMap.set(action.id, action)
+        actionMap.set(action.id, action)
         nodes.push({ timelineAction, action })
       }
     })
@@ -65,8 +65,8 @@ export function CampaignTimeline({ timelineActions }: CampaignTimelineProps) {
       const parentAction =
         typeof timelineAction.parentAction === 'object'
           ? timelineAction.parentAction
-          : timelineAction.parentAction && eventMap.get(timelineAction.parentAction)
-            ? eventMap.get(timelineAction.parentAction)!
+          : timelineAction.parentAction && actionMap.get(timelineAction.parentAction)
+            ? actionMap.get(timelineAction.parentAction)!
             : null
 
       if (parentAction && parentAction.id !== action.id) {
