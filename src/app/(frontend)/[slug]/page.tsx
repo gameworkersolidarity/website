@@ -36,14 +36,6 @@ export default async function StaticPage({ params }: Props) {
         slug: {
           equals: slug,
         },
-        // Only fetch published content when not in draft mode
-        ...(!isDraftMode
-          ? {
-              _status: {
-                equals: 'published',
-              },
-            }
-          : {}),
       },
     })
     .then(({ docs }) => docs?.[0])

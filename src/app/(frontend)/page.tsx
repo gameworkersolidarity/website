@@ -16,16 +16,8 @@ export default async function HomePage() {
     await Promise.all([
       await payload.find({
         collection: 'actions',
-        where: {
-          // Only fetch published content when not in draft mode
-          ...(!isDraftMode
-            ? {
-                _status: {
-                  equals: 'published',
-                },
-              }
-            : {}),
-        },
+        // This shows unpublished draft — overwrites the _status filter below
+        draft: isDraftMode,
         sort: '-date',
         depth: 2, // Include related data (countries, categories, companies, organising groups)
         pagination: false,
@@ -33,6 +25,7 @@ export default async function HomePage() {
       payload.find({
         collection: 'categories',
         pagination: false,
+        draft: isDraftMode,
         select: {
           name: true,
           id: true,
@@ -45,6 +38,7 @@ export default async function HomePage() {
       payload.find({
         collection: 'companies',
         pagination: false,
+        draft: isDraftMode,
         select: {
           name: true,
           id: true,
@@ -56,6 +50,7 @@ export default async function HomePage() {
       payload.find({
         collection: 'organisingGroups',
         pagination: false,
+        draft: isDraftMode,
         select: {
           name: true,
           id: true,
@@ -67,6 +62,7 @@ export default async function HomePage() {
       payload.find({
         collection: 'campaigns',
         pagination: false,
+        draft: isDraftMode,
         select: {
           name: true,
           id: true,

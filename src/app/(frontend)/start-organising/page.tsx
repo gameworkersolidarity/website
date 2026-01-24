@@ -112,15 +112,6 @@ export default async function StartOrganisingPage() {
               equals: true,
             },
           },
-          ...(!isDraftMode
-            ? [
-                {
-                  _status: {
-                    equals: 'published',
-                  },
-                },
-              ]
-            : []),
         ],
       },
       depth: 2, // Include countries and logo

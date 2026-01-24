@@ -14,7 +14,7 @@ export default function StatsWidget() {
     async function fetchAllData() {
       try {
         // Fetch action count
-        const countResponse = await fetch('/api/actions?limit=0&where[_status][equals]=published', {
+        const countResponse = await fetch('/api/actions?pagination=false', {
           credentials: 'include',
         })
         if (countResponse.ok) {

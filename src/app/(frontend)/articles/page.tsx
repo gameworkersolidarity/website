@@ -47,15 +47,7 @@ export default async function BlogPage() {
   // Fetch all published blog posts
   const blogPostsResult = await payload.find({
     collection: 'blogPosts',
-    where: {
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
+    draft: isDraftMode,
     depth: 2, // Include image relation
     pagination: false,
     sort: '-createdAt', // Sort by createdAt, newest first

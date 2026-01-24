@@ -47,7 +47,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const user = useUser()
   if (user) {
     _navigation.push({
-      label: 'Logged in as ' + user.email + '. Log out',
+      label: 'Log out',
       url: '/admin/logout',
     })
   }

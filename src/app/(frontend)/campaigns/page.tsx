@@ -95,15 +95,6 @@ export default async function CampaignsPage() {
   // Fetch all published organising groups with their countries
   const campaignResults = await payload.find({
     collection: 'campaigns',
-    where: {
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
-    },
     depth: 1, // Include countries
     pagination: false,
     draft: isDraftMode,

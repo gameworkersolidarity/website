@@ -36,14 +36,6 @@ export async function generateMetadataForSlug({
       slug: {
         equals: slug,
       },
-      // Only fetch published content when not in draft mode
-      // ...(!isDraftMode
-      //   ? {
-      //       _status: {
-      //         equals: 'published',
-      //       },
-      //     }
-      //   : {}),
     },
     depth: 1,
     draft: isDraftMode,

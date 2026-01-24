@@ -129,11 +129,6 @@ export async function GET() {
   // Fetch all published blog posts
   const blogPostsResult = await payload.find({
     collection: 'blogPosts',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
     depth: 2, // Include image relation
     pagination: false,
     sort: '-createdAt', // Sort by createdAt, newest first

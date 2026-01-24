@@ -40,14 +40,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       slug: {
         equals: slug,
       },
-      // Only fetch published content when not in draft mode
-      ...(!isDraftMode
-        ? {
-            _status: {
-              equals: 'published',
-            },
-          }
-        : {}),
     },
     depth: 2,
     pagination: false,

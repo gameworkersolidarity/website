@@ -27,6 +27,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
         equals: slug,
       },
     },
+    draft: isDraftMode,
   })
 
   const action = actions.docs[0]

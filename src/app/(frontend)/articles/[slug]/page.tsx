@@ -63,14 +63,6 @@ export default async function BlogPost({ params }: Props) {
         slug: {
           equals: slug,
         },
-        // Only fetch published content when not in draft mode
-        ...(!isDraftMode
-          ? {
-              _status: {
-                equals: 'published',
-              },
-            }
-          : {}),
       },
     })
     .then(({ docs }) => docs?.[0])
@@ -82,13 +74,9 @@ export default async function BlogPost({ params }: Props) {
   // Fetch all published blog posts to find previous/next
   const allPosts = await payload.find({
     collection: 'blogPosts',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
     sort: 'createdAt', // Sort by createdAt, newest first
     pagination: false,
+    draft: isDraftMode,
   })
 
   // Find current post index and get previous/next
