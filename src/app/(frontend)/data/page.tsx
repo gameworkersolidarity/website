@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { LexicalRenderer } from '../components/LexicalRenderer'
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -12,7 +12,7 @@ import type { Metadata } from 'next'
 export async function generateMetadata(): Promise<Metadata> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   try {
     const dataPageData = await payload.findGlobal({
@@ -81,7 +81,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DataPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   try {
     // Fetch the global data for the description

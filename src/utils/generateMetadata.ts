@@ -1,4 +1,4 @@
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import { getPayload } from 'payload'
 import { CollectionSlug } from 'payload'
 import config from '@/payload.config'
@@ -28,9 +28,9 @@ export async function generateMetadataForSlug({
   getDescription,
   getImages,
 }: MetadataOptions): Promise<Metadata> {
-  const isDraftMode = (await draftMode()).isEnabled
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   const result = await payload.find({
     collection,

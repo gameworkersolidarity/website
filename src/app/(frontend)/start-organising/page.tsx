@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LexicalRenderer } from '../components/LexicalRenderer'
@@ -17,7 +17,7 @@ import { OrganisingGroupCard } from '@/components/OrganisingGroupCard'
 export async function generateMetadata(): Promise<Metadata> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   try {
     const startOrganisingData = await payload.findGlobal({
@@ -89,7 +89,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StartOrganisingPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   try {
     // Fetch the global data for the description

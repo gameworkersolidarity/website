@@ -1,4 +1,4 @@
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
@@ -48,10 +48,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params
-  const isDraftMode = (await draftMode()).isEnabled
 
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   const post = await payload
     .find({

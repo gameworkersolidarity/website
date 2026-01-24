@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from 'payload'
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import config from '@/payload.config'
 import { notFound } from 'next/navigation'
 import { ActionNav, ActionPage } from './ActionPage'
@@ -13,9 +13,9 @@ import { format } from 'date-fns'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const isDraftMode = (await draftMode()).isEnabled
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   const actions = await payload.find({
     collection: 'actions',

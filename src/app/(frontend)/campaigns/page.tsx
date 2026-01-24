@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import Link from 'next/link'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import type { Campaign, Action } from '@/payload-types'
@@ -15,7 +15,7 @@ import { getMediaUrl } from '@/utils/media'
 export async function generateMetadata(): Promise<Metadata> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   try {
     const campaignPageData = await payload.findGlobal({
@@ -84,7 +84,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CampaignsPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   // Fetch the global data for the description
   const campaignPageData = await payload.findGlobal({

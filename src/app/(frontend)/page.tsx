@@ -1,13 +1,13 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { draftMode } from 'next/headers'
 import { HomepageClient } from './Homepage.client'
 import { Country } from '@/payload-types'
+import { getDraftMode } from '@/utils/auth'
 
 export default async function HomePage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await draftMode()).isEnabled
+  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
 
   // Fetch all actions with related data
   // Include both published and legacy records (where _status is null)

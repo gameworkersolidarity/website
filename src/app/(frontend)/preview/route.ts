@@ -1,4 +1,4 @@
-import { draftMode } from 'next/headers'
+import { getDraftMode } from '@/utils/auth'
 import { redirect } from 'next/navigation'
 
 export async function GET(request: Request) {
