@@ -159,6 +159,7 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'text',
       admin: {
         position: 'sidebar',
+        description: 'The full website URL',
       },
     },
     {
@@ -184,6 +185,7 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'text',
       admin: {
         position: 'sidebar',
+        description: 'The full Bluesky profile URL',
       },
     },
     {
@@ -199,7 +201,9 @@ export const OrganisingGroups: CollectionConfig = {
             if (!siblingData.bluesky) {
               return null
             }
-            return new URL(siblingData.bluesky).pathname.replace(/\//gim, '')
+            return new URL(siblingData.bluesky).pathname
+              .replace('/profile/', '')
+              .replace(/\//gim, '')
           },
         ],
       },
@@ -209,6 +213,7 @@ export const OrganisingGroups: CollectionConfig = {
       type: 'text',
       admin: {
         position: 'sidebar',
+        description: 'The full Twitter profile URL',
       },
     },
     {

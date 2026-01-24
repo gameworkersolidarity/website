@@ -724,10 +724,19 @@ export interface OrganisingGroup {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * The full website URL
+   */
   website?: string | null;
   webshiteHostname?: string | null;
+  /**
+   * The full Bluesky profile URL
+   */
   bluesky?: string | null;
   blueskyHandle?: string | null;
+  /**
+   * The full Twitter profile URL
+   */
   twitter?: string | null;
   twitterHandle?: string | null;
   path?: string;
