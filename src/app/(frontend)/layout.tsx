@@ -8,6 +8,9 @@ import { navLinks } from '../links'
 import { ThemeProvider } from '@/components/NextTheme'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next/dist/types'
+import { draftMode, headers as nextHeaders } from 'next/headers'
+import { LoggedIn } from '@/components/Me'
+import { UserContextProvider } from '@/utils/UserContext'
 
 export const backupShareCard = {
   url: `${projectStrings.baseUrl}/icon/icon.png`,
@@ -113,33 +116,46 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   const footerNav = [...(footerData?.navigation || []), ...(navLinks || [])]
 
+  // Next — check JWT and set draftMode
+  const headers = await nextHeaders()
+  const draftModeStatus = await draftMode()
+  const authStatus = await payload.auth({ headers, canSetHeaders: false })
+
+  if (authStatus.user) {
+    draftModeStatus.enable()
+  } else {
+    draftModeStatus.disable()
+  }
+
   return (
-    <html lang="en" suppressHydrationWarning={true}>
-      <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
-        <ThemeProvider defaultTheme="light" disableTransitionOnChange>
-          <Suspense
-            fallback={
-              <div>
-                <Header navigation={headerData?.navigation || []} />
-                <main className="min-h-[75vh]">
-                  <div className="flex flex-col min-h-screen items-center justify-center bg-background">
-                    <div className="text-base font-semibold opacity-75">Loading...</div>
+    <UserContextProvider user={authStatus.user}>
+      <html lang="en" suppressHydrationWarning={true}>
+        <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
+          <ThemeProvider defaultTheme="light" disableTransitionOnChange>
+            <Suspense
+              fallback={
+                <div>
+                  <Header navigation={headerData?.navigation || []} />
+                  <main className="min-h-[75vh]">
+                    <div className="flex flex-col min-h-screen items-center justify-center bg-background">
+                      <div className="text-base font-semibold opacity-75">Loading...</div>
+                    </div>
+                  </main>
+                  <div className="margin-top">
+                    <Footer navigation={footerNav} />
                   </div>
-                </main>
-                <div className="margin-top">
-                  <Footer navigation={footerNav} />
                 </div>
+              }
+            >
+              <Header navigation={headerData?.navigation || []} />
+              <main className="min-h-[75vh]">{children}</main>
+              <div className="margin-top">
+                <Footer navigation={footerNav} />
               </div>
-            }
-          >
-            <Header navigation={headerData?.navigation || []} />
-            <main className="min-h-[75vh]">{children}</main>
-            <div className="margin-top">
-              <Footer navigation={footerNav} />
-            </div>
-          </Suspense>
-        </ThemeProvider>
-      </body>
-    </html>
+            </Suspense>
+          </ThemeProvider>
+        </body>
+      </html>
+    </UserContextProvider>
   )
 }
