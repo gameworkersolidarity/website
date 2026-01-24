@@ -5,6 +5,7 @@ import type { Campaign, Action } from '@/payload-types'
 import { DateTime } from '@/components/DateTime'
 import Image from 'next/image'
 import { CampaignLabel } from '@/components/CampaignLabel'
+import { DraftBadge } from '@/components/DraftBadge'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
@@ -128,8 +129,9 @@ export default async function CampaignsPage() {
                 className="flex flex-col bg-white rounded-xl overflow-hidden"
               >
                 <header className="p-4 md:p-5 pb-0! flex flex-col gap-2">
-                  <h2 className="text-2xl font-bold font-identity">
+                  <h2 className="text-2xl font-bold font-identity flex items-center gap-2 flex-wrap">
                     <CampaignLabel campaign={campaign} />
+                    {campaign._status === 'draft' && <DraftBadge />}
                   </h2>
                   {campaign.actions && campaign.actions.length > 0 && (
                     <div className="flex flex-row gap-1">

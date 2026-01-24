@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { payloadUserQuery } from '@/utils/payload.server'
+import { DraftBadge } from '@/components/DraftBadge'
 
 export const metadata = {
   title: 'Countries',
@@ -102,9 +103,14 @@ export default async function CountriesPage() {
                   fontWeight: '600',
                   marginBottom: '0.5rem',
                   color: '#4A90E2',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
                 }}
               >
                 {country.name}
+                {country._status === 'draft' && <DraftBadge />}
               </h2>
               {country.isoA2 && (
                 <p style={{ fontSize: '0.875rem', color: '#888', margin: 0 }}>

@@ -22,6 +22,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
 import { getMediaUrl } from '@/utils/media'
+import { DraftBadge } from '@/components/DraftBadge'
 
 export function OrganisingGroupPage({
   initialGroup,
@@ -85,7 +86,8 @@ export function OrganisingGroupPage({
             <div className="col-span-2">
               <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                Organising Group
+                <span>Organising Group</span>
+                {page._status === 'draft' && <DraftBadge className="ml-2" />}
               </div>
               <div className="flex items-start gap-4">
                 <div className="flex-1">

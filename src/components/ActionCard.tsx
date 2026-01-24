@@ -30,6 +30,7 @@ import { CampaignLabel } from './CampaignLabel'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { HighlightText } from './HighlightText'
 import { useActionFilterContext } from './ActionFilterContextProvider'
+import { DraftBadge } from '@/components/DraftBadge'
 
 // Helper component to highlight search terms in Lexical description
 function HighlightedDescription({
@@ -356,11 +357,7 @@ export function DocumentLink({
 export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | boolean }) {
   return (
     <div className="flex flex-wrap tracking-tight gap-4 gap-y-1">
-      {data._status === 'draft' && (
-        <div className="inline-flex items-center gap-1 text-xs bg-snot-400 uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
-          ⚠️ Draft
-        </div>
-      )}
+      {data._status === 'draft' && <DraftBadge />}
       <span className="font-semibold">
         <DateTime date={data.date} />
       </span>

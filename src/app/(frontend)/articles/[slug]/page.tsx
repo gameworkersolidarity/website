@@ -11,6 +11,7 @@ import { projectStrings } from '@/project-strings'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { getMediaUrl } from '@/utils/media'
+import { DraftBadge } from '@/components/DraftBadge'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -85,7 +86,10 @@ export default async function BlogPost({ params }: Props) {
       <AdminEditBanner page={post} />
       <main className="max-w-2xl mx-auto py-4 md:py-5 px-4 flex flex-col gap-4">
         <Link href="/articles">← All articles</Link>
-        <h1 className="text-4xl md:text-5xl font-bold font-identity">{post.title}</h1>
+        <h1 className="text-4xl md:text-5xl font-bold font-identity flex items-center gap-2 flex-wrap">
+          <span>{post.title}</span>
+          {post._status === 'draft' && <DraftBadge />}
+        </h1>
         <div className="flex flex-row gap-4 font-mono">
           {post.createdAt && <DateTime date={post.createdAt} />}
           {post.byline && <div>{post.byline}</div>}

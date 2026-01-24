@@ -7,6 +7,7 @@ import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 import { getMediaUrl } from '@/utils/media'
 import { payloadUserQuery } from '@/utils/payload.server'
+import { DraftBadge } from '@/components/DraftBadge'
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Articles'
@@ -72,7 +73,10 @@ export default async function BlogPage() {
                 className="flex flex-col bg-white rounded-xl overflow-hidden"
               >
                 <header className="p-4">
-                  <h2 className="text-2xl font-bold font-identity">{post.title}</h2>
+                  <h2 className="text-2xl font-bold font-identity flex items-center gap-2 flex-wrap">
+                    <span>{post.title}</span>
+                    {post._status === 'draft' && <DraftBadge />}
+                  </h2>
                   <div className="flex flex-row gap-4 mt-1">
                     {post.createdAt && <DateTime date={post.createdAt} />}
                     {post.byline && <div>{post.byline}</div>}

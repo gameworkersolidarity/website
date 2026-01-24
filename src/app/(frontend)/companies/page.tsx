@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { payloadUserQuery } from '@/utils/payload.server'
+import { DraftBadge } from '@/components/DraftBadge'
 
 export const metadata = {
   title: 'Companies',
@@ -97,9 +98,14 @@ export default async function CompaniesPage() {
                   fontWeight: '600',
                   marginBottom: '0.75rem',
                   color: '#4A90E2',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
                 }}
               >
                 {company.name}
+                {company._status === 'draft' && <DraftBadge />}
               </h2>
               <div style={{ fontSize: '0.875rem', color: '#666' }}>
                 {actionCount > 0 && (

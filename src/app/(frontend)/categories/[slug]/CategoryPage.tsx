@@ -12,6 +12,7 @@ import { getSlug } from '@/utils/payloadPath'
 import { ActionInitiatorFilter } from '@/collections/enums'
 import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
+import { DraftBadge } from '@/components/DraftBadge'
 
 export function CategoryPage({
   initialCategory,
@@ -47,7 +48,10 @@ export function CategoryPage({
         )}
       >
         <header>
-          <div className="font-mono uppercase text-sm opacity-50">Category</div>
+          <div className="font-mono uppercase text-sm opacity-50">
+            <span>Category</span>
+            {page._status === 'draft' && <DraftBadge className="ml-2" />}
+          </div>
           <h1 className="text-5xl font-bold font-identity capitalize">
             {page.emoji && <span style={{ marginRight: '0.5rem' }}>{page.emoji}</span>}
             {page.name}

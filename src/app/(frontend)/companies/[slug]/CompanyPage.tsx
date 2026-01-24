@@ -17,6 +17,7 @@ import { CountryLabel } from '@/components/CountryLabel'
 import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 import { ActionInitiatorFilter } from '@/collections/enums'
+import { DraftBadge } from '@/components/DraftBadge'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
@@ -59,7 +60,8 @@ export function CompanyPage({
           <header className="bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl">
             <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
               <Building className="w-4 h-4" />
-              Company
+              <span>Company</span>
+              {page._status === 'draft' && <DraftBadge className="ml-2" />}
             </div>
             <h1 className="text-5xl font-bold font-identity">{page.name}</h1>
             {page.description && (

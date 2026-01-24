@@ -16,6 +16,7 @@ import { ArrowDownIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { format, isSameMonth, isSameYear } from 'date-fns'
 import { getMediaUrl } from '@/utils/media'
+import { DraftBadge } from '@/components/DraftBadge'
 
 const Back = ({ className }: { className?: string }) => (
   <div className={className}>
@@ -85,6 +86,10 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4 -mt-8 z-20 relative">
             <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
               <header>
+                <div className="font-mono uppercase text-sm opacity-50 text-center flex items-center justify-center gap-2">
+                  <span>Campaign</span>
+                  {page._status === 'draft' && <DraftBadge />}
+                </div>
                 <div className="font-mono uppercase text-sm opacity-50 text-center">
                   {!!earliestAction && !!latestAction && (
                     <span>
@@ -124,7 +129,10 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           <Back />
           <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
             <header>
-              <div className="font-mono uppercase text-sm opacity-50">Campaign</div>
+              <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-2">
+                <span>Campaign</span>
+                {page._status === 'draft' && <DraftBadge />}
+              </div>
               <h1 className="text-4xl md:text-5xl font-bold font-identity">{page.name}</h1>
             </header>
             {page.description && <LexicalRenderer content={page.description} />}
