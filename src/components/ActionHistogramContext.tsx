@@ -1,7 +1,7 @@
-import { useAsync } from '@/utils/query'
+import useSWR from 'swr'
 import { FrequencyChart } from './FrequencyChart'
 import { payloadClient } from '@/utils/payload'
-import { Campaign, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
+import { Category, Action } from '@/payload-types'
 import { ActionFilterContextProvider } from './ActionFilterContextProvider'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { getCSSVariable } from '@/utils/css'
@@ -10,7 +10,7 @@ import { ActionInitiator } from '@/collections/enums'
 import { getRelatedObjects } from '@/utils/getRelatedObjects'
 
 export const ActionHistogramContext = ({ action }: { action: Action }) => {
-  const actions = useAsync('all-actions', () =>
+  const actions = useSWR('all-actions', () =>
     payloadClient.find({ collection: 'actions', pagination: false, depth: 0, sort: '-date' }),
   )
 

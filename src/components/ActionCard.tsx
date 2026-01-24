@@ -5,7 +5,7 @@ import { getYear } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
 import pluralize from 'pluralize'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { DateTime } from '@/components/DateTime'
 import {
   Category,

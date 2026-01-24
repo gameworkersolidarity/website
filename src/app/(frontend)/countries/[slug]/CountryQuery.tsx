@@ -1,10 +1,10 @@
 'use client'
 
 import { payloadClient } from '@/utils/payload'
-import { useAsync } from '@/utils/query'
+import useSWR from 'swr'
 
 export function CountryQuery({ countryId }: { countryId: string }) {
-  const request = useAsync(`/api/countries/${countryId}`, () =>
+  const request = useSWR(`/api/countries/${countryId}`, () =>
     payloadClient.find({ collection: 'countries', where: { id: { equals: countryId } } }),
   )
 
