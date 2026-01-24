@@ -1,24 +1,21 @@
 'use server'
 
 import { CollectionSlug, DataFromCollectionSlug } from 'payload'
-import config from '@/payload.config'
-import { getPayload } from 'payload'
 import { ArchiveBreadcrumb } from './payloadTree'
 import { getPath } from '@/utils/payloadPath'
 import { Breadcrumb } from '@payloadcms/plugin-nested-docs/types'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 export async function getDescendants<S extends CollectionSlug, D extends DataFromCollectionSlug<S>>(
   collection: S,
   slug: string,
   data?: D[],
 ) {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
   let breadcrumbs: DataFromCollectionSlug<S>[]
   if (data) {
     breadcrumbs = data
   } else {
-    const fetchedBreadcrumbs = await payload.find({
+    const fetchedBreadcrumbs = await payloadUserQuery({
       collection: collection,
       where: {
         'parents.url': {

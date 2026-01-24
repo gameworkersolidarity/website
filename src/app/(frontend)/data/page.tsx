@@ -1,23 +1,16 @@
 import { projectStrings } from '@/project-strings'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { LexicalRenderer } from '../components/LexicalRenderer'
-import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserGlobalQuery } from '@/utils/payload.server'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
-    const dataPageData = await payload.findGlobal({
+    const dataPageData = await payloadUserGlobalQuery({
       slug: 'dataPage',
-      draft: isDraftMode,
     })
 
     const title = 'Get the data'
@@ -79,15 +72,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DataPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
     // Fetch the global data for the description
-    const dataPageData = await payload.findGlobal({
+    const dataPageData = await payloadUserGlobalQuery({
       slug: 'dataPage',
-      draft: isDraftMode,
     })
 
     if (!dataPageData) {

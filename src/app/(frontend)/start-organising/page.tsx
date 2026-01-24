@@ -1,6 +1,4 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
-import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserQuery, payloadUserGlobalQuery } from '@/utils/payload.server'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LexicalRenderer } from '../components/LexicalRenderer'
@@ -15,14 +13,9 @@ import type { Metadata } from 'next'
 import { OrganisingGroupCard } from '@/components/OrganisingGroupCard'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
-    const startOrganisingData = await payload.findGlobal({
+    const startOrganisingData = await payloadUserGlobalQuery({
       slug: 'startOrganising',
-      draft: isDraftMode,
     })
 
     const title = 'Start Organising'
@@ -87,15 +80,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function StartOrganisingPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
     // Fetch the global data for the description
-    const startOrganisingData = await payload.findGlobal({
+    const startOrganisingData = await payloadUserGlobalQuery({
       slug: 'startOrganising',
-      draft: isDraftMode,
     })
 
     if (!startOrganisingData) {
@@ -103,7 +91,7 @@ export default async function StartOrganisingPage() {
     }
 
     // Fetch all published organising groups with their countries
-    const groupsResult = await payload.find({
+    const groupsResult = await payloadUserQuery({
       collection: 'organisingGroups',
       where: {
         and: [
@@ -117,7 +105,6 @@ export default async function StartOrganisingPage() {
       depth: 2, // Include countries and logo
       pagination: false,
       sort: 'name',
-      draft: isDraftMode,
     })
 
     const groups = groupsResult.docs as OrganisingGroup[]

@@ -1,7 +1,5 @@
-import { fetchDraftMode } from '@/utils/auth'
-import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
-import config from '@/payload.config'
+import { payloadUserQuery } from '@/utils/payload.server'
 import { Company, OrganisingGroup } from '@/payload-types'
 import { CountryPage } from './CountryPage'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
@@ -23,30 +21,23 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
-  const country = await payload
-    .find({
-      collection: 'countries',
-      depth: 2, // Include related solidarity actions and their related entities
-      draft: isDraftMode,
-      limit: 1,
-      where: {
-        slug: {
-          equals: slug,
-        },
+  const country = await payloadUserQuery({
+    collection: 'countries',
+    depth: 2, // Include related solidarity actions and their related entities
+    limit: 1,
+    where: {
+      slug: {
+        equals: slug,
       },
-    })
-    .then(({ docs }) => docs?.[0])
+    },
+  }).then(({ docs }) => docs?.[0])
 
   if (!country) {
     notFound()
   }
 
   // Query solidarity actions directly where this country is related
-  const actionsResult = await payload.find({
+  const actionsResult = await payloadUserQuery({
     collection: 'actions',
     where: {
       and: [
@@ -59,7 +50,6 @@ export default async function Page({ params }: Props) {
     },
     sort: '-date',
     depth: 2, // Include related entities
-    draft: isDraftMode,
     pagination: false,
   })
 
@@ -108,7 +98,7 @@ export default async function Page({ params }: Props) {
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  const organisingGroupsResult = await payload.find({
+  const organisingGroupsResult = await payloadUserQuery({
     collection: 'organisingGroups',
     where: {
       countries: {

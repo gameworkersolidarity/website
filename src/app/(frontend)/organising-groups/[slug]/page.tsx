@@ -2,6 +2,7 @@ import { fetchDraftMode } from '@/utils/auth'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
+import { payloadUserQuery } from '@/utils/payload.server'
 import { Company, Country } from '@/payload-types'
 import { getDescendants } from '@/utils/payloadTree.server'
 import { OrganisingGroupPage } from './OrganisingGroupPage'
@@ -23,23 +24,16 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
-  const group = await payload
-    .find({
-      collection: 'organisingGroups',
-      depth: 2, // Include related solidarity actions and their related entities
-      draft: isDraftMode,
-      limit: 1,
-      where: {
-        slug: {
-          equals: slug,
-        },
+  const group = await payloadUserQuery({
+    collection: 'organisingGroups',
+    depth: 2, // Include related solidarity actions and their related entities
+    limit: 1,
+    where: {
+      slug: {
+        equals: slug,
       },
-    })
-    .then(({ docs }) => docs?.[0])
+    },
+  }).then(({ docs }) => docs?.[0])
 
   if (!group) {
     notFound()
@@ -48,7 +42,7 @@ export default async function Page({ params }: Props) {
   const descendants = await getDescendants('organisingGroups', group.slug)
 
   // Query solidarity actions directly where this organising group is related
-  const actionsResult = await payload.find({
+  const actionsResult = await payloadUserQuery({
     collection: 'actions',
     sort: '-date',
     where: {
@@ -61,7 +55,6 @@ export default async function Page({ params }: Props) {
       ],
     },
     depth: 2, // Include related entities
-    draft: isDraftMode,
     pagination: false,
   })
 

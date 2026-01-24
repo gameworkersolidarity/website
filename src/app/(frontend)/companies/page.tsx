@@ -1,8 +1,6 @@
-import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
-import config from '@/payload.config'
-import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 export const metadata = {
   title: 'Companies',
@@ -11,23 +9,18 @@ export const metadata = {
 }
 
 export default async function CompaniesPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   // Fetch all published companies
-  const companiesResult = await payload.find({
+  const companiesResult = await payloadUserQuery({
     collection: 'companies',
     depth: 0,
     pagination: false,
     sort: 'Name',
-    draft: isDraftMode,
   })
 
   // Count actions for each company
   const companiesWithData = await Promise.all(
     companiesResult.docs.map(async (company) => {
-      const actionsResult = await payload.find({
+      const actionsResult = await payloadUserQuery({
         collection: 'actions',
         where: {
           companies: {
@@ -35,7 +28,6 @@ export default async function CompaniesPage() {
           },
         },
         sort: '-date',
-        draft: isDraftMode,
       })
       return {
         company,

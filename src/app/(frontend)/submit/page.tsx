@@ -1,7 +1,5 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
-import { fetchDraftMode } from '@/utils/auth'
 import { notFound } from 'next/navigation'
+import { payloadUserQuery, payloadUserGlobalQuery } from '@/utils/payload.server'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { ActionSubmissionForm } from './ActionSubmissionForm'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -9,14 +7,9 @@ import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
-    const actionSubmissionPageData = await payload.findGlobal({
+    const actionSubmissionPageData = await payloadUserGlobalQuery({
       slug: 'actionSubmissionPage',
-      draft: isDraftMode,
     })
 
     const title = actionSubmissionPageData?.title || 'Submit an Action'
@@ -79,15 +72,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SubmitActionPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
     // Fetch the global data for the page
-    const actionSubmissionPageData = await payload.findGlobal({
+    const actionSubmissionPageData = await payloadUserGlobalQuery({
       slug: 'actionSubmissionPage',
-      draft: isDraftMode,
     })
 
     if (!actionSubmissionPageData) {
@@ -96,25 +84,25 @@ export default async function SubmitActionPage() {
 
     // Fetch options for relationship fields
     const [categories, countries, companies, organisingGroups] = await Promise.all([
-      payload.find({
+      payloadUserQuery({
         collection: 'categories',
         limit: 1000,
         pagination: false,
         sort: 'name',
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'countries',
         limit: 1000,
         pagination: false,
         sort: 'name',
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'companies',
         limit: 1000,
         pagination: false,
         sort: 'name',
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'organisingGroups',
         limit: 1000,
         pagination: false,

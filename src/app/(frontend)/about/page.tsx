@@ -1,22 +1,15 @@
 import { OpenUniversityLogo } from '@/components/OpenUniversityLogo'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { LexicalRenderer } from '../components/LexicalRenderer'
-import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserGlobalQuery } from '@/utils/payload.server'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
-    const aboutPageData = await payload.findGlobal({
+    const aboutPageData = await payloadUserGlobalQuery({
       slug: 'aboutPage',
-      draft: isDraftMode,
     })
 
     const title = 'About the project'
@@ -78,15 +71,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
     // Fetch the global data for the description
-    const aboutPageData = await payload.findGlobal({
+    const aboutPageData = await payloadUserGlobalQuery({
       slug: 'aboutPage',
-      draft: isDraftMode,
     })
 
     if (!aboutPageData) {

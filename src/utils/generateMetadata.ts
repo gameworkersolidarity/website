@@ -1,7 +1,5 @@
-import { fetchDraftMode } from '@/utils/auth'
-import { getPayload } from 'payload'
 import { CollectionSlug } from 'payload'
-import config from '@/payload.config'
+import { payloadUserQuery } from '@/utils/payload.server'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { Media, Config } from '@/payload-types'
 import { backupShareCard } from '@/app/(frontend)/layout'
@@ -26,11 +24,7 @@ export async function generateMetadataForSlug({
   getDescription,
   getImages,
 }: MetadataOptions): Promise<Metadata> {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
-  const result = await payload.find({
+  const result = await payloadUserQuery({
     collection,
     where: {
       slug: {
@@ -38,7 +32,6 @@ export async function generateMetadataForSlug({
       },
     },
     depth: 1,
-    draft: isDraftMode,
     limit: 1,
   })
 

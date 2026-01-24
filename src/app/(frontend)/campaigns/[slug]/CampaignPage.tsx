@@ -38,8 +38,6 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
     depth: 3,
   })
 
-  const campaign = page as Campaign
-
   const actions = page.actions as Action[]
   const featuredMedia =
     page.featuredImage && typeof page.featuredImage === 'object'
@@ -48,18 +46,22 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
   const featuredImageUrl = getMediaUrl(featuredMedia)
 
   const earliestAction = useMemo(() => {
+    if (!actions) return null
     return actions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
   }, [actions])
 
   const latestAction = useMemo(() => {
+    if (!actions) return null
     return actions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
   }, [actions])
 
   const sameYear = useMemo(() => {
+    if (!earliestAction || !latestAction) return false
     return isSameYear(earliestAction.date, latestAction.date)
   }, [earliestAction, latestAction])
 
   const sameMonth = useMemo(() => {
+    if (!earliestAction || !latestAction) return false
     return isSameMonth(earliestAction.date, latestAction.date)
   }, [earliestAction, latestAction])
 
@@ -84,13 +86,15 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
             <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
               <header>
                 <div className="font-mono uppercase text-sm opacity-50 text-center">
-                  <span>
-                    {format(
-                      earliestAction.date,
-                      sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy',
-                    )}{' '}
-                    &rarr; {format(latestAction.date, 'dd MMM yyyy')}
-                  </span>
+                  {!!earliestAction && !!latestAction && (
+                    <span>
+                      {format(
+                        earliestAction.date,
+                        sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy',
+                      )}{' '}
+                      &rarr; {format(latestAction.date, 'dd MMM yyyy')}
+                    </span>
+                  )}
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold font-identity text-center">
                   {page.name}
@@ -105,7 +109,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
                     }
                   }}
                 >
-                  <span>{pluralize('action', actions.length, true)}</span>
+                  <span>{pluralize('action', actions?.length || 0, true)}</span>
                   <ArrowDownIcon className="w-4 h-4 inline-block" />
                 </div>
               </header>

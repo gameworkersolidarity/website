@@ -1,10 +1,8 @@
-import { fetchDraftMode } from '@/utils/auth'
-import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
-import config from '@/payload.config'
 import React from 'react'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -22,23 +20,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function StaticPage({ params }: Props) {
   const { slug } = await params
 
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
-  const page = await payload
-    .find({
-      collection: 'staticPages',
-      depth: 0,
-      draft: isDraftMode,
-      limit: 1,
-      where: {
-        slug: {
-          equals: slug,
-        },
+  const page = await payloadUserQuery({
+    collection: 'staticPages',
+    depth: 0,
+    limit: 1,
+    where: {
+      slug: {
+        equals: slug,
       },
-    })
-    .then(({ docs }) => docs?.[0])
+    },
+  }).then(({ docs }) => docs?.[0])
 
   if (!page) {
     notFound()

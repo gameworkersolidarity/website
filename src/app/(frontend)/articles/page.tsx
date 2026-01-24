@@ -1,14 +1,12 @@
-import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
-import config from '@/payload.config'
 import Image from 'next/image'
 import { Rss } from 'lucide-react'
 import { DateTime } from '@/components/DateTime'
-import { fetchDraftMode, setDraftMode } from '@/utils/auth'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 import { getMediaUrl } from '@/utils/media'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Articles'
@@ -40,14 +38,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlogPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   // Fetch all published blog posts
-  const blogPostsResult = await payload.find({
+  const blogPostsResult = await payloadUserQuery({
     collection: 'blogPosts',
-    draft: isDraftMode,
     depth: 2, // Include image relation
     pagination: false,
     sort: '-createdAt', // Sort by createdAt, newest first

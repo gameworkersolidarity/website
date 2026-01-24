@@ -1,9 +1,7 @@
 'use server'
 
-import { getPayload } from 'payload'
-import { fetchDraftMode } from '@/utils/auth'
-import config from '@/payload.config'
 import { notFound } from 'next/navigation'
+import { payloadUserQuery } from '@/utils/payload.server'
 import { ActionNav, ActionPage } from './ActionPage'
 import { Action } from '@/payload-types'
 import { getSlug } from '@/utils/payloadPath'
@@ -13,11 +11,8 @@ import { format } from 'date-fns'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
 
-  const actions = await payload.find({
+  const actions = await payloadUserQuery({
     collection: 'actions',
     sort: '-date',
     depth: 2,
@@ -27,7 +22,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
         equals: slug,
       },
     },
-    draft: isDraftMode,
   })
 
   const action = actions.docs[0]
@@ -230,7 +224,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     filter: any,
     direction: 'previous' | 'next' | 'sameDay',
   ) {
-    const actions = await payload.find({
+    const actions = await payloadUserQuery({
       collection: 'actions',
       where: {
         ...filter,

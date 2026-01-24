@@ -1,6 +1,4 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
-import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserGlobalQuery } from '@/utils/payload.server'
 import Link from 'next/link'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import type { Campaign, Action } from '@/payload-types'
@@ -11,16 +9,12 @@ import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 import { getMediaUrl } from '@/utils/media'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   try {
-    const campaignPageData = await payload.findGlobal({
+    const campaignPageData = await payloadUserGlobalQuery({
       slug: 'campaignsPage',
-      draft: isDraftMode,
     })
 
     const title = 'Worker organising campaigns'
@@ -82,27 +76,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CampaignsPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   // Fetch the global data for the description
-  const campaignPageData = await payload.findGlobal({
+  const campaignPageData = await payloadUserGlobalQuery({
     slug: 'campaignsPage',
-    draft: isDraftMode,
   })
 
   // Fetch all published organising groups with their countries
-  const campaignResults = await payload.find({
+  const campaignResults = await payloadUserQuery({
     collection: 'campaigns',
     depth: 1, // Include countries
     pagination: false,
-    draft: isDraftMode,
   })
 
   const __campaigns = campaignResults.docs as Campaign[]
 
   const campaigns = __campaigns.sort((a, b) => {
+    if (!a.actions || !b.actions) return 0
     const startA = Math.min(
       ...(a.actions as Action[])?.map((action) => new Date(action.date).getTime()),
     )
@@ -118,6 +107,8 @@ export default async function CampaignsPage() {
         <h1 className="text-4xl md:text-5xl font-bold font-identity">Campaigns</h1>
         {campaignPageData.description && <LexicalRenderer content={campaignPageData.description} />}
       </header>
+
+      <pre>{JSON.stringify({ campaigns }, null, 2)}</pre>
 
       {campaigns.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>

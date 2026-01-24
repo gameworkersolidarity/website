@@ -1,8 +1,6 @@
-import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
-import config from '@/payload.config'
-import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 export const metadata = {
   title: 'Countries',
@@ -11,22 +9,18 @@ export const metadata = {
 }
 
 export default async function CountriesPage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
   // Fetch all countries
-  const countriesResult = await payload.find({
+  const countriesResult = await payloadUserQuery({
     collection: 'countries',
     depth: 0,
     pagination: false,
     sort: 'Name',
-    draft: isDraftMode,
   })
 
   // Count actions for each country and filter out countries with no actions
   const countriesWithActions = await Promise.all(
     countriesResult.docs.map(async (country) => {
-      const actionResults = await payload.find({
+      const actionResults = await payloadUserQuery({
         collection: 'actions',
         where: {
           and: [
@@ -40,7 +34,6 @@ export default async function CountriesPage() {
         sort: '-date',
         limit: 1,
         depth: 0,
-        draft: isDraftMode,
       })
       return {
         country,

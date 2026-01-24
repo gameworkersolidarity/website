@@ -1,7 +1,5 @@
-import { fetchDraftMode } from '@/utils/auth'
-import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
-import config from '@/payload.config'
+import { payloadUserQuery } from '@/utils/payload.server'
 import React from 'react'
 import Link from 'next/link'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
@@ -49,34 +47,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params
 
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
-  const post = await payload
-    .find({
-      collection: 'blogPosts',
-      depth: 2, // Include image relation
-      draft: isDraftMode,
-      limit: 1,
-      where: {
-        slug: {
-          equals: slug,
-        },
+  const post = await payloadUserQuery({
+    collection: 'blogPosts',
+    depth: 2, // Include image relation
+    limit: 1,
+    where: {
+      slug: {
+        equals: slug,
       },
-    })
-    .then(({ docs }) => docs?.[0])
+    },
+  }).then(({ docs }) => docs?.[0])
 
   if (!post) {
     notFound()
   }
 
   // Fetch all published blog posts to find previous/next
-  const allPosts = await payload.find({
+  const allPosts = await payloadUserQuery({
     collection: 'blogPosts',
     sort: 'createdAt', // Sort by createdAt, newest first
     pagination: false,
-    draft: isDraftMode,
   })
 
   // Find current post index and get previous/next

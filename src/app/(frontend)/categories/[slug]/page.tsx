@@ -1,7 +1,5 @@
-import { fetchDraftMode } from '@/utils/auth'
-import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
-import config from '@/payload.config'
+import { payloadUserQuery } from '@/utils/payload.server'
 import { CategoryPage } from './CategoryPage'
 import { getSlug } from '@/utils/payloadPath'
 import { capitalize } from 'lodash'
@@ -24,30 +22,23 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
-  const category = await payload
-    .find({
-      collection: 'categories',
-      depth: 2, // Include related solidarity actions and their related entities
-      draft: isDraftMode,
-      limit: 1,
-      where: {
-        slug: {
-          equals: slug,
-        },
+  const category = await payloadUserQuery({
+    collection: 'categories',
+    depth: 2, // Include related solidarity actions and their related entities
+    limit: 1,
+    where: {
+      slug: {
+        equals: slug,
       },
-    })
-    .then(({ docs }) => docs?.[0])
+    },
+  }).then(({ docs }) => docs?.[0])
 
   if (!category) {
     notFound()
   }
 
   // Query solidarity actions directly where this category is related
-  const actionsResult = await payload.find({
+  const actionsResult = await payloadUserQuery({
     collection: 'actions',
     where: {
       and: [
@@ -60,7 +51,6 @@ export default async function Page({ params }: Props) {
     },
     sort: '-date',
     depth: 2, // Include related entities
-    draft: isDraftMode,
     pagination: false,
   })
 

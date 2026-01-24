@@ -5,27 +5,20 @@ import { Country } from '@/payload-types'
 import { fetchDraftMode } from '@/utils/auth'
 
 export default async function HomePage() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
-
   // Fetch all actions with related data
   // Include both published and legacy records (where _status is null)
   // Fetch all filter options
   const [actionsResult, categoriesResult, companiesResult, organisingGroupsResult, campaignResult] =
     await Promise.all([
-      await payload.find({
+      payloadUserQuery({
         collection: 'actions',
-        // This shows unpublished draft — overwrites the _status filter below
-        draft: isDraftMode,
         sort: '-date',
         depth: 2, // Include related data (countries, categories, companies, organising groups)
         pagination: false,
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'categories',
         pagination: false,
-        draft: isDraftMode,
         select: {
           name: true,
           id: true,
@@ -35,10 +28,9 @@ export default async function HomePage() {
         },
         sort: ['name'],
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'companies',
         pagination: false,
-        draft: isDraftMode,
         select: {
           name: true,
           id: true,
@@ -47,10 +39,9 @@ export default async function HomePage() {
         },
         sort: ['name'],
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'organisingGroups',
         pagination: false,
-        draft: isDraftMode,
         select: {
           name: true,
           id: true,
@@ -59,10 +50,9 @@ export default async function HomePage() {
         },
         sort: ['name'],
       }),
-      payload.find({
+      payloadUserQuery({
         collection: 'campaigns',
         pagination: false,
-        draft: isDraftMode,
         select: {
           name: true,
           id: true,

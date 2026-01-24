@@ -1,7 +1,5 @@
-import { fetchDraftMode } from '@/utils/auth'
-import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
-import config from '@/payload.config'
+import { payloadUserQuery } from '@/utils/payload.server'
 import { CampaignPage } from './CampaignPage'
 import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
@@ -29,12 +27,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = await fetchDraftMode(payload)
   const { slug } = await params
 
-  const result = await payload.find({
+  const result = await payloadUserQuery({
     collection: 'campaigns',
     where: {
       slug: {
@@ -43,7 +38,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     },
     depth: 2,
     pagination: false,
-    draft: isDraftMode,
     limit: 1,
   })
 

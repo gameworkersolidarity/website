@@ -1,6 +1,4 @@
 import React, { Suspense } from 'react'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import '@/app/globals.css'
@@ -9,7 +7,10 @@ import { ThemeProvider } from '@/components/NextTheme'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next/dist/types'
 import { UserContextProvider } from '@/utils/UserContext'
-import { setDraftMode } from '@/utils/auth'
+import { loadDraftMode } from '@/utils/auth'
+import { payloadUserGlobalQuery } from '@/utils/payload.server'
+import { getPayload } from 'payload'
+import config from '@/payload.config'
 
 export const backupShareCard = {
   url: `${projectStrings.baseUrl}/icon/icon.png`,
@@ -96,7 +97,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   let footerData: { navigation?: Array<{ label: string; url: string }> } | null = null
 
   try {
-    const result = await payload.findGlobal({
+    const result = await payloadUserGlobalQuery({
       slug: 'header',
     })
     headerData = result as { navigation?: Array<{ label: string; url: string }> }
@@ -105,7 +106,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   }
 
   try {
-    const result = await payload.findGlobal({
+    const result = await payloadUserGlobalQuery({
       slug: 'footer',
     })
     footerData = result as { navigation?: Array<{ label: string; url: string }> }
@@ -115,7 +116,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   const footerNav = [...(footerData?.navigation || []), ...(navLinks || [])]
 
-  const { authStatus } = await setDraftMode(payload)
+  const { authStatus } = await loadDraftMode(payload)
 
   return (
     <UserContextProvider user={authStatus?.user}>
