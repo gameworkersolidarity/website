@@ -59,6 +59,12 @@ export default buildConfig({
           minWidth: 'medium',
           maxWidth: 'full',
         },
+        {
+          slug: 'recent-edits',
+          ComponentPath: './app/(payload)/admin/components/RecentEditsWidget#default',
+          minWidth: 'medium',
+          maxWidth: 'full',
+        },
       ],
     },
     autoRefresh: true,
