@@ -40,13 +40,11 @@ export function LoggedIn({ children }: { children: React.ReactNode }) {
 }
 
 export function Username() {
-  const client = useAsync('/me', () =>
-    payloadClient.me({ collection: 'users' }).then((res) => res.user),
-  )
+  const user = useUser()
 
-  if (!client.data?.id) {
+  if (!user?.id) {
     return null
   }
 
-  return <>{client.data?.email}</>
+  return <>{user.email}</>
 }
