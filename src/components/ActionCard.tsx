@@ -387,6 +387,12 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
       {data._status === 'draft' && <DraftBadge />}
       <span className="font-semibold">
         <DateTime date={data.date} />
+        {data.endDate && (
+          <>
+            {' → '}
+            <DateTime date={data.endDate} />
+          </>
+        )}
       </span>
       {data.featured && (
         <div className="inline-flex items-center gap-1 text-xs bg-snot-400 uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
@@ -411,6 +417,11 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
             />
           ))}
         </div>
+      )}
+      {data.headcount && (
+        <span>
+          {data.headcount.toLocaleString()} {pluralize('worker', data.headcount)}
+        </span>
       )}
       {!!data.companies?.length && (
         <div className="inline-flex flex-wrap gap-x-2">
