@@ -1,6 +1,6 @@
 'use client'
 
-import useSWR from 'swr'
+import { useAsync } from '@/utils/query'
 import { payloadClient } from '@/utils/payload'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -29,7 +29,7 @@ export function AdminEditBanner({
 }
 
 export function LoggedIn({ children }: { children: React.ReactNode }) {
-  const client = useSWR('/me', () =>
+  const client = useAsync('/me', () =>
     payloadClient.me({ collection: 'users' }).then((res) => res.user),
   )
 
@@ -41,7 +41,7 @@ export function LoggedIn({ children }: { children: React.ReactNode }) {
 }
 
 export function Username() {
-  const client = useSWR('/me', () =>
+  const client = useAsync('/me', () =>
     payloadClient.me({ collection: 'users' }).then((res) => res.user),
   )
 

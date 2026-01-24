@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import { useAsync } from '@/utils/query'
 import { FrequencyChart } from './FrequencyChart'
 import { payloadClient } from '@/utils/payload'
 import { Campaign, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
@@ -10,7 +10,7 @@ import { ActionInitiator } from '@/collections/enums'
 import { getRelatedObjects } from '@/utils/getRelatedObjects'
 
 export const ActionHistogramContext = ({ action }: { action: Action }) => {
-  const actions = useSWR('all-actions', () =>
+  const actions = useAsync('all-actions', () =>
     payloadClient.find({ collection: 'actions', pagination: false, depth: 0, sort: '-date' }),
   )
 

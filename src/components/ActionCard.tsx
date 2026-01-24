@@ -5,9 +5,7 @@ import { getYear } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
 import pluralize from 'pluralize'
-import qs from 'query-string'
 import { useMemo, useState, useEffect } from 'react'
-import useSWR from 'swr'
 import { DateTime } from '@/components/DateTime'
 import {
   Category,
@@ -358,6 +356,11 @@ export function DocumentLink({
 export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | boolean }) {
   return (
     <div className="flex flex-wrap tracking-tight gap-4 gap-y-1">
+      {data._status === 'draft' && (
+        <div className="inline-flex items-center gap-1 text-xs bg-snot-400 uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
+          ⚠️ Draft
+        </div>
+      )}
       <span className="font-semibold">
         <DateTime date={data.date} />
       </span>
