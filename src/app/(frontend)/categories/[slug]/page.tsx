@@ -7,27 +7,6 @@ import { getSlug } from '@/utils/payloadPath'
 import { capitalize } from 'lodash'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
-export async function generateStaticParams() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-
-  const categoriesResult = await payload.find({
-    collection: 'categories',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-    pagination: false,
-  })
-
-  return categoriesResult.docs
-    .map((category) => ({
-      slug: getSlug('categories', category),
-    }))
-    .filter((category) => !!category.slug)
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   return generateMetadataForSlug({

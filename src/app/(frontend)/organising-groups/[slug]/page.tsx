@@ -7,27 +7,6 @@ import { getDescendants } from '@/utils/payloadTree.server'
 import { OrganisingGroupPage } from './OrganisingGroupPage'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
-export async function generateStaticParams() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-
-  const groupsResult = await payload.find({
-    collection: 'organisingGroups',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-    pagination: false,
-  })
-
-  return groupsResult.docs
-    .map((group) => ({
-      slug: group.slug,
-    }))
-    .filter((group) => !!group.slug)
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   return generateMetadataForSlug({

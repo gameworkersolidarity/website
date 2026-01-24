@@ -6,27 +6,6 @@ import { Company, OrganisingGroup } from '@/payload-types'
 import { CountryPage } from './CountryPage'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 
-export async function generateStaticParams() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-
-  const countriesResult = await payload.find({
-    collection: 'countries',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-    pagination: false,
-  })
-
-  return countriesResult.docs
-    .map((country) => ({
-      slug: country.slug,
-    }))
-    .filter((country) => !!country.slug)
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   return generateMetadataForSlug({

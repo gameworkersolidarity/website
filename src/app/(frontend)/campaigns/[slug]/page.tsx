@@ -7,22 +7,6 @@ import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 
-export async function generateStaticParams() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-
-  const pagesResult = await payload.find({
-    collection: 'campaigns',
-    pagination: false,
-  })
-
-  return pagesResult.docs
-    .map((page) => ({
-      slug: getSlug('campaigns', page),
-    }))
-    .filter((page) => !!page.slug)
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   return generateMetadataForSlug({
