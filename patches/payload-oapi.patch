@@ -1,0 +1,253 @@
+diff --git a/dist/openapi/generators.js b/dist/openapi/generators.js
+index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119cd7ec6023 100644
+--- a/dist/openapi/generators.js
++++ b/dist/openapi/generators.js
+@@ -4,6 +4,34 @@ import { entityToJSONSchema } from 'payload';
+ import { mapValuesAsync, visitObjectNodes } from '../utils/objects.js';
+ import { collectionName, componentName, globalName } from './naming.js';
+ import { apiKeySecurity, generateSecuritySchemes } from './securitySchemes.js';
++const shouldExcludeCollection = (collection, exclude) => {
++    if (!exclude?.collections) {
++        return false;
++    }
++    return exclude.collections.includes(collection.config.slug);
++};
++const shouldExcludeGlobal = (global, exclude) => {
++    if (!exclude?.globals) {
++        return false;
++    }
++    return exclude.globals.includes(global.slug);
++};
++const shouldExcludeEndpoint = (path, exclude) => {
++    if (!exclude?.endpoints) {
++        return false;
++    }
++    return exclude.endpoints.some(excludedPath => {
++        if (excludedPath === path) {
++            return true;
++        }
++        if (excludedPath.includes('*')) {
++            const pattern = excludedPath.replace(/\*/g, '.*');
++            const regex = new RegExp(`^${pattern}$`);
++            return regex.test(path);
++        }
++        return false;
++    });
++};
+ const baseQueryParams = [
+     { in: 'query', name: 'depth', schema: { type: 'number' } },
+     { in: 'query', name: 'locale', schema: { type: 'string' } },
+@@ -277,7 +305,7 @@ const isOpenToPublic = async (checker) => {
+         return false;
+     }
+ };
+-const generateCollectionOperations = async (collection) => {
++const generateCollectionOperations = async (collection, exclude) => {
+     const { slug } = collection.config;
+     const { singular, plural } = collectionName(collection);
+     const tags = [plural];
+@@ -285,8 +313,11 @@ const generateCollectionOperations = async (collection) => {
+         200: composeRef('responses', singular),
+         404: composeRef('responses', singular, { suffix: 'NotFound' }),
+     };
+-    return {
+-        [`/api/${slug}`]: {
++    const listPath = `/api/${slug}`;
++    const detailPath = `/api/${slug}/{id}`;
++    const operations = {};
++    if (!shouldExcludeEndpoint(listPath, exclude)) {
++        operations[listPath] = {
+             get: {
+                 operationId: componentName('schemas', plural, { prefix: 'list' }),
+                 summary: `Retrieve a list of ${plural}`,
+@@ -345,8 +376,10 @@ const generateCollectionOperations = async (collection) => {
+                 },
+                 security: (await isOpenToPublic(collection.config.access.create)) ? [] : [apiKeySecurity],
+             },
+-        },
+-        [`/api/${slug}/{id}`]: {
++        };
++    }
++    if (!shouldExcludeEndpoint(detailPath, exclude)) {
++        operations[detailPath] = {
+             parameters: [
+                 ...baseQueryParams,
+                 {
+@@ -384,8 +417,9 @@ const generateCollectionOperations = async (collection) => {
+                 responses: singleObjectResponses,
+                 security: (await isOpenToPublic(collection.config.access.delete)) ? [] : [apiKeySecurity],
+             },
+-        },
+-    };
++        };
++    }
++    return operations;
+ };
+ const generateGlobalResponse = (global) => {
+     const name = globalName(global);
+@@ -423,12 +457,16 @@ const generateGlobalSchemas = (config, global) => {
+         },
+     };
+ };
+-const generateGlobalOperations = async (global) => {
++const generateGlobalOperations = async (global, exclude) => {
+     const slug = global.slug;
+     const singular = globalName(global);
+     const tags = [singular];
++    const globalPath = `/api/globals/${slug}`;
++    if (shouldExcludeEndpoint(globalPath, exclude)) {
++        return {};
++    }
+     return {
+-        [`/api/globals/${slug}`]: {
++        [globalPath]: {
+             get: {
+                 summary: `Get the ${singular}`,
+                 tags,
+@@ -446,7 +484,7 @@ const generateGlobalOperations = async (global) => {
+         },
+     };
+ };
+-const generateComponents = (req) => {
++const generateComponents = (req, exclude) => {
+     const schemas = {
+         supportedTimezones: {
+             type: 'string',
+@@ -454,38 +492,64 @@ const generateComponents = (req) => {
+         },
+     };
+     for (const collection of Object.values(req.payload.collections)) {
++        if (shouldExcludeCollection(collection, exclude)) {
++            continue;
++        }
+         const { singular } = collectionName(collection);
+         schemas[componentName('schemas', singular)] = generateSchemaObject(req.payload.config, collection);
+     }
+     for (const collection of Object.values(req.payload.collections)) {
++        if (shouldExcludeCollection(collection, exclude)) {
++            continue;
++        }
+         Object.assign(schemas, generateQueryOperationSchemas(collection));
+     }
+     for (const global of req.payload.globals.config) {
++        if (shouldExcludeGlobal(global, exclude)) {
++            continue;
++        }
+         Object.assign(schemas, generateGlobalSchemas(req.payload.config, global));
+     }
+     const requestBodies = {};
+     for (const collection of Object.values(req.payload.collections)) {
++        if (shouldExcludeCollection(collection, exclude)) {
++            continue;
++        }
+         const { singular } = collectionName(collection);
+         requestBodies[componentName('requestBodies', singular)] = generateRequestBodySchema(req.payload.config, collection, 'post');
+         requestBodies[componentName('requestBodies', singular, { suffix: 'Patch' })] =
+             generateRequestBodySchema(req.payload.config, collection, 'patch');
+     }
+     for (const global of req.payload.globals.config) {
++        if (shouldExcludeGlobal(global, exclude)) {
++            continue;
++        }
+         requestBodies[componentName('requestBodies', globalName(global))] =
+             generateGlobalRequestBody(global);
+     }
+-    const responses = Object.assign({}, ...Object.values(req.payload.collections).map(generateCollectionResponses), ...req.payload.globals.config.map(global => ({
++    const responses = Object.assign({}, ...Object.values(req.payload.collections).filter(collection => !shouldExcludeCollection(collection, exclude)).map(generateCollectionResponses), ...req.payload.globals.config.filter(global => !shouldExcludeGlobal(global, exclude)).map(global => ({
+         [componentName('responses', globalName(global))]: generateGlobalResponse(global),
+     })));
+     return { schemas, requestBodies, responses };
+ };
+ export const generateV30Spec = async (req, options) => {
+-    const { schemas, requestBodies, responses } = generateComponents(req);
++    const exclude = options.exclude || {};
++    const { schemas, requestBodies, responses } = generateComponents(req, exclude);
++    const collectionPaths = await Promise.all(Object.values(req.payload.collections)
++        .filter(collection => !shouldExcludeCollection(collection, exclude))
++        .map(collection => generateCollectionOperations(collection, exclude)));
++    const globalPaths = await Promise.all(req.payload.globals.config
++        .filter(global => !shouldExcludeGlobal(global, exclude))
++        .map(global => generateGlobalOperations(global, exclude)));
++    const allPaths = Object.assign({}, ...collectionPaths, ...globalPaths);
++    const filteredPaths = Object.fromEntries(
++        Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude))
++    );
+     const spec = {
+         openapi: '3.0.3',
+         info: options.metadata,
+         servers: [{ url: `${req.protocol}//${req.headers.get('host')}` }],
+-        paths: Object.assign({}, ...(await Promise.all(Object.values(req.payload.collections).map(generateCollectionOperations))), ...(await Promise.all(req.payload.globals.config.map(generateGlobalOperations)))),
++        paths: filteredPaths,
+         components: {
+             securitySchemes: generateSecuritySchemes(options.authEndpoint),
+             schemas: await mapValuesAsync(jsonSchemaToOpenapiSchema, schemas),
+@@ -517,12 +581,23 @@ export const generateV30Spec = async (req, options) => {
+     return spec;
+ };
+ export const generateV31Spec = async (req, options) => {
+-    const { schemas, requestBodies, responses } = generateComponents(req);
++    const exclude = options.exclude || {};
++    const { schemas, requestBodies, responses } = generateComponents(req, exclude);
++    const collectionPaths = await Promise.all(Object.values(req.payload.collections)
++        .filter(collection => !shouldExcludeCollection(collection, exclude))
++        .map(collection => generateCollectionOperations(collection, exclude)));
++    const globalPaths = await Promise.all(req.payload.globals.config
++        .filter(global => !shouldExcludeGlobal(global, exclude))
++        .map(global => generateGlobalOperations(global, exclude)));
++    const allPaths = Object.assign({}, ...collectionPaths, ...globalPaths);
++    const filteredPaths = Object.fromEntries(
++        Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude))
++    );
+     const spec = {
+         openapi: '3.1.0',
+         info: options.metadata,
+         servers: [{ url: `${req.protocol}//${req.headers.get('host')}` }],
+-        paths: Object.assign({}, ...(await Promise.all(Object.values(req.payload.collections).map(generateCollectionOperations))), ...(await Promise.all(req.payload.globals.config.map(generateGlobalOperations)))),
++        paths: filteredPaths,
+         components: {
+             securitySchemes: generateSecuritySchemes(options.authEndpoint),
+             schemas: schemas,
+diff --git a/dist/openapiPlugin.js b/dist/openapiPlugin.js
+index a211111adef175b68bbd127a0332256dddc19521..c17210a9a94f7a2957589c3ffbc9172f66b178f0 100644
+--- a/dist/openapiPlugin.js
++++ b/dist/openapiPlugin.js
+@@ -1,5 +1,5 @@
+ import { createOAuthPasswordFlowHandler, createOpenAPIRequestHandler } from './requestHandlers.js';
+-const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, }) => ({ endpoints = [], ...config }) => {
++const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, exclude, }) => ({ endpoints = [], ...config }) => {
+     if (!enabled) {
+         return { ...config, endpoints };
+     }
+@@ -14,6 +14,7 @@ const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth
+                     openapiVersion,
+                     metadata,
+                     authEndpoint,
++                    exclude,
+                 }),
+             },
+             {
+diff --git a/dist/types.d.ts b/dist/types.d.ts
+index 652259d700ce7676911befcc4887043b9441d1ea..99a0219d0da5bf9c2028979af9fbeee211d473db 100644
+--- a/dist/types.d.ts
++++ b/dist/types.d.ts
+@@ -4,11 +4,19 @@ export interface OpenAPIMetadata {
+     version: string;
+     description?: string;
+ }
++export interface ExcludeOptions {
++    collections?: string[];
++    globals?: string[];
++    endpoints?: string[];
++}
+ export interface PluginOptions {
+     enabled?: boolean;
+     openapiVersion?: OpenAPIVersion;
+     specEndpoint?: string;
+     authEndpoint?: string;
+     metadata: OpenAPIMetadata;
++    exclude?: ExcludeOptions;
+ }
+-export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint'>>;
++export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint' | 'exclude'>> & {
++    exclude?: ExcludeOptions;
++};

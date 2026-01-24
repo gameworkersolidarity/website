@@ -226,6 +226,29 @@ export default buildConfig({
         version: '1.0.0',
         description: `Free, public API for querying the Game Workers Solidarity archival database. Please let us know how you use it! ${projectStrings.email}`,
       },
+      exclude: {
+        collections: [
+          'payload-preferences',
+          'payload-migrations',
+          'payload-locked-documents',
+          'payload-kv',
+          'payload-jobs',
+          'users',
+          'staticPages',
+          'blogPosts',
+          'media',
+        ],
+        globals: [
+          'header',
+          'footer',
+          'startOrganising',
+          'aboutPage',
+          'campaignsPage',
+          'dataPage',
+          'actionSubmissionPage',
+        ],
+        // endpoints: ['/api/some-endpoint', '/api/another/*'], // Add specific endpoints or patterns with wildcards
+      },
     }),
     scalar({
       // Scalar UI will be available at /api/docs by default

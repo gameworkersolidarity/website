@@ -162,7 +162,10 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
-    ]
+    ],
+    "patchedDependencies": {
+      "payload-oapi": "patches/payload-oapi.patch"
+    }
   },
   "devDependencies": {
     "husky": "^9.1.7",
