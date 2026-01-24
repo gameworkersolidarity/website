@@ -1,4 +1,4 @@
-import { getDraftMode } from '@/utils/auth'
+import { fetchDraftMode } from '@/utils/auth'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
@@ -26,7 +26,7 @@ export default async function Page({ params }: Props) {
 
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
 
   const category = await payload
     .find({

@@ -5,7 +5,7 @@ import config from '@/payload.config'
 import Image from 'next/image'
 import { Rss } from 'lucide-react'
 import { DateTime } from '@/components/DateTime'
-import { getDraftMode } from '@/utils/auth'
+import { fetchDraftMode, setDraftMode } from '@/utils/auth'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 import { getMediaUrl } from '@/utils/media'
@@ -42,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BlogPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
 
   // Fetch all published blog posts
   const blogPostsResult = await payload.find({

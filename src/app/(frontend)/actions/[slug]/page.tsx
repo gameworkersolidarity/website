@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from 'payload'
-import { getDraftMode } from '@/utils/auth'
+import { fetchDraftMode } from '@/utils/auth'
 import config from '@/payload.config'
 import { notFound } from 'next/navigation'
 import { ActionNav, ActionPage } from './ActionPage'
@@ -15,7 +15,7 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
 
   const actions = await payload.find({
     collection: 'actions',

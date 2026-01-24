@@ -8,9 +8,8 @@ import { navLinks } from '../links'
 import { ThemeProvider } from '@/components/NextTheme'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next/dist/types'
-import { draftMode, headers as nextHeaders } from 'next/headers'
 import { UserContextProvider } from '@/utils/UserContext'
-import { getDraftMode } from '@/utils/auth'
+import { setDraftMode } from '@/utils/auth'
 
 export const backupShareCard = {
   url: `${projectStrings.baseUrl}/icon/icon.png`,
@@ -116,7 +115,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   const footerNav = [...(footerData?.navigation || []), ...(navLinks || [])]
 
-  const { draftMode, authStatus } = await getDraftMode(payload)
+  const { authStatus } = await setDraftMode(payload)
 
   return (
     <UserContextProvider user={authStatus?.user}>

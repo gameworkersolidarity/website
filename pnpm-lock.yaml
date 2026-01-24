@@ -271,6 +271,9 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+      email-nodemailer3.72.0:
+        specifier: link:@@payloadcms/email-nodemailer3.72.0
+        version: link:@@payloadcms/email-nodemailer3.72.0
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.1)

@@ -1,4 +1,4 @@
-import { getDraftMode } from '@/utils/auth'
+import { fetchDraftMode } from '@/utils/auth'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import config from '@/payload.config'
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
   const { slug } = await params
 
   const result = await payload.find({

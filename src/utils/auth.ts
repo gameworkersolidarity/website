@@ -1,7 +1,7 @@
 import { draftMode, headers as nextHeaders } from 'next/headers'
 import { Payload } from 'payload'
 
-export async function getDraftMode(payload: Payload) {
+export async function setDraftMode(payload: Payload) {
   // Next — check JWT and set draftMode
   const headers = await nextHeaders()
   const draftModeStatus = await draftMode()
@@ -19,6 +19,6 @@ export async function getDraftMode(payload: Payload) {
   }
 }
 
-export async function getAuthStatus(payload: Payload) {
-  return (await getDraftMode(payload)).draftModeStatus.isEnabled
+export async function fetchDraftMode(payload: Payload) {
+  return (await setDraftMode(payload)).draftModeStatus.isEnabled
 }

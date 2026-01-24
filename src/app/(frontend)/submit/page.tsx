@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { getDraftMode } from '@/utils/auth'
+import { fetchDraftMode } from '@/utils/auth'
 import { notFound } from 'next/navigation'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { ActionSubmissionForm } from './ActionSubmissionForm'
@@ -11,7 +11,7 @@ import type { Metadata } from 'next'
 export async function generateMetadata(): Promise<Metadata> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
 
   try {
     const actionSubmissionPageData = await payload.findGlobal({
@@ -81,7 +81,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SubmitActionPage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
 
   try {
     // Fetch the global data for the page

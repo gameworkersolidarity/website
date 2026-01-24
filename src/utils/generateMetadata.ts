@@ -1,11 +1,9 @@
-import { getDraftMode } from '@/utils/auth'
+import { fetchDraftMode } from '@/utils/auth'
 import { getPayload } from 'payload'
 import { CollectionSlug } from 'payload'
 import config from '@/payload.config'
-import { getSlug } from '@/utils/payloadPath'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { Media, Config } from '@/payload-types'
-import { capitalize } from 'lodash'
 import { backupShareCard } from '@/app/(frontend)/layout'
 import { Metadata } from 'next'
 import { OpenGraph } from 'next/dist/lib/metadata/types/opengraph-types'
@@ -30,7 +28,7 @@ export async function generateMetadataForSlug({
 }: MetadataOptions): Promise<Metadata> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const isDraftMode = (await getDraftMode(payload)).draftModeStatus.isEnabled
+  const isDraftMode = await fetchDraftMode(payload)
 
   const result = await payload.find({
     collection,

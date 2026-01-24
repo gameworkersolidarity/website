@@ -109,6 +109,7 @@
     "d3-scale-chromatic": "^3.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
+    "email-nodemailer3.72.0": "link:@@payloadcms/email-nodemailer3.72.0",
     "embla-carousel-react": "^8.6.0",
     "env-var": "^7.5.0",
     "eslint": "^9.39.2",
