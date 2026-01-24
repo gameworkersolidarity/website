@@ -1,16 +1,10 @@
 import { payloadUserQuery, payloadUserGlobalQuery } from '@/utils/payload.server'
-import Link from 'next/link'
-import Image from 'next/image'
-import { LexicalRenderer } from '../components/LexicalRenderer'
-import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
-import { CountryLabel } from '@/components/CountryLabel'
-import type { OrganisingGroup, Country, Media } from '@/payload-types'
-import { OrganisingGroupLinks } from '../organising-groups/[slug]/OrganisingGroupPage'
+import type { OrganisingGroup, Country } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
-import { OrganisingGroupCard } from '@/components/OrganisingGroupCard'
+import { StartOrganisingPageClient } from './StartOrganisingPage.client'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -146,30 +140,9 @@ export default async function StartOrganisingPage() {
   })
 
   return (
-    <div className="mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-4">
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-4 md:gap-6 lg:gap-8">
-        <h1 className="text-4xl lg:text-5xl font-bold font-identity mb-4">Start organising!</h1>
-        <LexicalRenderer content={startOrganisingData.description} />
-      </div>
-
-      {sortedCountries.length > 0 && (
-        <div className="grid grid-cols-1 gap-4">
-          {sortedCountries.map(({ country, groups }) => (
-            <div key={country.id} className="grid gap-4">
-              <header>
-                <h2 className="text-2xl">
-                  <CountryLabel country={country} link />
-                </h2>
-              </header>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groups.map((group) => (
-                  <OrganisingGroupCard key={group.id} group={group} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <StartOrganisingPageClient
+      initialData={startOrganisingData}
+      groupsByCountry={sortedCountries}
+    />
   )
 }

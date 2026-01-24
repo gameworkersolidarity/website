@@ -1,3 +1,5 @@
+'use client'
+
 import { format as formatDate } from 'date-fns'
 import { ErrorBoundary } from 'next/dist/client/components/error-boundary'
 

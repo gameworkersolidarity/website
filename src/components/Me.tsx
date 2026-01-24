@@ -18,7 +18,7 @@ export function AdminEditBanner({
         <Link href={page.adminPath || '/'}>
           <Button>Edit this page</Button>
         </Link>
-        <code>Page ID: {page.id}</code>
+        {!!page.id && <code>Page ID: {page.id}</code>}
         <div>
           Logged in as <Username />
         </div>

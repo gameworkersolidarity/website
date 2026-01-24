@@ -77,13 +77,34 @@ export default buildConfig({
           }
         : undefined,
     livePreview: {
-      url: ({ data, collectionConfig }) => {
+      url: ({ data, collectionConfig, globalConfig }) => {
+        const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
+        const baseURL = projectStrings.baseUrl
+
+        // Handle globals
+        if (globalConfig) {
+          const globalPathMap: Record<string, string> = {
+            header: '/',
+            footer: '/',
+            startOrganising: '/start-organising',
+            aboutPage: '/about',
+            campaignsPage: '/campaigns',
+            dataPage: '/data',
+            actionSubmissionPage: '/submit',
+          }
+          const path = globalPathMap[globalConfig.slug] || '/'
+          const encodedParams = new URLSearchParams({
+            path,
+            previewSecret,
+          })
+          return `${baseURL}/preview?${encodedParams.toString()}`
+        }
+
+        // Handle collections
         if (!data?.slug || !collectionConfig) {
           return null
         }
 
-        const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
-        const baseURL = projectStrings.baseUrl
         const encodedParams = new URLSearchParams({
           slug: getSlug(collectionConfig.slug, data as any),
           collection: collectionConfig.slug,
@@ -101,6 +122,15 @@ export default buildConfig({
         'countries',
         'staticPages',
         'blogPosts',
+      ],
+      globals: [
+        'header',
+        'footer',
+        'startOrganising',
+        'aboutPage',
+        'campaignsPage',
+        'dataPage',
+        'actionSubmissionPage',
       ],
       breakpoints: [
         {
