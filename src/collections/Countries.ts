@@ -5,6 +5,7 @@ import { projectStrings } from '@/project-strings'
 import { getBboxForCountry, getIsoA3ForCountry, getLatLngForCountry } from '@/utils/geo'
 import { getPath } from '@/utils/payloadPath'
 import { Country } from '@/payload-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -29,7 +30,7 @@ export const Countries: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

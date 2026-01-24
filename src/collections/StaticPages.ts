@@ -2,6 +2,7 @@ import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
 import { StaticPage } from '@/payload-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const StaticPages: CollectionConfig = {
   slug: 'staticPages',
@@ -22,7 +23,7 @@ export const StaticPages: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

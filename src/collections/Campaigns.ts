@@ -5,6 +5,7 @@ import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
 import { Campaign, Action } from '@/payload-types'
 import { TimelineLabelProperty } from '@/global-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 const highlightedActionAttributeOptions: Array<{ label: string; value: TimelineLabelProperty }> = [
   // Pick from companies, countries, categories, organising groups, headcount
@@ -42,7 +43,6 @@ const defaultHighlightedActionAttribute: TimelineLabelProperty = 'categories'
 
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
-  trash: true,
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'createdAt', 'updatedAt'],
@@ -63,8 +63,9 @@ export const Campaigns: CollectionConfig = {
       return `/preview?${encodedParams.toString()}`
     },
   },
+  trash: true,
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

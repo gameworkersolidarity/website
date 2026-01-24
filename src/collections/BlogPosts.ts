@@ -2,6 +2,7 @@ import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
 import { BlogPost } from '@/payload-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blogPosts',
@@ -23,7 +24,7 @@ export const BlogPosts: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

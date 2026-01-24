@@ -1,9 +1,10 @@
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 import type { GlobalConfig } from 'payload'
 
 export const CampaignsPage: GlobalConfig = {
   slug: 'campaignsPage',
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

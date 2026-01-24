@@ -4,6 +4,7 @@ import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
 import { createBreadcrumbsField } from '@payloadcms/plugin-nested-docs'
 import { Company } from '@/payload-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
@@ -28,7 +29,7 @@ export const Companies: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

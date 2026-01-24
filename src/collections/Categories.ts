@@ -3,6 +3,7 @@ import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
 import { Category } from '@/payload-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -27,7 +28,7 @@ export const Categories: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

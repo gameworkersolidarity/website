@@ -5,10 +5,10 @@ import { geocodeOpenStreetMap } from '@/utils/geo'
 import config from '@/payload.config'
 import { getPath } from '@/utils/payloadPath'
 import { Action } from '@/payload-types'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const Actions: CollectionConfig = {
   slug: 'actions',
-  trash: true,
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'date', 'createdAt', 'updatedAt'],
@@ -29,8 +29,9 @@ export const Actions: CollectionConfig = {
       return `/preview?${encodedParams.toString()}`
     },
   },
+  trash: true,
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {

@@ -1,10 +1,11 @@
 import type { CollectionConfig } from 'payload'
+import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   trash: true,
   access: {
-    read: () => true,
+    read: draftModeAccessControl,
   },
   versions: {
     drafts: {
