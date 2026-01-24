@@ -139,5 +139,5 @@ export function FrequencyChart({
     )
   }
 
-  return <RenderPlot plot={plotConfig} onMouseInteraction={onMouseInteraction} />
+  return <RenderPlot plot={plotConfig} onMouseEvent={onMouseInteraction} />
 }

@@ -5,19 +5,13 @@ import '@/app/globals.css'
 import { navLinks } from '../links'
 import { ThemeProvider } from '@/components/NextTheme'
 import { projectStrings } from '@/project-strings'
+import { backupShareCard } from '@/utils/shareCard'
 import type { Metadata } from 'next/dist/types'
 import { UserContextProvider } from '@/utils/UserContext'
 import { loadDraftMode } from '@/utils/auth'
 import { payloadUserGlobalQuery } from '@/utils/payload.server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-
-export const backupShareCard = {
-  url: `${projectStrings.baseUrl}/icon/icon.png`,
-  width: 1200,
-  height: 630,
-  alt: 'Game Workers Solidarity Platform',
-}
 
 export const metadata: Metadata = {
   metadataBase: new URL(projectStrings.baseUrl),

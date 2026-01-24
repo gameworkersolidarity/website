@@ -608,7 +608,7 @@ export function Timeline({
                 showAnchorLine={false}
                 containerStyle={{
                   overflow: 'visible',
-                  pointerActions: 'auto',
+                  pointerEvents: 'auto',
                 }}
               >
                 {/* <pre className="text-xs">{JSON.stringify(positionMetadata, null, 2)}</pre> */}

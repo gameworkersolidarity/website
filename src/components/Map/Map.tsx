@@ -510,12 +510,12 @@ const MapMarker = ({ data, ...coords }: { data: Action; latitude: number; longit
     <Marker {...coords}>
       <div
         onMouseEnter={(e) => {
-          e.practionDefault()
+          e.preventDefault()
           e.stopPropagation()
           router.prefetch(data.path!)
         }}
         onClick={(e) => {
-          e.practionDefault()
+          e.preventDefault()
           e.stopPropagation()
           router.push(
             data.path!,
@@ -583,7 +583,7 @@ const ClusterMarker = ({
             isSelected ? 'bg-snot-200' : 'bg-white',
           )}
           onClick={(e) => {
-            e.practionDefault()
+            e.preventDefault()
             e.stopPropagation()
             if (isSelected) {
               setSelectedPopupIds(null)
