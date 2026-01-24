@@ -25,6 +25,7 @@ import { OrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import { CampaignLabel } from '@/components/CampaignLabel'
 import { twMerge } from 'tailwind-merge'
 import { ActionHistogramContext } from '@/components/ActionHistogramContext'
+import { DataPageFooter } from '@/components/DataPageFooter'
 
 export function ActionPage({
   initialAction,
@@ -112,6 +113,7 @@ export function ActionPage({
           )}
         </aside>
       </div>
+      <DataPageFooter collection="actions" id={action.id} />
     </div>
   )
 }

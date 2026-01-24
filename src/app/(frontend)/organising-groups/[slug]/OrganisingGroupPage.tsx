@@ -23,6 +23,7 @@ import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/Collapsibl
 import pluralize from 'pluralize'
 import { getMediaUrl } from '@/utils/media'
 import { DraftBadge } from '@/components/DraftBadge'
+import { DataPageFooter } from '@/components/DataPageFooter'
 
 export function OrganisingGroupPage({
   initialGroup,
@@ -225,6 +226,7 @@ export function OrganisingGroupPage({
           initiators: false,
         }}
       />
+      <DataPageFooter collection="organisingGroups" id={page.id} />
     </div>
   )
 }

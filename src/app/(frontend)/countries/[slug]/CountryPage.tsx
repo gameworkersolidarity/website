@@ -18,6 +18,7 @@ import { ActionInitiatorFilter } from '@/collections/enums'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
+import { DataPageFooter } from '@/components/DataPageFooter'
 
 export function CountryPage({
   initialCountry,
@@ -131,6 +132,7 @@ export function CountryPage({
           initiators: false,
         }}
       />
+      <DataPageFooter collection="countries" id={page.id} />
     </div>
   )
 }

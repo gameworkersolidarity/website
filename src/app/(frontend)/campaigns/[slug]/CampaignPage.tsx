@@ -17,6 +17,7 @@ import { useMemo } from 'react'
 import { format, isSameMonth, isSameYear } from 'date-fns'
 import { getMediaUrl } from '@/utils/media'
 import { DraftBadge } from '@/components/DraftBadge'
+import { DataPageFooter } from '@/components/DataPageFooter'
 
 const Back = ({ className }: { className?: string }) => (
   <div className={className}>
@@ -157,6 +158,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
           }}
         />
       </div>
+      <DataPageFooter collection="campaigns" id={page.id} />
     </div>
   )
 }

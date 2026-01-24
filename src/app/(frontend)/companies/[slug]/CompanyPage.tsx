@@ -21,6 +21,7 @@ import { DraftBadge } from '@/components/DraftBadge'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
+import { DataPageFooter } from '@/components/DataPageFooter'
 
 export function CompanyPage({
   initialCompany,
@@ -153,6 +154,7 @@ export function CompanyPage({
           initiators: false,
         }}
       />
+      <DataPageFooter collection="companies" id={page.id} />
     </div>
   )
 }

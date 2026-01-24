@@ -13,6 +13,7 @@ import { ActionInitiatorFilter } from '@/collections/enums'
 import { ActionExplorer } from '../../components/ActionExplorer'
 import { ZoomLevel } from '@/utils/global-state'
 import { DraftBadge } from '@/components/DraftBadge'
+import { DataPageFooter } from '@/components/DataPageFooter'
 
 export function CategoryPage({
   initialCategory,
@@ -86,6 +87,7 @@ export function CategoryPage({
           initiators: false,
         }}
       />
+      <DataPageFooter collection="categories" id={page.id} />
     </div>
   )
 }
