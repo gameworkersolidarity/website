@@ -44,16 +44,19 @@ function HighlightedDescription({
   const actionHighlights = highlights[actionId]
   const descriptionRanges = actionHighlights?.description
 
+  let plainText: string
   try {
-    const plainText = lexicalToPlainText(content)
-    if (descriptionRanges && descriptionRanges.length > 0) {
-      return <HighlightText text={plainText} ranges={descriptionRanges} />
-    }
-    return <>{plainText}</>
+    plainText = lexicalToPlainText(content)
   } catch (e) {
     // Fallback to regular renderer if conversion fails
     return <LexicalRenderer content={content} />
   }
+
+  // Construct JSX outside try/catch to avoid error-boundaries warning
+  if (descriptionRanges && descriptionRanges.length > 0) {
+    return <HighlightText text={plainText} ranges={descriptionRanges} />
+  }
+  return <>{plainText}</>
 }
 
 interface ListProps {
@@ -225,6 +228,34 @@ export function ActionsList({
   )
 }
 
+// Wrapper component for ActionItem - defined outside component to avoid static-components warning
+function ActionItemWrapper({ children, href }: { children: React.ReactNode; href?: string }) {
+  if (href) {
+    return <Link href={href}>{children}</Link>
+  }
+  return <>{children}</>
+}
+
+// Wrapper component for ActionCard - defined outside component to avoid static-components warning
+function ActionCardWrapper({
+  children,
+  href,
+  className,
+}: {
+  children: React.ReactNode
+  href?: string
+  className?: string
+}) {
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    )
+  }
+  return <>{children}</>
+}
+
 export function ActionItem({
   data,
   links,
@@ -239,10 +270,6 @@ export function ActionItem({
   const nameRanges = actionHighlights?.name
   const hasDescriptionHighlights =
     actionHighlights?.description && actionHighlights.description.length > 0
-
-  const Wrapper = links
-    ? ({ children }: { children: React.ReactNode }) => <Link href={data.path!}>{children}</Link>
-    : ({ children }: { children: React.ReactNode }) => children
 
   const shouldShowDescription = !!data.description && data.featured
 
@@ -261,7 +288,7 @@ export function ActionItem({
         data.featured && 'outline-2 outline-snot-400 outline-offset-2',
       )}
     >
-      <Wrapper>
+      <ActionItemWrapper href={links ? data.path : undefined}>
         <h3 className="text-2xl leading-tight font-semibold max-w-3xl">
           <HighlightText text={data.name} ranges={nameRanges} />
         </h3>
@@ -282,7 +309,7 @@ export function ActionItem({
               </div>
             )
           })()}
-      </Wrapper>
+      </ActionItemWrapper>
       {(!!data.link || !!data.documents?.length) && (
         <div className="flex flex-row mt-3 flex-wrap">
           {data.link && links && (
@@ -423,21 +450,13 @@ export function ActionCard({
   const nameRanges = actionHighlights?.name
   const hasDescriptionHighlights =
     actionHighlights?.description && actionHighlights.description.length > 0
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
-
-  useEffect(() => {
+  // Use useState initializer to avoid setState in effect warning
+  const [isPreviewMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      setIsPreviewMode(window.location.search.includes('previewSecret'))
+      return window.location.search.includes('previewSecret')
     }
-  }, [])
-
-  const Wrapper = links
-    ? ({ children }: { children: React.ReactNode }) => (
-        <Link href={data.path!} className="block order-0 md:order-1">
-          {children}
-        </Link>
-      )
-    : ({ children }: { children: React.ReactNode }) => children
+    return false
+  })
 
   const shouldShowDescription = data.description && (isPreviewMode ? data.featured : true)
 
@@ -453,12 +472,15 @@ export function ActionCard({
           <div className="text-sm order-1 md:order-0">
             <ActionMetadata data={data} link={links} />
           </div>
-          <Wrapper>
+          <ActionCardWrapper
+            href={links ? data.path : undefined}
+            className={links ? 'block order-0 md:order-1' : undefined}
+          >
             {/* Title */}
             <h3 key="title" className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
               <HighlightText text={data.name} ranges={nameRanges} />
             </h3>
-          </Wrapper>
+          </ActionCardWrapper>
           {/* Description */}
           {shouldShowDescription &&
             (() => {

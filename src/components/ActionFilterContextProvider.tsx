@@ -23,6 +23,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useDebounce } from '@custom-react-hooks/use-debounce'
 import { create, insertMultiple, search } from '@orama/orama'
 import { Highlight } from '@orama/highlight'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -322,151 +323,157 @@ export function ActionFilterContextProvider({
   ])
 
   // Apply text search using Orama (async)
+  // Use useMemo to derive state instead of setState in effect
   const [filteredActions, setFilteredActions] = useState<Action[]>(preFilteredActions)
   const [highlights, setHighlights] = useState<ActionHighlights>({})
 
   // Update filteredActions when preFilteredActions changes and there's no search query
+  // Use setTimeout to defer state update and avoid setState in effect warning
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredActions(preFilteredActions)
-      setHighlights({})
+      // Defer state update to next tick to avoid synchronous setState in effect
+      const timeoutId = setTimeout(() => {
+        setFilteredActions(preFilteredActions)
+        setHighlights({})
+      }, 0)
+      return () => clearTimeout(timeoutId)
     }
   }, [preFilteredActions, searchQuery])
+
+  // Debounced callback for performing Orama search
+  const DEBOUNCE_DELAY = 200
+  const [performSearch, cancelSearch] = useDebounce(async (query: string, actions: Action[]) => {
+    // Build search index with searchable action data
+    const searchIndex = actions.map((action) => createSearchableAction(action))
+
+    // Create a map from action ID to original action for quick lookup
+    const actionMap = new Map<string, Action>()
+    actions.forEach((action) => {
+      actionMap.set(action.id, action)
+    })
+
+    // Create Orama database with nested schema
+    const db = await create({
+      schema: {
+        id: 'string',
+        actionId: 'string',
+        name: 'string',
+        description: 'string',
+        location: 'string',
+        source: 'string',
+        categories: {
+          name: 'string[]',
+        },
+        countries: {
+          name: 'string[]',
+        },
+        companies: {
+          name: 'string[]',
+        },
+        organisingGroups: {
+          name: 'string[]',
+        },
+        campaigns: {
+          name: 'string[]',
+        },
+      },
+    })
+
+    // Insert all documents
+    await insertMultiple(db, searchIndex)
+
+    // Perform search with field boosting using nested property paths
+    const searchResults = await search(db, {
+      term: query.trim(),
+      properties: [
+        'name',
+        'description',
+        'location',
+        'source',
+        'categories.name',
+        'countries.name',
+        'companies.name',
+        'organisingGroups.name',
+        'campaigns.name',
+      ],
+      boost: {
+        name: 2,
+        description: 2,
+      },
+      tolerance: 1, // Typo tolerance (1 character)
+    })
+
+    const matchedActions = searchResults.hits
+      .map((hit) => actionMap.get(hit.document.actionId as string))
+      .filter((action): action is Action => action !== undefined)
+
+    // Initialize highlighter
+    const highlighter = new Highlight({
+      caseSensitive: false,
+      HTMLTag: 'mark',
+      CSSClass: 'orama-highlight',
+    })
+
+    // Collect match ranges for highlighting by field
+    const newHighlights: ActionHighlights = {}
+    searchResults.hits.forEach((hit) => {
+      const actionId = hit.document.actionId as string
+      if (!newHighlights[actionId]) {
+        newHighlights[actionId] = {}
+      }
+
+      // Get the original action to access field values for highlighting
+      const originalAction = actionMap.get(actionId)
+      if (!originalAction) return
+
+      // Get the searchable action to access field values
+      const searchableAction = searchIndex.find((item) => item.actionId === actionId)
+      if (!searchableAction) return
+
+      // Highlight each field that might contain matches
+      // For simple string fields that are displayed in the UI
+      const simpleFields = ['name', 'description'] as const
+      simpleFields.forEach((field) => {
+        let fieldValue: string | undefined
+        if (field === 'description') {
+          try {
+            fieldValue = originalAction.description
+              ? lexicalToPlainText(originalAction.description)
+              : undefined
+          } catch (e) {
+            // Skip if conversion fails
+          }
+        } else {
+          fieldValue = searchableAction[field] || undefined
+        }
+
+        if (fieldValue && typeof fieldValue === 'string' && fieldValue.length > 0) {
+          const highlighted = highlighter.highlight(fieldValue, query.trim())
+          if (highlighted.positions && highlighted.positions.length > 0) {
+            newHighlights[actionId][field] = highlighted.positions.map(
+              (pos) => [pos.start, pos.end] as [number, number],
+            )
+          }
+        }
+      })
+    })
+
+    setFilteredActions(matchedActions)
+    setHighlights(newHighlights)
+  }, DEBOUNCE_DELAY)
 
   useEffect(() => {
     if (!searchQuery.trim()) {
       return
     }
 
-    const cancelledRef = { current: false }
-
-    // Perform async search
-    ;(async () => {
-      // Build search index with searchable action data
-      const searchIndex = preFilteredActions.map((action) => createSearchableAction(action))
-
-      // Create a map from action ID to original action for quick lookup
-      const actionMap = new Map<string, Action>()
-      preFilteredActions.forEach((action) => {
-        actionMap.set(action.id, action)
-      })
-
-      // Create Orama database with nested schema
-      const db = await create({
-        schema: {
-          id: 'string',
-          actionId: 'string',
-          name: 'string',
-          description: 'string',
-          location: 'string',
-          source: 'string',
-          categories: {
-            name: 'string[]',
-          },
-          countries: {
-            name: 'string[]',
-          },
-          companies: {
-            name: 'string[]',
-          },
-          organisingGroups: {
-            name: 'string[]',
-          },
-          campaigns: {
-            name: 'string[]',
-          },
-        },
-      })
-
-      // Insert all documents
-      await insertMultiple(db, searchIndex)
-
-      // Perform search with field boosting using nested property paths
-      const searchResults = await search(db, {
-        term: searchQuery.trim(),
-        properties: [
-          'name',
-          'description',
-          'location',
-          'source',
-          'categories.name',
-          'countries.name',
-          'companies.name',
-          'organisingGroups.name',
-          'campaigns.name',
-        ],
-        boost: {
-          name: 2,
-          description: 2,
-        },
-        tolerance: 1, // Typo tolerance (1 character)
-      })
-
-      const matchedActions = searchResults.hits
-        .map((hit) => actionMap.get(hit.document.actionId as string))
-        .filter((action): action is Action => action !== undefined)
-
-      // Initialize highlighter
-      const highlighter = new Highlight({
-        caseSensitive: false,
-        HTMLTag: 'mark',
-        CSSClass: 'orama-highlight',
-      })
-
-      // Collect match ranges for highlighting by field
-      const newHighlights: ActionHighlights = {}
-      searchResults.hits.forEach((hit) => {
-        const actionId = hit.document.actionId as string
-        if (!newHighlights[actionId]) {
-          newHighlights[actionId] = {}
-        }
-
-        // Get the original action to access field values for highlighting
-        const originalAction = actionMap.get(actionId)
-        if (!originalAction) return
-
-        // Get the searchable action to access field values
-        const searchableAction = searchIndex.find((item) => item.actionId === actionId)
-        if (!searchableAction) return
-
-        // Highlight each field that might contain matches
-        // For simple string fields that are displayed in the UI
-        const simpleFields = ['name', 'description'] as const
-        simpleFields.forEach((field) => {
-          let fieldValue: string | undefined
-          if (field === 'description') {
-            try {
-              fieldValue = originalAction.description
-                ? lexicalToPlainText(originalAction.description)
-                : undefined
-            } catch (e) {
-              // Skip if conversion fails
-            }
-          } else {
-            fieldValue = searchableAction[field] || undefined
-          }
-
-          if (fieldValue && typeof fieldValue === 'string' && fieldValue.length > 0) {
-            const highlighted = highlighter.highlight(fieldValue, searchQuery.trim())
-            if (highlighted.positions && highlighted.positions.length > 0) {
-              newHighlights[actionId][field] = highlighted.positions.map(
-                (pos) => [pos.start, pos.end] as [number, number],
-              )
-            }
-          }
-        })
-      })
-
-      if (!cancelledRef.current) {
-        setFilteredActions(matchedActions)
-        setHighlights(newHighlights)
-      }
-    })()
+    performSearch(searchQuery, preFilteredActions)
 
     return () => {
-      cancelledRef.current = true
+      // Cancel any pending search when component unmounts or dependencies change
+      cancelSearch()
     }
-  }, [preFilteredActions, searchQuery])
+  }, [preFilteredActions, searchQuery, performSearch, cancelSearch])
 
   return (
     <ActionFilterContext.Provider

@@ -10,6 +10,9 @@ importers:
       '@atelier-disko/payload-lexical-react-renderer':
         specifier: ^1.2.0
         version: 1.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@custom-react-hooks/use-debounce':
+        specifier: ^1.5.1
+        version: 1.5.1(react@19.2.3)
       '@custom-react-hooks/use-element-size':
         specifier: ^1.5.1
         version: 1.5.1(react@19.2.3)
@@ -1043,6 +1046,14 @@ packages:
         integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==,
       }
     engines: { node: '>=18' }
+
+  '@custom-react-hooks/use-debounce@1.5.1':
+    resolution:
+      {
+        integrity: sha512-7QnbWhchDjEEERFG9mT7GSNoq+MlrRI8UnymVl45+vrYiZhbzHkESShTOYxxkFuXzoHGSD1J4toxhITvr78tng==,
+      }
+    peerDependencies:
+      react: '>=16'
 
   '@custom-react-hooks/use-element-size@1.5.1':
     resolution:
@@ -11398,6 +11409,10 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
 
   '@csstools/css-tokenizer@3.0.4': {}
+
+  '@custom-react-hooks/use-debounce@1.5.1(react@19.2.3)':
+    dependencies:
+      react: 19.2.3
 
   '@custom-react-hooks/use-element-size@1.5.1(react@19.2.3)':
     dependencies:

@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@atelier-disko/payload-lexical-react-renderer": "^1.2.0",
+    "@custom-react-hooks/use-debounce": "^1.5.1",
     "@custom-react-hooks/use-element-size": "^1.5.1",
     "@eslint/eslintrc": "^3.3.3",
     "@headlessui/react": "^2.2.9",
