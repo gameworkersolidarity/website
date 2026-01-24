@@ -11,5 +11,6 @@ export function usePrevious<T>(value: T) {
   }, [value]) // Only re-run if value changes
 
   // Return previous value (happens before update in useEffect above)
+  // eslint-disable-next-line react-hooks/refs
   return ref.current
 }

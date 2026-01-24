@@ -28,7 +28,7 @@ export const useAsync = <T, E extends Error>(
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [fn, onSuccess, onError])
 
   useEffect(() => {
     if (shouldTrigger) trigger()

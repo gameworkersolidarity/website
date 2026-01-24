@@ -2,6 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import { FlatCompat } from '@eslint/eslintrc'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
+import eslintNext from 'eslint-config-next'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -11,8 +12,12 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = defineConfig([
-  ...compat.extends('next', 'next/core-web-vitals', 'next/typescript', 'prettier'),
   {
+    extends: [
+      ...eslintNext,
+      // ...compat.extends('next/core-web-vitals', 'next/typescript'),
+      ...compat.extends('prettier'),
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',

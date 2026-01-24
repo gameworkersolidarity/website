@@ -323,6 +323,8 @@ export function CompactActionList({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: actions,
     columns,

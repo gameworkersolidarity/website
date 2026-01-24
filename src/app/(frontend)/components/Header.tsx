@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button'
 import { HamburgerIcon, MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
 import { useUser } from '@/utils/UserContext'
+import { useElementSize } from '@custom-react-hooks/use-element-size'
 // import Emoji from 'a11y-react-emoji'
 
 type NavigationItem =
@@ -52,14 +53,14 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
     })
   }
 
-  const headerRef = useRef<HTMLDivElement>(null)
+  const [ref, size] = useElementSize()
   const scrollY = useScrollPosition(60 /*fps*/)
-  const isFloating = scrollY > (headerRef.current?.clientHeight || 100) * 0.75
+  const isFloating = scrollY > (size.height || 100) * 0.75
   const isMobile = useMediaQuery('(max-width: 768px)')
 
   return (
     <>
-      <header className="pt-3 bg-gw-pink space-y-2 z-40" ref={headerRef} id="static-header">
+      <header className="pt-3 bg-gw-pink space-y-2 z-40" ref={ref} id="static-header">
         <div className="content-wrapper">
           <div className="sm:flex sm:space-x-4 space-y-2 sm:space-y-0 items-center">
             <div className="leading-none shrink-0">
