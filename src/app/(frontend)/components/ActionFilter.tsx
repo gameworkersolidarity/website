@@ -90,7 +90,6 @@ export function ActionFilter({
   const isMobile = useMediaQuery('(max-width: 768px)')
 
   const [open, setOpen] = useState(!isMobile)
-  const [searchExpanded, setSearchExpanded] = useState(false)
 
   return (
     <Collapsible
@@ -127,46 +126,26 @@ export function ActionFilter({
           )} */}
         </div>
         <div className="flex flex-row items-center gap-2">
-          {/* Search input - expand on click, visible when non-empty */}
-          {(searchExpanded || searchQuery) && (
-            <div className="relative flex items-center">
-              <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
-              <Input
-                type="text"
-                placeholder="Search actions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onBlur={() => {
-                  if (!searchQuery) {
-                    setSearchExpanded(false)
-                  }
-                }}
-                className="px-5 text-sm shrink-0 grow"
-                autoFocus={searchExpanded}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => {
-                    setSearchQuery('')
-                    setSearchExpanded(false)
-                  }}
-                  className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600 grow-0"
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          )}
-          {!searchExpanded && !searchQuery && (
-            <button
-              onClick={() => setSearchExpanded(true)}
-              className="flex items-center justify-center w-8 text-gray-400 hover:text-gray-600 rounded"
-              aria-label="Search actions"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-          )}
+          {/* Search input - always visible */}
+          <div className="relative flex items-center">
+            <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
+            <Input
+              type="text"
+              placeholder="Search actions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="px-5 text-sm shrink-0 grow"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600 grow-0"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           {initiators && (
             <RadioGroup
               value={filteredInitiator || ''}
