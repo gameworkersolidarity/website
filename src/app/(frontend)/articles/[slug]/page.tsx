@@ -90,12 +90,12 @@ export default async function BlogPost({ params }: Props) {
           {post.createdAt && <DateTime date={post.createdAt} />}
           {post.byline && <div>{post.byline}</div>}
         </div>
-        {imageUrl && (
+        {imageUrl && typeof post.image === 'object' && post.image?.width && post.image?.height && (
           <Image
             src={imageUrl}
             alt={post.title || ''}
-            width={post.image.width!}
-            height={post.image.height!}
+            width={post.image.width}
+            height={post.image.height}
             objectFit="cover"
             className="w-full max-h-48 md:h-auto object-cover"
           />

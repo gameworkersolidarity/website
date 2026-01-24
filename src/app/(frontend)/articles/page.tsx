@@ -78,16 +78,19 @@ export default async function BlogPage() {
                     {post.byline && <div>{post.byline}</div>}
                   </div>
                 </header>
-                {imageUrl && typeof post.image === 'object' && (
-                  <Image
-                    src={imageUrl}
-                    alt={post.title || ''}
-                    width={post.image.width!}
-                    height={post.image.height!}
-                    objectFit="cover"
-                    className="w-full h-48 object-cover overflow-hidden"
-                  />
-                )}
+                {imageUrl &&
+                  typeof post.image === 'object' &&
+                  post.image?.width &&
+                  post.image?.height && (
+                    <Image
+                      src={imageUrl}
+                      alt={post.title || ''}
+                      width={post.image.width}
+                      height={post.image.height}
+                      objectFit="cover"
+                      className="w-full h-48 object-cover overflow-hidden"
+                    />
+                  )}
               </Link>
             )
           })}

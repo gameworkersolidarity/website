@@ -1,38 +1,32 @@
 'use server'
 
 import config from '@payload-config'
-import { BasePayload, getPayload } from 'payload'
+import type { Payload } from 'payload'
+import { getPayload } from 'payload'
 import { loadDraftMode } from './auth'
 
-export async function payloadUserQuery(...args: Parameters<BasePayload['find']>) {
+export const payloadUserQuery: Payload['find'] = async (options) => {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
   const { draftModeStatus, authStatus } = await loadDraftMode(payload)
 
-  // Fetch all published companies
-  const query = args[0]
-  const companiesResult = await payload.find({
+  return payload.find({
+    ...options,
     draft: draftModeStatus.isEnabled,
     user: authStatus.user,
     overrideAccess: false,
-    ...query,
-  })
-
-  return companiesResult
+  } as typeof options)
 }
 
-export async function payloadUserGlobalQuery(...args: Parameters<BasePayload['findGlobal']>) {
+export const payloadUserGlobalQuery: Payload['findGlobal'] = async (options) => {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
   const { draftModeStatus, authStatus } = await loadDraftMode(payload)
 
-  const query = args[0]
-  const globalResult = await payload.findGlobal({
+  return payload.findGlobal({
+    ...options,
     draft: draftModeStatus.isEnabled,
     user: authStatus.user,
     overrideAccess: false,
-    ...query,
-  })
-
-  return globalResult
+  } as typeof options)
 }

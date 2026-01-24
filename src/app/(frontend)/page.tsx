@@ -3,6 +3,7 @@ import config from '@/payload.config'
 import { HomepageClient } from './Homepage.client'
 import { Country } from '@/payload-types'
 import { fetchDraftMode } from '@/utils/auth'
+import { payloadUserQuery } from '@/utils/payload.server'
 
 export default async function HomePage() {
   // Fetch all actions with related data

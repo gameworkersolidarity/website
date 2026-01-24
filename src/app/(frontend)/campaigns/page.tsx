@@ -105,10 +105,10 @@ export default async function CampaignsPage() {
     <main className="max-w-xl mx-auto py-5 px-4 flex flex-col gap-4">
       <header className="flex flex-col gap-4">
         <h1 className="text-4xl md:text-5xl font-bold font-identity">Campaigns</h1>
-        {campaignPageData.description && <LexicalRenderer content={campaignPageData.description} />}
+        {campaignPageData?.description && (
+          <LexicalRenderer content={campaignPageData.description} />
+        )}
       </header>
-
-      <pre>{JSON.stringify({ campaigns }, null, 2)}</pre>
 
       {campaigns.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>

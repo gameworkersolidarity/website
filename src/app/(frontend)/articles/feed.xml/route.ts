@@ -1,6 +1,7 @@
+import { getPayload } from 'payload'
 import { headers } from 'next/headers'
+import config from '@/payload.config'
 import { getMediaUrl } from '@/utils/media'
-import { payloadUserQuery } from '@/utils/payload.server'
 
 type LexicalNode = {
   type: string
@@ -121,10 +122,12 @@ async function getBaseUrl(): Promise<string> {
 }
 
 export async function GET() {
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
   const baseUrl = await getBaseUrl()
 
   // Fetch all published blog posts
-  const blogPostsResult = await payloadUserQuery({
+  const blogPostsResult = await payload.find({
     collection: 'blogPosts',
     depth: 2, // Include image relation
     pagination: false,
