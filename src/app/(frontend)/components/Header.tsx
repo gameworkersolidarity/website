@@ -27,6 +27,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import { Button } from '@/components/ui/button'
 import { HamburgerIcon, MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
+import { useUser } from '@/utils/UserContext'
 // import Emoji from 'a11y-react-emoji'
 
 type NavigationItem =
@@ -43,6 +44,13 @@ type NavigationItem =
 
 export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const _navigation = [...navigation, ...navLinks]
+  const user = useUser()
+  if (user) {
+    _navigation.push({
+      label: 'Logged in as ' + user.email + '. Log out',
+      url: '/admin/logout',
+    })
+  }
 
   const headerRef = useRef<HTMLDivElement>(null)
   const scrollY = useScrollPosition(60 /*fps*/)
