@@ -2,6 +2,7 @@
  * Migration script to pull data from Airtable and populate Payload CMS collections
  *
  * Run with: tsx scripts/ingest-actions.ts
+ * Run only actions: tsx scripts/ingest-actions.ts --only-actions
  */
 
 import { airtableBase } from '../airtable'
@@ -23,23 +24,23 @@ interface AirtableRecord {
 }
 
 interface MigrationStats {
-  countries: { created: number; skipped: number }
-  companies: { created: number; skipped: number }
-  categories: { created: number; skipped: number }
-  organisingGroups: { created: number; skipped: number }
-  solidarityActions: { created: number; skipped: number }
-  blogPosts: { created: number; skipped: number }
-  staticPages: { created: number; skipped: number }
+  countries: { created: number; updated: number; skipped: number }
+  companies: { created: number; updated: number; skipped: number }
+  categories: { created: number; updated: number; skipped: number }
+  organisingGroups: { created: number; updated: number; skipped: number }
+  solidarityActions: { created: number; updated: number; skipped: number }
+  blogPosts: { created: number; updated: number; skipped: number }
+  staticPages: { created: number; updated: number; skipped: number }
 }
 
 const stats: MigrationStats = {
-  countries: { created: 0, skipped: 0 },
-  companies: { created: 0, skipped: 0 },
-  categories: { created: 0, skipped: 0 },
-  organisingGroups: { created: 0, skipped: 0 },
-  solidarityActions: { created: 0, skipped: 0 },
-  blogPosts: { created: 0, skipped: 0 },
-  staticPages: { created: 0, skipped: 0 },
+  countries: { created: 0, updated: 0, skipped: 0 },
+  companies: { created: 0, updated: 0, skipped: 0 },
+  categories: { created: 0, updated: 0, skipped: 0 },
+  organisingGroups: { created: 0, updated: 0, skipped: 0 },
+  solidarityActions: { created: 0, updated: 0, skipped: 0 },
+  blogPosts: { created: 0, updated: 0, skipped: 0 },
+  staticPages: { created: 0, updated: 0, skipped: 0 },
 }
 
 // Maps: Airtable ID -> Payload ID
@@ -52,6 +53,60 @@ const blogPostIdMap = new Map<string, string>()
 
 // Maps: Airtable attachment URL -> Payload Media ID (to avoid re-uploading)
 const mediaUrlMap = new Map<string, string>()
+
+/**
+ * Load existing relationship maps from Payload when running in --only-actions mode
+ * This allows us to resolve relationships without migrating all entities
+ */
+async function loadRelationshipMaps(payload: any) {
+  console.log('  Loading countries...')
+  const countries = await payload.find({
+    collection: 'countries',
+    limit: 1000,
+  })
+  for (const country of countries.docs) {
+    if (country.airtableId) {
+      countryIdMap.set(country.airtableId, country.id)
+    }
+  }
+
+  console.log('  Loading companies...')
+  const companies = await payload.find({
+    collection: 'companies',
+    limit: 1000,
+  })
+  for (const company of companies.docs) {
+    if (company.airtableId) {
+      companyIdMap.set(company.airtableId, company.id)
+    }
+  }
+
+  console.log('  Loading categories...')
+  const categories = await payload.find({
+    collection: 'categories',
+    limit: 1000,
+  })
+  for (const category of categories.docs) {
+    if (category.airtableId) {
+      categoryIdMap.set(category.airtableId, category.id)
+    }
+  }
+
+  console.log('  Loading organising groups...')
+  const organisingGroups = await payload.find({
+    collection: 'organisingGroups',
+    limit: 1000,
+  })
+  for (const group of organisingGroups.docs) {
+    if (group.airtableId) {
+      organisingGroupIdMap.set(group.airtableId, group.id)
+    }
+  }
+
+  console.log(
+    `  ✓ Loaded ${countryIdMap.size} countries, ${companyIdMap.size} companies, ${categoryIdMap.size} categories, ${organisingGroupIdMap.size} organising groups\n`,
+  )
+}
 
 function parseDate(dateString: string | undefined): string | undefined {
   if (!dateString) return undefined
@@ -226,26 +281,33 @@ async function migrateCountries(payload: any) {
           limit: 1,
         })
 
+        let result
         if (existing.docs.length > 0) {
-          console.log(`✓ Country "${slug}" already exists, skipping`)
-          stats.countries.skipped++
-          countryIdMap.set(record.id, existing.docs[0].id)
-          continue
+          result = await payload.update({
+            collection: 'countries',
+            id: existing.docs[0].id,
+            data: {
+              ...countryData,
+              _status: 'published',
+            },
+          })
+          countryIdMap.set(record.id, result.id)
+          stats.countries.updated++
+          console.log(`✓ Updated country: ${countryData.name}`)
+        } else {
+          result = await payload.create({
+            collection: 'countries',
+            data: {
+              ...countryData,
+              _status: 'published',
+            },
+          })
+          countryIdMap.set(record.id, result.id)
+          stats.countries.created++
+          console.log(`✓ Created country: ${countryData.name}`)
         }
-
-        const result = await payload.create({
-          collection: 'countries',
-          data: {
-            ...countryData,
-            _status: 'published',
-          },
-        })
-
-        countryIdMap.set(record.id, result.id)
-        stats.countries.created++
-        console.log(`✓ Created country: ${countryData.name}`)
       } catch (error) {
-        console.error(`✗ Error creating country ${slug}:`, error)
+        console.error(`✗ Error upserting country ${slug}:`, error)
         console.error(JSON.stringify(countryData, null, 2))
         stats.countries.skipped++
       }
@@ -299,26 +361,33 @@ async function migrateCompanies(payload: any) {
           limit: 1,
         })
 
+        let result
         if (existing.docs.length > 0) {
-          console.log(`✓ Company "${name}" already exists, skipping`)
-          stats.companies.skipped++
-          companyIdMap.set(record.id, existing.docs[0].id)
-          continue
+          result = await payload.update({
+            collection: 'companies',
+            id: existing.docs[0].id,
+            data: {
+              ...companyData,
+              _status: 'published',
+            },
+          })
+          companyIdMap.set(record.id, result.id)
+          stats.companies.updated++
+          console.log(`✓ Updated company: ${name}`)
+        } else {
+          result = await payload.create({
+            collection: 'companies',
+            data: {
+              ...companyData,
+              _status: 'published',
+            },
+          })
+          companyIdMap.set(record.id, result.id)
+          stats.companies.created++
+          console.log(`✓ Created company: ${name}`)
         }
-
-        const result = await payload.create({
-          collection: 'companies',
-          data: {
-            ...companyData,
-            _status: 'published',
-          },
-        })
-
-        companyIdMap.set(record.id, result.id)
-        stats.companies.created++
-        console.log(`✓ Created company: ${name}`)
       } catch (error) {
-        console.error(`✗ Error creating company ${name}:`, error)
+        console.error(`✗ Error upserting company ${name}:`, error)
         console.error(JSON.stringify(companyData, null, 2))
         stats.companies.skipped++
       }
@@ -372,26 +441,33 @@ async function migrateCategories(payload: any) {
           limit: 1,
         })
 
+        let result
         if (existing.docs.length > 0) {
-          console.log(`✓ Category "${name}" already exists, skipping`)
-          stats.categories.skipped++
-          categoryIdMap.set(record.id, existing.docs[0].id)
-          continue
+          result = await payload.update({
+            collection: 'categories',
+            id: existing.docs[0].id,
+            data: {
+              ...categoryData,
+              _status: 'published',
+            },
+          })
+          categoryIdMap.set(record.id, result.id)
+          stats.categories.updated++
+          console.log(`✓ Updated category: ${name}`)
+        } else {
+          result = await payload.create({
+            collection: 'categories',
+            data: {
+              ...categoryData,
+              _status: 'published',
+            },
+          })
+          categoryIdMap.set(record.id, result.id)
+          stats.categories.created++
+          console.log(`✓ Created category: ${name}`)
         }
-
-        const result = await payload.create({
-          collection: 'categories',
-          data: {
-            ...categoryData,
-            _status: 'published',
-          },
-        })
-
-        categoryIdMap.set(record.id, result.id)
-        stats.categories.created++
-        console.log(`✓ Created category: ${name}`)
       } catch (error) {
-        console.error(`✗ Error creating category ${name}:`, error)
+        console.error(`✗ Error upserting category ${name}:`, error)
         stats.categories.skipped++
       }
     }
@@ -463,26 +539,33 @@ async function migrateOrganisingGroups(payload: any) {
           limit: 1,
         })
 
+        let result
         if (existing.docs.length > 0) {
-          console.log(`✓ Organising group "${name}" already exists, skipping`)
-          stats.organisingGroups.skipped++
-          organisingGroupIdMap.set(record.id, existing.docs[0].id)
-          continue
+          result = await payload.update({
+            collection: 'organisingGroups',
+            id: existing.docs[0].id,
+            data: {
+              ...organisingGroupData,
+              _status: 'published',
+            },
+          })
+          organisingGroupIdMap.set(record.id, result.id)
+          stats.organisingGroups.updated++
+          console.log(`✓ Updated organising group: ${name}`)
+        } else {
+          result = await payload.create({
+            collection: 'organisingGroups',
+            data: {
+              ...organisingGroupData,
+              _status: 'published',
+            },
+          })
+          organisingGroupIdMap.set(record.id, result.id)
+          stats.organisingGroups.created++
+          console.log(`✓ Created organising group: ${name}`)
         }
-
-        const result = await payload.create({
-          collection: 'organisingGroups',
-          data: {
-            ...organisingGroupData,
-            _status: 'published',
-          },
-        })
-
-        organisingGroupIdMap.set(record.id, result.id)
-        stats.organisingGroups.created++
-        console.log(`✓ Created organising group: ${name}`)
       } catch (error) {
-        console.error(`✗ Error creating organising group ${name}:`, error)
+        console.error(`✗ Error upserting organising group ${name}:`, error)
         stats.organisingGroups.skipped++
       }
     }
@@ -549,6 +632,7 @@ async function migrateSolidarityActions(payload: any) {
       }
 
       // Check if action already exists by airtableId
+      let existingAction = null
       try {
         const existing = await payload.find({
           collection: 'actions',
@@ -557,10 +641,7 @@ async function migrateSolidarityActions(payload: any) {
         })
 
         if (existing.docs.length > 0) {
-          console.log(`✓ Action "${name}" already exists, skipping`)
-          stats.solidarityActions.skipped++
-          solidarityActionIdMap.set(record.id, existing.docs[0].id)
-          continue
+          existingAction = existing.docs[0]
         }
       } catch (error) {
         // If lookup fails, continue anyway
@@ -576,6 +657,13 @@ async function migrateSolidarityActions(payload: any) {
           : `${dateSlug}-${nameSlug}`
       ) as string
 
+      // Process document attachments
+      const documentIds = await processAttachments(
+        payload,
+        fields.Document,
+        `documents for ${name}`,
+      )
+
       // Create action data from solidarity action
       const actionData: Omit<Action, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         slug: slug,
@@ -584,6 +672,8 @@ async function migrateSolidarityActions(payload: any) {
         date: date,
         location: fields.Location || undefined,
         description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
+        link: fields.Link || undefined,
+        documents: documentIds.length > 0 ? documentIds : undefined,
         countries: countryIds.length > 0 ? countryIds : undefined,
         companies: companyIds.length > 0 ? companyIds : undefined,
         organisingGroups: organisingGroupIds.length > 0 ? organisingGroupIds : undefined,
@@ -592,19 +682,35 @@ async function migrateSolidarityActions(payload: any) {
       }
 
       try {
-        const result = await payload.create({
-          collection: 'actions',
-          data: {
-            ...actionData,
-            _status: 'published',
-          },
-        })
-
-        solidarityActionIdMap.set(record.id, result.id)
-        stats.solidarityActions.created++
-        console.log(`✓ Created action from solidarity action: ${name}`)
+        let result
+        if (existingAction) {
+          // Update existing action
+          result = await payload.update({
+            collection: 'actions',
+            id: existingAction.id,
+            data: {
+              ...actionData,
+              _status: 'published',
+            },
+          })
+          solidarityActionIdMap.set(record.id, result.id)
+          stats.solidarityActions.updated++
+          console.log(`✓ Updated action from solidarity action: ${name}`)
+        } else {
+          // Create new action
+          result = await payload.create({
+            collection: 'actions',
+            data: {
+              ...actionData,
+              _status: 'published',
+            },
+          })
+          solidarityActionIdMap.set(record.id, result.id)
+          stats.solidarityActions.created++
+          console.log(`✓ Created action from solidarity action: ${name}`)
+        }
       } catch (error) {
-        console.error(`✗ Error creating action from solidarity action ${name}:`, error)
+        console.error(`✗ Error upserting action from solidarity action ${name}:`, error)
         stats.solidarityActions.skipped++
       }
     }
@@ -664,26 +770,33 @@ async function migrateBlogPosts(payload: any) {
           limit: 1,
         })
 
+        let result
         if (existing.docs.length > 0) {
-          console.log(`✓ Blog post "${title}" already exists, skipping`)
-          stats.blogPosts.skipped++
-          blogPostIdMap.set(record.id, existing.docs[0].id)
-          continue
+          result = await payload.update({
+            collection: 'blogPosts',
+            id: existing.docs[0].id,
+            data: {
+              ...blogPostData,
+              _status: 'published',
+            },
+          })
+          blogPostIdMap.set(record.id, result.id)
+          stats.blogPosts.updated++
+          console.log(`✓ Updated blog post: ${title}`)
+        } else {
+          result = await payload.create({
+            collection: 'blogPosts',
+            data: {
+              ...blogPostData,
+              _status: 'published',
+            },
+          })
+          blogPostIdMap.set(record.id, result.id)
+          stats.blogPosts.created++
+          console.log(`✓ Created blog post: ${title}`)
         }
-
-        const result = await payload.create({
-          collection: 'blogPosts',
-          data: {
-            ...blogPostData,
-            _status: 'published',
-          },
-        })
-
-        blogPostIdMap.set(record.id, result.id)
-        stats.blogPosts.created++
-        console.log(`✓ Created blog post: ${title}`)
       } catch (error) {
-        console.error(`✗ Error creating blog post ${title}:`, error)
+        console.error(`✗ Error upserting blog post ${title}:`, error)
         stats.blogPosts.skipped++
       }
     }
@@ -693,52 +806,90 @@ async function migrateBlogPosts(payload: any) {
 }
 
 async function main() {
-  console.log('🚀 Starting Airtable to Payload CMS migration...\n')
+  // Parse command-line arguments
+  const args = process.argv.slice(2)
+  const onlyActions = args.includes('--only-actions')
+
+  if (onlyActions) {
+    console.log('🚀 Starting Airtable to Payload CMS migration (Actions only)...\n')
+  } else {
+    console.log('🚀 Starting Airtable to Payload CMS migration...\n')
+  }
 
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
   try {
-    // Migrate in order: independent entities first, then relationships
-    await migrateCountries(payload)
-    await migrateCompanies(payload)
-    await migrateCategories(payload)
-    await migrateOrganisingGroups(payload)
-    await migrateSolidarityActions(payload)
-    await migrateBlogPosts(payload)
+    if (onlyActions) {
+      // Only migrate actions (but still need to load relationship maps first)
+      // Load existing relationships from Payload to resolve IDs
+      console.log('📋 Loading existing relationships...')
+      await loadRelationshipMaps(payload)
+      await migrateSolidarityActions(payload)
+    } else {
+      // Migrate in order: independent entities first, then relationships
+      await migrateCountries(payload)
+      await migrateCompanies(payload)
+      await migrateCategories(payload)
+      await migrateOrganisingGroups(payload)
+      await migrateSolidarityActions(payload)
+      await migrateBlogPosts(payload)
+    }
 
     // Print summary
     console.log('\n📊 Migration Summary:')
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+    if (!onlyActions) {
+      console.log(
+        `Countries:     ${stats.countries.created} created, ${stats.countries.updated} updated, ${stats.countries.skipped} skipped`,
+      )
+      console.log(
+        `Companies:     ${stats.companies.created} created, ${stats.companies.updated} updated, ${stats.companies.skipped} skipped`,
+      )
+      console.log(
+        `Categories:    ${stats.categories.created} created, ${stats.categories.updated} updated, ${stats.categories.skipped} skipped`,
+      )
+      console.log(
+        `Organising Groups: ${stats.organisingGroups.created} created, ${stats.organisingGroups.updated} updated, ${stats.organisingGroups.skipped} skipped`,
+      )
+    }
+
     console.log(
-      `Countries:     ${stats.countries.created} created, ${stats.countries.skipped} skipped`,
+      `Solidarity Actions: ${stats.solidarityActions.created} created, ${stats.solidarityActions.updated} updated, ${stats.solidarityActions.skipped} skipped`,
     )
-    console.log(
-      `Companies:     ${stats.companies.created} created, ${stats.companies.skipped} skipped`,
-    )
-    console.log(
-      `Categories:    ${stats.categories.created} created, ${stats.categories.skipped} skipped`,
-    )
-    console.log(
-      `Organising Groups: ${stats.organisingGroups.created} created, ${stats.organisingGroups.skipped} skipped`,
-    )
-    console.log(
-      `Solidarity Actions: ${stats.solidarityActions.created} created, ${stats.solidarityActions.skipped} skipped`,
-    )
-    console.log(
-      `Blog Posts:    ${stats.blogPosts.created} created, ${stats.blogPosts.skipped} skipped`,
-    )
+
+    if (!onlyActions) {
+      console.log(
+        `Blog Posts:    ${stats.blogPosts.created} created, ${stats.blogPosts.updated} updated, ${stats.blogPosts.skipped} skipped`,
+      )
+    }
+
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
-    const totalCreated =
-      stats.countries.created +
-      stats.companies.created +
-      stats.categories.created +
-      stats.organisingGroups.created +
-      stats.solidarityActions.created +
-      stats.blogPosts.created
+    if (onlyActions) {
+      console.log(
+        `\n✅ Actions: ${stats.solidarityActions.created} created, ${stats.solidarityActions.updated} updated!`,
+      )
+    } else {
+      const totalCreated =
+        stats.countries.created +
+        stats.companies.created +
+        stats.categories.created +
+        stats.organisingGroups.created +
+        stats.solidarityActions.created +
+        stats.blogPosts.created
 
-    console.log(`\n✅ Total: ${totalCreated} records created successfully!`)
+      const totalUpdated =
+        stats.countries.updated +
+        stats.companies.updated +
+        stats.categories.updated +
+        stats.organisingGroups.updated +
+        stats.solidarityActions.updated +
+        stats.blogPosts.updated
+
+      console.log(`\n✅ Total: ${totalCreated} records created, ${totalUpdated} records updated!`)
+    }
   } catch (error) {
     console.error('\n❌ Migration failed:', error)
     process.exit(1)
