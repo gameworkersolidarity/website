@@ -11,6 +11,7 @@
     "generate:importmap": "payload generate:importmap",
     "generate:types": "payload generate:types",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "ingest:actions": "tsx scripts/ingest-actions.ts",
     "ingest:redundancies": "tsx scripts/ingest-redundancies.ts",
     "create:user": "tsx scripts/create-user.ts",
