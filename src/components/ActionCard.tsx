@@ -297,10 +297,7 @@ export function ActionItem({
             const description = data.description
             if (!description) return null
             return (
-              <div
-                key="description"
-                className={twMerge('w-full text-lg font-light order-2 md:order-2 pt-1')}
-              >
+              <div key="description" className={twMerge('w-full text-lg order-2 md:order-2 pt-1')}>
                 {hasDescriptionHighlights ? (
                   <HighlightedDescription content={description} actionId={data.id} />
                 ) : (
@@ -475,11 +472,11 @@ export function ActionCard({
     <>
       <article
         className={twMerge(
-          'space-y-2px rounded-xl overflow-hidden',
+          'space-y-2px',
           data.featured && 'outline-2 outline-snot-400 outline-offset-2',
         )}
       >
-        <div className={twMerge('p-4 lg:px-8 bg-white flex flex-col gap-4')}>
+        <div className={twMerge('p-4 lg:px-8 bg-white rounded-xl flex flex-col gap-4')}>
           <div className="text-sm order-1 md:order-0">
             <ActionMetadata data={data} link={links} />
           </div>
@@ -498,10 +495,7 @@ export function ActionCard({
               const description = data.description
               if (!description) return null
               return (
-                <div
-                  key="description"
-                  className={twMerge('w-full text-lg font-light order-2 md:order-2')}
-                >
+                <div key="description" className={twMerge('w-full text-lg order-2 md:order-2')}>
                   {hasDescriptionHighlights ? (
                     <HighlightedDescription content={description} actionId={data.id} />
                   ) : (
@@ -553,7 +547,7 @@ export function ActionCard({
                 </div>
               </div>
             )}
-            <div className="p-4 md:px-8 bg-white mt-[2px]">
+            <div className="p-4 lg:px-8 text-sm text-zinc-500">
               Have more info about this report?{' '}
               <a className="link" href={`mailto:${projectStrings.email}`}>
                 Let us know &rarr;

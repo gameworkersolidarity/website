@@ -54,7 +54,7 @@ export const ActionHistogramContext = ({ action }: { action: Action }) => {
 
   return (
     <div className="rounded-xl">
-      <h2 className="text-xl font-bold font-identity mb-2">{actionType}</h2>
+      <h2 className="text-sm text-zinc-500 font-semibold mb-2">{actionType} timeline</h2>
       <div ref={elementRef} className="h-[200px] w-full">
         <ActionFilterContextProvider
           actions={actions.data?.docs || []}

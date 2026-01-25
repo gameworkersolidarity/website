@@ -8,7 +8,7 @@ import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { format } from 'date-fns'
-import { validatePayloadDocument } from '@/utils/validate-payload'
+import { validatePayloadDocument, validatePayloadDocuments } from '@/utils/validate-payload'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -31,21 +31,32 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
 
   const actionNav: ActionNav = {
     previousInCampaign: {},
-    sameDayInCampaign: {},
     nextInCampaign: {},
     previousInCountry: {},
-    sameDayInCountry: {},
     nextInCountry: {},
     previousInCategory: {},
-    sameDayInCategory: {},
     nextInCategory: {},
     previousInCompany: {},
-    sameDayInCompany: {},
     nextInCompany: {},
     previousInOrganisingGroup: {},
-    sameDayInOrganisingGroup: {},
     nextInOrganisingGroup: {},
+    sameDay: [],
   }
+
+  const sameDayActionsResult = await payloadUserQuery({
+    collection: 'actions',
+    where: {
+      date: {
+        equals: action.date,
+      },
+      id: {
+        not_equals: action.id,
+      },
+    },
+    depth: 2,
+  })
+
+  actionNav.sameDay = validatePayloadDocuments('actions', sameDayActionsResult.docs)
 
   const actionIdsIncluded: string[] = [action.id]
 
@@ -64,19 +75,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
       actionIdsIncluded.push(nextAction.id)
       actionNav.nextInCountry![getSlug('countries', country)] = nextAction
-    }
-    const sameDayAction = await getNearestAction(
-      action,
-      { countries: { equals: country.id } },
-      'sameDay',
-    )
-    if (
-      sameDayAction &&
-      sameDayAction.id !== action.id &&
-      !actionIdsIncluded.includes(sameDayAction.id)
-    ) {
-      actionIdsIncluded.push(sameDayAction.id)
-      actionNav.sameDayInCountry![getSlug('countries', country)] = sameDayAction
     }
   }
 
@@ -100,19 +98,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       actionIdsIncluded.push(nextAction.id)
       actionNav.nextInCategory![getSlug('categories', category)] = nextAction
     }
-    const sameDayAction = await getNearestAction(
-      action,
-      { categories: { equals: category.id } },
-      'sameDay',
-    )
-    if (
-      sameDayAction &&
-      sameDayAction.id !== action.id &&
-      !actionIdsIncluded.includes(sameDayAction.id)
-    ) {
-      actionIdsIncluded.push(sameDayAction.id)
-      actionNav.sameDayInCategory![getSlug('categories', category)] = sameDayAction
-    }
   }
 
   for (const company of action?.companies ?? []) {
@@ -130,19 +115,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
       actionIdsIncluded.push(nextAction.id)
       actionNav.nextInCompany![getSlug('companies', company)] = nextAction
-    }
-    const sameDayAction = await getNearestAction(
-      action,
-      { companies: { equals: company.id } },
-      'sameDay',
-    )
-    if (
-      sameDayAction &&
-      sameDayAction.id !== action.id &&
-      !actionIdsIncluded.includes(sameDayAction.id)
-    ) {
-      actionIdsIncluded.push(sameDayAction.id)
-      actionNav.sameDayInCompany![getSlug('companies', company)] = sameDayAction
     }
   }
 
@@ -167,20 +139,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       actionIdsIncluded.push(nextAction.id)
       actionNav.nextInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] = nextAction
     }
-    const sameDayAction = await getNearestAction(
-      action,
-      { organisingGroups: { equals: organisingGroup.id } },
-      'sameDay',
-    )
-    if (
-      sameDayAction &&
-      sameDayAction.id !== action.id &&
-      !actionIdsIncluded.includes(sameDayAction.id)
-    ) {
-      actionIdsIncluded.push(sameDayAction.id)
-      actionNav.sameDayInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] =
-        sameDayAction
-    }
   }
 
   for (const campaign of action?.campaigns?.docs ?? []) {
@@ -202,19 +160,6 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
       actionIdsIncluded.push(nextAction.id)
       actionNav.nextInCampaign![getSlug('campaigns', campaign)] = nextAction
-    }
-    const sameDayAction = await getNearestAction(
-      action,
-      { campaigns: { equals: campaign.id } },
-      'sameDay',
-    )
-    if (
-      sameDayAction &&
-      sameDayAction.id !== action.id &&
-      !actionIdsIncluded.includes(sameDayAction.id)
-    ) {
-      actionIdsIncluded.push(sameDayAction.id)
-      actionNav.sameDayInCampaign![getSlug('campaigns', campaign)] = sameDayAction
     }
   }
 

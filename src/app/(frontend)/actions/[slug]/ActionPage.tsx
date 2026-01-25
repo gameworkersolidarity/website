@@ -61,14 +61,7 @@ export function ActionPage({
       ...actionNav?.nextInCampaign,
     }).filter(Boolean).length > 0
 
-  const hasSameDayActions =
-    Object.values({
-      ...actionNav?.sameDayInCountry,
-      ...actionNav?.sameDayInCategory,
-      ...actionNav?.sameDayInCompany,
-      ...actionNav?.sameDayInOrganisingGroup,
-      ...actionNav?.sameDayInCampaign,
-    }).filter(Boolean).length > 0
+  const hasSameDayActions = (actionNav?.sameDay?.length ?? 0) > 0
 
   const previousRelatedActions = action.relatedActions
     ?.filter(
@@ -274,65 +267,21 @@ function PreviousActions({
 function SameDayActions({ actions }: { actions: ActionNav }) {
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-sm text-zinc-500 font-semibold">Also on this day</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-        {Object.values(actions?.sameDayInCampaign ?? {}).map(
-          (action) =>
-            action &&
-            action.campaigns?.docs?.[0] && (
-              <ActionBreadcrumbNavLink
-                direction="sameDay"
-                action={action}
-                key={action.id}
-                label="campaigns"
-              />
-            ),
-        )}
-        {Object.values(actions?.sameDayInCountry ?? {}).map(
-          (action) =>
-            action && (
+      {actions?.sameDay && actions.sameDay.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-sm text-zinc-500 font-semibold mb-2">Also on this day</h3>
+          <div className="-mx-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
+            {actions.sameDay.map((action) => (
               <ActionBreadcrumbNavLink
                 direction="sameDay"
                 action={action}
                 key={action.id}
                 label="countries"
               />
-            ),
-        )}
-        {Object.values(actions?.sameDayInCategory ?? {}).map(
-          (action) =>
-            action && (
-              <ActionBreadcrumbNavLink
-                direction="sameDay"
-                action={action}
-                key={action.id}
-                label="categories"
-              />
-            ),
-        )}
-        {Object.values(actions?.sameDayInCompany ?? {}).map(
-          (action) =>
-            action && (
-              <ActionBreadcrumbNavLink
-                direction="sameDay"
-                action={action}
-                key={action.id}
-                label="organisingGroups"
-              />
-            ),
-        )}
-        {Object.values(actions?.sameDayInOrganisingGroup ?? {}).map(
-          (action) =>
-            action && (
-              <ActionBreadcrumbNavLink
-                direction="sameDay"
-                action={action}
-                key={action.id}
-                label="organisingGroups"
-              />
-            ),
-        )}
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -356,16 +305,18 @@ function ActionBreadcrumbNavLink({
       href={action.path!}
       className={twMerge('flex items-center gap-2 hover:bg-snot-200 p-2 rounded-md justify-start')}
     >
-      <ArrowLeftIcon
-        className={twMerge(
-          'w-4 h-4 shrink-0',
-          direction === 'previous'
-            ? 'rotate-0'
-            : direction === 'next'
-              ? 'rotate-180'
-              : 'rotate-270',
-        )}
-      />
+      {direction !== 'sameDay' && (
+        <ArrowLeftIcon
+          className={twMerge(
+            'w-4 h-4 shrink-0',
+            direction === 'previous'
+              ? 'rotate-0'
+              : direction === 'next'
+                ? 'rotate-180'
+                : 'rotate-270',
+          )}
+        />
+      )}
       <div className="flex flex-col gap-0.5">
         <div
           className={twMerge(
@@ -373,19 +324,17 @@ function ActionBreadcrumbNavLink({
             direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left justify-start',
           )}
         >
-          <span className="text-xs text-zinc-400">
-            {label === 'categories'
-              ? direction === 'previous'
-                ? 'Previous'
-                : direction === 'next'
-                  ? 'Next'
-                  : 'Also today: '
-              : direction === 'previous'
-                ? 'Previously in'
-                : direction === 'next'
-                  ? 'Next in'
-                  : 'Also today in'}
-          </span>
+          {direction !== 'sameDay' && (
+            <span className="text-xs text-zinc-400">
+              {label === 'categories'
+                ? direction === 'previous'
+                  ? 'Previous'
+                  : 'Next'
+                : direction === 'previous'
+                  ? 'Previously in'
+                  : 'Next in'}
+            </span>
+          )}
           {label === 'countries' ? (
             action.countries
               ?.slice(0, 3)
@@ -456,11 +405,9 @@ function ActionBreadcrumbNavLink({
 }
 
 export interface ActionNav {
+  sameDay: Action[]
   // Country
   previousInCountry?: {
-    [isoA2: string]: Action | null | undefined
-  }
-  sameDayInCountry?: {
     [isoA2: string]: Action | null | undefined
   }
   nextInCountry?: {
@@ -470,17 +417,11 @@ export interface ActionNav {
   previousInCategory?: {
     [category: string]: Action | null | undefined
   }
-  sameDayInCategory?: {
-    [category: string]: Action | null | undefined
-  }
   nextInCategory?: {
     [category: string]: Action | null | undefined
   }
   // Company
   previousInCompany?: {
-    [company: string]: Action | null | undefined
-  }
-  sameDayInCompany?: {
     [company: string]: Action | null | undefined
   }
   nextInCompany?: {
@@ -490,17 +431,11 @@ export interface ActionNav {
   previousInOrganisingGroup?: {
     [organisingGroup: string]: Action | null | undefined
   }
-  sameDayInOrganisingGroup?: {
-    [organisingGroup: string]: Action | null | undefined
-  }
   nextInOrganisingGroup?: {
     [organisingGroup: string]: Action | null | undefined
   }
   // Campaign
   previousInCampaign?: {
-    [campaign: string]: Action | null | undefined
-  }
-  sameDayInCampaign?: {
     [campaign: string]: Action | null | undefined
   }
   nextInCampaign?: {
