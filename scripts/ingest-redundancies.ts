@@ -255,7 +255,10 @@ async function getOrCreateCompany(
   try {
     const newCompany = await payload.create({
       collection: 'companies',
-      data: companyData,
+      data: {
+        ...companyData,
+        _status: 'published',
+      },
     })
     console.log(`  ✓ Created new company: "${normalizedName}"`)
     return { id: newCompany.id }
@@ -552,7 +555,10 @@ async function processRedundancies(
     try {
       const created = await payload.create({
         collection: 'actions',
-        data: actionData,
+        data: {
+          ...actionData,
+          _status: 'published',
+        },
       })
 
       stats.created++

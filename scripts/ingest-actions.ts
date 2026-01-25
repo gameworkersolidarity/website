@@ -6,6 +6,7 @@
 
 import { airtableBase } from '../airtable'
 import { getPayload } from 'payload'
+import { slugify } from 'payload/shared'
 import config from '../src/payload.config'
 import env from 'env-var'
 import { tmpdir } from 'os'
@@ -120,7 +121,10 @@ async function uploadFileToPayload(
     // Upload to Payload
     const uploadResult = await payload.create({
       collection: 'media',
-      data: { alt: altText },
+      data: {
+        alt: altText,
+        _status: 'published',
+      },
       file: file as any,
     })
 
@@ -192,16 +196,24 @@ async function migrateCountries(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const slug = fields.Slug || fields.slug
-      if (!slug) {
-        console.warn(`⏭️  Skipping country ${record.id}: missing slug`)
+      const name = fields.Name.trim() || ''
+      if (!name) {
+        console.warn(`⏭️  Skipping country ${record.id}: missing name`)
         stats.countries.skipped++
         continue
       }
 
+      // Sanitize slug from Airtable or generate from name
+      const airtableSlug = fields.Slug || fields.slug
+      const slug = (
+        airtableSlug && airtableSlug.trim()
+          ? slugify(airtableSlug.trim()) || slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
+          : slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
+      ) as string
+
       const countryData: Omit<Country, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         airtableId: record.id,
-        name: fields.Name.trim() || '',
+        name: name,
         isoA2: fields.countryCode || '',
         slug: slug,
         description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
@@ -223,7 +235,10 @@ async function migrateCountries(payload: any) {
 
         const result = await payload.create({
           collection: 'countries',
-          data: countryData,
+          data: {
+            ...countryData,
+            _status: 'published',
+          },
         })
 
         countryIdMap.set(record.id, result.id)
@@ -259,8 +274,19 @@ async function migrateCompanies(payload: any) {
         continue
       }
 
+      // Sanitize slug from Airtable or generate from name
+      const airtableSlug = record.fields.Slug as string | undefined
+      const slugifiedAirtable = airtableSlug?.trim() ? slugify(airtableSlug.trim()) : null
+      const slugifiedName = slugify(name.trim())
+      const fallbackSlug = name
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+      const slug = (slugifiedAirtable || slugifiedName || fallbackSlug) as string
+
       const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
-        slug: record.fields.Slug as string,
+        slug: slug,
         airtableId: record.id,
         name: name,
         description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
@@ -282,7 +308,10 @@ async function migrateCompanies(payload: any) {
 
         const result = await payload.create({
           collection: 'companies',
-          data: companyData,
+          data: {
+            ...companyData,
+            _status: 'published',
+          },
         })
 
         companyIdMap.set(record.id, result.id)
@@ -290,6 +319,7 @@ async function migrateCompanies(payload: any) {
         console.log(`✓ Created company: ${name}`)
       } catch (error) {
         console.error(`✗ Error creating company ${name}:`, error)
+        console.error(JSON.stringify(companyData, null, 2))
         stats.companies.skipped++
       }
     }
@@ -317,8 +347,18 @@ async function migrateCategories(payload: any) {
         continue
       }
 
+      // Sanitize slug from Airtable or generate from name
+      const airtableSlug = record.fields.Slug as string | undefined
+      const slug = (
+        airtableSlug && airtableSlug.trim()
+          ? slugify(airtableSlug.trim()) ||
+            slugify(name.trim()) ||
+            name.trim().toLowerCase().replace(/\s+/g, '-')
+          : slugify(name.trim()) || name.trim().toLowerCase().replace(/\s+/g, '-')
+      ) as string
+
       const categoryData: Omit<Category, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
-        slug: record.fields.Slug as string,
+        slug: slug,
         airtableId: record.id,
         name: name,
         emoji: fields.Emoji || '',
@@ -341,7 +381,10 @@ async function migrateCategories(payload: any) {
 
         const result = await payload.create({
           collection: 'categories',
-          data: categoryData,
+          data: {
+            ...categoryData,
+            _status: 'published',
+          },
         })
 
         categoryIdMap.set(record.id, result.id)
@@ -390,12 +433,20 @@ async function migrateOrganisingGroups(payload: any) {
         }
       }
 
+      // Sanitize slug from Airtable or generate from name
+      const airtableSlug = fields.slug as string | undefined
+      const sanitizedSlug = (
+        airtableSlug && airtableSlug.trim()
+          ? slugify(airtableSlug.trim()) || slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
+          : slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
+      ) as string
+
       const organisingGroupData: Omit<
         OrganisingGroup,
         'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'
       > = {
         airtableId: record.id,
-        slug: slug || undefined,
+        slug: sanitizedSlug,
         name: name,
         fullName: fields['Full Name'] || fields.FullName || undefined,
         countries: countryIds.length > 0 ? countryIds : undefined,
@@ -421,7 +472,10 @@ async function migrateOrganisingGroups(payload: any) {
 
         const result = await payload.create({
           collection: 'organisingGroups',
-          data: organisingGroupData,
+          data: {
+            ...organisingGroupData,
+            _status: 'published',
+          },
         })
 
         organisingGroupIdMap.set(record.id, result.id)
@@ -494,13 +548,11 @@ async function migrateSolidarityActions(payload: any) {
         }
       }
 
-      // Check if action already exists (same title + date)
+      // Check if action already exists by airtableId
       try {
         const existing = await payload.find({
           collection: 'actions',
-          where: {
-            and: [{ title: { equals: name } }, { date: { equals: date } }],
-          },
+          where: { airtableId: { equals: record.id } },
           limit: 1,
         })
 
@@ -514,9 +566,19 @@ async function migrateSolidarityActions(payload: any) {
         // If lookup fails, continue anyway
       }
 
+      // Sanitize slug from Airtable or generate from name and date
+      const airtableSlug = record.fields.Slug as string | undefined
+      const dateSlug = slugify(date) || date.split('T')[0]
+      const nameSlug = slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
+      const slug = (
+        airtableSlug && airtableSlug.trim()
+          ? slugify(airtableSlug.trim()) || `${dateSlug}-${nameSlug}`
+          : `${dateSlug}-${nameSlug}`
+      ) as string
+
       // Create action data from solidarity action
       const actionData: Omit<Action, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
-        slug: record.fields.Slug as string,
+        slug: slug,
         airtableId: record.id,
         name: name,
         date: date,
@@ -532,7 +594,10 @@ async function migrateSolidarityActions(payload: any) {
       try {
         const result = await payload.create({
           collection: 'actions',
-          data: actionData,
+          data: {
+            ...actionData,
+            _status: 'published',
+          },
         })
 
         solidarityActionIdMap.set(record.id, result.id)
@@ -561,7 +626,6 @@ async function migrateBlogPosts(payload: any) {
       const fields = record.fields as Record<string, any>
 
       const title = fields.Title.trim()
-      const slug = fields.Slug
 
       if (!title || !fields.Date) {
         console.warn(`⏭️  Skipping blog post ${record.id}: missing required fields`)
@@ -569,13 +633,23 @@ async function migrateBlogPosts(payload: any) {
         continue
       }
 
+      // Sanitize slug from Airtable or generate from title
+      const airtableSlug = fields.Slug as string | undefined
+      const slug = (
+        airtableSlug && airtableSlug.trim()
+          ? slugify(airtableSlug.trim()) ||
+            slugify(title) ||
+            title.toLowerCase().replace(/\s+/g, '-')
+          : slugify(title) || title.toLowerCase().replace(/\s+/g, '-')
+      ) as string
+
       // Process image attachments
       const imageIds = await processAttachments(payload, fields.Image, `image for ${title}`)
       const imageId = imageIds.length > 0 ? imageIds[0] : undefined
 
       const blogPostData: Omit<BlogPost, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
         airtableId: record.id,
-        slug: slug || undefined,
+        slug: slug,
         byline: fields.ByLine || undefined,
         title: title,
         image: imageId,
@@ -599,7 +673,10 @@ async function migrateBlogPosts(payload: any) {
 
         const result = await payload.create({
           collection: 'blogPosts',
-          data: blogPostData,
+          data: {
+            ...blogPostData,
+            _status: 'published',
+          },
         })
 
         blogPostIdMap.set(record.id, result.id)
