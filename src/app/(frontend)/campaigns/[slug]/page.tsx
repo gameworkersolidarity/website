@@ -4,6 +4,7 @@ import { CampaignPage } from './CampaignPage'
 import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { validatePayloadDocument } from '@/utils/validate-payload'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -45,7 +46,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     notFound()
   }
 
-  const campaign = result.docs[0]
+  const campaign = validatePayloadDocument('campaigns', result.docs[0])
 
   return <CampaignPage initialCampaign={campaign} />
 }

@@ -8,6 +8,7 @@ import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { format } from 'date-fns'
+import { validatePayloadDocument } from '@/utils/validate-payload'
 
 export default async function ServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -24,9 +25,9 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     },
   })
 
-  const action = actions.docs[0]
+  if (!actions.docs[0]) notFound()
 
-  if (!action) notFound()
+  const action = validatePayloadDocument('actions', actions.docs[0])
 
   const actionNav: ActionNav = {
     previousInCampaign: {},

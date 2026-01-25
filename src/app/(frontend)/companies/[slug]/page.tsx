@@ -5,6 +5,7 @@ import { CompanyPage } from './CompanyPage'
 import { getSlug } from '@/utils/payloadPath'
 import { Country, OrganisingGroup } from '@/payload-types'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { validatePayloadDocument, validatePayloadResult } from '@/utils/validate-payload'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -23,7 +24,7 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const company = await payloadUserQuery({
+  const companyResult = await payloadUserQuery({
     collection: 'companies',
     depth: 2, // Include related solidarity actions and their related entities
     limit: 1,
@@ -32,11 +33,13 @@ export default async function Page({ params }: Props) {
         equals: slug,
       },
     },
-  }).then(({ docs }) => docs?.[0])
+  })
 
-  if (!company) {
+  if (!companyResult.docs[0]) {
     notFound()
   }
+
+  const company = validatePayloadDocument('companies', companyResult.docs[0])
 
   const descendants = await getDescendants('companies', getSlug('companies', company))
 
@@ -57,7 +60,8 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const actions = actionResults.docs
+  const validatedActions = validatePayloadResult('actions', actionResults)
+  const actions = validatedActions.docs
 
   const uniqueOrganisingGroups = Array.from(
     new Set(actions.flatMap((action) => action.organisingGroups as OrganisingGroup[])),

@@ -3,6 +3,7 @@ import { payloadUserQuery } from '@/utils/payload.server'
 import { Company, OrganisingGroup } from '@/payload-types'
 import { CountryPage } from './CountryPage'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { validatePayloadDocument, validatePayloadResult } from '@/utils/validate-payload'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -21,7 +22,7 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const country = await payloadUserQuery({
+  const countryResult = await payloadUserQuery({
     collection: 'countries',
     depth: 2, // Include related solidarity actions and their related entities
     limit: 1,
@@ -30,11 +31,13 @@ export default async function Page({ params }: Props) {
         equals: slug,
       },
     },
-  }).then(({ docs }) => docs?.[0])
+  })
 
-  if (!country) {
+  if (!countryResult.docs[0]) {
     notFound()
   }
+
+  const country = validatePayloadDocument('countries', countryResult.docs[0])
 
   // Query solidarity actions directly where this country is related
   const actionsResult = await payloadUserQuery({
@@ -53,7 +56,8 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const actions = actionsResult.docs
+  const validatedActions = validatePayloadResult('actions', actionsResult)
+  const actions = validatedActions.docs
 
   // Extract unique companies from solidarity actions
   const companiesSet = new Map<string, Company>()

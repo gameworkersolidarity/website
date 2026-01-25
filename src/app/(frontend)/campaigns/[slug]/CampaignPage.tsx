@@ -18,6 +18,7 @@ import { format, isSameMonth, isSameYear } from 'date-fns'
 import { getMediaUrl } from '@/utils/media'
 import { DraftBadge } from '@/components/DraftBadge'
 import { DataPageFooter } from '@/components/DataPageFooter'
+import { validatePayloadDocument, validatePayloadDocuments } from '@/utils/validate-payload'
 
 const Back = ({ className }: { className?: string }) => (
   <div className={className}>
@@ -34,13 +35,19 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
   if (!initialCampaign) notFound()
 
   // Use the Payload API URL (where the admin panel is hosted)
-  const { data: page } = useLivePreview({
+  const { data: pageData } = useLivePreview({
     initialData: initialCampaign,
     serverURL: projectStrings.baseUrl,
     depth: 3,
   })
 
-  const actions = page.actions as Action[]
+  const page = validatePayloadDocument('campaigns', pageData)
+
+  const actions = useMemo(() => {
+    if (!page.actions) return []
+    return validatePayloadDocuments('actions', page.actions)
+  }, [page.actions])
+
   const featuredMedia =
     page.featuredImage && typeof page.featuredImage === 'object'
       ? (page.featuredImage as Media)
@@ -48,12 +55,12 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
   const featuredImageUrl = getMediaUrl(featuredMedia)
 
   const earliestAction = useMemo(() => {
-    if (!actions) return null
+    if (!actions || actions.length === 0) return null
     return actions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
   }, [actions])
 
   const latestAction = useMemo(() => {
-    if (!actions) return null
+    if (!actions || actions.length === 0) return null
     return actions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
   }, [actions])
 

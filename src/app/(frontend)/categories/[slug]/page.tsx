@@ -4,6 +4,7 @@ import { CategoryPage } from './CategoryPage'
 import { getSlug } from '@/utils/payloadPath'
 import { capitalize } from 'lodash'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { validatePayloadDocument, validatePayloadResult } from '@/utils/validate-payload'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -22,7 +23,7 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const category = await payloadUserQuery({
+  const categoryResult = await payloadUserQuery({
     collection: 'categories',
     depth: 2, // Include related solidarity actions and their related entities
     limit: 1,
@@ -31,11 +32,13 @@ export default async function Page({ params }: Props) {
         equals: slug,
       },
     },
-  }).then(({ docs }) => docs?.[0])
+  })
 
-  if (!category) {
+  if (!categoryResult.docs[0]) {
     notFound()
   }
+
+  const category = validatePayloadDocument('categories', categoryResult.docs[0])
 
   // Query solidarity actions directly where this category is related
   const actionsResult = await payloadUserQuery({
@@ -54,7 +57,8 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const actions = actionsResult.docs
+  const validatedActions = validatePayloadResult('actions', actionsResult)
+  const actions = validatedActions.docs
 
   return <CategoryPage initialCategory={category} actions={actions} />
 }

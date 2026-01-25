@@ -4,6 +4,7 @@ import { HomepageClient } from './Homepage.client'
 import { Country } from '@/payload-types'
 import { fetchDraftMode } from '@/utils/auth'
 import { payloadUserQuery } from '@/utils/payload.server'
+import { validatePayloadResult } from '@/utils/validate-payload'
 
 export default async function HomePage() {
   // Fetch all actions with related data
@@ -16,7 +17,7 @@ export default async function HomePage() {
         sort: '-date',
         depth: 2, // Include related data (countries, categories, companies, organising groups)
         pagination: false,
-      }),
+      }).then((result) => validatePayloadResult('actions', result)),
       payloadUserQuery({
         collection: 'categories',
         pagination: false,
@@ -28,7 +29,7 @@ export default async function HomePage() {
           path: true,
         },
         sort: ['name'],
-      }),
+      }).then((result) => validatePayloadResult('categories', result, false)),
       payloadUserQuery({
         collection: 'companies',
         pagination: false,
@@ -39,7 +40,7 @@ export default async function HomePage() {
           path: true,
         },
         sort: ['name'],
-      }),
+      }).then((result) => validatePayloadResult('companies', result, false)),
       payloadUserQuery({
         collection: 'organisingGroups',
         pagination: false,
@@ -50,7 +51,7 @@ export default async function HomePage() {
           path: true,
         },
         sort: ['name'],
-      }),
+      }).then((result) => validatePayloadResult('organisingGroups', result, false)),
       payloadUserQuery({
         collection: 'campaigns',
         pagination: false,
@@ -62,7 +63,7 @@ export default async function HomePage() {
           path: true,
         },
         sort: ['name'],
-      }),
+      }).then((result) => validatePayloadResult('campaigns', result, false)),
     ])
 
   const uniqueCountries = Array.from(

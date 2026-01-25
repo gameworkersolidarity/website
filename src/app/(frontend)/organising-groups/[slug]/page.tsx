@@ -7,6 +7,7 @@ import { Company, Country } from '@/payload-types'
 import { getDescendants } from '@/utils/payloadTree.server'
 import { OrganisingGroupPage } from './OrganisingGroupPage'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
+import { validatePayloadDocument, validatePayloadResult } from '@/utils/validate-payload'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -24,7 +25,7 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const group = await payloadUserQuery({
+  const groupResult = await payloadUserQuery({
     collection: 'organisingGroups',
     depth: 2, // Include related solidarity actions and their related entities
     limit: 1,
@@ -33,11 +34,13 @@ export default async function Page({ params }: Props) {
         equals: slug,
       },
     },
-  }).then(({ docs }) => docs?.[0])
+  })
 
-  if (!group) {
+  if (!groupResult.docs[0]) {
     notFound()
   }
+
+  const group = validatePayloadDocument('organisingGroups', groupResult.docs[0])
 
   const descendants = await getDescendants('organisingGroups', group.slug)
 
@@ -58,7 +61,8 @@ export default async function Page({ params }: Props) {
     pagination: false,
   })
 
-  const actions = actionsResult.docs
+  const validatedActions = validatePayloadResult('actions', actionsResult)
+  const actions = validatedActions.docs
 
   // Extract unique companies from solidarity actions
   const companiesSet = new Map<string, Company>()

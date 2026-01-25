@@ -12,6 +12,7 @@ import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { getMediaUrl } from '@/utils/media'
 import { DraftBadge } from '@/components/DraftBadge'
+import { validatePayloadDocument, validatePayloadResult } from '@/utils/validate-payload'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params
 
-  const post = await payloadUserQuery({
+  const postResult = await payloadUserQuery({
     collection: 'blogPosts',
     depth: 2, // Include image relation
     limit: 1,
@@ -57,18 +58,22 @@ export default async function BlogPost({ params }: Props) {
         equals: slug,
       },
     },
-  }).then(({ docs }) => docs?.[0])
+  })
 
-  if (!post) {
+  if (!postResult.docs[0]) {
     notFound()
   }
 
+  const post = validatePayloadDocument('blogPosts', postResult.docs[0])
+
   // Fetch all published blog posts to find previous/next
-  const allPosts = await payloadUserQuery({
+  const allPostsResult = await payloadUserQuery({
     collection: 'blogPosts',
     sort: 'createdAt', // Sort by createdAt, newest first
     pagination: false,
   })
+
+  const allPosts = validatePayloadResult('blogPosts', allPostsResult)
 
   // Find current post index and get previous/next
   const currentIndex = allPosts.docs.findIndex((p) => p.id === post.id)
