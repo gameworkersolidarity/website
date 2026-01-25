@@ -6,10 +6,12 @@
   "scripts": {
     "build": "next build",
     "ci": "payload migrate && pnpm build",
-    "dev": "next dev",
+    "dev": "concurrently -n \"next,zod\" -c \"blue,green\" \"next dev\" \"tsx scripts/watch-zod-schemas.ts\"",
     "devsafe": "rm -rf .next && next dev",
     "generate:importmap": "payload generate:importmap",
     "generate:types": "payload generate:types",
+    "generate:zod": "tsx scripts/generate-zod-schemas.ts",
+    "generate:all": "pnpm generate:types && pnpm generate:zod",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "ingest:actions": "tsx scripts/ingest-actions.ts",
@@ -149,10 +151,10 @@
     "ts-essentials": "^10.1.1",
     "tsx": "^4.21.0",
     "tw-animate-css": "^1.4.0",
-    "typescript": "^5.9.3",
     "usehooks-ts": "^3.1.1",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.3"
+    "vitest": "3.2.3",
+    "zod": "^4.3.6"
   },
   "packageManager": "pnpm@10.18.1",
   "engines": {
@@ -169,8 +171,13 @@
     }
   },
   "devDependencies": {
+    "chokidar": "^5.0.0",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7"
+    "lint-staged": "^16.2.7",
+    "ts-to-zod": "^5.1.0",
+    "typescript": "^5.9.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -1,2 +1,5 @@
+# Generate Payload types and Zod schemas if Payload files changed
+./scripts/pre-commit-generate-types.sh
+
 pnpm run typecheck
 pnpm exec lint-staged
