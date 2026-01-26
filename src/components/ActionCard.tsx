@@ -461,15 +461,7 @@ export function ActionCard({
   const nameRanges = actionHighlights?.name
   const hasDescriptionHighlights =
     actionHighlights?.description && actionHighlights.description.length > 0
-  // Use useState initializer to avoid setState in effect warning
-  const [isPreviewMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.location.search.includes('previewSecret')
-    }
-    return false
-  })
-
-  const shouldShowDescription = data.description && (isPreviewMode ? data.featured : true)
+  const shouldShowDescription = !!data.description && data.featured
 
   return (
     <>
