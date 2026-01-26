@@ -142,6 +142,30 @@ function FollowingActions({
           description={relation.description}
         />
       ))}
+      {Object.values(actionNav?.nextInCompany ?? {}).map(
+        (action) =>
+          action &&
+          action.companies?.[0] && (
+            <ActionBreadcrumbNavLink
+              direction="next"
+              action={action}
+              key={action.id}
+              label="companies"
+            />
+          ),
+      )}
+      {Object.values(actionNav?.nextInOrganisingGroup ?? {}).map(
+        (action) =>
+          action &&
+          action.organisingGroups?.[0] && (
+            <ActionBreadcrumbNavLink
+              direction="next"
+              action={action}
+              key={action.id}
+              label="organisingGroups"
+            />
+          ),
+      )}
       {Object.values(actionNav?.nextInCountry ?? {}).map(
         (action) =>
           action &&
@@ -163,18 +187,6 @@ function FollowingActions({
               action={action}
               key={action.id}
               label="categories"
-            />
-          ),
-      )}
-      {Object.values(actionNav?.nextInOrganisingGroup ?? {}).map(
-        (action) =>
-          action &&
-          action.organisingGroups?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="next"
-              action={action}
-              key={action.id}
-              label="organisingGroups"
             />
           ),
       )}
@@ -213,30 +225,6 @@ function PreviousActions({
           description={relation.description}
         />
       ))}
-      {Object.values(actionNav?.previousInCountry ?? {}).map(
-        (action) =>
-          action &&
-          action.countries?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="countries"
-            />
-          ),
-      )}
-      {Object.values(actionNav?.previousInCategory ?? {}).map(
-        (action) =>
-          action &&
-          action.categories?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="categories"
-            />
-          ),
-      )}
       {Object.values(actionNav?.previousInCompany ?? {}).map(
         (action) =>
           action &&
@@ -258,6 +246,30 @@ function PreviousActions({
               action={action}
               key={action.id}
               label="organisingGroups"
+            />
+          ),
+      )}
+      {Object.values(actionNav?.previousInCountry ?? {}).map(
+        (action) =>
+          action &&
+          action.countries?.[0] && (
+            <ActionBreadcrumbNavLink
+              direction="previous"
+              action={action}
+              key={action.id}
+              label="countries"
+            />
+          ),
+      )}
+      {Object.values(actionNav?.previousInCategory ?? {}).map(
+        (action) =>
+          action &&
+          action.categories?.[0] && (
+            <ActionBreadcrumbNavLink
+              direction="previous"
+              action={action}
+              key={action.id}
+              label="categories"
             />
           ),
       )}
