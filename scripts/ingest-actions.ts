@@ -3,6 +3,8 @@
  *
  * Run with: tsx scripts/ingest-actions.ts
  * Run only actions: tsx scripts/ingest-actions.ts --only-actions
+ * Skip document uploads: tsx scripts/ingest-actions.ts --skip-docs
+ * Only process unions: tsx scripts/ingest-actions.ts --only-unions
  */
 
 import { airtableBase } from '../airtable'
@@ -16,6 +18,8 @@ import { writeFile, unlink } from 'fs/promises'
 import { BlogPost, Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { ActionInitiator } from '@/collections/enums'
 import { htmlToLexical } from '@/utils/htmlToLexical'
+import { convertMarkdownToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
+import { formatDate } from 'date-fns'
 
 interface AirtableRecord {
   id: string
@@ -129,6 +133,20 @@ function getYearMonth(dateString: string): string {
 }
 
 /**
+ * Convert markdown to Lexical format
+ */
+async function markdownToLexical(markdown: string) {
+  const payloadConfig = await config
+  const lexicalContent = convertMarkdownToLexical({
+    editorConfig: await editorConfigFactory.default({
+      config: payloadConfig,
+    }),
+    markdown,
+  })
+  return lexicalContent
+}
+
+/**
  * Download file from URL and upload to Payload Media collection
  */
 async function uploadFileToPayload(
@@ -136,6 +154,7 @@ async function uploadFileToPayload(
   attachmentUrl: string,
   filename: string,
   altText: string = filename,
+  skipUpload: boolean = false,
 ): Promise<string | null> {
   try {
     // Check if we've already uploaded this file
@@ -155,6 +174,12 @@ async function uploadFileToPayload(
       mediaUrlMap.set(attachmentUrl, existingMedia.docs[0].id)
       console.log(`  ✓ File already uploaded: ${filename}`)
       return existingMedia.docs[0].id
+    }
+
+    // If skipUpload is true, don't download and upload new files
+    if (skipUpload) {
+      console.log(`  ⏭️  Skipping upload (--skip-docs): ${filename}`)
+      return null
     }
 
     console.log(`  📥 Downloading: ${filename}`)
@@ -218,6 +243,7 @@ async function processAttachments(
   payload: any,
   attachments: any[] | undefined,
   contextName: string = 'attachment',
+  skipUpload: boolean = false,
 ): Promise<string[]> {
   if (!attachments || !Array.isArray(attachments)) {
     return []
@@ -243,7 +269,7 @@ async function processAttachments(
       continue
     }
 
-    const mediaId = await uploadFileToPayload(payload, url, filename)
+    const mediaId = await uploadFileToPayload(payload, url, filename, filename, skipUpload)
     if (mediaId) {
       mediaIds.push(mediaId)
     }
@@ -284,7 +310,7 @@ async function migrateCountries(payload: any) {
         name: name,
         isoA2: fields.countryCode || '',
         slug: slug,
-        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
+        description: fields.Summary ? await markdownToLexical(fields.Summary) : undefined,
       }
 
       try {
@@ -364,7 +390,7 @@ async function migrateCompanies(payload: any) {
         slug: slug,
         airtableId: record.id,
         name: name,
-        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
+        description: fields.Summary ? await markdownToLexical(fields.Summary) : undefined,
       }
 
       try {
@@ -444,7 +470,7 @@ async function migrateCategories(payload: any) {
         airtableId: record.id,
         name: name,
         emoji: fields.Emoji || '',
-        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
+        description: fields.Summary ? await markdownToLexical(fields.Summary) : undefined,
       }
 
       try {
@@ -489,8 +515,11 @@ async function migrateCategories(payload: any) {
   }
 }
 
-async function migrateOrganisingGroups(payload: any) {
+async function migrateOrganisingGroups(payload: any, onlyUnions: boolean = false) {
   console.log('\n📂 Migrating Organising Groups...')
+  if (onlyUnions) {
+    console.log('  Filtering to unions only (--only-unions flag set)')
+  }
   const base = airtableBase()
   const tableName = env
     .get('AIRTABLE_ORGANISING_GROUPS_TABLE')
@@ -504,14 +533,20 @@ async function migrateOrganisingGroups(payload: any) {
     for (const record of records) {
       const fields = record.fields as Record<string, any>
 
-      const name = fields.Name.trim()
-      const slug = fields.slug
-
-      if (!name) {
-        console.warn(`⏭️  Skipping organising group ${record.id}: missing name`)
+      // Skip non-unions if --only-unions flag is set
+      if (onlyUnions && !fields.IsUnion) {
         stats.organisingGroups.skipped++
         continue
       }
+
+      const shortName = (fields.Name || '').trim()
+      const fullName = (fields['Full Name'] || fields.FullName || '').trim()
+
+      // if (!fullName) {
+      //   console.warn(`⏭️  Skipping organising group ${record.id}: missing full name`)
+      //   stats.organisingGroups.skipped++
+      //   continue
+      // }
 
       // Resolve country relationships using Airtable IDs
       const countryIds: string[] = []
@@ -523,21 +558,22 @@ async function migrateOrganisingGroups(payload: any) {
       }
 
       // Sanitize slug from Airtable or generate from name
-      const airtableSlug = fields.slug as string | undefined
-      const sanitizedSlug = (
-        airtableSlug && airtableSlug.trim()
-          ? slugify(airtableSlug.trim()) || slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
-          : slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
-      ) as string
+      const allPossibleSlugs = [
+        slugify(fields.slug),
+        slugify(shortName),
+        slugify(fullName),
+        fullName.toLowerCase().replace(/\s+/g, '-'),
+      ]
+      const theSlug = allPossibleSlugs.find((slug) => !!slug)
 
       const organisingGroupData: Omit<
         OrganisingGroup,
         'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'
       > = {
         airtableId: record.id,
-        slug: sanitizedSlug,
-        name: name,
-        fullName: fields['Full Name'] || fields.FullName || undefined,
+        slug: theSlug,
+        name: shortName || fullName,
+        fullName: fullName || undefined,
         countries: countryIds.length > 0 ? countryIds : undefined,
         isUnion: fields.IsUnion || false,
         website: fields.Website || undefined,
@@ -564,7 +600,7 @@ async function migrateOrganisingGroups(payload: any) {
           })
           organisingGroupIdMap.set(record.id, result.id)
           stats.organisingGroups.updated++
-          console.log(`✓ Updated organising group: ${name}`)
+          console.log(`✓ Updated organising group: ${shortName}`)
         } else {
           result = await payload.create({
             collection: 'organisingGroups',
@@ -575,7 +611,7 @@ async function migrateOrganisingGroups(payload: any) {
           })
           organisingGroupIdMap.set(record.id, result.id)
           stats.organisingGroups.created++
-          console.log(`✓ Created organising group: ${name}`)
+          console.log(`✓ Created organising group: ${fullName}`)
         }
       } catch (error) {
         console.error(`✗ Error upserting organising group ${name}:`, error)
@@ -587,7 +623,7 @@ async function migrateOrganisingGroups(payload: any) {
   }
 }
 
-async function migrateSolidarityActions(payload: any) {
+async function migrateSolidarityActions(payload: any, skipDocs: boolean = false) {
   console.log('\n📂 Migrating Solidarity Actions from Airtable to Actions...')
   const base = airtableBase()
   const tableName = env
@@ -661,30 +697,29 @@ async function migrateSolidarityActions(payload: any) {
       }
 
       // Sanitize slug from Airtable or generate from name and date
-      const airtableSlug = record.fields.Slug as string | undefined
-      const dateSlug = getYearMonth(date) // Use YYYY-MM format
-      const nameSlug = slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
-      const slug = (
-        airtableSlug && airtableSlug.trim()
-          ? slugify(airtableSlug.trim()) || `${dateSlug}-${nameSlug}`
-          : `${dateSlug}-${nameSlug}`
-      ) as string
+      const allPossibleSlugs = [
+        slugify(fields.slug),
+        // construct it from date and name like YYYY-MM-DD-name
+        slugify(`${formatDate(new Date(date), 'yyyy-MM-dd')}-${name}`),
+      ]
+      const theSlug = allPossibleSlugs.find((slug) => !!slug)!
 
       // Process document attachments
       const documentIds = await processAttachments(
         payload,
         fields.Document,
         `documents for ${name}`,
+        skipDocs,
       )
 
       // Create action data from solidarity action
       const actionData: Omit<Action, 'id' | 'updatedAt' | 'createdAt' | 'path' | 'url'> = {
-        slug: slug,
+        slug: theSlug,
         airtableId: record.id,
         name: name,
         date: date,
         location: fields.Location || undefined,
-        description: fields.Summary ? await htmlToLexical(fields.Summary) : undefined,
+        description: fields.Summary ? await markdownToLexical(fields.Summary) : undefined,
         link: fields.Link || undefined,
         documents: documentIds.length > 0 ? documentIds : undefined,
         countries: countryIds.length > 0 ? countryIds : undefined,
@@ -822,6 +857,8 @@ async function main() {
   // Parse command-line arguments
   const args = process.argv.slice(2)
   const onlyActions = args.includes('--only-actions')
+  const skipDocs = args.includes('--skip-docs')
+  const onlyUnions = args.includes('--only-unions')
 
   if (onlyActions) {
     console.log('🚀 Starting Airtable to Payload CMS migration (Actions only)...\n')
@@ -829,23 +866,34 @@ async function main() {
     console.log('🚀 Starting Airtable to Payload CMS migration...\n')
   }
 
+  if (skipDocs) {
+    console.log('⚠️  Document uploads will be skipped (--skip-docs flag set)\n')
+  }
+
+  if (onlyUnions) {
+    console.log('⚠️  Only unions will be processed (--only-unions flag set)\n')
+  }
+
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
   try {
-    if (onlyActions) {
+    if (onlyUnions) {
+      // Only migrate organising groups (unions)
+      await migrateOrganisingGroups(payload, onlyUnions)
+    } else if (onlyActions) {
       // Only migrate actions (but still need to load relationship maps first)
       // Load existing relationships from Payload to resolve IDs
       console.log('📋 Loading existing relationships...')
       await loadRelationshipMaps(payload)
-      await migrateSolidarityActions(payload)
+      await migrateSolidarityActions(payload, skipDocs)
     } else {
       // Migrate in order: independent entities first, then relationships
       await migrateCountries(payload)
       await migrateCompanies(payload)
       await migrateCategories(payload)
-      await migrateOrganisingGroups(payload)
-      await migrateSolidarityActions(payload)
+      await migrateOrganisingGroups(payload, onlyUnions)
+      await migrateSolidarityActions(payload, skipDocs)
       await migrateBlogPosts(payload)
     }
 
@@ -853,7 +901,11 @@ async function main() {
     console.log('\n📊 Migration Summary:')
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
-    if (!onlyActions) {
+    if (onlyUnions) {
+      console.log(
+        `Organising Groups: ${stats.organisingGroups.created} created, ${stats.organisingGroups.updated} updated, ${stats.organisingGroups.skipped} skipped`,
+      )
+    } else if (!onlyActions) {
       console.log(
         `Countries:     ${stats.countries.created} created, ${stats.countries.updated} updated, ${stats.countries.skipped} skipped`,
       )
@@ -868,11 +920,13 @@ async function main() {
       )
     }
 
-    console.log(
-      `Solidarity Actions: ${stats.solidarityActions.created} created, ${stats.solidarityActions.updated} updated, ${stats.solidarityActions.skipped} skipped`,
-    )
+    if (!onlyUnions) {
+      console.log(
+        `Solidarity Actions: ${stats.solidarityActions.created} created, ${stats.solidarityActions.updated} updated, ${stats.solidarityActions.skipped} skipped`,
+      )
+    }
 
-    if (!onlyActions) {
+    if (!onlyActions && !onlyUnions) {
       console.log(
         `Blog Posts:    ${stats.blogPosts.created} created, ${stats.blogPosts.updated} updated, ${stats.blogPosts.skipped} skipped`,
       )
@@ -880,7 +934,11 @@ async function main() {
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
-    if (onlyActions) {
+    if (onlyUnions) {
+      console.log(
+        `\n✅ Organising Groups: ${stats.organisingGroups.created} created, ${stats.organisingGroups.updated} updated!`,
+      )
+    } else if (onlyActions) {
       console.log(
         `\n✅ Actions: ${stats.solidarityActions.created} created, ${stats.solidarityActions.updated} updated!`,
       )

@@ -93,16 +93,16 @@ export function OrganisingGroupPage({
               <div className="flex items-start gap-4">
                 <div className="flex-1">
                   <h1 className="text-3xl md:text-5xl font-bold font-identity">
-                    {page.fullName || page.name}
+                    {page.name || page.fullName}
                   </h1>
                   {page.name !== page.fullName && page.name && (
                     <p
                       className={twMerge(
-                        'text-base mt-2',
-                        textColor === 'white' ? 'text-white/80' : 'opacity-50',
+                        'text-xl mt-2 font-medium',
+                        // textColor === 'white' ? 'text-white/80' : 'opacity-50',
                       )}
                     >
-                      Also known as: {page.name}
+                      {page.fullName}
                     </p>
                   )}
                 </div>

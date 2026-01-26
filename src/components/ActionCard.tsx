@@ -461,7 +461,7 @@ export function ActionCard({
   const nameRanges = actionHighlights?.name
   const hasDescriptionHighlights =
     actionHighlights?.description && actionHighlights.description.length > 0
-  const shouldShowDescription = !!data.description && data.featured
+  const shouldShowDescription = !!data.description
 
   return (
     <>
