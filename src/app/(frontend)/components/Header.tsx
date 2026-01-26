@@ -84,7 +84,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
         </div>
       </header>
       <nav
-        className="pl-1 md:pl-2 top-0 sticky z-40 py-3 bg-gw-pink h-[60px] flex flex-row items-center"
+        className="pl-1 md:pl-2 top-0 sticky z-60 py-3 bg-gw-pink h-[60px] flex flex-row items-center"
         id="sticky-header"
       >
         {!isMobile ? (
