@@ -1,5 +1,8 @@
 import useSWR from 'swr'
-import { FrequencyChart } from './FrequencyChart'
+import dynamic from 'next/dynamic'
+const FrequencyChart = dynamic(() => import('./FrequencyChart').then((mod) => mod.FrequencyChart), {
+  ssr: false,
+})
 import { payloadClient } from '@/utils/payload'
 import { Category, Action } from '@/payload-types'
 import { ActionFilterContextProvider } from './ActionFilterContextProvider'

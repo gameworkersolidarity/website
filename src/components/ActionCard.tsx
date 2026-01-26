@@ -312,7 +312,7 @@ export function ActionItem({
       {(!!data.link || !!data.documents?.length) && (
         <div className="flex flex-row flex-wrap gap-2">
           {data.link && links && (
-            <Link href={data.link} className="block mr-2">
+            <Link href={data.link} className="block mr-2" suppressHydrationWarning>
               <Emoji symbol="🔗" label="Link" className="align-baseline" />
               &nbsp;
               <span className="align-baseline underline text-inherit">
@@ -344,7 +344,11 @@ export function DocumentLink({
 }) {
   if (link) {
     return (
-      <Link href={getMediaUrl(document) || '' || ''} className="block mr-2">
+      <Link
+        href={getMediaUrl(document) || '' || ''}
+        className="block mr-2"
+        suppressHydrationWarning
+      >
         <RenderDocument />
       </Link>
     )

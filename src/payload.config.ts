@@ -17,7 +17,6 @@ import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { StartOrganising } from './globals/StartOrganising'
 import { cloudinaryStorage } from 'payload-cloudinary'
-import 'dotenv/config'
 import env from 'env-var'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { openapi, scalar } from 'payload-oapi'
@@ -226,6 +225,7 @@ export default buildConfig({
         version: '1.0.0',
         description: `Free, public API for querying the Game Workers Solidarity archival database. Please let us know how you use it! ${projectStrings.email}`,
       },
+      // @ts-ignore
       exclude: {
         collections: [
           'payload-preferences',
@@ -255,7 +255,7 @@ export default buildConfig({
       // You can customize the path if needed:
       // path: '/api/docs',
     }),
-    env.get('STORAGE_TYPE').required().asString() === 'cloudinary'
+    env.get('NEXT_PUBLIC_STORAGE_TYPE').required().asString() === 'cloudinary'
       ? cloudinaryStorage({
           config: {
             cloud_name: env.get('CLOUDINARY_NAME').required().asString(),
@@ -268,7 +268,7 @@ export default buildConfig({
           },
           folder: 'gws-media', // Optional, defaults to 'payload-media'
         })
-      : env.get('STORAGE_TYPE').required().asString() === 's3'
+      : env.get('NEXT_PUBLIC_STORAGE_TYPE').required().asString() === 's3'
         ? s3Storage({
             collections: {
               media: {

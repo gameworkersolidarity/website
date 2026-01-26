@@ -57,11 +57,11 @@ export function CountryPage({
           textColor === 'white' && 'text-white',
         )}
       >
-        <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-2">
-          <span>Country</span>
-          {page._status === 'draft' && <DraftBadge />}
-        </div>
-        <header className="sticky top-6 py-4 z-20" style={{ backgroundColor: primaryColor }}>
+        <header className="sticky top-6 z-20" style={{ backgroundColor: primaryColor }}>
+          <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-2">
+            <span>Country</span>
+            {page._status === 'draft' && <DraftBadge />}
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold font-identity">
             <CountryLabel country={page} />
           </h1>

@@ -10,7 +10,7 @@ import { getMediaUrl } from '@/utils/media'
 export function OrganisingGroupLabel({
   organisingGroup,
   link,
-  logo = 16,
+  logo = 18,
 }: {
   organisingGroup: OrganisingGroup
   link?: boolean | 'soft'
@@ -75,15 +75,13 @@ export function RenderedOrganisingGroupLabel({
   textClassName?: string
   logo?: boolean | number
 }) {
-  const logoUrl =
-    organisingGroup.logo && typeof organisingGroup.logo === 'object'
-      ? getMediaUrl(organisingGroup.logo as Media)
-      : null
+  const logoUrl = getMediaUrl(organisingGroup.logo as Media)
 
   return (
     <span className="flex items-center gap-1 wrap-anywhere" key={organisingGroup.id}>
       {!!logo && logoUrl ? (
         <Image
+          suppressHydrationWarning
           src={logoUrl}
           alt={(organisingGroup.logo as Media).alt || `${organisingGroup.name} logo`}
           width={typeof logo === 'number' ? logo : 16}

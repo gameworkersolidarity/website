@@ -29,6 +29,8 @@ import { HamburgerIcon, MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
 import { useUser } from '@/utils/UserContext'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
+import { SearchBar } from '@/components/SearchBar'
+import { projectStrings } from '@/project-strings'
 // import Emoji from 'a11y-react-emoji'
 
 type NavigationItem =
@@ -84,58 +86,64 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
         </div>
       </header>
       <nav
-        className="pl-1 md:pl-2 top-0 sticky z-60 py-3 bg-gw-pink h-[60px] flex flex-row items-center"
+        className="pl-1 md:pl-2 top-0 sticky z-50 py-3 bg-gw-pink h-[60px] flex flex-row items-center"
         id="sticky-header"
       >
         {!isMobile ? (
-          <NavigationMenu viewport={false}>
-            <NavigationMenuList className="flex-wrap">
-              {_navigation.map((item, index) => (
-                <NavigationMenuItem key={index} className="relative">
-                  {'children' in item ? (
-                    <>
-                      <NavigationMenuTrigger>
-                        <span className="flex items-center gap-1">
-                          {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
-                          {item.label}
-                        </span>
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul>
-                          {item.children?.map((child, index) => (
-                            <li key={index}>
-                              <NavigationMenuLink asChild>
-                                <Link href={'url' in child && child.url ? child.url : ''}>
-                                  <span className="flex items-center gap-1">
-                                    {/* {'emoji' in child && child.emoji && (
-                                      <Emoji symbol={child.emoji} />
-                                    )} */}
-                                    {child.label}
-                                  </span>
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </>
-                  ) : 'url' in item && item.url ? (
-                    <NavigationMenuLink asChild>
-                      <Link href={item.url}>
-                        <span className="flex items-center gap-1">
-                          {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
-                          {item.label}
-                        </span>
-                      </Link>
-                    </NavigationMenuLink>
-                  ) : null}
+          <>
+            <NavigationMenu viewport={false}>
+              <NavigationMenuList className="flex-wrap">
+                {_navigation.map((item, index) => (
+                  <NavigationMenuItem key={index} className="relative">
+                    {'children' in item ? (
+                      <>
+                        <NavigationMenuTrigger>
+                          <span className="flex items-center gap-1">
+                            {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
+                            {item.label}
+                          </span>
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul>
+                            {item.children?.map((child, index) => (
+                              <li key={index}>
+                                <NavigationMenuLink asChild>
+                                  <Link href={'url' in child && child.url ? child.url : ''}>
+                                    <span className="flex items-center gap-1">
+                                      {/* {'emoji' in child && child.emoji && (
+                                        <Emoji symbol={child.emoji} />
+                                      )} */}
+                                      {child.label}
+                                    </span>
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </>
+                    ) : 'url' in item && item.url ? (
+                      <NavigationMenuLink asChild>
+                        <Link href={item.url}>
+                          <span className="flex items-center gap-1">
+                            {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
+                            {item.label}
+                          </span>
+                        </Link>
+                      </NavigationMenuLink>
+                    ) : null}
+                  </NavigationMenuItem>
+                ))}
+                <NavigationMenuItem suppressHydrationWarning>
+                  <SearchBar />
                 </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </>
         ) : (
           // Hamburger -> modal menu
-          <div className="flex flex-row items-center">
+          <div className="flex flex-row items-center gap-2">
+            <SearchBar />
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost">
@@ -194,6 +202,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
             'block transform ml-auto duration-200 transition-all leading-none text-xl lg:text-2xl font-identity cursor-pointer hover:text-gwPinkLight shrink-0 order-1 md:order-last',
           )}
           style={{ marginLeft: 'auto' }}
+          suppressHydrationWarning
         >
           <Link href="/">
             <span className="flex items-center gap-2">

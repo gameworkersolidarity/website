@@ -7,7 +7,11 @@ import { ActionsList } from './ActionCard'
 import { ZoomLevel } from '@/utils/global-state'
 import { useActionFilterContext } from './ActionFilterContextProvider'
 import pluralize from 'pluralize'
-import { ActionTimeline } from './ActionsTimeline'
+import dynamic from 'next/dynamic'
+const ActionTimeline = dynamic(
+  () => import('../components/ActionsTimeline').then((mod) => mod.ActionTimeline),
+  { ssr: false },
+)
 import { ActionFilter, ActionFilterProps } from '@/app/(frontend)/components/ActionFilter'
 import { TimelineLabelProperty } from '@/global-types'
 

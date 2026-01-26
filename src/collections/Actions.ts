@@ -391,7 +391,7 @@ export const Actions: CollectionConfig = {
         if (operation === 'create' && doc._status === 'draft' && doc.submissionContactDetails) {
           try {
             await req.payload.sendEmail({
-              to: projectStrings.submissionNotificationEmail,
+              to: process.env.SUBMISSION_NOTIFICATION_EMAIL,
               from: projectStrings.email,
               subject: `New Action Submission: ${doc.name || 'Untitled Action'}`,
               html: `

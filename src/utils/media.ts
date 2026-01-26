@@ -8,26 +8,24 @@ type MediaUrlOptions = {
 
 const isRelativeUrl = (url: string) => url.startsWith('/')
 
+const prefersCloudinary = projectStrings.STORAGE_TYPE === 'cloudinary'
+
 export const getMediaUrl = (media?: Media | null, options: MediaUrlOptions = {}): string | null => {
   if (!media) {
     return null
   }
 
-  const cloudinaryUrl = media.cloudinary?.secure_url || null
+  if (prefersCloudinary && media.cloudinary?.secure_url) {
+    return media.cloudinary.secure_url
+  }
+
   const localUrl = media.url || null
-  const prefersCloudinary = projectStrings.STORAGE_TYPE === 'cloudinary'
 
-  const selectedUrl = prefersCloudinary ? cloudinaryUrl || localUrl : localUrl || cloudinaryUrl
-
-  if (!selectedUrl) {
-    return null
+  if (options.baseUrl && localUrl && isRelativeUrl(localUrl)) {
+    return `${options.baseUrl}${localUrl}`
   }
 
-  if (options.baseUrl && isRelativeUrl(selectedUrl)) {
-    return `${options.baseUrl}${selectedUrl}`
-  }
-
-  return selectedUrl
+  return localUrl
 }
 
 export const getThumbnailUrl = (media?: Media | null): string | null => {

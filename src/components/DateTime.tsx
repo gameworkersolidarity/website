@@ -6,15 +6,17 @@ import { ErrorBoundary } from 'next/dist/client/components/error-boundary'
 export function DateTime({
   date,
   format = 'dd MMM yyyy',
+  className,
 }: {
   date: string | Date | null
   format?: string
+  className?: string
 }) {
   if (!date) return null
 
   return (
     <ErrorBoundary errorComponent={() => <time dateTime={date.toString()}>{date.toString()}</time>}>
-      <_DateTime date={date} format={format} />
+      <_DateTime date={date} format={format} className={className} />
     </ErrorBoundary>
   )
 }
@@ -22,11 +24,17 @@ export function DateTime({
 function _DateTime({
   date,
   format = 'dd MMM yyyy',
+  className,
 }: {
   date: string | Date | null
   format?: string
+  className?: string
 }) {
   if (!date) return null
   const _date = new Date(date)
-  return <time dateTime={formatDate(_date, 'yyyy-MM-dd')}>{formatDate(_date, format)}</time>
+  return (
+    <time className={className} dateTime={formatDate(_date, 'yyyy-MM-dd')}>
+      {formatDate(_date, format)}
+    </time>
+  )
 }

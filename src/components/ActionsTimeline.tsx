@@ -532,6 +532,7 @@ export function Timeline({
                   height={barHeight}
                   fill={getCSSVariable('--color-gw-pink', true, '#EEE')}
                   opacity={0.3}
+                  suppressHydrationWarning
                 />
               )
             })}
@@ -582,6 +583,7 @@ export function Timeline({
                 y2={y}
                 stroke={getActionColor(action)}
                 strokeWidth={1}
+                suppressHydrationWarning
               />
             )
           })}
@@ -600,6 +602,7 @@ export function Timeline({
                   fill={color}
                   style={{ cursor: 'pointer' }}
                   onClick={() => handleClick(action)}
+                  suppressHydrationWarning
                 />
                 {action.featured && (
                   <>
@@ -612,6 +615,7 @@ export function Timeline({
                       strokeWidth={2}
                       style={{ cursor: 'pointer' }}
                       onClick={() => handleClick(action)}
+                      suppressHydrationWarning
                     />
                   </>
                 )}

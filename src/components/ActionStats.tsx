@@ -8,7 +8,10 @@ import { ActionInitiatorFilter } from '@/collections/enums'
 import { Category, Action } from '@/payload-types'
 import { Map } from './Map/Map'
 import { twMerge } from 'tailwind-merge'
-import { FrequencyChart } from './FrequencyChart'
+import dynamic from 'next/dynamic'
+const FrequencyChart = dynamic(() => import('./FrequencyChart').then((mod) => mod.FrequencyChart), {
+  ssr: false,
+})
 import { getYear } from 'date-fns'
 
 export function ActionStats({ color, graphs = true }: { color?: string; graphs?: boolean }) {
