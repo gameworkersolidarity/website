@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  payload-cloudinary:
+    hash: 1b881e3c8bc12786cb8f6d7a7fc9b18d5d4dd4214e189a28eaa1502e1bdedae2
+    path: patches/payload-cloudinary.patch
   payload-oapi:
     hash: e4cc78140209331d2d3411f20ae7c8cd043cdd43fba37b8ded1dc6175b6b5c3d
     path: patches/payload-oapi.patch
@@ -341,7 +344,7 @@ importers:
         version: 3.72.0(graphql@16.12.0)(typescript@5.9.3)
       payload-cloudinary:
         specifier: ^2.2.1
-        version: 2.2.1(@types/react@19.2.9)(monaco-editor@0.54.0)(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.72.0(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
+        version: 2.2.1(patch_hash=1b881e3c8bc12786cb8f6d7a7fc9b18d5d4dd4214e189a28eaa1502e1bdedae2)(@types/react@19.2.9)(monaco-editor@0.54.0)(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.72.0(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
       payload-oapi:
         specifier: ^0.2.5
         version: 0.2.5(patch_hash=e4cc78140209331d2d3411f20ae7c8cd043cdd43fba37b8ded1dc6175b6b5c3d)(@types/json-schema@7.0.15)(payload@3.72.0(graphql@16.12.0)(typescript@5.9.3))
@@ -17237,7 +17240,7 @@ snapshots:
 
   pathval@2.0.1: {}
 
-  payload-cloudinary@2.2.1(@types/react@19.2.9)(monaco-editor@0.54.0)(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.72.0(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3):
+  payload-cloudinary@2.2.1(patch_hash=1b881e3c8bc12786cb8f6d7a7fc9b18d5d4dd4214e189a28eaa1502e1bdedae2)(@types/react@19.2.9)(monaco-editor@0.54.0)(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.72.0(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3):
     dependencies:
       '@payloadcms/plugin-cloud-storage': 3.72.0(@types/react@19.2.9)(monaco-editor@0.54.0)(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.72.0(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
       cloudinary: 2.9.0

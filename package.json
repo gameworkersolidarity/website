@@ -158,7 +158,7 @@
   },
   "packageManager": "pnpm@10.18.1",
   "engines": {
-    "node": "22.x"
+    "node": "22"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -167,7 +167,8 @@
       "unrs-resolver"
     ],
     "patchedDependencies": {
-      "payload-oapi": "patches/payload-oapi.patch"
+      "payload-oapi": "patches/payload-oapi.patch",
+      "payload-cloudinary": "patches/payload-cloudinary.patch"
     }
   },
   "devDependencies": {

@@ -1,0 +1,261 @@
+diff --git a/dist/constants.js b/dist/constants.js
+index 7d3d101ef1eed13ab9bf98cd41d8a0bb62a89227..83d4211ab9ab5c68de26aada60ed49cb52c575c8 100644
+--- a/dist/constants.js
++++ b/dist/constants.js
+@@ -20,8 +20,7 @@ export const IMAGE_EXTENSIONS = [
+     ".tiff",
+ ];
+ export const RAW_EXTENSIONS = [
+-    // Documents
+-    ".pdf",
++    // Documents (PDFs are handled as images, not raw)
+     ".doc",
+     ".docx",
+     ".xls",
+diff --git a/dist/handleUpload.js b/dist/handleUpload.js
+index 4bd270d16fb107a00b9025ffb6ecc052f7be61a9..203b6dde2be6edce8c90d568ebd2ae1ebf85ffeb 100644
+--- a/dist/handleUpload.js
++++ b/dist/handleUpload.js
+@@ -4,6 +4,10 @@ import { getResourceType } from "./utils";
+ const getUploadOptions = (filename, versioning) => {
+     const ext = path.extname(filename).toLowerCase();
+     const resourceType = getResourceType(ext);
++    // Debug: Log PDF detection
++    if (ext === ".pdf") {
++        console.log(`[payload-cloudinary] PDF detected: ${filename}, resourceType: ${resourceType}`);
++    }
+     const baseOptions = {
+         resource_type: resourceType,
+         use_filename: true,
+@@ -20,25 +24,28 @@ const getUploadOptions = (filename, versioning) => {
+                 eager_async: true,
+             };
+         case "image":
+-            return {
+-                ...baseOptions,
+-                eager: [{ quality: "auto" }],
+-                eager_async: true,
+-            };
+-        case "raw":
+             // For PDFs, add a pages parameter to count the pages and create a thumbnail
+             if (ext === ".pdf") {
+-                return {
++                const pdfOptions = {
+                     ...baseOptions,
+-                    resource_type: "raw",
++                    resource_type: "image", // Force image type for PDFs
+                     use_filename: true,
+                     // When uploading PDFs, add a parameter to extract page count
+                     pages: true,
+                     // Set an eager transformation to create a thumbnail of first page
++                    // For PDFs uploaded as images, use page parameter (not pg_)
+                     eager: [{ format: "jpg", page: 1, quality: "auto" }],
+                     eager_async: true,
+                 };
++                console.log(`[payload-cloudinary] PDF upload options:`, JSON.stringify(pdfOptions, null, 2));
++                return pdfOptions;
+             }
++            return {
++                ...baseOptions,
++                eager: [{ quality: "auto" }],
++                eager_async: true,
++            };
++        case "raw":
+             return {
+                 ...baseOptions,
+                 resource_type: "raw",
+@@ -120,8 +127,9 @@ const isPDF = (filename) => {
+  */
+ const getPDFPageCount = async (cloudinary, publicId, defaultCount = 1) => {
+     try {
++        // PDFs are stored as images in Cloudinary, not raw
+         const pdfInfo = await cloudinary.api.resource(publicId, {
+-            resource_type: "raw",
++            resource_type: "image",
+             pages: true,
+         });
+         if (pdfInfo && pdfInfo.pages) {
+@@ -162,7 +170,8 @@ export const getHandleUpload = ({ cloudinary, folder, prefix = "", versioning, p
+                     const baseMetadata = {
+                         public_id: result.public_id,
+                         resource_type: result.resource_type,
+-                        format: result.format,
++                        // For PDFs, explicitly set format to 'pdf' if not provided
++                        format: isPDFFile ? (result.format || 'pdf') : result.format,
+                         secure_url: result.secure_url,
+                         bytes: result.bytes,
+                         created_at: result.created_at,
+@@ -199,18 +208,30 @@ export const getHandleUpload = ({ cloudinary, folder, prefix = "", versioning, p
+                             // Use the separate async function to get page count
+                             pageCount = await getPDFPageCount(cloudinary, result.public_id);
+                         }
++                        // Ensure public_id has .pdf extension (but don't duplicate it)
++                        const publicId = result.public_id.endsWith('.pdf') 
++                            ? result.public_id 
++                            : `${result.public_id}.pdf`;
+                         typeSpecificMetadata = {
+                             pages: pageCount,
+                             selected_page: 1, // Default to first page for thumbnails
+-                            // Generate a thumbnail URL for the PDF
+-                            thumbnail_url: `https://res.cloudinary.com/${cloudinary.config().cloud_name}/image/upload/pg_1,f_jpg,q_auto/${result.public_id}.pdf`,
++                            width: result.width,
++                            height: result.height,
++                            format: result.format || 'pdf', // Explicitly set format to pdf
++                            // Generate a thumbnail URL for the PDF using Cloudinary's PDF thumbnail feature
++                            thumbnail_url: `https://res.cloudinary.com/${cloudinary.config().cloud_name}/image/upload/pg_1,f_jpg,q_auto/${publicId}`,
+                         };
+                     }
+                     // Combine base and type-specific metadata
+-                    data.cloudinary = {
++                    // For PDFs, ensure format is explicitly set to 'pdf'
++                    const finalMetadata = {
+                         ...baseMetadata,
+                         ...typeSpecificMetadata,
+                     };
++                    if (isPDFFile) {
++                        finalMetadata.format = 'pdf';
++                    }
++                    data.cloudinary = finalMetadata;
+                     // If versioning and history storage is enabled, store version info
+                     if (versioning?.enabled && versioning?.storeHistory) {
+                         data.versions = data.versions || [];
+diff --git a/dist/index.js b/dist/index.js
+index 94d212924e1581990d7c83ae801b5668eff950b3..b6d8f41bd881c6a9aa0ea7e2ea0e3dcf20bd11fb 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -14227,7 +14227,7 @@ var IMAGE_EXTENSIONS = [
+   ".tiff"
+ ];
+ var RAW_EXTENSIONS = [
+-  ".pdf",
++  // PDFs are handled as images, not raw
+   ".doc",
+   ".docx",
+   ".xls",
+@@ -14338,6 +14338,9 @@ import stream from "stream";
+ 
+ // src/utils.ts
+ var getResourceType2 = (ext) => {
++  // PDFs should be treated as images, not raw files
++  if (ext === ".pdf")
++    return "image";
+   if (VIDEO_EXTENSIONS.includes(ext))
+     return "video";
+   if (IMAGE_EXTENSIONS.includes(ext))
+@@ -14366,22 +14369,25 @@ var getUploadOptions = (filename, versioning) => {
+         eager_async: true
+       };
+     case "image":
+-      return {
+-        ...baseOptions,
+-        eager: [{ quality: "auto" }],
+-        eager_async: true
+-      };
+-    case "raw":
++      // For PDFs, add a pages parameter to count the pages and create a thumbnail
+       if (ext === ".pdf") {
+         return {
+           ...baseOptions,
+-          resource_type: "raw",
++          resource_type: "image", // Force image type for PDFs
+           use_filename: true,
++          // When uploading PDFs, add a parameter to extract page count
+           pages: true,
++          // Set an eager transformation to create a thumbnail of first page
+           eager: [{ format: "jpg", page: 1, quality: "auto" }],
+           eager_async: true
+         };
+       }
++      return {
++        ...baseOptions,
++        eager: [{ quality: "auto" }],
++        eager_async: true
++      };
++    case "raw":
+       return {
+         ...baseOptions,
+         resource_type: "raw",
+@@ -14425,8 +14431,9 @@ var isPDF2 = (filename) => {
+ };
+ var getPDFPageCount = async (cloudinary, publicId, defaultCount = 1) => {
+   try {
++    // PDFs are stored as images in Cloudinary, not raw
+     const pdfInfo = await cloudinary.api.resource(publicId, {
+-      resource_type: "raw",
++      resource_type: "image",
+       pages: true
+     });
+     if (pdfInfo && pdfInfo.pages) {
+@@ -14466,7 +14473,8 @@ var getHandleUpload = ({
+           const baseMetadata = {
+             public_id: result.public_id,
+             resource_type: result.resource_type,
+-            format: result.format,
++            // For PDFs, explicitly set format to 'pdf' if not provided
++            format: isPDFFile ? (result.format || 'pdf') : result.format,
+             secure_url: result.secure_url,
+             bytes: result.bytes,
+             created_at: result.created_at,
+@@ -14481,28 +14489,42 @@ var getHandleUpload = ({
+               height: result.height,
+               eager: result.eager
+             };
+-          } else if (result.resource_type === "image") {
+-            typeSpecificMetadata = {
+-              width: result.width,
+-              height: result.height
+-            };
+           } else if (isPDFFile) {
++            // Handle PDFs (which are uploaded as images)
+             let pageCount = 1;
+             if (result.pages) {
+               pageCount = result.pages;
+             } else {
+               pageCount = await getPDFPageCount(cloudinary, result.public_id);
+             }
++            // Ensure public_id has .pdf extension (but don't duplicate it)
++            const publicId = result.public_id.endsWith('.pdf') 
++              ? result.public_id 
++              : `${result.public_id}.pdf`;
+             typeSpecificMetadata = {
+               pages: pageCount,
+               selected_page: 1,
+-              thumbnail_url: `https://res.cloudinary.com/${cloudinary.config().cloud_name}/image/upload/pg_1,f_jpg,q_auto/${result.public_id}.pdf`
++              width: result.width,
++              height: result.height,
++              format: result.format || 'pdf', // Explicitly set format to pdf
++              // Generate a thumbnail URL for the PDF using Cloudinary's PDF thumbnail feature
++              thumbnail_url: `https://res.cloudinary.com/${cloudinary.config().cloud_name}/image/upload/pg_1,f_jpg,q_auto/${publicId}`
++            };
++          } else if (result.resource_type === "image") {
++            typeSpecificMetadata = {
++              width: result.width,
++              height: result.height
+             };
+           }
+-          data.cloudinary = {
++          // For PDFs, ensure format is explicitly set to 'pdf'
++          const finalMetadata = {
+             ...baseMetadata,
+             ...typeSpecificMetadata
+           };
++          if (isPDFFile) {
++            finalMetadata.format = 'pdf';
++          }
++          data.cloudinary = finalMetadata;
+           if (versioning?.enabled && versioning?.storeHistory) {
+             data.versions = data.versions || [];
+             data.versions.push({
+diff --git a/dist/utils.js b/dist/utils.js
+index 1b862045a2d8eb6ee87f76861e62cb58cb6511e6..bdb62a14a9689758bc5fcb4ea7b8349ac5870e84 100644
+--- a/dist/utils.js
++++ b/dist/utils.js
+@@ -1,5 +1,8 @@
+ import { IMAGE_EXTENSIONS, RAW_EXTENSIONS, VIDEO_EXTENSIONS, } from "./constants";
+ export const getResourceType = (ext) => {
++    // PDFs should be treated as images, not raw files
++    if (ext === ".pdf")
++        return "image";
+     if (VIDEO_EXTENSIONS.includes(ext))
+         return "video";
+     if (IMAGE_EXTENSIONS.includes(ext))

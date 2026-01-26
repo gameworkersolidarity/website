@@ -18,6 +18,7 @@ import {
 } from '@/payload-types'
 import { LexicalRenderer } from '@/app/(frontend)/components/LexicalRenderer'
 import { projectStrings } from '@/project-strings'
+import { getMediaUrl, getThumbnailUrl } from '@/utils/media'
 import { twMerge } from 'tailwind-merge'
 import { payloadClient } from '@/utils/payload'
 import { CountryLabel } from './CountryLabel'
@@ -343,7 +344,7 @@ export function DocumentLink({
 }) {
   if (link) {
     return (
-      <Link href={document.url || ''} className="block my-1 mr-2">
+      <Link href={getMediaUrl(document) || '' || ''} className="block my-1 mr-2">
         <RenderDocument />
       </Link>
     )
@@ -366,9 +367,9 @@ export function DocumentLink({
         {withPreview && (
           <div className="inline-block overflow-hidden border border-black rounded-xl mt-4">
             <Image
-              src={document.thumbnailURL || document.url || ''}
-              width={document.width || 300}
-              height={document.height || 300 * (297 / 210) /** A4 proportional height */}
+              src={getThumbnailUrl(document) || ''}
+              width={document.width || 750}
+              height={document.height || 750 * (297 / 210) /** A4 proportional height */}
               alt={document.alt || ''}
             />
           </div>
@@ -517,8 +518,8 @@ export function ActionCard({
           )}
         </div>
         {!!data.documents && data.documents.length > 0 && (
-          <div className="p-4 md:px-8 bg-white text-sm">
-            <div className="font-semibold pb-2">Attachments</div>
+          <div className="p-4 lg:px-8 bg-white text-sm">
+            <div className="text-sm text-zinc-500 font-semibold mb-2">Attachments</div>
             <div className="grid gap-4">
               {data.documents?.map((doc) => (
                 <DocumentLink
