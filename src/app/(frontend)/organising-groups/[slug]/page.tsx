@@ -91,9 +91,29 @@ export default async function Page({ params }: Props) {
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  const uniqueCountries = Array.from(
-    new Set(actions.flatMap((action) => action.countries as Country[])),
-  )
+  // Extract unique countries from solidarity actions
+  const countriesSet = new Map<string, Country>()
+
+  actions.forEach((action) => {
+    // Extract countries
+    if (action.countries && Array.isArray(action.countries)) {
+      action.countries.forEach((country) => {
+        if (
+          typeof country === 'object' &&
+          country !== null &&
+          'id' in country &&
+          'name' in country
+        ) {
+          const countryId = String(country.id)
+          if (!countriesSet.has(countryId)) {
+            countriesSet.set(countryId, country)
+          }
+        }
+      })
+    }
+  })
+
+  const uniqueCountries = Array.from(countriesSet.values())
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 

@@ -63,15 +63,53 @@ export default async function Page({ params }: Props) {
   const validatedActions = validatePayloadResult('actions', actionResults)
   const actions = validatedActions.docs
 
-  const uniqueOrganisingGroups = Array.from(
-    new Set(actions.flatMap((action) => action.organisingGroups as OrganisingGroup[])),
-  )
+  // Extract unique organising groups from solidarity actions
+  const organisingGroupsSet = new Map<string, OrganisingGroup>()
+
+  // Extract unique countries from solidarity actions
+  const countriesSet = new Map<string, Country>()
+
+  actions.forEach((action) => {
+    // Extract organising groups
+    if (action.organisingGroups && Array.isArray(action.organisingGroups)) {
+      action.organisingGroups.forEach((organisingGroup) => {
+        if (
+          typeof organisingGroup === 'object' &&
+          organisingGroup !== null &&
+          'id' in organisingGroup &&
+          'slug' in organisingGroup &&
+          'name' in organisingGroup
+        ) {
+          const organisingGroupId = String(organisingGroup.id)
+          if (!organisingGroupsSet.has(organisingGroupId)) {
+            organisingGroupsSet.set(organisingGroupId, organisingGroup)
+          }
+        }
+      })
+    }
+    // Extract countries
+    if (action.countries && Array.isArray(action.countries)) {
+      action.countries.forEach((country) => {
+        if (
+          typeof country === 'object' &&
+          country !== null &&
+          'id' in country &&
+          'name' in country
+        ) {
+          const countryId = String(country.id)
+          if (!countriesSet.has(countryId)) {
+            countriesSet.set(countryId, country)
+          }
+        }
+      })
+    }
+  })
+
+  const uniqueOrganisingGroups = Array.from(organisingGroupsSet.values())
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  const uniqueCountries = Array.from(
-    new Set(actions.flatMap((action) => action.countries as Country[])),
-  )
+  const uniqueCountries = Array.from(countriesSet.values())
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name))
 
