@@ -46,11 +46,46 @@ export function ActionTimeline({
     sortedActions[0]?.id || null,
   )
 
+  // Handle keyboard navigation for arrow keys
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle arrow keys when not typing in an input/textarea
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        (event.target instanceof HTMLElement && event.target.isContentEditable)
+      ) {
+        return
+      }
+
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault()
+        const currentIndex = sortedActions.findIndex((a) => a.id === currentActionId)
+        if (currentIndex === -1) return
+
+        if (event.key === 'ArrowLeft') {
+          // Navigate to previous (earlier) action
+          if (currentIndex > 0) {
+            setCurrentActionId(sortedActions[currentIndex - 1].id)
+          }
+        } else {
+          // Navigate to next (later) action
+          if (currentIndex < sortedActions.length - 1) {
+            setCurrentActionId(sortedActions[currentIndex + 1].id)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [sortedActions, currentActionId, setCurrentActionId])
+
   return (
     <div className="@container">
       <div className="py-4 px-5 @5xl:px-8">
         <Timeline
-          actions={actions}
+          actions={sortedActions}
           currentActionId={currentActionId}
           setCurrentActionId={setCurrentActionId}
           labelProperty={labelProperty}
@@ -58,7 +93,7 @@ export function ActionTimeline({
       </div>
       <div>
         <Slideshow
-          actions={actions}
+          actions={sortedActions}
           currentActionId={currentActionId}
           setCurrentActionId={setCurrentActionId}
           searchQuery={searchQuery}
@@ -128,23 +163,25 @@ export function Slideshow({
     }
   }, [currentActionId, setCurrentActionId])
 
-  useEffect(() => {
-    if (autoplay) {
-      const interval = setInterval(() => {
-        const index = actions.findIndex((e) => e.id === currentActionId)
-        if (index === -1) return
-        setCurrentActionId(index < actions.length - 1 ? actions[index + 1].id : actions[0].id)
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [autoplay, currentActionId, actions, setCurrentActionId])
-
   const sortedActions = useMemo(
     function sortActionsByOldestFirst() {
       return [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     },
     [actions],
   )
+
+  useEffect(() => {
+    if (autoplay) {
+      const interval = setInterval(() => {
+        const index = sortedActions.findIndex((e) => e.id === currentActionId)
+        if (index === -1) return
+        setCurrentActionId(
+          index < sortedActions.length - 1 ? sortedActions[index + 1].id : sortedActions[0].id,
+        )
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [autoplay, currentActionId, sortedActions, setCurrentActionId])
 
   return (
     <div className="relative">
@@ -174,7 +211,7 @@ export function Slideshow({
             <ArrowRight
               className={twMerge(
                 'w-20 cursor-pointer',
-                index < actions.length - 1 ? 'block' : 'invisible',
+                index < sortedActions.length - 1 ? 'block' : 'invisible',
               )}
               size={20}
               onClick={() => setCurrentActionId(list[index + 1].id)}

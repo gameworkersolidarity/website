@@ -308,10 +308,11 @@ export function ActionItem({
             )
           })()}
       </ActionItemWrapper>
+      <ActionMetadata data={data} link={links} />
       {(!!data.link || !!data.documents?.length) && (
-        <div className="flex flex-row mt-3 flex-wrap">
+        <div className="flex flex-row flex-wrap gap-2">
           {data.link && links && (
-            <Link href={data.link} className="block my-1 mr-2">
+            <Link href={data.link} className="block mr-2">
               <Emoji symbol="🔗" label="Link" className="align-baseline" />
               &nbsp;
               <span className="align-baseline underline text-inherit">
@@ -328,7 +329,6 @@ export function ActionItem({
           ))}
         </div>
       )}
-      <ActionMetadata data={data} link={links} />
     </article>
   )
 }
@@ -344,7 +344,7 @@ export function DocumentLink({
 }) {
   if (link) {
     return (
-      <Link href={getMediaUrl(document) || '' || ''} className="block my-1 mr-2">
+      <Link href={getMediaUrl(document) || '' || ''} className="block mr-2">
         <RenderDocument />
       </Link>
     )
@@ -354,18 +354,20 @@ export function DocumentLink({
 
   function RenderDocument() {
     return (
-      <div>
-        <span className={twMerge(withPreview && 'block')}>
-          <Emoji symbol="📑" label="File attachment" className="align-baseline" />
-          &nbsp;
-          <span className="align-baseline link">
-            <span className="align-baseline underline text-inherit">{document.filename}</span>
+      <div className="flex flex-col gap-2">
+        {!withPreview && (
+          <span className={twMerge(withPreview && 'block')}>
+            <Emoji symbol="📑" label="File attachment" className="align-baseline" />
             &nbsp;
-            <span className="text-gray-500">{document.mimeType}</span>
+            <span className="align-baseline link">
+              <span className="align-baseline underline text-inherit">{document.filename}</span>
+              &nbsp;
+              <span className="text-gray-500">{document.mimeType}</span>
+            </span>
           </span>
-        </span>
+        )}
         {withPreview && (
-          <div className="inline-block overflow-hidden border border-black rounded-xl mt-4">
+          <div className="inline-block overflow-hidden border border-black rounded-xl">
             <Image
               src={getThumbnailUrl(document) || ''}
               width={document.width || 750}
@@ -477,84 +479,84 @@ export function ActionCard({
           data.featured && 'outline-2 outline-snot-400 outline-offset-2',
         )}
       >
-        <div className={twMerge('p-4 lg:px-8 bg-white rounded-xl flex flex-col gap-4')}>
-          <div className="text-sm order-1 md:order-0">
-            <ActionMetadata data={data} link={links} />
-          </div>
-          <ActionCardWrapper
-            href={links ? data.path : undefined}
-            className={links ? 'block order-0 md:order-1' : undefined}
-          >
-            {/* Title */}
-            <h3 key="title" className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
-              <HighlightText text={data.name} ranges={nameRanges} />
-            </h3>
-          </ActionCardWrapper>
-          {/* Description */}
-          {shouldShowDescription &&
-            (() => {
-              const description = data.description
-              if (!description) return null
-              return (
-                <div key="description" className={twMerge('w-full text-lg order-2 md:order-2')}>
-                  {hasDescriptionHighlights ? (
-                    <HighlightedDescription content={description} actionId={data.id} />
-                  ) : (
-                    <LexicalRenderer content={description} />
-                  )}
-                </div>
-              )
-            })()}
-          {data.link && links && (
-            <div key="links" className="flex flex-row space-x-4 text-sm order-3">
-              <Link href={data.link} className="block my-1">
-                <Emoji symbol="🔗" label="Link" className="align-baseline" />
-                &nbsp;
-                <span className="align-baseline text-inherit link">
-                  {new URL(data.link).hostname}
-                </span>
-              </Link>
+        <main className="bg-white rounded-xl">
+          <div className={twMerge('p-4 lg:px-8 flex flex-col gap-4')}>
+            <div className="text-sm order-1 md:order-0">
+              <ActionMetadata data={data} link={links} />
             </div>
-          )}
-        </div>
-        {!!data.documents && data.documents.length > 0 && (
-          <div className="p-4 lg:px-8 bg-white text-sm">
-            <div className="text-sm text-zinc-500 font-semibold mb-2">Attachments</div>
-            <div className="grid gap-4">
-              {data.documents?.map((doc) => (
-                <DocumentLink
-                  key={(doc as Media).id}
-                  document={doc as unknown as Media}
-                  withPreview
-                  link={!!links}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-        {displayStandaloneInfo && (
-          <>
-            {!!data.campaigns?.docs?.length && (
-              <div className="p-4 md:px-8 bg-white mt-[2px]">
-                <div className="flex flex-row gap-1 items-center">
-                  <span>This report is included in</span>
-                  {data.campaigns?.docs?.map((campaign) => (
-                    <CampaignLabel
-                      campaign={campaign as unknown as Campaign}
-                      key={(campaign as Campaign).id}
-                      link={!!links}
-                    />
-                  ))}
-                </div>
+            <ActionCardWrapper
+              href={links ? data.path : undefined}
+              className={links ? 'block order-0 md:order-1' : undefined}
+            >
+              {/* Title */}
+              <h3 key="title" className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
+                <HighlightText text={data.name} ranges={nameRanges} />
+              </h3>
+            </ActionCardWrapper>
+            {/* Description */}
+            {shouldShowDescription &&
+              (() => {
+                const description = data.description
+                if (!description) return null
+                return (
+                  <div key="description" className={twMerge('w-full text-lg order-2 md:order-2')}>
+                    {hasDescriptionHighlights ? (
+                      <HighlightedDescription content={description} actionId={data.id} />
+                    ) : (
+                      <LexicalRenderer content={description} />
+                    )}
+                  </div>
+                )
+              })()}
+            {data.link && links && (
+              <div key="links" className="flex flex-row space-x-4 text-sm order-3">
+                <Link href={data.link} className="block">
+                  <Emoji symbol="🔗" label="Link" className="align-baseline" />
+                  &nbsp;
+                  <span className="align-baseline text-inherit link">
+                    {new URL(data.link).hostname}
+                  </span>
+                </Link>
               </div>
             )}
-            <div className="p-4 lg:px-8 text-sm text-zinc-500">
+          </div>
+          {!!data.documents && data.documents.length > 0 && (
+            <div className="px-4 lg:px-8 text-sm">
+              {/* <div className="text-sm text-zinc-500 font-semibold mb-2">Attachments</div> */}
+              <div className="grid gap-4 pb-4 md:pb-5">
+                {data.documents?.map((doc) => (
+                  <DocumentLink
+                    key={(doc as Media).id}
+                    document={doc as unknown as Media}
+                    withPreview
+                    link={!!links}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </main>
+        {displayStandaloneInfo && (
+          <div className="flex flex-col gap-4 py-4">
+            {!!data.campaigns?.docs?.length && (
+              <div className="px-4 lg:px-8 text-sm text-zinc-500">
+                <span>This report is included in</span>
+                {data.campaigns?.docs?.map((campaign) => (
+                  <CampaignLabel
+                    campaign={campaign as unknown as Campaign}
+                    key={(campaign as Campaign).id}
+                    link={!!links}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="px-4 lg:px-8 text-sm text-zinc-500">
               Have more info about this report?{' '}
               <a className="link" href={`mailto:${projectStrings.email}`}>
                 Let us know &rarr;
               </a>
             </div>
-          </>
+          </div>
         )}
       </article>
     </>
