@@ -18,6 +18,7 @@ import { projectStrings } from '@/project-strings'
 import { CountryLabel } from '@/components/CountryLabel'
 import { DateTime } from '@/components/DateTime'
 import { ArrowLeftIcon } from 'lucide-react'
+import { formatDistanceStrict } from 'date-fns'
 import { CollectionSlug } from 'payload'
 import { CategoryLabel } from '@/components/CategoryLabel'
 import { CompanyLabel } from '@/components/CompanyLabel'
@@ -92,17 +93,24 @@ export function ActionPage({
             <PreviousActions
               actionNav={actionNav}
               previousRelatedActions={previousRelatedActions}
+              currentActionDate={action.date}
             />
           )}
         </aside>
         <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
           <ActionCard data={action} links displayStandaloneInfo />
-          {hasSameDayActions && <SameDayActions actions={actionNav} />}
+          {hasSameDayActions && (
+            <SameDayActions actions={actionNav} currentActionDate={action.date} />
+          )}
           <ActionHistogramContext action={action} />
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
           {hasNextActions && (
-            <FollowingActions actionNav={actionNav} nextRelatedActions={nextRelatedActions} />
+            <FollowingActions
+              actionNav={actionNav}
+              nextRelatedActions={nextRelatedActions}
+              currentActionDate={action.date}
+            />
           )}
         </aside>
       </div>
@@ -114,9 +122,11 @@ export function ActionPage({
 function FollowingActions({
   actionNav,
   nextRelatedActions,
+  currentActionDate,
 }: {
   actionNav: ActionNav
   nextRelatedActions: Action['relatedActions']
+  currentActionDate: string
 }) {
   return (
     <>
@@ -130,6 +140,7 @@ function FollowingActions({
               action={action}
               key={action.id}
               label="campaigns"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -140,6 +151,7 @@ function FollowingActions({
           key={relation.id}
           label={relation.connectionType}
           description={relation.description}
+          currentActionDate={currentActionDate}
         />
       ))}
       {Object.values(actionNav?.nextInCompany ?? {}).map(
@@ -151,6 +163,7 @@ function FollowingActions({
               action={action}
               key={action.id}
               label="companies"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -163,6 +176,7 @@ function FollowingActions({
               action={action}
               key={action.id}
               label="organisingGroups"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -175,6 +189,7 @@ function FollowingActions({
               action={action}
               key={action.id}
               label="countries"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -187,6 +202,7 @@ function FollowingActions({
               action={action}
               key={action.id}
               label="categories"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -197,9 +213,11 @@ function FollowingActions({
 function PreviousActions({
   actionNav,
   previousRelatedActions,
+  currentActionDate,
 }: {
   actionNav: ActionNav
   previousRelatedActions: Action['relatedActions']
+  currentActionDate: string
 }) {
   return (
     <>
@@ -213,6 +231,7 @@ function PreviousActions({
               action={action}
               key={action.id}
               label="campaigns"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -223,6 +242,7 @@ function PreviousActions({
           action={relation.action as Action}
           key={relation.id}
           description={relation.description}
+          currentActionDate={currentActionDate}
         />
       ))}
       {Object.values(actionNav?.previousInCompany ?? {}).map(
@@ -234,6 +254,7 @@ function PreviousActions({
               action={action}
               key={action.id}
               label="companies"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -246,6 +267,7 @@ function PreviousActions({
               action={action}
               key={action.id}
               label="organisingGroups"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -258,6 +280,7 @@ function PreviousActions({
               action={action}
               key={action.id}
               label="countries"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
@@ -270,13 +293,20 @@ function PreviousActions({
               action={action}
               key={action.id}
               label="categories"
+              currentActionDate={currentActionDate}
             />
           ),
       )}
     </>
   )
 }
-function SameDayActions({ actions }: { actions: ActionNav }) {
+function SameDayActions({
+  actions,
+  currentActionDate,
+}: {
+  actions: ActionNav
+  currentActionDate: string
+}) {
   return (
     <div className="flex flex-col gap-2">
       {actions?.sameDay && actions.sameDay.length > 0 && (
@@ -289,6 +319,7 @@ function SameDayActions({ actions }: { actions: ActionNav }) {
                 action={action}
                 key={action.id}
                 label="countries"
+                currentActionDate={currentActionDate}
               />
             ))}
           </div>
@@ -303,6 +334,7 @@ function ActionBreadcrumbNavLink({
   label,
   direction,
   description,
+  currentActionDate,
 }: {
   action: Action
   label:
@@ -310,6 +342,7 @@ function ActionBreadcrumbNavLink({
     | NonNullable<Config['collections']['actions']['relatedActions']>[0]['connectionType']
   direction: 'previous' | 'next' | 'sameDay'
   description?: string
+  currentActionDate: string
 }) {
   return (
     <Link
@@ -336,17 +369,22 @@ function ActionBreadcrumbNavLink({
             direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left justify-start',
           )}
         >
-          {direction !== 'sameDay' && (
-            <span className="text-xs text-zinc-400">
-              {label === 'categories'
-                ? direction === 'previous'
-                  ? 'Previous'
-                  : 'Next'
-                : direction === 'previous'
-                  ? 'Previously in'
-                  : 'Next in'}
-            </span>
-          )}
+          {direction !== 'sameDay' &&
+            action.date &&
+            (() => {
+              const actionDate = new Date(action.date)
+              const currentDate = new Date(currentActionDate)
+              const distance = formatDistanceStrict(actionDate, currentDate)
+              const suffix = direction === 'previous' ? 'before' : 'later'
+              return (
+                <span className="text-xs text-zinc-400">
+                  <time dateTime={action.date}>
+                    {distance} {suffix}
+                  </time>
+                  {label !== 'categories' && ' in'}
+                </span>
+              )
+            })()}
           {label === 'countries' ? (
             action.countries
               ?.slice(0, 3)
@@ -401,13 +439,8 @@ function ActionBreadcrumbNavLink({
         </div>
         <div className="text-base font-medium leading-snug">{action.name}</div>
         {description && <div className="text-xs text-zinc-400 italic mt-0.5">{description}</div>}
-        {action.date && (
-          <span
-            className={twMerge(
-              'text-xs text-zinc-400 ltr',
-              direction === 'previous' ? 'text-right ml-auto' : 'text-left',
-            )}
-          >
+        {action.date && direction === 'sameDay' && (
+          <span className="text-xs text-zinc-400 ltr text-left">
             <DateTime date={action.date} />
           </span>
         )}

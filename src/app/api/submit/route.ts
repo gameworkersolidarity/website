@@ -3,6 +3,19 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { slugify } from 'payload/shared'
 
+/**
+ * Extract year and month from an ISO date string in YYYY-MM format
+ */
+function getYearMonth(dateString: string): string {
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${dateString}`)
+  }
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${year}-${month}`
+}
+
 export async function POST(request: NextRequest) {
   try {
     const payloadConfig = await config
@@ -13,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Ensure the action is saved as a draft
     const actionData = {
       ...data,
-      slug: `${slugify(data.date)}-${slugify(data.name)}`,
+      slug: `${getYearMonth(data.date)}-${slugify(data.name)}`,
       _status: 'draft' as const,
     }
 
