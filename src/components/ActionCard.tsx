@@ -543,7 +543,7 @@ export function ActionCard({
               </div>
             )}
             <div className="px-4 lg:px-8 text-sm text-zinc-500">
-              Have more info about this report?{' '}
+              Have more info about this?{' '}
               <a className="link" href={`mailto:${projectStrings.email}`}>
                 Let us know &rarr;
               </a>
