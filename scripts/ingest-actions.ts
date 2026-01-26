@@ -116,6 +116,19 @@ function parseDate(dateString: string | undefined): string | undefined {
 }
 
 /**
+ * Extract year and month from an ISO date string in YYYY-MM format
+ */
+function getYearMonth(dateString: string): string {
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${dateString}`)
+  }
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${year}-${month}`
+}
+
+/**
  * Download file from URL and upload to Payload Media collection
  */
 async function uploadFileToPayload(
@@ -649,7 +662,7 @@ async function migrateSolidarityActions(payload: any) {
 
       // Sanitize slug from Airtable or generate from name and date
       const airtableSlug = record.fields.Slug as string | undefined
-      const dateSlug = slugify(date) || date.split('T')[0]
+      const dateSlug = getYearMonth(date) // Use YYYY-MM format
       const nameSlug = slugify(name) || name.toLowerCase().replace(/\s+/g, '-')
       const slug = (
         airtableSlug && airtableSlug.trim()
