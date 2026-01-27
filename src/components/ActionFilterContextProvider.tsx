@@ -462,7 +462,6 @@ export function ActionFilterContextProvider({
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) {
-      console.log('no search query')
       return {
         actions: preFilteredActions,
         highlights: {},
