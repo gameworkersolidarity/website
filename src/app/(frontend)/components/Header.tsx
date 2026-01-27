@@ -4,34 +4,27 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { twMerge } from 'tailwind-merge'
 import useScrollPosition from '@react-hook/window-scroll'
-import { useRef } from 'react'
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from '@/components/ui/navigation-menu'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { useMediaQuery } from 'usehooks-ts'
 import { Button } from '@/components/ui/button'
-import { HamburgerIcon, MenuIcon } from 'lucide-react'
+import { MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
-import { useUser } from '@/utils/UserContext'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { SearchBar } from '@/components/SearchBar'
-import { projectStrings } from '@/project-strings'
-// import Emoji from 'a11y-react-emoji'
 
 type NavigationItem =
   | {
@@ -47,13 +40,6 @@ type NavigationItem =
 
 export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const _navigation = [...navigation, ...navLinks]
-  const user = useUser()
-  if (user) {
-    _navigation.push({
-      label: 'Log out',
-      url: '/admin/logout',
-    })
-  }
 
   const [ref, size] = useElementSize()
   const scrollY = useScrollPosition(60 /*fps*/)
@@ -64,7 +50,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
     <>
       <header className="pt-3 bg-gw-pink space-y-2 z-40" ref={ref} id="static-header">
         <div className="content-wrapper">
-          <div className="sm:flex sm:space-x-4 space-y-2 sm:space-y-0 items-center">
+          <div className="lg:flex lg:space-x-4 space-y-2 lg:space-y-0 items-center">
             <div className="leading-none shrink-0">
               <Link href="/">
                 <Image
@@ -75,10 +61,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                 />
               </Link>
             </div>
-            <div className="leading-none text-4xl lg:text-[4vw] sm:w-1/2 font-identity cursor-pointer hover:text-gwPinkLight shrink-0">
+            <div className="leading-none text-4xl lg:text-[4vw] md:w-1/2 font-identity cursor-pointer hover:text-gwPinkLight shrink-0">
               <Link href="/">Game Worker Solidarity</Link>
             </div>
-            <p className="leading-normal sm:leading-tight text-xl xl:text-2xl sm:w-1/2 block text-200 font-light">
+            <p className="leading-normal lg:leading-tight text-xl xl:text-2xl lg:w-1/2 block text-200 font-light">
               Mapping and documenting collective movements by game workers striving to improve their
               working conditions.
             </p>
@@ -92,7 +78,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
         {!isMobile ? (
           <>
             <NavigationMenu viewport={false}>
-              <NavigationMenuList className="flex-wrap">
+              <NavigationMenuList className="flex-wrap justify-start gap-0">
                 {_navigation.map((item, index) => (
                   <NavigationMenuItem key={index} className="relative">
                     {'children' in item ? (
@@ -134,7 +120,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     ) : null}
                   </NavigationMenuItem>
                 ))}
-                <NavigationMenuItem suppressHydrationWarning>
+                <NavigationMenuItem suppressHydrationWarning className="hidden lg:block">
                   <SearchBar />
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -143,7 +129,6 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
         ) : (
           // Hamburger -> modal menu
           <div className="flex flex-row items-center gap-2">
-            <SearchBar />
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost">
@@ -181,7 +166,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                                 <span className="flex items-center gap-1">
                                   {/* {'emoji' in child && child.emoji && (
                                     <Emoji symbol={child.emoji} />
-                                  )} */}
+                                    )} */}
                                   {child.label}
                                 </span>
                               </Link>
@@ -194,12 +179,13 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                 </SheetHeader>
               </SheetContent>
             </Sheet>
+            <SearchBar />
           </div>
         )}
         <div
           className={twMerge(
-            isFloating ? 'opacity-100 max-w-6xl translate-x-0 mr-4' : 'opacity-0 translate-x-2',
-            'block transform ml-auto duration-200 transition-all leading-none text-xl lg:text-2xl font-identity cursor-pointer hover:text-gwPinkLight shrink-0 order-1 md:order-last',
+            isFloating ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2',
+            'max-w-6xl mr-4 ml-auto block transform duration-200 transition-all leading-none text-xl lg:text-2xl font-identity cursor-pointer hover:text-gwPinkLight shrink-0 order-1 md:order-last',
           )}
           style={{ marginLeft: 'auto' }}
           suppressHydrationWarning
