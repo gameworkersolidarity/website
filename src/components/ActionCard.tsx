@@ -536,7 +536,7 @@ export function ActionCard({
           <div className="flex flex-col gap-4 py-4">
             {!!data.campaigns?.docs?.length && (
               <div className="px-4 lg:px-8 text-sm text-zinc-500">
-                <span>This report is included in</span>
+                <span>Part of: </span>
                 {data.campaigns?.docs?.map((campaign) => (
                   <CampaignLabel
                     campaign={campaign as unknown as Campaign}
