@@ -66,11 +66,24 @@ export default async function HomePage() {
       }).then((result) => validatePayloadResult('campaigns', result, false)),
     ])
 
-  const uniqueCountries = Array.from(
-    new Set(actionsResult.docs.flatMap((action) => action.countries as Country[])),
+  // Dedupe countries by id to ensure genuinely unique list
+  const countriesMap = new Map<string, Country>()
+  actionsResult.docs.forEach((action) => {
+    if (action.countries) {
+      const countries = Array.isArray(action.countries) ? action.countries : [action.countries]
+      countries.forEach((country) => {
+        if (country && typeof country === 'object' && 'id' in country) {
+          const countryId = String(country.id)
+          if (!countriesMap.has(countryId)) {
+            countriesMap.set(countryId, country as Country)
+          }
+        }
+      })
+    }
+  })
+  const uniqueCountries = Array.from(countriesMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name),
   )
-    .filter(Boolean)
-    .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <HomepageClient
