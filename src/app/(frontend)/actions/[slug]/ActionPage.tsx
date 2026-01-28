@@ -119,6 +119,51 @@ export function ActionPage({
   )
 }
 
+type BreadcrumbNavLabel =
+  | CollectionSlug
+  | NonNullable<Config['collections']['actions']['relatedActions']>[0]['connectionType']
+
+function getNextBreadcrumbItems(
+  actionNav: ActionNav,
+  nextRelatedActions: Action['relatedActions'],
+): { action: Action; label: BreadcrumbNavLabel; description?: string; key: string }[] {
+  const items: { action: Action; label: BreadcrumbNavLabel; description?: string; key: string }[] =
+    []
+
+  const add = (action: Action | null | undefined, label: BreadcrumbNavLabel, key: string) => {
+    if (action?.date) items.push({ action, label, key })
+  }
+  Object.values(actionNav?.nextInCampaign ?? {}).forEach((action) => {
+    if (action?.campaigns?.docs?.[0]) add(action, 'campaigns', `next-campaign-${action.id}`)
+  })
+  nextRelatedActions?.forEach((relation) => {
+    const action = relation.action as Action
+    if (action?.date)
+      items.push({
+        action,
+        label: relation.connectionType,
+        description: relation.description,
+        key: `next-related-${relation.id}`,
+      })
+  })
+  Object.values(actionNav?.nextInCompany ?? {}).forEach((action) => {
+    if (action?.companies?.[0]) add(action, 'companies', `next-company-${action.id}`)
+  })
+  Object.values(actionNav?.nextInOrganisingGroup ?? {}).forEach((action) => {
+    if (action?.organisingGroups?.[0]) add(action, 'organisingGroups', `next-og-${action.id}`)
+  })
+  Object.values(actionNav?.nextInCountry ?? {}).forEach((action) => {
+    if (action?.countries?.[0]) add(action, 'countries', `next-country-${action.id}`)
+  })
+  Object.values(actionNav?.nextInCategory ?? {}).forEach((action) => {
+    if (action?.categories?.[0]) add(action, 'categories', `next-category-${action.id}`)
+  })
+
+  return items.sort(
+    (a, b) => new Date(a.action.date!).getTime() - new Date(b.action.date!).getTime(),
+  )
+}
+
 function FollowingActions({
   actionNav,
   nextRelatedActions,
@@ -128,84 +173,20 @@ function FollowingActions({
   nextRelatedActions: Action['relatedActions']
   currentActionDate: string
 }) {
+  const items = getNextBreadcrumbItems(actionNav, nextRelatedActions)
   return (
     <>
       <div className="text-sm text-zinc-500 font-semibold">Following actions</div>
-      {Object.values(actionNav?.nextInCampaign ?? {}).map(
-        (action) =>
-          action &&
-          action.campaigns?.docs?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="next"
-              action={action}
-              key={action.id}
-              label="campaigns"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {nextRelatedActions?.map((relation) => (
+      {items.map(({ action, label, description, key }) => (
         <ActionBreadcrumbNavLink
           direction="next"
-          action={relation.action as Action}
-          key={relation.id}
-          label={relation.connectionType}
-          description={relation.description}
+          action={action}
+          key={key}
+          label={label}
+          description={description}
           currentActionDate={currentActionDate}
         />
       ))}
-      {Object.values(actionNav?.nextInCompany ?? {}).map(
-        (action) =>
-          action &&
-          action.companies?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="next"
-              action={action}
-              key={action.id}
-              label="companies"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {Object.values(actionNav?.nextInOrganisingGroup ?? {}).map(
-        (action) =>
-          action &&
-          action.organisingGroups?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="next"
-              action={action}
-              key={action.id}
-              label="organisingGroups"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {Object.values(actionNav?.nextInCountry ?? {}).map(
-        (action) =>
-          action &&
-          action.countries?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="next"
-              action={action}
-              key={action.id}
-              label="countries"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {Object.values(actionNav?.nextInCategory ?? {}).map(
-        (action) =>
-          action &&
-          action.categories?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="next"
-              action={action}
-              key={action.id}
-              label="categories"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
     </>
   )
 }
