@@ -365,7 +365,7 @@ function ActionBreadcrumbNavLink({
       <div className="flex flex-col gap-0.5">
         <div
           className={twMerge(
-            'text-xs flex flex-wrap gap-x-1 ltr items-center',
+            'text-xs flex flex-wrap ltr items-center text-zinc-400',
             direction === 'previous' ? 'text-right ml-auto justify-end' : 'text-left justify-start',
           )}
         >
@@ -377,12 +377,24 @@ function ActionBreadcrumbNavLink({
               const distance = formatDistanceStrict(actionDate, currentDate)
               const suffix = direction === 'previous' ? 'before' : 'later'
               return (
-                <span className="text-xs text-zinc-400">
+                <>
+                  {action.categories?.length ? (
+                    <>
+                      {action.categories?.slice(0, 3).map((category) => (
+                        <CategoryLabel
+                          category={category as unknown as Category}
+                          key={(category as Category).id}
+                          className="text-foreground"
+                        />
+                      ))}
+                      &nbsp;
+                    </>
+                  ) : null}
                   <time dateTime={action.date}>
                     {distance} {suffix}
                   </time>
-                  {label !== 'categories' && ' in'}
-                </span>
+                  {label !== 'categories' && <span>&nbsp;in&nbsp;</span>}
+                </>
               )
             })()}
           {label === 'countries' ? (
@@ -392,15 +404,7 @@ function ActionBreadcrumbNavLink({
                 <CountryLabel
                   country={country as unknown as Country}
                   key={(country as Country).id}
-                />
-              ))
-          ) : label === 'categories' ? (
-            action.categories
-              ?.slice(0, 3)
-              .map((category) => (
-                <CategoryLabel
-                  category={category as unknown as Category}
-                  key={(category as Category).id}
+                  className="text-foreground pr-1"
                 />
               ))
           ) : label === 'companies' ? (
@@ -410,6 +414,7 @@ function ActionBreadcrumbNavLink({
                 <CompanyLabel
                   company={company as unknown as Company}
                   key={(company as Company).id}
+                  className="text-foreground pr-1"
                 />
               ))
           ) : label === 'organisingGroups' ? (
@@ -419,6 +424,7 @@ function ActionBreadcrumbNavLink({
                 <OrganisingGroupLabel
                   organisingGroup={organisingGroup as unknown as OrganisingGroup}
                   key={(organisingGroup as OrganisingGroup).id}
+                  className="text-foreground pr-1"
                 />
               ))
           ) : label === 'campaigns' ? (
@@ -428,6 +434,7 @@ function ActionBreadcrumbNavLink({
                 <CampaignLabel
                   campaign={campaign as unknown as Campaign}
                   key={(campaign as Campaign).id}
+                  className="text-foreground pr-1"
                 />
               ))
           ) : label === 'INDIRECT' ? (
@@ -435,7 +442,6 @@ function ActionBreadcrumbNavLink({
           ) : label === 'DIRECT' ? (
             <div>Direct connection</div>
           ) : null}
-          {label === 'categories' && <span className="text-xs text-zinc-400">action</span>}
         </div>
         <div className="text-base font-medium leading-snug">{action.name}</div>
         {description && <div className="text-xs text-zinc-400 italic mt-0.5">{description}</div>}

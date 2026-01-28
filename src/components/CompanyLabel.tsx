@@ -5,18 +5,26 @@ import { Building } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { getSlug } from '@/utils/payloadPath'
 
-export function CompanyLabel({ company, link }: { company: Company; link?: boolean | 'soft' }) {
+export function CompanyLabel({
+  company,
+  link,
+  className,
+}: {
+  company: Company
+  link?: boolean | 'soft'
+  className?: string
+}) {
   if (link) {
     if (link === 'soft') {
       return <SoftLinkCompanyLabel company={company} />
     }
     return (
       <Link href={company.path || '/'}>
-        <RenderedCompanyLabel company={company} textClassName="link" />
+        <RenderedCompanyLabel company={company} textClassName={twMerge('link', className)} />
       </Link>
     )
   } else {
-    return <RenderedCompanyLabel company={company} />
+    return <RenderedCompanyLabel company={company} textClassName={className} />
   }
 }
 

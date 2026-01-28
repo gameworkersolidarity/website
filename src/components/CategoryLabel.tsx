@@ -5,17 +5,25 @@ import Emoji from 'a11y-react-emoji'
 import Link from 'next/link'
 import { twMerge } from 'tailwind-merge'
 
-export function CategoryLabel({ category, link }: { category: Category; link?: boolean | 'soft' }) {
+export function CategoryLabel({
+  category,
+  link,
+  className,
+}: {
+  category: Category
+  link?: boolean | 'soft'
+  className?: string
+}) {
   if (link === 'soft') {
     return <SoftLinkCategoryLabel category={category} />
   } else if (link) {
     return (
       <Link href={category.path || '/'}>
-        <RenderedCategoryLabel category={category} textClassName="link" />
+        <RenderedCategoryLabel category={category} textClassName={twMerge('link', className)} />
       </Link>
     )
   } else {
-    return <RenderedCategoryLabel category={category} />
+    return <RenderedCategoryLabel category={category} textClassName={className} />
   }
 }
 

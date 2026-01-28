@@ -11,10 +11,12 @@ export function OrganisingGroupLabel({
   organisingGroup,
   link,
   logo = 18,
+  className,
 }: {
   organisingGroup: OrganisingGroup
   link?: boolean | 'soft'
   logo?: boolean | number
+  className?: string
 }) {
   if (link === 'soft') {
     return <SoftLinkOrganisingGroupLabel organisingGroup={organisingGroup} logo={logo} />
@@ -23,13 +25,19 @@ export function OrganisingGroupLabel({
       <Link href={organisingGroup.path || '/'}>
         <RenderedOrganisingGroupLabel
           organisingGroup={organisingGroup}
-          textClassName="link"
+          textClassName={twMerge('link', className)}
           logo={logo}
         />
       </Link>
     )
   } else {
-    return <RenderedOrganisingGroupLabel organisingGroup={organisingGroup} logo={logo} />
+    return (
+      <RenderedOrganisingGroupLabel
+        organisingGroup={organisingGroup}
+        textClassName={className}
+        logo={logo}
+      />
+    )
   }
 }
 

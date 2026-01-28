@@ -3,18 +3,27 @@ import { useCampaignFilter } from '@/utils/global-state'
 import { getSlug } from '@/utils/payloadPath'
 import Emoji from 'a11y-react-emoji'
 import Link from 'next/link'
+import { twMerge } from 'tailwind-merge'
 
-export function CampaignLabel({ campaign, link }: { campaign: Campaign; link?: boolean | 'soft' }) {
+export function CampaignLabel({
+  campaign,
+  link,
+  className,
+}: {
+  campaign: Campaign
+  link?: boolean | 'soft'
+  className?: string
+}) {
   if (link === 'soft') {
     return <SoftLinkCampaignLabel campaign={campaign} />
   } else if (link) {
     return (
       <Link href={campaign.path || '/'}>
-        <RenderedCampaignLabel campaign={campaign} textClassName="link" />
+        <RenderedCampaignLabel campaign={campaign} textClassName={twMerge('link', className)} />
       </Link>
     )
   } else {
-    return <RenderedCampaignLabel campaign={campaign} />
+    return <RenderedCampaignLabel campaign={campaign} textClassName={className} />
   }
 }
 

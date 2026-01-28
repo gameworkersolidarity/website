@@ -2,18 +2,27 @@ import { Country } from '@/payload-types'
 import { useCountryISOA2Filter } from '@/utils/global-state'
 import Emoji from 'a11y-react-emoji'
 import Link from 'next/link'
+import { twMerge } from 'tailwind-merge'
 
-export function CountryLabel({ country, link }: { country: Country; link?: boolean | 'soft' }) {
+export function CountryLabel({
+  country,
+  link,
+  className,
+}: {
+  country: Country
+  link?: boolean | 'soft'
+  className?: string
+}) {
   if (link === 'soft') {
     return <SoftLinkCountryLabel country={country} />
   } else if (link) {
     return (
       <Link href={country.path || '/'}>
-        <RenderedCountryLabel country={country} textClassName="link" />
+        <RenderedCountryLabel country={country} textClassName={twMerge('link', className)} />
       </Link>
     )
   } else {
-    return <RenderedCountryLabel country={country} />
+    return <RenderedCountryLabel country={country} textClassName={className} />
   }
 }
 
