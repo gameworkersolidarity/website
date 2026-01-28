@@ -58,6 +58,16 @@ export function Footer({ navigation = [] }: FooterProps) {
               <a className="link" href="https://www.open.ac.uk">
                 The Open University
               </a>
+              and
+              <a className="link" href="https://www.kcl.ac.uk/digital-futures">
+                Digital Futures Institute, King&apos;s College London
+              </a>
+            </div>
+            <div>
+              Open source code on{' '}
+              <a className="link" href="https://github.com/gameworkersolidarity/website">
+                GitHub
+              </a>
             </div>
           </div>
         </div>
