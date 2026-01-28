@@ -58,7 +58,7 @@ export function Footer({ navigation = [] }: FooterProps) {
               <a className="link" href="https://www.open.ac.uk">
                 The Open University
               </a>
-              and
+              &nbsp;and&nbsp;
               <a className="link" href="https://www.kcl.ac.uk/digital-futures">
                 Digital Futures Institute, King&apos;s College London
               </a>
