@@ -131,7 +131,14 @@ export async function generateMetadataForSlug({
       const media = imageField as Media
       const imageUrl = getMediaUrl(media)
       if (imageUrl) {
-        images = [imageUrl]
+        images = [
+          {
+            url: imageUrl,
+            width: media.width || 1200,
+            height: media.height || 630,
+            alt: media.alt || 'Game Workers Solidarity Platform',
+          },
+        ]
       }
     }
   }
