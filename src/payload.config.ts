@@ -221,7 +221,7 @@ export default buildConfig({
     openapi({
       openapiVersion: '3.0',
       metadata: {
-        title: 'Game Workers Solidarity Platform API',
+        title: 'Game Worker Solidarity API',
         version: '1.0.0',
         description: `Free, public API for querying the Game Workers Solidarity archival database. Please let us know how you use it! ${projectStrings.email}`,
       },

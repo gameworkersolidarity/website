@@ -191,12 +191,12 @@ export async function GET() {
   const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Game Workers Solidarity Platform - Blog</title>
+    <title>Game Worker Solidarity - Blog</title>
     <link>${baseUrl}/blog</link>
-    <description>Latest blog posts from the Game Workers Solidarity Platform</description>
+    <description>Latest blog posts from Game Worker Solidarity</description>
     <language>en-US</language>
     <lastBuildDate>${formatRssDate(new Date())}</lastBuildDate>
-    <generator>Game Workers Solidarity Platform</generator>
+    <generator>Game Worker Solidarity</generator>
 ${rssItems}
   </channel>
 </rss>`
