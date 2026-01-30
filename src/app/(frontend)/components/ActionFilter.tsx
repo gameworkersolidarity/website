@@ -30,6 +30,27 @@ import { useMediaQuery } from 'usehooks-ts'
 import { CollapsibleListButton } from '@/components/CollapsibleList'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import posthog from 'posthog-js'
+
+// Helper function to track filter changes
+function trackFilterChange(
+  filterType: string,
+  newValue: string[] | null | undefined,
+  previousValue: string[] | null | undefined,
+) {
+  if (newValue && newValue.length > 0) {
+    posthog.capture('filter_applied', {
+      filter_type: filterType,
+      filter_values: newValue,
+      filter_count: newValue.length,
+    })
+  } else if (previousValue && previousValue.length > 0) {
+    posthog.capture('filter_cleared', {
+      filter_type: filterType,
+      previous_values: previousValue,
+    })
+  }
+}
 
 export type ActionFilterProps = {
   years?: boolean
@@ -199,7 +220,11 @@ export function ActionFilter({
                 valueKey="slug"
                 renderLabel={(d) => <CategoryLabel category={d} />}
                 value={filteredCategorySlug || []}
-                onChange={(value) => setCategoryFilter(value.length > 0 ? value : null)}
+                onChange={(value) => {
+                  const newValue = value.length > 0 ? value : null
+                  trackFilterChange('category', newValue, filteredCategorySlug)
+                  setCategoryFilter(newValue)
+                }}
               />
 
               {filteredCategories && filteredCategories.length > 0 && (
@@ -235,7 +260,11 @@ export function ActionFilter({
                 valueKey="slug"
                 renderLabel={(d) => <OrganisingGroupLabel organisingGroup={d} />}
                 value={filteredOrganisingGroupSlug || []}
-                onChange={(value) => setOrganisingGroupFilter(value.length > 0 ? value : null)}
+                onChange={(value) => {
+                  const newValue = value.length > 0 ? value : null
+                  trackFilterChange('organising_group', newValue, filteredOrganisingGroupSlug)
+                  setOrganisingGroupFilter(newValue)
+                }}
               />
               {filteredOrganisingGroups && filteredOrganisingGroups.length > 0 && (
                 <div className="flex flex-col gap-1 mt-1">
@@ -272,7 +301,11 @@ export function ActionFilter({
                 placeholder="company..."
                 options={filterContext.companies || []}
                 value={filteredCompanySlug || []}
-                onChange={(value) => setCompanyFilter(value.length > 0 ? value : null)}
+                onChange={(value) => {
+                  const newValue = value.length > 0 ? value : null
+                  trackFilterChange('company', newValue, filteredCompanySlug)
+                  setCompanyFilter(newValue)
+                }}
                 valueKey="slug"
                 renderLabel={(d) => <CompanyLabel company={d} />}
               />
@@ -306,7 +339,11 @@ export function ActionFilter({
                 valueKey="slug"
                 renderLabel={(d) => <CampaignLabel campaign={d} />}
                 value={filteredCampaignSlug || []}
-                onChange={(value) => setCampaignFilter(value.length > 0 ? value : null)}
+                onChange={(value) => {
+                  const newValue = value.length > 0 ? value : null
+                  trackFilterChange('campaign', newValue, filteredCampaignSlug)
+                  setCampaignFilter(newValue)
+                }}
               />
               {filteredCampaigns && filteredCampaigns.length > 0 && (
                 <div className="flex flex-col gap-1 mt-1">
@@ -337,7 +374,11 @@ export function ActionFilter({
                 placeholder="country..."
                 options={filterContext.countries || []}
                 value={filteredCountryISOA2 || []}
-                onChange={(value) => setCountryISOA2Filter(value.length > 0 ? value : null)}
+                onChange={(value) => {
+                  const newValue = value.length > 0 ? value : null
+                  trackFilterChange('country', newValue, filteredCountryISOA2)
+                  setCountryISOA2Filter(newValue)
+                }}
                 valueKey="isoA2"
                 renderLabel={(d) => <CountryLabel country={d} />}
               />
@@ -374,7 +415,15 @@ export function ActionFilter({
                   value: year.toString(),
                 }))}
                 value={filteredYear?.map(String) || []}
-                onChange={(value) => setYearFilter(value.length > 0 ? value.map(Number) : null)}
+                onChange={(value) => {
+                  const newValue = value.length > 0 ? value.map(Number) : null
+                  trackFilterChange(
+                    'year',
+                    newValue?.map(String) || null,
+                    filteredYear?.map(String) || null,
+                  )
+                  setYearFilter(newValue)
+                }}
               />
               {filteredYear && filteredYear.length > 0 && (
                 <span

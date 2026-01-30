@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { slugify } from 'payload/shared'
+import { getPostHogClient } from '@/lib/posthog-server'
 
 /**
  * Extract year and month from an ISO date string in YYYY-MM format
@@ -37,6 +38,24 @@ export async function POST(request: NextRequest) {
       draft: true,
     })
 
+    // Track server-side submission event
+    const posthog = getPostHogClient()
+    posthog.capture({
+      distinctId: 'anonymous_submission',
+      event: 'action_submission_created',
+      properties: {
+        action_id: action.id,
+        action_name: data.name,
+        action_date: data.date,
+        initiator: data.initiator,
+        has_categories: !!data.categories?.length,
+        has_countries: !!data.countries?.length,
+        has_companies: !!data.companies?.length,
+        has_organising_groups: !!data.organisingGroups?.length,
+        source: 'api',
+      },
+    })
+
     return NextResponse.json(
       {
         success: true,
@@ -47,6 +66,18 @@ export async function POST(request: NextRequest) {
     )
   } catch (error: any) {
     console.error('Error submitting action:', error)
+
+    // Track server-side submission failure
+    const posthog = getPostHogClient()
+    posthog.capture({
+      distinctId: 'anonymous_submission',
+      event: 'action_submission_failed_server',
+      properties: {
+        error_message: error.message || 'Unknown error',
+        source: 'api',
+      },
+    })
+
     return NextResponse.json(
       {
         success: false,

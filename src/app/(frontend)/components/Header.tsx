@@ -27,6 +27,7 @@ import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { SearchBar } from '@/components/SearchBar'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import posthog from 'posthog-js'
 
 type NavigationItem =
   | {
@@ -138,7 +139,16 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
           // Hamburger -> modal menu
           <div className="flex flex-row items-center gap-2">
             <Sheet open={open} onOpenChange={setOpen}>
-              <Button variant="ghost" onClick={() => setOpen(!open)}>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  const newState = !open
+                  setOpen(newState)
+                  if (newState) {
+                    posthog.capture('mobile_menu_opened')
+                  }
+                }}
+              >
                 <MenuIcon className="w-6 h-6" aria-label="Open menu" />
               </Button>
               <SheetContent side="left">
@@ -147,7 +157,17 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     {_navigation.map((item, index) => (
                       <div key={index} className="flex flex-col gap-2">
                         {'url' in item && item.url ? (
-                          <Link href={item.url} className="link">
+                          <Link
+                            href={item.url}
+                            className="link"
+                            onClick={() => {
+                              posthog.capture('navigation_link_clicked', {
+                                link_label: item.label,
+                                link_url: item.url,
+                                navigation_type: 'mobile',
+                              })
+                            }}
+                          >
                             <span className="flex items-center gap-1">
                               {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
                               {item.label}
@@ -163,11 +183,19 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                         )}
                         {'children' in item && item.children ? (
                           <div className="ml-3 flex flex-col gap-2">
-                            {item.children.map((child, index) => (
+                            {item.children.map((child, childIndex) => (
                               <Link
-                                key={index}
+                                key={childIndex}
                                 href={'url' in child && child.url ? child.url : ''}
                                 className="link"
+                                onClick={() => {
+                                  posthog.capture('navigation_link_clicked', {
+                                    link_label: child.label,
+                                    link_url: 'url' in child ? child.url : '',
+                                    parent_label: item.label,
+                                    navigation_type: 'mobile',
+                                  })
+                                }}
                               >
                                 <span className="flex items-center gap-1">
                                   {/* {'emoji' in child && child.emoji && (

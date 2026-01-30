@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import {
@@ -21,6 +21,7 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { ActionMetadata } from './ActionCard'
 import { DateTime } from './DateTime'
 import { formatDate } from 'date-fns'
+import posthog from 'posthog-js'
 
 interface SearchResults {
   actions: Action[]
@@ -43,6 +44,7 @@ export function SearchBar() {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const router = useRouter()
+  const lastTrackedQuery = useRef<string>('')
 
   // Debounce query
   useEffect(() => {
@@ -52,6 +54,17 @@ export function SearchBar() {
 
     return () => clearTimeout(timeoutId)
   }, [query])
+
+  // Track search when debounced query changes and has content
+  useEffect(() => {
+    if (debouncedQuery.trim() && debouncedQuery !== lastTrackedQuery.current) {
+      lastTrackedQuery.current = debouncedQuery
+      posthog.capture('search_performed', {
+        search_query: debouncedQuery,
+        query_length: debouncedQuery.length,
+      })
+    }
+  }, [debouncedQuery])
 
   // Use SWR for data fetching
   const searchKey = debouncedQuery.trim()
@@ -72,7 +85,21 @@ export function SearchBar() {
     categories: [],
   }
 
-  const handleSelect = (url: string) => {
+  const handleSelect = (url: string, resultType: string, resultName?: string) => {
+    // Track search result selection
+    posthog.capture('search_result_selected', {
+      search_query: debouncedQuery,
+      result_type: resultType,
+      result_url: url,
+      result_name: resultName,
+      total_results:
+        searchResults.actions.length +
+        searchResults.unions.length +
+        searchResults.companies.length +
+        searchResults.countries.length +
+        searchResults.categories.length,
+    })
+
     setOpen(false)
     setQuery('')
     router.push(url)
@@ -131,7 +158,9 @@ export function SearchBar() {
                     <CommandItem
                       key={union.id}
                       className="py-2!"
-                      onSelect={() => handleSelect(union.path || union.url || '/')}
+                      onSelect={() =>
+                        handleSelect(union.path || union.url || '/', 'union', union.name)
+                      }
                     >
                       <OrganisingGroupLabel organisingGroup={union} link={false} />
                     </CommandItem>
@@ -144,7 +173,9 @@ export function SearchBar() {
                     <CommandItem
                       key={company.id}
                       className="py-2!"
-                      onSelect={() => handleSelect(company.path || company.url || '/')}
+                      onSelect={() =>
+                        handleSelect(company.path || company.url || '/', 'company', company.name)
+                      }
                     >
                       <CompanyLabel company={company} />
                     </CommandItem>
@@ -157,7 +188,9 @@ export function SearchBar() {
                     <CommandItem
                       key={country.id}
                       className="py-2!"
-                      onSelect={() => handleSelect(country.path || country.url || '/')}
+                      onSelect={() =>
+                        handleSelect(country.path || country.url || '/', 'country', country.name)
+                      }
                     >
                       <CountryLabel country={country} />
                     </CommandItem>
@@ -170,7 +203,13 @@ export function SearchBar() {
                     <CommandItem
                       key={category.id}
                       className="py-2!"
-                      onSelect={() => handleSelect(category.path || category.url || '/')}
+                      onSelect={() =>
+                        handleSelect(
+                          category.path || category.url || '/',
+                          'category',
+                          category.name,
+                        )
+                      }
                     >
                       <CategoryLabel category={category} />
                     </CommandItem>
@@ -183,7 +222,9 @@ export function SearchBar() {
                     <CommandItem
                       key={action.id}
                       className="py-2!"
-                      onSelect={() => handleSelect(action.path || action.url || '/')}
+                      onSelect={() =>
+                        handleSelect(action.path || action.url || '/', 'action', action.name)
+                      }
                     >
                       <div className="flex flex-row gap-2 w-full overflow-hidden truncate items-baseline">
                         <DateTime

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { projectStrings } from '@/project-strings'
 import type { DataPage } from '@/payload-types'
 import { AdminEditBanner } from '@/components/Me'
+import posthog from 'posthog-js'
 
 export function DataPageClient({ initialData }: { initialData: DataPage }) {
   const { data: page } = useLivePreview({
@@ -29,7 +30,11 @@ export function DataPageClient({ initialData }: { initialData: DataPage }) {
         </header>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl">
-          <Link href="/api/docs" className="block">
+          <Link
+            href="/api/docs"
+            className="block"
+            onClick={() => posthog.capture('api_docs_clicked')}
+          >
             <Button
               variant="outline"
               size="lg"
@@ -53,7 +58,11 @@ export function DataPageClient({ initialData }: { initialData: DataPage }) {
             </Button>
           </Link>
 
-          <Link href="/api/graphql-playground" className="block">
+          <Link
+            href="/api/graphql-playground"
+            className="block"
+            onClick={() => posthog.capture('graphql_playground_clicked')}
+          >
             <Button
               variant="outline"
               size="lg"

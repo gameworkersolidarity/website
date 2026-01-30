@@ -27,6 +27,7 @@ import { CampaignLabel } from '@/components/CampaignLabel'
 import { twMerge } from 'tailwind-merge'
 import { ActionHistogramContext } from '@/components/ActionHistogramContext'
 import { DataPageFooter } from '@/components/DataPageFooter'
+import posthog from 'posthog-js'
 
 export function ActionPage({
   initialAction,
@@ -325,10 +326,21 @@ function ActionBreadcrumbNavLink({
   description?: string
   currentActionDate: string
 }) {
+  const handleClick = () => {
+    posthog.capture('related_action_clicked', {
+      direction,
+      relation_type: label,
+      target_action_name: action.name,
+      target_action_date: action.date,
+      target_action_path: action.path,
+    })
+  }
+
   return (
     <Link
       key={action.path!}
       href={action.path!}
+      onClick={handleClick}
       className={twMerge('flex items-center gap-2 hover:bg-snot-200 p-2 rounded-md justify-start')}
     >
       {direction !== 'sameDay' && (

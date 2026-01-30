@@ -12,6 +12,7 @@ import { RenderedCategoryLabel } from '@/components/CategoryLabel'
 import { RenderedCompanyLabel } from '@/components/CompanyLabel'
 import { RenderedCountryLabel } from '@/components/CountryLabel'
 import { RenderedOrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
+import posthog from 'posthog-js'
 
 interface ActionSubmissionFormProps {
   categories: Category[]
@@ -125,6 +126,20 @@ export function ActionSubmissionForm({
       }
 
       setSubmitStatus('success')
+
+      // Track successful submission
+      posthog.capture('action_submitted', {
+        action_name: data.name,
+        action_date: data.date,
+        initiator: data.initiator,
+        categories_count: selectedCategories.length,
+        countries_count: selectedCountries.length,
+        companies_count: selectedCompanies.length,
+        organising_groups_count: selectedOrganisingGroups.length,
+        has_headcount: !!data.headcount,
+        has_location: !!data.location,
+      })
+
       // Reset form
       ;(e.target as HTMLFormElement).reset()
       setSelectedCategories([])
@@ -135,6 +150,12 @@ export function ActionSubmissionForm({
     } catch (error: any) {
       setSubmitStatus('error')
       setErrorMessage(error.message || 'An error occurred while submitting the action')
+
+      // Track submission failure
+      posthog.capture('action_submission_failed', {
+        error_message: error.message || 'Unknown error',
+      })
+      posthog.captureException(error)
     } finally {
       setIsSubmitting(false)
     }
