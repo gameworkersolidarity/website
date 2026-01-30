@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const description =
       (aboutPageData?.description ? lexicalToPlainText(aboutPageData.description) : '') ||
       projectStrings.description
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,
@@ -42,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
   } catch (error) {
     const title = 'About the project'
     const description = projectStrings.description
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,

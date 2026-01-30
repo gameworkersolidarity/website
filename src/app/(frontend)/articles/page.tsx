@@ -11,8 +11,8 @@ import { DraftBadge } from '@/components/DraftBadge'
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Articles'
-  const description = 'News & articles from the Game Workers Solidarity Project.'
-  const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+  const description = 'News & articles from Game Worker Solidarity.'
+  const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
   return {
     title,

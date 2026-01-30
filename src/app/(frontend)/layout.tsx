@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: 'Game Worker Solidarity',
     description:
       'Tracking solidarity actions across the global video game industry. Archive of worker organizing, strikes, unionization efforts, and collective action.',
-    images: [`${projectStrings.baseUrl}/icon/icon.png`],
+    images: [`${projectStrings.baseUrl}/images/game-workers-share-card-new.png`],
     creator: projectStrings.twitterHandle,
   },
   robots: {
