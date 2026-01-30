@@ -132,7 +132,7 @@ export function ActionFilter({
             <Input
               type="text"
               placeholder="Search actions..."
-              value={searchQuery}
+              value={searchQuery || ''}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="px-5 text-sm shrink-0 grow"
             />

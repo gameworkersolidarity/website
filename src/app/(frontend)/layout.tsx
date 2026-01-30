@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import '@/app/globals.css'
@@ -113,34 +114,36 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { authStatus } = await loadDraftMode(payload)
 
   return (
-    <UserContextProvider user={authStatus?.user}>
-      <html lang="en" suppressHydrationWarning={true}>
-        <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
-          <ThemeProvider defaultTheme="light" disableTransitionOnChange>
-            <Suspense
-              fallback={
-                <div>
-                  <Header navigation={headerData?.navigation || []} />
-                  <main className="min-h-[75vh]">
-                    <div className="flex flex-col min-h-screen items-center justify-center bg-background">
-                      <div className="text-base font-semibold opacity-75">Loading...</div>
+    <NuqsAdapter>
+      <UserContextProvider user={authStatus?.user}>
+        <html lang="en" suppressHydrationWarning={true}>
+          <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
+            <ThemeProvider defaultTheme="light" disableTransitionOnChange>
+              <Suspense
+                fallback={
+                  <div>
+                    <Header navigation={headerData?.navigation || []} />
+                    <main className="min-h-[75vh]">
+                      <div className="flex flex-col min-h-screen items-center justify-center bg-background">
+                        <div className="text-base font-semibold opacity-75">Loading...</div>
+                      </div>
+                    </main>
+                    <div className="margin-top">
+                      <Footer navigation={footerNav} />
                     </div>
-                  </main>
-                  <div className="margin-top">
-                    <Footer navigation={footerNav} />
                   </div>
+                }
+              >
+                <Header navigation={headerData?.navigation || []} />
+                <main className="min-h-[75vh]">{children}</main>
+                <div className="margin-top">
+                  <Footer navigation={footerNav} />
                 </div>
-              }
-            >
-              <Header navigation={headerData?.navigation || []} />
-              <main className="min-h-[75vh]">{children}</main>
-              <div className="margin-top">
-                <Footer navigation={footerNav} />
-              </div>
-            </Suspense>
-          </ThemeProvider>
-        </body>
-      </html>
-    </UserContextProvider>
+              </Suspense>
+            </ThemeProvider>
+          </body>
+        </html>
+      </UserContextProvider>
+    </NuqsAdapter>
   )
 }

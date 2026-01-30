@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { DisplayInitiator } from '@/utils/displayInitiator'
 import { ActionInitiatorFilter } from '@/collections/enums'
 import { twMerge } from 'tailwind-merge'
-import { useActionFilterContext } from './ActionFilterContextProvider'
+import { ActionFilterContextValue, useActionFilterContext } from './ActionFilterContextProvider'
 import { CategoryLabel } from './CategoryLabel'
 import { CountryLabel } from './CountryLabel'
 import { CompanyLabel } from './CompanyLabel'
@@ -35,7 +35,7 @@ export function CompactActionList({
 }: {
   actions: Action[]
   linkStyle?: 'soft' | 'hard'
-  searchQuery?: string
+  searchQuery: ActionFilterContextValue['searchQuery']
 }) {
   const { highlights } = useActionFilterContext()
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())

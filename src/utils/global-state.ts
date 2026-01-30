@@ -1,9 +1,9 @@
-import { ActionInitiator, ActionInitiatorFilter } from '@/collections/enums'
+import { ActionInitiatorFilter } from '@/collections/enums'
 import { projectStrings } from '@/project-strings'
 import { SortingState } from '@tanstack/react-table'
-import { atom, useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { noop } from 'lodash'
+import { parseAsArrayOf, parseAsString, parseAsStringEnum, useQueryState } from 'nuqs'
 import qs from 'query-string'
 
 export enum ZoomLevel {
@@ -28,18 +28,8 @@ export enum ActionFilterKey {
   Campaign = 'campaign',
   Initiator = 'initiator',
   Year = 'year',
+  SearchQuery = 'text',
 }
-
-// Jotai atoms for filter state
-export const countryISOA2FilterAtom = atom<string[] | null>(null)
-export const categoryFilterAtom = atom<string[] | null>(null)
-export const companyFilterAtom = atom<string[] | null>(null)
-export const organisingGroupFilterAtom = atom<string[] | null>(null)
-export const campaignFilterAtom = atom<string[] | null>(null)
-export const initiatorFilterAtom = atom<ActionInitiatorFilter | null>(
-  ActionInitiatorFilter.WORKER_LED,
-)
-export const yearFilterAtom = atom<string[] | null>(null)
 
 export function getFilterPath(
   filter: { [key in ActionFilterKey]?: string | number },
@@ -63,7 +53,12 @@ export function getFilterPath(
 }
 
 export function useCountryISOA2Filter(override?: string | string[] | null) {
-  const [countryISOA2, setCountryISOA2] = useAtom(countryISOA2FilterAtom)
+  const [countryISOA2, setCountryISOA2] = useQueryState(
+    ActionFilterKey.Country,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   if (override) {
     const overrideArray = Array.isArray(override) ? override : override ? [override] : null
     return [overrideArray, noop] as const
@@ -72,7 +67,12 @@ export function useCountryISOA2Filter(override?: string | string[] | null) {
 }
 
 export function useCategoryFilter(override?: string | string[] | null) {
-  const [category, setCategory] = useAtom(categoryFilterAtom)
+  const [category, setCategory] = useQueryState(
+    ActionFilterKey.Category,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   if (override) {
     const overrideArray = Array.isArray(override) ? override : override ? [override] : null
     return [overrideArray, noop] as const
@@ -81,7 +81,12 @@ export function useCategoryFilter(override?: string | string[] | null) {
 }
 
 export function useCompanyFilter(override?: string | string[] | null) {
-  const [company, setCompany] = useAtom(companyFilterAtom)
+  const [company, setCompany] = useQueryState(
+    ActionFilterKey.Company,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   if (override) {
     const overrideArray = Array.isArray(override) ? override : override ? [override] : null
     return [overrideArray, noop] as const
@@ -90,7 +95,12 @@ export function useCompanyFilter(override?: string | string[] | null) {
 }
 
 export function useOrganisingGroupFilter(override?: string | string[] | null) {
-  const [organisingGroup, setOrganisingGroup] = useAtom(organisingGroupFilterAtom)
+  const [organisingGroup, setOrganisingGroup] = useQueryState(
+    ActionFilterKey.OrganisingGroup,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   if (override) {
     const overrideArray = Array.isArray(override) ? override : override ? [override] : null
     return [overrideArray, noop] as const
@@ -99,7 +109,12 @@ export function useOrganisingGroupFilter(override?: string | string[] | null) {
 }
 
 export function useCampaignFilter(override?: string | string[] | null) {
-  const [campaign, setCampaign] = useAtom(campaignFilterAtom)
+  const [campaign, setCampaign] = useQueryState(
+    ActionFilterKey.Campaign,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   if (override) {
     const overrideArray = Array.isArray(override) ? override : override ? [override] : null
     return [overrideArray, noop] as const
@@ -108,12 +123,22 @@ export function useCampaignFilter(override?: string | string[] | null) {
 }
 
 export function useInitiatorFilter(override?: ActionInitiatorFilter | null) {
-  const [initiator, setInitiator] = useAtom(initiatorFilterAtom)
+  const [initiator, setInitiator] = useQueryState(
+    ActionFilterKey.Initiator,
+    parseAsStringEnum(Object.values(ActionInitiatorFilter)).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }
 
 export function useYearFilter(override?: string | number | string[] | number[] | null) {
-  const [year, setYear] = useAtom(yearFilterAtom)
+  const [year, setYear] = useQueryState(
+    ActionFilterKey.Year,
+    parseAsArrayOf(parseAsString).withOptions({
+      clearOnDefault: true,
+    }),
+  )
   if (override) {
     const overrideArray = Array.isArray(override)
       ? override.map((v) => String(v))
@@ -122,15 +147,15 @@ export function useYearFilter(override?: string | number | string[] | number[] |
         : null
     return [overrideArray?.map(Number) || null, noop] as const
   }
-  // Convert string array to number array for year filter
-  const setYearFilter = (value: string | number | string[] | number[] | null) => {
-    if (value === null) {
-      setYear(null)
-    } else if (Array.isArray(value)) {
-      setYear(value.map((v) => String(v)))
-    } else {
-      setYear([String(value)])
-    }
-  }
-  return [year?.map(Number) || null, setYearFilter] as const
+  return [year?.map(Number) || null, setYear] as const
+}
+
+export function useSearchQueryFilter() {
+  const [searchQuery, setSearchQuery] = useQueryState(
+    ActionFilterKey.SearchQuery,
+    parseAsString.withOptions({
+      clearOnDefault: true,
+    }),
+  )
+  return [searchQuery, setSearchQuery] as const
 }

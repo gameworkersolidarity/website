@@ -10,6 +10,7 @@ import {
   useCountryISOA2Filter,
   useCampaignFilter,
   useInitiatorFilter,
+  useSearchQueryFilter,
 } from '@/utils/global-state'
 import { getYear } from 'date-fns'
 import { noop } from 'lodash'
@@ -48,7 +49,7 @@ export type ActionHighlights = {
   }
 }
 
-export const ActionFilterContext = createContext<{
+export type ActionFilterContextValue = {
   filteredActions: Action[]
   countries: Country[]
   categories: Category[]
@@ -68,9 +69,9 @@ export const ActionFilterContext = createContext<{
   filteredInitiator?: ActionInitiatorFilter | null
   filteredYear?: number[] | null
   availableYears: number[]
-  searchQuery: string
-  setSearchQuery: Dispatch<SetStateAction<string>>
+  searchQuery: string | null
   highlights: ActionHighlights
+  setSearchQuery: ReturnType<typeof useSearchQueryFilter>[1]
   setCountryISOA2Filter: ReturnType<typeof useCountryISOA2Filter>[1]
   setCategoryFilter: ReturnType<typeof useCategoryFilter>[1]
   setCompanyFilter: ReturnType<typeof useCompanyFilter>[1]
@@ -80,13 +81,15 @@ export const ActionFilterContext = createContext<{
   setYearFilter: ReturnType<typeof useYearFilter>[1]
   setSelectedPopupIds: Dispatch<SetStateAction<string[] | null>>
   selectedPopupIds: string[] | null
-}>({
+}
+
+export const ActionFilterContext = createContext<ActionFilterContextValue>({
   filteredActions: [],
   selectedPopupIds: null,
   availableYears: [],
-  searchQuery: '',
-  setSearchQuery: noop,
+  searchQuery: null,
   highlights: {},
+  setSearchQuery: noop as any,
   setCountryISOA2Filter: noop,
   setCategoryFilter: noop,
   setCompanyFilter: noop,
@@ -205,7 +208,7 @@ export function ActionFilterContextProvider({
   overrideFilteredYear,
 }: ActionFilterContextProviderProps) {
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[] | null>(null)
-  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useSearchQueryFilter()
   const [filteredCountryISOA2, setCountryISOA2Filter] = useCountryISOA2Filter(
     overrideFilteredCountryISOA2,
   )
@@ -461,7 +464,7 @@ export function ActionFilterContextProvider({
   )
 
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) {
+    if (!searchQuery?.trim()) {
       return {
         actions: preFilteredActions,
         highlights: {},

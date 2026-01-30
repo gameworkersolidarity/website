@@ -28,6 +28,7 @@ import { CountryLabel } from './CountryLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { TimelineLabelProperty } from '@/global-types'
+import { ActionFilterContextValue } from './ActionFilterContextProvider'
 
 export function ActionTimeline({
   actions,
@@ -36,7 +37,7 @@ export function ActionTimeline({
 }: {
   actions: Action[]
   labelProperty?: TimelineLabelProperty
-  searchQuery?: string
+  searchQuery: ActionFilterContextValue['searchQuery']
 }) {
   const sortedActions = useMemo(
     () => [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
@@ -112,7 +113,7 @@ export function Slideshow({
   actions: Action[]
   currentActionId: string | null
   setCurrentActionId: (id: string) => void
-  searchQuery?: string
+  searchQuery: ActionFilterContextValue['searchQuery']
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map())

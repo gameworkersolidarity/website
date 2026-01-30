@@ -30,7 +30,7 @@ import { DisplayInitiator } from '@/utils/displayInitiator'
 import { CampaignLabel } from './CampaignLabel'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { HighlightText } from './HighlightText'
-import { useActionFilterContext } from './ActionFilterContextProvider'
+import { ActionFilterContextValue, useActionFilterContext } from './ActionFilterContextProvider'
 import { DraftBadge } from '@/components/DraftBadge'
 
 // Helper component to highlight search terms in Lexical description
@@ -81,7 +81,7 @@ interface CardProps {
   contextProps?: Partial<ContextProps>
   displayStandaloneInfo?: boolean
   links?: 'soft' | boolean
-  searchQuery?: string
+  searchQuery?: ActionFilterContextValue['searchQuery']
 }
 
 interface ContextProps {
@@ -116,7 +116,7 @@ export function ActionsList({
   mini,
   fullDisplay = false,
   searchQuery,
-}: ListProps & { searchQuery?: string }) {
+}: ListProps & { searchQuery: ActionFilterContextValue['searchQuery'] }) {
   const [openYears, setOpenYears] = useState<string[]>([])
 
   const actionsByYear = useMemo(() => {
@@ -264,7 +264,7 @@ export function ActionItem({
 }: {
   data: Action
   links?: 'soft' | boolean
-  searchQuery?: string
+  searchQuery: ActionFilterContextValue['searchQuery']
 }) {
   const { highlights } = useActionFilterContext()
   const actionHighlights = highlights[data.id]
@@ -454,12 +454,7 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
   )
 }
 
-export function ActionCard({
-  data,
-  displayStandaloneInfo = false,
-  links = true,
-  searchQuery,
-}: CardProps) {
+export function ActionCard({ data, displayStandaloneInfo = false, links = true }: CardProps) {
   const { highlights } = useActionFilterContext()
   const actionHighlights = highlights[data.id]
   const nameRanges = actionHighlights?.name
