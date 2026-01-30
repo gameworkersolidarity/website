@@ -5,6 +5,9 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   ui_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   // Include the defaults option as required by PostHog
   defaults: '2025-11-30',
+  // Cookieless tracking: no cookies or local/session storage. Requires "Cookieless server hash mode"
+  // in PostHog project settings (Project Settings > Web analytics).
+  cookieless_mode: 'always',
   // Enables capturing unhandled exceptions via Error Tracking
   capture_exceptions: true,
   // Turn on debug in development mode
