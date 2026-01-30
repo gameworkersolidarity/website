@@ -96,6 +96,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
+      suppressHydrationWarning
       data-slot="dialog-title"
       className={cn('text-lg leading-none font-semibold', className)}
       {...props}
