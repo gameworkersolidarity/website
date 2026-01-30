@@ -29,6 +29,7 @@ import {
 import { useMediaQuery } from 'usehooks-ts'
 import { CollapsibleListButton } from '@/components/CollapsibleList'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export type ActionFilterProps = {
   years?: boolean
@@ -89,7 +90,9 @@ export function ActionFilter({
 
   const isMobile = useMediaQuery('(max-width: 768px)')
 
-  const [open, setOpen] = useState(!isMobile)
+  const [__openState, setOpen] = useState(!isMobile)
+
+  const isExpanded = __openState || !isMobile
 
   return (
     <Collapsible
@@ -97,79 +100,84 @@ export function ActionFilter({
         'flex flex-col items-baseline',
         initiators ? 'flex-col' : 'md:flex-row gap-4',
       )}
-      open={open}
+      open={isExpanded}
       onOpenChange={setOpen}
     >
       <section
         className={twMerge(
-          'shrink-0 flex flex-row items-center justify-between gap-2',
+          'shrink-0 flex flex-col md:flex-row items-center justify-between gap-2',
           initiators && 'w-full ',
         )}
       >
         <div className="flex flex-row items-baseline gap-2">
-          <CollapsibleTrigger className="flex flex-row items-center gap-2 cursor-pointer">
-            <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
-            {isMobile && (
-              <CollapsibleListButton open={open} className="w-3.5 h-3.5 text-stone-500" />
+          <CollapsibleTrigger className="flex flex-row gap-2">
+            {isMobile ? (
+              <Button
+                onClick={() => setOpen(!__openState)}
+                size="sm"
+                className="cursor-pointer py-1! h-auto!"
+                variant="outline"
+              >
+                {!isExpanded ? 'Show filters' : 'Hide filters'}
+                <CollapsibleListButton open={isExpanded} className="w-3.5 h-3.5 text-stone-500" />
+              </Button>
+            ) : (
+              <>
+                <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
+                {isMobile && (
+                  <CollapsibleListButton open={isExpanded} className="w-3.5 h-3.5 text-stone-500" />
+                )}
+              </>
             )}
           </CollapsibleTrigger>
-          {/* {((filteredCountryISOA2 && filteredCountryISOA2.length > 0) ||
-            (filteredCategorySlug && filteredCategorySlug.length > 0) ||
-            (filteredCompanySlug && filteredCompanySlug.length > 0) ||
-            (filteredOrganisingGroupSlug && filteredOrganisingGroupSlug.length > 0) ||
-            (filteredCampaignSlug && filteredCampaignSlug.length > 0) ||
-            (filteredInitiator && filteredInitiator !== ActionInitiator.WORKER_LED) ||
-            (filteredYear && filteredYear.length > 0)) && (
-            <div className="link" onClick={clearAllFilters}>
-              reset ⤬
-            </div>
-          )} */}
         </div>
-        <div className="flex flex-row items-center gap-2">
-          {/* Search input - always visible */}
-          <div className="relative flex items-center">
-            <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
-            <Input
-              type="text"
-              placeholder="Search actions..."
-              value={searchQuery || ''}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="px-5 text-sm shrink-0 grow"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600 grow-0"
-                aria-label="Clear search"
+        {isExpanded && (
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+            {/* Search input - always visible */}
+            <div className="relative flex items-center w-full">
+              <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
+              <Input
+                type="text"
+                placeholder="Search actions..."
+                value={searchQuery || ''}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-5 text-sm shrink-0 grow"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 h-4 w-4 text-gray-400 hover:text-gray-600 grow-0"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {initiators && (
+              <RadioGroup
+                value={filteredInitiator || ''}
+                onValueChange={(value) => setInitiatorFilter(value as ActionInitiatorFilter)}
+                className="flex flex-row items-right gap-3"
               >
-                <X className="h-4 w-4" />
-              </button>
+                {[
+                  { label: 'Worker-led', value: ActionInitiatorFilter.WORKER_LED },
+                  { label: 'Boss-led', value: ActionInitiatorFilter.BOSS_LED },
+                  { label: 'All', value: ActionInitiatorFilter.ALL },
+                ].map((initiator) => (
+                  <div key={initiator.label} className="flex items-center gap-2">
+                    <Label htmlFor={initiator.label} className="text-xs uppercase">
+                      <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
+                      <DisplayInitiator
+                        initiator={initiator.value as ActionInitiatorFilter}
+                        link="soft"
+                      />
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
             )}
           </div>
-          {initiators && (
-            <RadioGroup
-              value={filteredInitiator || ''}
-              onValueChange={(value) => setInitiatorFilter(value as ActionInitiatorFilter)}
-              className="hidden md:flex flex-row items-right gap-3"
-            >
-              {[
-                { label: 'Worker-led', value: ActionInitiatorFilter.WORKER_LED },
-                { label: 'Boss-led', value: ActionInitiatorFilter.BOSS_LED },
-                { label: 'All', value: ActionInitiatorFilter.ALL },
-              ].map((initiator) => (
-                <div key={initiator.label} className="flex items-center gap-2">
-                  <Label htmlFor={initiator.label} className="text-xs uppercase">
-                    <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
-                    <DisplayInitiator
-                      initiator={initiator.value as ActionInitiatorFilter}
-                      link="soft"
-                    />
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          )}
-        </div>
+        )}
       </section>
       <CollapsibleContent className="w-full">
         <div

@@ -410,7 +410,7 @@ export function CompactActionList({
                   {/* Link to full page */}
                   <div className="mt-2">
                     <Link href={action.path || '/'}>
-                      <Button size="sm" className="text-xs py-1! block! h-auto!">
+                      <Button size="sm" className="text-xs py-1! block! h-auto!" variant="outline">
                         View full details →
                       </Button>
                     </Link>
