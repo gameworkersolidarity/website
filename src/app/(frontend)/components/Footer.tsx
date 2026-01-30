@@ -7,12 +7,10 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu'
 import Link from 'next/link'
-import Emoji from 'a11y-react-emoji'
 
 interface NavigationItem {
   label: string
   url: string
-  emoji?: string
 }
 
 interface FooterProps {
@@ -31,10 +29,7 @@ export function Footer({ navigation = [] }: FooterProps) {
                   {'url' in item && item.url ? (
                     <NavigationMenuLink asChild>
                       <Link href={item.url}>
-                        <span className="flex items-center gap-1">
-                          {item.emoji && <Emoji symbol={item.emoji} />}
-                          {item.label}
-                        </span>
+                        <span className="flex items-center gap-1">{item.label}</span>
                       </Link>
                     </NavigationMenuLink>
                   ) : null}
