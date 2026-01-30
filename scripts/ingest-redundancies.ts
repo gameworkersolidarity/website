@@ -298,12 +298,12 @@ async function processRedundancies(
   const rows = parseCsv(filePath)
   console.log(`\n📊 Found ${rows.length} redundancy records to process`)
 
-  // Get Or Create Redundancy Category
+  // Get Or Create Redundancy Category (published so it appears in the app; categories have drafts)
   const REDUNDANCY_CATEGORY = await payloadGetOrCreateModel(
     payload,
     'categories',
     { name: 'Redundancy', slug: 'redundancy' },
-    { name: 'Redundancy', slug: 'redundancy' },
+    { name: 'Redundancy', slug: 'redundancy', _status: 'published' },
   )
 
   if (rows.length === 0) {
@@ -528,10 +528,13 @@ async function processRedundancies(
     const actionLocation =
       row['Studio Location']?.trim() || row['Parent Location']?.trim() || undefined
 
-    // Create action record
+    // Create action record (slug includes date so same studio on different dates get unique slugs)
+    const actionSlug =
+      slugify(`${normalizedDate} ${actionTitle} `) ||
+      `${normalizedDate}-${slugify(actionTitle) || actionTitle}`
     const actionData: Omit<Action, 'id' | 'updatedAt' | 'createdAt'> = {
       name: actionTitle,
-      slug: slugify(actionTitle) || actionTitle,
+      slug: actionSlug,
       date: normalizedDate,
       headcount: headcount || undefined,
       location: actionLocation,
