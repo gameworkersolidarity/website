@@ -41,7 +41,7 @@ export function CountryPage({
     depth: 2,
   })
 
-  const primaryColor = page.color!
+  const primaryColor = '#EEE'
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
 
   return (

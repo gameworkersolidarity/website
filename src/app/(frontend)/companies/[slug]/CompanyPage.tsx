@@ -45,7 +45,7 @@ export function CompanyPage({
     depth: 2,
   })
 
-  const primaryColor = page.color!
+  const primaryColor = '#FF8038'
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
 
   return (

@@ -213,8 +213,6 @@ export const CountrySchema = z.object({
     .optional()
     .nullable(),
   featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
-  primaryColor: z.string().optional().nullable(),
-  color: z.string().optional(),
   isoA2: z.string(),
   emoji: z.string().optional(),
   bbox: z
@@ -288,8 +286,6 @@ export const CategorySchema = z.object({
     .optional()
     .nullable(),
   featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
-  primaryColor: z.string().optional().nullable(),
-  color: z.string().optional(),
   path: z.string().optional(),
   url: z.string().optional(),
   adminPath: z.string().optional(),
@@ -618,8 +614,6 @@ export const CompanySchema: z.ZodSchema<Company> = z.lazy(() =>
       .optional()
       .nullable(),
     featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
-    primaryColor: z.string().optional().nullable(),
-    color: z.string().optional(),
     countries: z
       .array(z.union([z.string(), CountrySchema]))
       .optional()
@@ -807,8 +801,6 @@ export const OrganisingGroupSchema: z.ZodSchema<OrganisingGroup> = z.lazy(() =>
       .nullable(),
     featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
     logo: z.union([z.string().nullable(), MediaSchema]).optional(),
-    primaryColor: z.string().optional().nullable(),
-    color: z.string().optional(),
     fullName: z.string().optional().nullable(),
     countries: z
       .array(z.union([z.string(), CountrySchema]))

@@ -1,9 +1,7 @@
-import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
-import { getPayload, slugField, type CollectionConfig } from 'payload'
-import config from '@/payload.config'
+import { slugField, type CollectionConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
-import { Campaign, Action } from '@/payload-types'
+import { Campaign } from '@/payload-types'
 import { TimelineLabelProperty } from '@/global-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 

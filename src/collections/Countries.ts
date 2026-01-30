@@ -1,5 +1,4 @@
 import { slugField, type CollectionConfig } from 'payload'
-import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { getCountryFlag } from '@/utils/iso'
 import { projectStrings } from '@/project-strings'
 import { getBboxForCountry, getIsoA3ForCountry, getLatLngForCountry } from '@/utils/geo'
@@ -71,31 +70,6 @@ export const Countries: CollectionConfig = {
       relationTo: 'media',
       admin: {
         position: 'sidebar',
-      },
-    },
-    colorPickerField({
-      name: 'primaryColor',
-      label: 'Primary Color',
-      admin: {
-        position: 'sidebar',
-        description: 'Choose a color for this page',
-      },
-    }),
-    {
-      name: 'color',
-      type: 'text',
-      virtual: true,
-      admin: {
-        hidden: true,
-        readOnly: true,
-      },
-      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
-      hooks: {
-        afterRead: [
-          ({ siblingData }) => {
-            return siblingData.primaryColor || '#EEE'
-          },
-        ],
       },
     },
     {

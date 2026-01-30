@@ -47,7 +47,7 @@ export function OrganisingGroupPage({
     depth: 2,
   })
 
-  const primaryColor = page.color!
+  const primaryColor = '#3B97EC'
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
   const featuredMedia =
     page.featuredImage && typeof page.featuredImage === 'object'

@@ -391,11 +391,6 @@ export interface Country {
     [k: string]: unknown;
   } | null;
   featuredImage?: (string | null) | Media;
-  /**
-   * Choose a color for this page
-   */
-  primaryColor?: string | null;
-  color?: string;
   isoA2: string;
   emoji?: string;
   bbox?:
@@ -453,11 +448,6 @@ export interface Company {
     [k: string]: unknown;
   } | null;
   featuredImage?: (string | null) | Media;
-  /**
-   * Choose a color for this page
-   */
-  primaryColor?: string | null;
-  color?: string;
   /**
    * Countries where this company has workers.
    */
@@ -640,11 +630,6 @@ export interface Category {
     [k: string]: unknown;
   } | null;
   featuredImage?: (string | null) | Media;
-  /**
-   * Choose a color for this page
-   */
-  primaryColor?: string | null;
-  color?: string;
   path?: string;
   url?: string;
   adminPath?: string;
@@ -686,11 +671,6 @@ export interface OrganisingGroup {
   } | null;
   featuredImage?: (string | null) | Media;
   logo?: (string | null) | Media;
-  /**
-   * Choose a color for this page
-   */
-  primaryColor?: string | null;
-  color?: string;
   fullName?: string | null;
   /**
    * Countries where this group organises.
@@ -1108,8 +1088,6 @@ export interface CountriesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   featuredImage?: T;
-  primaryColor?: T;
-  color?: T;
   isoA2?: T;
   emoji?: T;
   bbox?: T;
@@ -1134,8 +1112,6 @@ export interface CompaniesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   featuredImage?: T;
-  primaryColor?: T;
-  color?: T;
   countries?: T;
   actions?: T;
   path?: T;
@@ -1167,8 +1143,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   emoji?: T;
   description?: T;
   featuredImage?: T;
-  primaryColor?: T;
-  color?: T;
   path?: T;
   url?: T;
   adminPath?: T;
@@ -1189,8 +1163,6 @@ export interface OrganisingGroupsSelect<T extends boolean = true> {
   description?: T;
   featuredImage?: T;
   logo?: T;
-  primaryColor?: T;
-  color?: T;
   fullName?: T;
   countries?: T;
   companies?: T;

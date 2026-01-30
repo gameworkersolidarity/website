@@ -1,4 +1,3 @@
-import { colorPickerField } from '@/components/payloadcms/ColourPickerField'
 import { projectStrings } from '@/project-strings'
 import { slugField, type CollectionConfig } from 'payload'
 import { getPath } from '@/utils/payloadPath'
@@ -78,31 +77,6 @@ export const OrganisingGroups: CollectionConfig = {
       relationTo: 'media',
       admin: {
         position: 'sidebar',
-      },
-    },
-    colorPickerField({
-      name: 'primaryColor',
-      label: 'Primary Color',
-      admin: {
-        position: 'sidebar',
-        description: 'Choose a color for this page',
-      },
-    }),
-    {
-      name: 'color',
-      type: 'text',
-      virtual: true,
-      admin: {
-        hidden: true,
-        readOnly: true,
-      },
-      typescriptSchema: [({ jsonSchema }) => ({ ...jsonSchema, type: 'string' })],
-      hooks: {
-        afterRead: [
-          ({ siblingData }) => {
-            return siblingData.primaryColor || '#3B97EC'
-          },
-        ],
       },
     },
     {
