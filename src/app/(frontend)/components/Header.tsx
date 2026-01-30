@@ -12,19 +12,29 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import dynamic from 'next/dynamic'
+const Sheet = dynamic(() => import('@/components/ui/sheet').then((mod) => mod.Sheet), {
+  ssr: false,
+})
+const SheetContent = dynamic(
+  () => import('@/components/ui/sheet').then((mod) => mod.SheetContent),
+  { ssr: false },
+)
+const SheetDescription = dynamic(
+  () => import('@/components/ui/sheet').then((mod) => mod.SheetDescription),
+  { ssr: false },
+)
+const SheetHeader = dynamic(() => import('@/components/ui/sheet').then((mod) => mod.SheetHeader), {
+  ssr: false,
+})
 import { useMediaQuery } from 'usehooks-ts'
 import { Button } from '@/components/ui/button'
 import { MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
-import { SearchBar } from '@/components/SearchBar'
+const SearchBar = dynamic(() => import('@/components/SearchBar').then((mod) => mod.SearchBar), {
+  ssr: false,
+})
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import posthog from 'posthog-js'

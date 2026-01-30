@@ -5,13 +5,26 @@ import { Command as CommandPrimitive } from 'cmdk'
 import { SearchIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import dynamic from 'next/dynamic'
+
+const Dialog = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.Dialog), {
+  ssr: false,
+})
+const DialogContent = dynamic(
+  () => import('@/components/ui/dialog').then((mod) => mod.DialogContent),
+  { ssr: false },
+)
+const DialogDescription = dynamic(
+  () => import('@/components/ui/dialog').then((mod) => mod.DialogDescription),
+  { ssr: false },
+)
+const DialogHeader = dynamic(
+  () => import('@/components/ui/dialog').then((mod) => mod.DialogHeader),
+  { ssr: false },
+)
+const DialogTitle = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTitle), {
+  ssr: false,
+})
 
 function Command({
   className,
