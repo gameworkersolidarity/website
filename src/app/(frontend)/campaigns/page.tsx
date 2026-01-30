@@ -92,15 +92,34 @@ export default async function CampaignsPage() {
 
   const __campaigns = campaignResults.docs as Campaign[]
 
+  // Create a dictionary of campaigns with their date ranges
+  const campaignDateRanges: Record<string, { earliestDate: Date; latestDate: Date }> = {}
+
+  __campaigns.forEach((campaign) => {
+    if (campaign.actions && campaign.actions.length > 0) {
+      const dates = (campaign.actions as Action[]).map((action) => new Date(action.date).getTime())
+      campaignDateRanges[campaign.id] = {
+        earliestDate: new Date(Math.min(...dates)),
+        latestDate: new Date(Math.max(...dates)),
+      }
+    }
+  })
+
+  // Sort campaigns by latest date first, then earliest date
   const campaigns = __campaigns.sort((a, b) => {
-    if (!a.actions || !b.actions) return 0
-    const startA = Math.min(
-      ...(a.actions as Action[])?.map((action) => new Date(action.date).getTime()),
-    )
-    const startB = Math.min(
-      ...(b.actions as Action[])?.map((action) => new Date(action.date).getTime()),
-    )
-    return startA - startB
+    const rangeA = campaignDateRanges[a.id]
+    const rangeB = campaignDateRanges[b.id]
+
+    if (!rangeA && !rangeB) return 0
+    if (!rangeA) return 1
+    if (!rangeB) return -1
+
+    // Sort by latest date first (descending)
+    const latestDiff = rangeB.latestDate.getTime() - rangeA.latestDate.getTime()
+    if (latestDiff !== 0) return latestDiff
+
+    // If latest dates are equal, sort by earliest date (descending)
+    return rangeB.earliestDate.getTime() - rangeA.earliestDate.getTime()
   })
 
   return (
@@ -134,13 +153,11 @@ export default async function CampaignsPage() {
                     <CampaignLabel campaign={campaign} />
                     {campaign._status === 'draft' && <DraftBadge />}
                   </h2>
-                  {campaign.actions && campaign.actions.length > 0 && (
+                  {campaignDateRanges[campaign.id] && (
                     <div className="flex flex-row gap-1">
-                      <DateTime date={(campaign.actions[0] as Action).date} />
+                      <DateTime date={campaignDateRanges[campaign.id].earliestDate} />
                       <span>to</span>
-                      <DateTime
-                        date={(campaign.actions[campaign.actions.length - 1] as Action).date}
-                      />
+                      <DateTime date={campaignDateRanges[campaign.id].latestDate} />
                     </div>
                   )}
                 </header>
