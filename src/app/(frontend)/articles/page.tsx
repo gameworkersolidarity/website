@@ -8,6 +8,7 @@ import type { Metadata } from 'next'
 import { getMediaUrl } from '@/utils/media'
 import { payloadUserQuery } from '@/utils/payload.server'
 import { DraftBadge } from '@/components/DraftBadge'
+import { Button } from '@/components/ui/button'
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Articles'
@@ -70,16 +71,15 @@ export default async function BlogPage() {
               <Link
                 key={post.id}
                 href={post.path!}
-                className="flex flex-col bg-white rounded-xl overflow-hidden"
+                className="flex flex-col bg-white rounded-xl overflow-hidden space-y-3 py-3"
               >
-                <header className="p-4">
+                <header className="px-4 md:px-5">
                   <h2 className="text-2xl font-bold font-identity flex items-center gap-2 flex-wrap">
                     <span>{post.title}</span>
                     {post._status === 'draft' && <DraftBadge />}
                   </h2>
                   <div className="flex flex-row gap-4 mt-1">
                     {post.date && <DateTime date={post.date} />}
-                    {post.byline && <div>{post.byline}</div>}
                   </div>
                 </header>
                 {imageUrl &&
@@ -95,6 +95,9 @@ export default async function BlogPage() {
                       className="w-full h-48 object-cover overflow-hidden"
                     />
                   )}
+                <div className="px-4 md:px-5">
+                  <Button variant="outline">Read more</Button>
+                </div>
               </Link>
             )
           })}

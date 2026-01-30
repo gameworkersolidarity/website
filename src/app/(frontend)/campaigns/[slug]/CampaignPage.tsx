@@ -12,21 +12,22 @@ import { ZoomLevel } from '@/utils/global-state'
 import { ActionInitiatorFilter } from '@/collections/enums'
 import pluralize from 'pluralize'
 import Link from 'next/link'
-import { ArrowDownIcon } from 'lucide-react'
+import { ArrowDownIcon, ArrowLeftIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { format, isSameMonth, isSameYear } from 'date-fns'
 import { getMediaUrl } from '@/utils/media'
 import { DraftBadge } from '@/components/DraftBadge'
 import { DataPageFooter } from '@/components/DataPageFooter'
 import { validatePayloadDocument, validatePayloadDocuments } from '@/utils/validate-payload'
+import { Button } from '@/components/ui/button'
 
 const Back = ({ className }: { className?: string }) => (
   <div className={className}>
-    <Link
-      href="/campaigns"
-      className="mb-2 rounded-md px-2 py-1 bg-background/80 hover:bg-gw-pink/80 transition-colors duration-300 inline-flex items-center gap-1 w-auto"
-    >
-      &larr; All campaigns
+    <Link href="/campaigns">
+      <Button variant="outline" className="opacity-70 hover:opacity-100 transition-opacity">
+        <ArrowLeftIcon className="w-4 h-4" />
+        All campaigns
+      </Button>
     </Link>
   </div>
 )
