@@ -25,6 +25,12 @@ const DialogHeader = dynamic(
 const DialogTitle = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTitle), {
   ssr: false,
 })
+const PanelGroup = dynamic(
+  () => import('@/components/ui/resizable').then((mod) => mod.ResizablePanelGroup),
+  {
+    ssr: false,
+  },
+)
 
 function Command({
   className,

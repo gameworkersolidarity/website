@@ -19,11 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
       slug: 'campaignsPage',
     })
 
-    const title = 'Worker organising campaigns'
+    const title = 'Game worker organising campaigns'
     const description =
       (campaignPageData?.description ? lexicalToPlainText(campaignPageData.description) : '') ||
-      'Stories about worker organising in the video game industry.'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+      'Worker organising campaigns in the video game industry.'
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,
@@ -49,8 +49,8 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } catch (error) {
     const title = 'Worker organising campaigns'
-    const description = 'Stories about worker organising in the video game industry.'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const description = 'Worker organising campaigns in the video game industry.'
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,

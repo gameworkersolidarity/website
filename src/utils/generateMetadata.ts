@@ -136,7 +136,7 @@ export async function generateMetadataForSlug({
             url: imageUrl,
             width: media.width || 1200,
             height: media.height || 630,
-            alt: media.alt || 'Game Workers Solidarity Platform',
+            alt: media.alt || 'Game Worker Solidarity',
           },
         ]
       }

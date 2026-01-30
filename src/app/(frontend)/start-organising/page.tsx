@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
         ? lexicalToPlainText(startOrganisingData.description)
         : '') ||
       'Find organising groups and unions by country to get started with worker organising.'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,
@@ -46,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const title = 'Start Organising'
     const description =
       'Find organising groups and unions by country to get started with worker organising.'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,

@@ -17,8 +17,8 @@ import config from '@/payload.config'
 export const metadata: Metadata = {
   metadataBase: new URL(projectStrings.baseUrl),
   title: {
-    default: 'Game Workers Solidarity Platform',
-    template: '%s | Game Workers Solidarity Platform',
+    default: 'Game Worker Solidarity',
+    template: '%s | Game Worker Solidarity',
   },
   description:
     'Tracking solidarity actions across the global video game industry. Archive of worker organizing, strikes, unionization efforts, and collective action in game development.',
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     'game industry unions',
     'worker organizing',
   ],
-  authors: [{ name: 'Game Workers Solidarity Platform' }],
-  creator: 'Game Workers Solidarity Platform',
-  publisher: 'Game Workers Solidarity Platform',
+  authors: [{ name: 'Game Worker Solidarity' }],
+  creator: 'Game Worker Solidarity',
+  publisher: 'Game Worker Solidarity',
   formatDetection: {
     email: false,
     address: false,
@@ -46,18 +46,18 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: projectStrings.baseUrl,
-    siteName: 'Game Workers Solidarity Platform',
-    title: 'Game Workers Solidarity Platform',
+    siteName: 'Game Worker Solidarity',
+    title: 'Game Worker Solidarity',
     description:
       'Tracking solidarity actions across the global video game industry. Archive of worker organizing, strikes, unionization efforts, and collective action in game development.',
     images: [backupShareCard],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Game Workers Solidarity Platform',
+    title: 'Game Worker Solidarity',
     description:
       'Tracking solidarity actions across the global video game industry. Archive of worker organizing, strikes, unionization efforts, and collective action.',
-    images: [`${projectStrings.baseUrl}/icon/icon.png`],
+    images: [`${projectStrings.baseUrl}/images/game-workers-share-card-new.png`],
     creator: projectStrings.twitterHandle,
   },
   robots: {

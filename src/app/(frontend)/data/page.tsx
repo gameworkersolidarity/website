@@ -14,8 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const title = 'Get the data'
     const description =
       (dataPageData?.description ? lexicalToPlainText(dataPageData.description) : '') ||
-      'Get the data from the Game Workers Solidarity Platform'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+      'Get the data from Game Worker Solidarity'
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,
@@ -41,8 +41,8 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } catch (error) {
     const title = 'Get the data'
-    const description = 'Get the data from the Game Workers Solidarity Platform'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const description = 'Get the data from Game Worker Solidarity'
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,

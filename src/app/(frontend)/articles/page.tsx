@@ -11,8 +11,8 @@ import { DraftBadge } from '@/components/DraftBadge'
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Articles'
-  const description = 'News & articles from the Game Workers Solidarity Project.'
-  const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+  const description = 'News & articles from Game Worker Solidarity.'
+  const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
   return {
     title,
@@ -23,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [
         {
           url: shareImage,
-          width: 1200,
-          height: 630,
+          width: 955,
+          height: 500,
           alt: title,
         },
       ],
@@ -78,7 +78,7 @@ export default async function BlogPage() {
                     {post._status === 'draft' && <DraftBadge />}
                   </h2>
                   <div className="flex flex-row gap-4 mt-1">
-                    {post.createdAt && <DateTime date={post.createdAt} />}
+                    {post.date && <DateTime date={post.date} />}
                     {post.byline && <div>{post.byline}</div>}
                   </div>
                 </header>
