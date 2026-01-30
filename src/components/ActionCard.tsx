@@ -286,7 +286,7 @@ export function ActionItem({
       className={twMerge(
         'action-item bg-white rounded-md p-4 text-sm glowable flex flex-col gap-2',
         data.initiator === ActionInitiatorFilter.BOSS_LED ? 'glow-gw-orange' : 'glow-gw-blue',
-        data.featured && 'outline-2 outline-snot-400 outline-offset-2',
+        data.featured && 'outline-2 outline-pink-400 outline-offset-2',
       )}
     >
       <ActionItemWrapper href={links ? data.path : undefined}>
@@ -472,7 +472,7 @@ export function ActionCard({
       <article
         className={twMerge(
           'space-y-2px',
-          data.featured && 'outline-2 outline-snot-400 outline-offset-2',
+          data.featured && 'outline-2 outline-pink-400 outline-offset-2',
         )}
       >
         <main className="bg-white rounded-xl">
