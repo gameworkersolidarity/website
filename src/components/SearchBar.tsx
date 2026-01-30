@@ -1,5 +1,6 @@
 'use client'
 
+import 'client-only'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
