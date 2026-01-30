@@ -24,7 +24,7 @@ const Back = ({ className }: { className?: string }) => (
   <div className={className}>
     <Link
       href="/campaigns"
-      className="mb-2 rounded-md px-2 py-1 bg-background/80 hover:bg-snot-400/80 transition-colors duration-300 inline-flex items-center gap-1 w-auto"
+      className="mb-2 rounded-md px-2 py-1 bg-background/80 hover:bg-gw-pink/80 transition-colors duration-300 inline-flex items-center gap-1 w-auto"
     >
       &larr; All campaigns
     </Link>

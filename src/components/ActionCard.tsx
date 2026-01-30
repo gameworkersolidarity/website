@@ -399,7 +399,7 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
         )}
       </span>
       {data.featured && (
-        <div className="inline-flex items-center gap-1 text-xs bg-snot-400 uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
+        <div className="inline-flex items-center gap-1 text-xs bg-gw-pink uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
           Featured
         </div>
       )}
