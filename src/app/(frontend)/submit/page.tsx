@@ -16,8 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const description =
       (actionSubmissionPageData?.description
         ? lexicalToPlainText(actionSubmissionPageData.description)
-        : '') || 'Submit a new action to the Game Workers Solidarity Platform'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+        : '') || 'Submit a new action to Game Worker Solidarity'
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,
@@ -28,8 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
         images: [
           {
             url: shareImage,
-            width: 1200,
-            height: 630,
+            width: 955,
+            height: 500,
             alt: title,
           },
         ],
@@ -43,8 +43,8 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } catch (error) {
     const title = 'Submit an Action'
-    const description = 'Submit a new action to the Game Workers Solidarity Platform'
-    const shareImage = `${projectStrings.baseUrl}/icon/icon.png`
+    const description = 'Submit a new action to Game Worker Solidarity'
+    const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {
       title,
@@ -55,8 +55,8 @@ export async function generateMetadata(): Promise<Metadata> {
         images: [
           {
             url: shareImage,
-            width: 1200,
-            height: 630,
+            width: 955,
+            height: 500,
             alt: title,
           },
         ],
