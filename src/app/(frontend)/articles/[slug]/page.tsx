@@ -96,7 +96,7 @@ export default async function BlogPost({ params }: Props) {
           {post._status === 'draft' && <DraftBadge />}
         </h1>
         <div className="flex flex-row gap-4 font-mono">
-          {post.createdAt && <DateTime date={post.createdAt} />}
+          {post.date && <DateTime date={post.date} />}
           {post.byline && <div>{post.byline}</div>}
         </div>
         {imageUrl && typeof post.image === 'object' && post.image?.width && post.image?.height && (
