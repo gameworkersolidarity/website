@@ -464,13 +464,13 @@ export function ActionCard({ data, displayStandaloneInfo = false, links = true }
 
   return (
     <>
-      <article
-        className={twMerge(
-          'space-y-2px',
-          data.featured && 'outline-2 outline-pink-400 outline-offset-2',
-        )}
-      >
-        <main className="bg-white rounded-xl">
+      <article className="space-y-2px">
+        <main
+          className={twMerge(
+            data.featured && 'outline-2 outline-pink-400 outline-offset-2',
+            'bg-white rounded-xl',
+          )}
+        >
           <div className={twMerge('p-4 lg:px-8 flex flex-col gap-4')}>
             <div className="text-sm order-1 md:order-0">
               <ActionMetadata data={data} link={links} />
