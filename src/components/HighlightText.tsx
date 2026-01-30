@@ -9,9 +9,11 @@ import React from 'react'
 export function HighlightText({
   text,
   ranges,
+  className,
 }: {
   text: string
   ranges?: Array<[number, number]>
+  className?: string
 }) {
   if (!ranges || ranges.length === 0) {
     return <>{text}</>
@@ -61,5 +63,5 @@ export function HighlightText({
     parts.push(text.slice(lastIndex))
   }
 
-  return <>{parts}</>
+  return <span className={className}>{parts}</span>
 }

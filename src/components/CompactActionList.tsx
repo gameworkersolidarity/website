@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
@@ -31,28 +31,36 @@ type SortDirection = 'asc' | 'desc' | null
 export function CompactActionList({
   actions,
   linkStyle = 'hard',
-  searchQuery,
 }: {
   actions: Action[]
   linkStyle?: 'soft' | 'hard'
   searchQuery: ActionFilterContextValue['searchQuery']
 }) {
-  const { highlights } = useActionFilterContext()
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const { highlights, filteredActions } = useActionFilterContext()
+  const [isExpandedId, __setExpandId] = useState<string>()
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
-  const toggleExpand = (id: string) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
+  const actionIds = useMemo(
+    () =>
+      Array.from(new Set(filteredActions?.map((action) => action.id)))
+        .sort()
+        .join(','),
+    [filteredActions],
+  )
+
+  const setExpandId = useCallback((id?: string) => {
+    __setExpandId(id)
+  }, [])
+
+  useEffect(
+    function reCloseCollapsiblesAfterFilterChanges(id?: string) {
+      if (actionIds) {
+        __setExpandId(undefined)
       }
-      return next
-    })
-  }
+    },
+    [actionIds],
+  )
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -215,47 +223,40 @@ export function CompactActionList({
       {/* Action cards */}
       <div className="flex flex-col divide-y divide-gray-200">
         {sortedActions.map((action) => {
-          const isExpanded = expandedIds.has(action.id)
+          const isExpanded = action.id === isExpandedId
           const actionHighlights = highlights[action.id]
           const nameRanges = actionHighlights?.name
           const descriptionRanges = actionHighlights?.description
-          const shouldShowDescription = action.featured && action.description
 
           return (
             <Collapsible
               key={action.id}
               open={isExpanded}
-              onOpenChange={() => toggleExpand(action.id)}
+              onOpenChange={() => setExpandId(isExpanded ? undefined : action.id)}
             >
               <div
                 className={twMerge(
-                  'px-3 py-2 hover:bg-gray-50 transition-colors',
+                  'px-3 py-2 hover:bg-gray-50 transition-colors cursor-pointer',
                   action.initiator === ActionInitiatorFilter.BOSS_LED && 'bg-orange-50',
                 )}
+                onClick={() => setExpandId(isExpanded ? undefined : action.id)}
               >
                 {/* Collapsed state - Title and key info */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-2 mb-1.5">
-                      <Link
-                        href={action.path || '/'}
-                        className="font-medium text-sm hover:underline flex-1"
-                      >
-                        <HighlightText text={action.name || ''} ranges={nameRanges} />
-                      </Link>
-                      <CollapsibleTrigger asChild>
-                        <button className="flex-shrink-0 text-gray-500 hover:text-gray-700">
-                          {isExpanded ? (
-                            <ChevronUp className="w-4 h-4" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4" />
-                          )}
-                        </button>
-                      </CollapsibleTrigger>
+                      <HighlightText text={action.name || ''} ranges={nameRanges} />
+                      <button className="flex-shrink-0 text-gray-500 hover:text-gray-700">
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </button>
                     </div>
 
                     {/* Key info in 6-column layout */}
-                    <div className="grid grid-cols-3 @md:grid-cols-6 gap-2 @md:gap-3 text-xs">
+                    <div className="grid grid-cols-3 @3xl:grid-cols-6 gap-2 @3xl:gap-3 text-xs">
                       <div>
                         <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
                           DATE
@@ -384,33 +385,34 @@ export function CompactActionList({
                 </div>
 
                 {/* Expanded state - Description if featured */}
-                <CollapsibleContent className="mt-2 pt-2 ">
+                <CollapsibleContent className="mt-2">
                   {/* Description - Show if featured */}
-                  {shouldShowDescription && (
-                    <div>
-                      <div className="text-[10px] uppercase opacity-50 font-mono mb-1.5">
-                        DESCRIPTION
-                      </div>
-                      <div className="text-xs leading-relaxed">
-                        {action.description && descriptionRanges && descriptionRanges.length > 0 ? (
-                          <HighlightText
-                            text={lexicalToPlainText(action.description)}
-                            ranges={descriptionRanges}
-                          />
-                        ) : (
-                          <LexicalRenderer content={action.description} />
-                        )}
-                      </div>
+                  <div>
+                    <div className="text-[10px] uppercase opacity-50 font-mono mb-1.5">
+                      DESCRIPTION
                     </div>
-                  )}
+                    <div className="text-xs leading-relaxed">
+                      {action.description && descriptionRanges && descriptionRanges.length > 0 ? (
+                        <HighlightText
+                          text={lexicalToPlainText(action.description)}
+                          ranges={descriptionRanges}
+                          className="text-xs max-w-none"
+                        />
+                      ) : (
+                        <LexicalRenderer
+                          content={action.description}
+                          className="text-xs max-w-none"
+                        />
+                      )}
+                    </div>
+                  </div>
 
                   {/* Link to full page */}
                   <div className="mt-2">
-                    <Link
-                      href={action.path || '/'}
-                      className="text-[10px] text-gray-500 hover:text-gray-700 hover:underline"
-                    >
-                      View full details →
+                    <Link href={action.path || '/'}>
+                      <Button size="sm" className="text-xs py-1! block! h-auto!">
+                        View full details →
+                      </Button>
                     </Link>
                   </div>
                 </CollapsibleContent>
