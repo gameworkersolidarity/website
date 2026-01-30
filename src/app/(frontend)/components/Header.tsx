@@ -25,6 +25,8 @@ import { MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 import { SearchBar } from '@/components/SearchBar'
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 type NavigationItem =
   | {
@@ -45,6 +47,12 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const scrollY = useScrollPosition(60 /*fps*/)
   const isFloating = scrollY > (size.height || 100) * 0.75
   const isMobile = useMediaQuery('(max-width: 768px)')
+  const [open, setOpen] = useState(false)
+  const path = usePathname()
+
+  useEffect(() => {
+    setOpen(false)
+  }, [path])
 
   return (
     <>
@@ -129,12 +137,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
         ) : (
           // Hamburger -> modal menu
           <div className="flex flex-row items-center gap-2">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost">
-                  <MenuIcon className="w-6 h-6" aria-label="Open menu" />
-                </Button>
-              </SheetTrigger>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <Button variant="ghost" onClick={() => setOpen(!open)}>
+                <MenuIcon className="w-6 h-6" aria-label="Open menu" />
+              </Button>
               <SheetContent side="left">
                 <SheetHeader>
                   <SheetDescription className="flex flex-col gap-2">
