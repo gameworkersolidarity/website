@@ -11,6 +11,7 @@ import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 import { getMediaUrl } from '@/utils/media'
 import { payloadUserQuery } from '@/utils/payload.server'
+import { Button } from '@/components/ui/button'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -128,7 +129,7 @@ export default async function CampaignsPage() {
                 href={campaign.path!}
                 className="flex flex-col bg-white rounded-xl overflow-hidden"
               >
-                <header className="p-4 md:p-5 pb-0! flex flex-col gap-2">
+                <header className="px-4 md:px-5 pt-4 pb-0! flex flex-col gap-2">
                   <h2 className="text-2xl font-bold font-identity flex items-center gap-2 flex-wrap">
                     <CampaignLabel campaign={campaign} />
                     {campaign._status === 'draft' && <DraftBadge />}
@@ -150,12 +151,15 @@ export default async function CampaignsPage() {
                     width={featuredMedia?.width || 1000}
                     height={featuredMedia?.height || 1000}
                     objectFit="cover"
-                    className="w-full h-60 object-cover overflow-hidden my-4"
+                    className="w-full h-60 object-cover overflow-hidden my-3"
                   />
                 )}
-                {campaign.description && (
-                  <LexicalRenderer content={campaign.description} className="p-4 md:p-5 pt-3!" />
-                )}
+                <div className="px-4 md:px-5 space-y-3 pb-4">
+                  {campaign.description && (
+                    <LexicalRenderer content={campaign.description} limitParagraphs={1} />
+                  )}
+                  <Button variant="outline">Read more</Button>
+                </div>
               </Link>
             )
           })}
