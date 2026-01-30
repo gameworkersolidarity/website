@@ -43,11 +43,9 @@ type NavigationItem =
   | {
       label: string
       url: string
-      emoji?: string
     }
   | {
       label: string
-      emoji?: string
       children?: NavigationItem[]
     }
 
@@ -103,10 +101,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     {'children' in item ? (
                       <>
                         <NavigationMenuTrigger>
-                          <span className="flex items-center gap-1">
-                            {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
-                            {item.label}
-                          </span>
+                          <span className="flex items-center gap-1">{item.label}</span>
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
                           <ul>
@@ -114,12 +109,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                               <li key={index}>
                                 <NavigationMenuLink asChild>
                                   <Link href={'url' in child && child.url ? child.url : ''}>
-                                    <span className="flex items-center gap-1">
-                                      {/* {'emoji' in child && child.emoji && (
-                                        <Emoji symbol={child.emoji} />
-                                      )} */}
-                                      {child.label}
-                                    </span>
+                                    <span className="flex items-center gap-1">{child.label}</span>
                                   </Link>
                                 </NavigationMenuLink>
                               </li>
@@ -130,10 +120,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     ) : 'url' in item && item.url ? (
                       <NavigationMenuLink asChild>
                         <Link href={item.url}>
-                          <span className="flex items-center gap-1">
-                            {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
-                            {item.label}
-                          </span>
+                          <span className="flex items-center gap-1">{item.label}</span>
                         </Link>
                       </NavigationMenuLink>
                     ) : null}
@@ -178,17 +165,11 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                               })
                             }}
                           >
-                            <span className="flex items-center gap-1">
-                              {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
-                              {item.label}
-                            </span>
+                            <span className="flex items-center gap-1">{item.label}</span>
                           </Link>
                         ) : (
                           <div>
-                            <span className="flex items-center gap-1">
-                              {/* {item.emoji && <Emoji symbol={item.emoji} />} */}
-                              {item.label}
-                            </span>
+                            <span className="flex items-center gap-1">{item.label}</span>
                           </div>
                         )}
                         {'children' in item && item.children ? (
@@ -207,12 +188,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                                   })
                                 }}
                               >
-                                <span className="flex items-center gap-1">
-                                  {/* {'emoji' in child && child.emoji && (
-                                    <Emoji symbol={child.emoji} />
-                                    )} */}
-                                  {child.label}
-                                </span>
+                                <span className="flex items-center gap-1">{child.label}</span>
                               </Link>
                             ))}
                           </div>
