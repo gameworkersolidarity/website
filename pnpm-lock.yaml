@@ -375,6 +375,12 @@ importers:
       react-resizable-panels:
         specifier: ^3.0.6
         version: 3.0.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      scroll-into-view-if-needed:
+        specifier: ^3.1.0
+        version: 3.1.0
+      smooth-scroll-into-view-if-needed:
+        specifier: ^2.0.2
+        version: 2.0.2
       string-similarity:
         specifier: ^4.0.4
         version: 4.0.4
@@ -5715,6 +5721,12 @@ packages:
       }
     engines: { node: '>= 10' }
 
+  compute-scroll-into-view@3.1.1:
+    resolution:
+      {
+        integrity: sha512-VRhuHOLoKYOy4UbilLbUzbYg93XLjv2PncJC50EuTWPA3gaja1UjBsUP/D/9/juV3vQFr6XBEzn9KCAHdUvOHw==,
+      }
+
   concat-map@0.0.1:
     resolution:
       {
@@ -9617,6 +9629,12 @@ packages:
         integrity: sha512-o/mRQGk9Rcer/jEEw/yw4mwo3EU/NvYvp577/Btqrym9Qy5/MdWGBqipbALgd2lrdWTJ5/gqDusxfnQBxOxT2Q==,
       }
 
+  scroll-into-view-if-needed@3.1.0:
+    resolution:
+      {
+        integrity: sha512-49oNpRjWRvnU8NyGVmUaYG4jtTkNonFZI86MmGRDqBphEK2EXT9gdEUoQPZhuBM8yWHxCWbobltqYO5M4XrUvQ==,
+      }
+
   secure-json-parse@4.1.0:
     resolution:
       {
@@ -9771,6 +9789,12 @@ packages:
         integrity: sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w==,
       }
     engines: { node: '>=18' }
+
+  smooth-scroll-into-view-if-needed@2.0.2:
+    resolution:
+      {
+        integrity: sha512-z54WzUSlM+xHHvJu3lMIsh+1d1kA4vaakcAtQvqzeGJ5Ffau7EKjpRrMHh1/OBo5zyU2h30ZYEt77vWmPHqg7Q==,
+      }
 
   sonic-boom@4.2.0:
     resolution:
@@ -15157,6 +15181,8 @@ snapshots:
 
   commander@7.2.0: {}
 
+  compute-scroll-into-view@3.1.1: {}
+
   concat-map@0.0.1: {}
 
   concurrently@9.2.1:
@@ -17755,6 +17781,10 @@ snapshots:
 
   scmp@2.1.0: {}
 
+  scroll-into-view-if-needed@3.1.0:
+    dependencies:
+      compute-scroll-into-view: 3.1.1
+
   secure-json-parse@4.1.0: {}
 
   selderee@0.11.0:
@@ -17873,6 +17903,10 @@ snapshots:
     dependencies:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
+
+  smooth-scroll-into-view-if-needed@2.0.2:
+    dependencies:
+      scroll-into-view-if-needed: 3.1.0
 
   sonic-boom@4.2.0:
     dependencies:

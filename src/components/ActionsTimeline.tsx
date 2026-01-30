@@ -29,6 +29,7 @@ import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { TimelineLabelProperty } from '@/global-types'
 import { ActionFilterContextValue } from './ActionFilterContextProvider'
+import scrollIntoView from 'scroll-into-view-if-needed'
 
 export function ActionTimeline({
   actions,
@@ -133,12 +134,8 @@ export function Slideshow({
 
     const itemElement = itemRefs.current.get(currentActionId)
     if (itemElement) {
-      itemElement.scrollIntoView({
-        // @ts-expect-error - container is a valid option for scrollIntoView
-        container: 'nearest',
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'center',
+      scrollIntoView(itemElement, {
+        boundary: scrollContainerRef.current,
       })
     }
   }, [currentActionId])
