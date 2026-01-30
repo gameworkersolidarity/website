@@ -335,7 +335,7 @@ export const Actions: CollectionConfig = {
       label: 'Consent',
       admin: {
         description:
-          'User consented to Game Worker Solidarity Project publishing this information online and offline',
+          'User consented to Game Worker Solidarity publishing this information online and offline',
         position: 'sidebar',
       },
     },

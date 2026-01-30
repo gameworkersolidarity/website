@@ -599,7 +599,7 @@ export interface Action {
    */
   submissionContactDetails?: string | null;
   /**
-   * User consented to Game Worker Solidarity Project publishing this information online and offline
+   * User consented to Game Worker Solidarity publishing this information online and offline
    */
   consent?: boolean | null;
   updatedAt: string;

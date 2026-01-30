@@ -44,9 +44,7 @@ export function ActionSubmissionForm({
     // Validate consent
     if (!consent) {
       setSubmitStatus('error')
-      setErrorMessage(
-        'You must consent to Game Worker Solidarity Project publishing this information',
-      )
+      setErrorMessage('You must consent to Game Worker Solidarity publishing this information')
       setIsSubmitting(false)
       return
     }
@@ -365,8 +363,7 @@ export function ActionSubmissionForm({
             className="mt-1"
           />
           <Label htmlFor="consent" className="cursor-pointer leading-relaxed">
-            I consent to Game Worker Solidarity Project publishing this information online and
-            offline
+            I consent to Game Worker Solidarity publishing this information online and offline
           </Label>
         </div>
       </section>
