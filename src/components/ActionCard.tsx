@@ -293,6 +293,11 @@ export function ActionItem({
         <h3 className="text-2xl leading-tight font-semibold max-w-3xl">
           <HighlightText text={data.name} ranges={nameRanges} />
         </h3>
+        {data.featured && (
+          <div className="inline-flex items-center gap-1 text-xs bg-gw-pink uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
+            Featured
+          </div>
+        )}
         {shouldShowDescription &&
           (() => {
             const description = data.description
@@ -398,11 +403,6 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
           </>
         )}
       </span>
-      {data.featured && (
-        <div className="inline-flex items-center gap-1 text-xs bg-gw-pink uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
-          Featured
-        </div>
-      )}
       {!!data.countries?.length && (
         <div className="inline-flex flex-wrap gap-x-2">
           {data.countries.map((country) => (
@@ -483,6 +483,11 @@ export function ActionCard({ data, displayStandaloneInfo = false, links = true }
               <h3 key="title" className={twMerge('text-3xl leading-tight font-semibold max-w-3xl')}>
                 <HighlightText text={data.name} ranges={nameRanges} />
               </h3>
+              {data.featured && (
+                <div className="inline-flex items-center gap-1 text-xs bg-gw-pink uppercase rounded-md px-1 py-0.5 w-fit font-mono tracking-wide">
+                  Featured
+                </div>
+              )}
             </ActionCardWrapper>
             {/* Description */}
             {shouldShowDescription &&
