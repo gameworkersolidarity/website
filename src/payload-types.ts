@@ -87,6 +87,9 @@ export interface Config {
     companies: {
       actions: 'actions';
     };
+    categories: {
+      actions: 'actions';
+    };
     organisingGroups: {
       actions: 'actions';
     };
@@ -630,6 +633,14 @@ export interface Category {
     [k: string]: unknown;
   } | null;
   featuredImage?: (string | null) | Media;
+  /**
+   * Actions tagged with this category.
+   */
+  actions?: {
+    docs?: (string | Action)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   path?: string;
   url?: string;
   adminPath?: string;
@@ -1143,6 +1154,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   emoji?: T;
   description?: T;
   featuredImage?: T;
+  actions?: T;
   path?: T;
   url?: T;
   adminPath?: T;

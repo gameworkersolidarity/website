@@ -96,7 +96,7 @@ export const getLatLngForCountry = (isoA2: string) => {
   }
 }
 
-export const geocodeOpenStreetMap = async (location: string, iso2: string) => {
+export const geocodeOpenStreetMap = async (location: string, iso2?: string) => {
   const url = qs.stringifyUrl({
     url: `https://nominatim.openstreetmap.org/search.php`,
     query: {

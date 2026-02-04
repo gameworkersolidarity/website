@@ -247,57 +247,6 @@ export const CountrySchema = z.object({
     .nullable(),
 })
 
-export const CategorySchema = z.object({
-  id: z.string(),
-  airtableId: z.string().optional().nullable(),
-  generateSlug: z.boolean().optional().nullable(),
-  slug: z.string(),
-  name: z.string(),
-  emoji: z.string().optional().nullable(),
-  description: z
-    .record(z.string(), z.unknown())
-    .and(
-      z.object({
-        root: z.object({
-          type: z.string(),
-          children: z.array(
-            z.record(z.string(), z.unknown()).and(
-              z.object({
-                type: z.any(),
-                version: z.number(),
-              }),
-            ),
-          ),
-          direction: z.union([z.literal('ltr'), z.literal('rtl')]).nullable(),
-          format: z.union([
-            z.literal('left'),
-            z.literal('start'),
-            z.literal('center'),
-            z.literal('right'),
-            z.literal('end'),
-            z.literal('justify'),
-            z.literal(''),
-          ]),
-          indent: z.number(),
-          version: z.number(),
-        }),
-      }),
-    )
-    .optional()
-    .nullable(),
-  featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
-  path: z.string().optional(),
-  url: z.string().optional(),
-  adminPath: z.string().optional(),
-  updatedAt: z.string(),
-  createdAt: z.string(),
-  deletedAt: z.string().optional().nullable(),
-  _status: z
-    .union([z.literal('draft'), z.literal('published')])
-    .optional()
-    .nullable(),
-})
-
 export const HeaderSchema = z.object({
   id: z.string(),
   navigation: z
@@ -751,6 +700,66 @@ export const ActionSchema: z.ZodSchema<Action> = z.lazy(() =>
     featured: z.boolean().optional().nullable(),
     submissionContactDetails: z.string().optional().nullable(),
     consent: z.boolean().optional().nullable(),
+    updatedAt: z.string(),
+    createdAt: z.string(),
+    deletedAt: z.string().optional().nullable(),
+    _status: z
+      .union([z.literal('draft'), z.literal('published')])
+      .optional()
+      .nullable(),
+  }),
+)
+
+export const CategorySchema: z.ZodSchema<Category> = z.lazy(() =>
+  z.object({
+    id: z.string(),
+    airtableId: z.string().optional().nullable(),
+    generateSlug: z.boolean().optional().nullable(),
+    slug: z.string(),
+    name: z.string(),
+    emoji: z.string().optional().nullable(),
+    description: z
+      .record(z.string(), z.unknown())
+      .and(
+        z.object({
+          root: z.object({
+            type: z.string(),
+            children: z.array(
+              z.record(z.string(), z.unknown()).and(
+                z.object({
+                  type: z.any(),
+                  version: z.number(),
+                }),
+              ),
+            ),
+            direction: z.union([z.literal('ltr'), z.literal('rtl')]).nullable(),
+            format: z.union([
+              z.literal('left'),
+              z.literal('start'),
+              z.literal('center'),
+              z.literal('right'),
+              z.literal('end'),
+              z.literal('justify'),
+              z.literal(''),
+            ]),
+            indent: z.number(),
+            version: z.number(),
+          }),
+        }),
+      )
+      .optional()
+      .nullable(),
+    featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
+    actions: z
+      .object({
+        docs: z.array(z.union([z.string(), ActionSchema])).optional(),
+        hasNextPage: z.boolean().optional(),
+        totalDocs: z.number().optional(),
+      })
+      .optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    adminPath: z.string().optional(),
     updatedAt: z.string(),
     createdAt: z.string(),
     deletedAt: z.string().optional().nullable(),

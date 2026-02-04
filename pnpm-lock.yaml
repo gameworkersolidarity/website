@@ -264,9 +264,15 @@ importers:
       country-to-bbox:
         specifier: ^1.0.0
         version: 1.0.0
+      country-to-iso:
+        specifier: ^1.6.1
+        version: 1.6.1
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
+      csv-parse:
+        specifier: ^6.1.0
+        version: 6.1.0
       d3-array:
         specifier: ^3.2.4
         version: 3.2.4
@@ -5989,6 +5995,12 @@ packages:
         integrity: sha512-l0aQTpHu+cEhhDM62kqOjRV8o0N8sBNVw+0AboypmIbKViMelStabGPItf4IM09GM81XbQgB0la8OW9NEqZuhA==,
       }
 
+  country-to-iso@1.6.1:
+    resolution:
+      {
+        integrity: sha512-rJi4AyD4rgy7OPtIpdmpbFcL2IRuV67tO1BjrKAefKhLoSfz7n9V1pwjfiNHVVbyznP0h9pjMfUce8AdRQyrnA==,
+      }
+
   croner@9.1.0:
     resolution:
       {
@@ -6054,6 +6066,12 @@ packages:
     resolution:
       {
         integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==,
+      }
+
+  csv-parse@6.1.0:
+    resolution:
+      {
+        integrity: sha512-CEE+jwpgLn+MmtCpVcPtiCZpVtB6Z2OKPTr34pycYYoL7sxdOkXDdQ4lRiw6ioC0q6BLqhc6cKweCVvral8yhw==,
       }
 
   d3-array@3.2.1:
@@ -15586,6 +15604,8 @@ snapshots:
 
   country-to-bbox@1.0.0: {}
 
+  country-to-iso@1.6.1: {}
+
   croner@9.1.0: {}
 
   cross-env@7.0.3:
@@ -15614,6 +15634,8 @@ snapshots:
   csstype@3.1.3: {}
 
   csstype@3.2.3: {}
+
+  csv-parse@6.1.0: {}
 
   d3-array@3.2.1:
     dependencies:

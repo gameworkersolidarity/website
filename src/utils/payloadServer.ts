@@ -57,10 +57,15 @@ export async function payloadGetOrCreateModel<
     return model.docs[0]
   }
 
-  const newModel = await payload.create({
-    collection,
-    data: updateData,
-  })
+  try {
+    const newModel = await payload.create({
+      collection,
+      data: updateData,
+    })
 
-  return newModel
+    return newModel
+  } catch (error) {
+    console.error(`Error creating '${collection}' instance:`, JSON.stringify(updateData, null, 2))
+    return null
+  }
 }

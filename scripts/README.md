@@ -79,6 +79,56 @@ pnpm run set:password --help
 
 ---
 
+## Ingest Redundancies Script
+
+Ingests redundancy CSVs from `public/redundancies/` and creates Payload Actions (and companies/categories as needed). Uses a company name cache for consistent matching and supports a dry-run mode for debugging.
+
+### Usage
+
+```bash
+# Normal run (writes to Payload)
+pnpm run ingest:redundancies
+
+# Dry-run: report what would be done without saving (for debugging company matching and parent/child)
+pnpm run ingest:redundancies -- --dry-run
+
+# Or run the script directly
+tsx scripts/ingest-redundancies.ts [options]
+```
+
+### Options
+
+- `--dry-run` – No writes to Payload. Logs company matching, parent/child relationships, and what actions/companies would be created.
+- `--file <filename>` – Process only this CSV file (exact filename, e.g. `2023 Grid View Breakdown.csv`).
+- `--max <number>` – Stop after this many redundancies have been created or updated (across all files).
+- `-h, --help` – Show usage and options.
+
+### Examples
+
+```bash
+# See what would be created
+pnpm run ingest:redundancies -- --dry-run
+
+# Process only one file
+pnpm run ingest:redundancies -- --file "2023 Grid View Breakdown.csv"
+
+# Import at most 10 redundancies (useful for testing)
+pnpm run ingest:redundancies -- --max 10
+
+# Combine options: one file, max 5, dry-run
+pnpm run ingest:redundancies -- --file "2025 Grid View.csv" --max 5 --dry-run
+
+# Get help
+pnpm exec tsx scripts/ingest-redundancies.ts --help
+```
+
+### Notes
+
+- CSVs are expected in `public/redundancies/` (e.g. `2025 Grid View.csv`, `2024 Grid View Breakdown.csv`, etc.).
+- Dates in CSVs must be `YYYY-MM-DD`. Company names are matched with fuzzy matching and cached for consistency across rows and files.
+
+---
+
 ## Airtable to Payload CMS Migration Script
 
 This script migrates data from Airtable to Payload CMS collections.

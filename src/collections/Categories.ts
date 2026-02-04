@@ -74,6 +74,15 @@ export const Categories: CollectionConfig = {
       },
     },
     {
+      name: 'actions',
+      type: 'join',
+      collection: 'actions',
+      on: 'categories',
+      admin: {
+        description: 'Actions tagged with this category.',
+      },
+    },
+    {
       name: 'path',
       type: 'text',
       virtual: true,
