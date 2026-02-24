@@ -237,15 +237,14 @@ export function Timeline({
   const isSmallScreen = size.width > 480 && size.width <= 768
   const isMediumScreen = size.width > 768 && size.width <= 1023
 
-  // Bining labels
+  // Binning / label-throttling: cap labels per time bin so dense regions stay readable
   const minSkip = 1
-  const maxSkip = isTinyScreen ? 30 : isSmallScreen ? 18 : isMediumScreen ? 14 : 10
-  const itemsPerBin = isTinyScreen || isSmallScreen ? 1 : isMediumScreen ? 2 : 3
+  const maxLabelsPerBin = isTinyScreen ? 1 : isSmallScreen ? 3 : 5
   // Heights of labels
   const highlightOffset = 5
   const gap = 20
-  const numLevels = 3
-  const divHeight = 270
+  const numLevels = isTinyScreen ? 3 : 5
+  const divHeight = isTinyScreen ? 270 : 350
 
   const margin = { top: 15, right: 10, bottom: 25, left: 10 }
   const width = size.width - margin.left - margin.right
@@ -417,14 +416,9 @@ export function Timeline({
     }
 
     const targetBin = getBin(new Date(action.date))
-    // How many actions in the same Bin?
     const actionsInBin = actionsWithBins.filter((e) => e.bin === targetBin)
-    // Dynamic skipCount: more in the Bin = higher skip
-    // For many actions display fewer: set minSkip 1, maxSkip e.g. 7
-    const dynamicSkipCount = Math.max(
-      Math.min(Math.ceil(actionsInBin.length / itemsPerBin), maxSkip),
-      minSkip,
-    )
+    // Cap labels per bin: dense bins get at most maxLabelsPerBin labels
+    const dynamicSkipCount = Math.max(minSkip, Math.ceil(actionsInBin.length / maxLabelsPerBin))
 
     // For deterministic spacing within Bin, get positions in this Bin
     const thisBinIndices = actionsWithBins
@@ -459,14 +453,8 @@ export function Timeline({
       }
 
       const targetBin = getBin(new Date(action.date))
-      // How many actions in the same Bin?
       const actionsInBin = sortedActions.filter((e) => getBin(new Date(e.date)) === targetBin)
-      // Dynamic skipCount: more in the Bin = higher skip
-      // For many actions display fewer: set minSkip 1, maxSkip e.g. 7
-      const dynamicSkipCount = Math.max(
-        Math.min(Math.ceil(actionsInBin.length / itemsPerBin), maxSkip),
-        minSkip,
-      )
+      const dynamicSkipCount = Math.max(minSkip, Math.ceil(actionsInBin.length / maxLabelsPerBin))
 
       // For deterministic spacing within Bin, get positions in this Bin
       const thisBinIndices = sortedActions
@@ -483,7 +471,7 @@ export function Timeline({
     })
 
     return indexMap
-  }, [sortedActions, currentActionId, getBin, minSkip, maxSkip, itemsPerBin])
+  }, [sortedActions, currentActionId, getBin, minSkip, maxLabelsPerBin])
 
   function getLabelPosition(globalIndex: number, actionId: string | null, offset: number = 0) {
     if (currentActionId && actionId === currentActionId) {
@@ -586,7 +574,7 @@ export function Timeline({
             )
           })}
 
-          {/* Action dots */}
+          {/* Action dots — all markers shown; only labels are throttled in dense bins */}
           {sortedActions.map((action) => {
             const x = xScale(new Date(action.date))
             const color = getActionColor(action)
