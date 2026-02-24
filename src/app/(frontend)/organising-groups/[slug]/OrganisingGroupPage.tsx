@@ -67,7 +67,13 @@ export function OrganisingGroupPage({
       <AdminEditBanner page={page} />
       <div
         style={{
-          backgroundColor: primaryColor,
+          ...(featuredImageUrl
+            ? {
+                backgroundImage: `url(${featuredImageUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : { backgroundColor: primaryColor }),
         }}
         className="lg:pt-6"
       >
@@ -78,13 +84,8 @@ export function OrganisingGroupPage({
             'lg:max-w-4xl mx-auto flex flex-col gap-[2px]',
           )}
         >
-          <header
-            className={twMerge(
-              'bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl',
-              featuredImageUrl && 'grid grid-cols-1 md:grid-cols-3 gap-4',
-            )}
-          >
-            <div className="col-span-2">
+          <header className="bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl">
+            <div>
               <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 <span>Organising Group</span>
@@ -119,16 +120,6 @@ export function OrganisingGroupPage({
                 )}
               </div>
             </div>
-            {featuredImageUrl && (
-              <div className="mb-4">
-                <Image
-                  src={featuredImageUrl}
-                  alt={featuredMedia?.alt || ''}
-                  width={1000}
-                  height={1000}
-                />
-              </div>
-            )}
           </header>
           {(page.website || page.twitter || page.bluesky) && (
             <div className="bg-white px-4 md:px-6 py-4 flex flex-col gap-2">
