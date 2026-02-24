@@ -363,133 +363,12 @@ export interface BlogPost {
     };
     [k: string]: unknown;
   };
+  /**
+   * Actions related to this article. They are shown first in the sidebar alongside actions from around the article date.
+   */
+  relatedActions?: (string | Action)[] | null;
   path?: string;
   url?: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Countries where actions take place. Used for filtering and display (e.g. maps, filters).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "countries".
- */
-export interface Country {
-  id: string;
-  /**
-   * Legacy Airtable ID for URL redirects
-   */
-  airtableId?: string | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  name: string;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  featuredImage?: (string | null) | Media;
-  isoA2: string;
-  emoji?: string;
-  bbox?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  isoA3?: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-    [k: string]: unknown;
-  };
-  path?: string;
-  url?: string;
-  adminPath?: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Companies or organisations that initiate or are associated with actions.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "companies".
- */
-export interface Company {
-  id: string;
-  /**
-   * Legacy Airtable ID for URL redirects
-   */
-  airtableId?: string | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  name: string;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  featuredImage?: (string | null) | Media;
-  /**
-   * Countries where this company has workers.
-   */
-  countries?: (string | Country)[] | null;
-  /**
-   * Actions associated with this company.
-   */
-  actions?: {
-    docs?: (string | Action)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  path?: string;
-  url?: string;
-  /**
-   * Parents of this company.
-   */
-  parents?:
-    | {
-        doc?: (string | null) | Company;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  adminPath?: string;
-  parent?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -660,6 +539,131 @@ export interface Category {
   path?: string;
   url?: string;
   adminPath?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Countries where actions take place. Used for filtering and display (e.g. maps, filters).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "countries".
+ */
+export interface Country {
+  id: string;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
+  isoA2: string;
+  emoji?: string;
+  bbox?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  isoA3?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+    [k: string]: unknown;
+  };
+  path?: string;
+  url?: string;
+  adminPath?: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Companies or organisations that initiate or are associated with actions.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies".
+ */
+export interface Company {
+  id: string;
+  /**
+   * Legacy Airtable ID for URL redirects
+   */
+  airtableId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  name: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (string | null) | Media;
+  /**
+   * Countries where this company has workers.
+   */
+  countries?: (string | Country)[] | null;
+  /**
+   * Actions associated with this company.
+   */
+  actions?: {
+    docs?: (string | Action)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  path?: string;
+  url?: string;
+  /**
+   * Parents of this company.
+   */
+  parents?:
+    | {
+        doc?: (string | null) | Company;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  adminPath?: string;
+  parent?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1101,6 +1105,7 @@ export interface BlogPostsSelect<T extends boolean = true> {
   byline?: T;
   image?: T;
   body?: T;
+  relatedActions?: T;
   path?: T;
   url?: T;
   updatedAt?: T;

@@ -311,7 +311,7 @@ function SameDayActions({
   )
 }
 
-function ActionBreadcrumbNavLink({
+export function ActionBreadcrumbNavLink({
   action,
   label,
   direction,

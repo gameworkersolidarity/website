@@ -100,37 +100,6 @@ export const StaticPageSchema = z.object({
     _status: z.union([z.literal("draft"), z.literal("published")]).optional().nullable()
 });
 
-export const BlogPostSchema = z.object({
-    id: z.string(),
-    adminPath: z.string().optional(),
-    date: z.string(),
-    airtableId: z.string().optional().nullable(),
-    generateSlug: z.boolean().optional().nullable(),
-    slug: z.string(),
-    title: z.string(),
-    byline: z.string().optional().nullable(),
-    image: z.union([z.string().nullable(), MediaSchema]).optional(),
-    body: z.record(z.string(), z.unknown()).and(z.object({
-        root: z.object({
-            type: z.string(),
-            children: z.array(z.record(z.string(), z.unknown()).and(z.object({
-                type: z.any(),
-                version: z.number()
-            }))),
-            direction: z.union([z.literal("ltr"), z.literal("rtl")]).nullable(),
-            format: z.union([z.literal("left"), z.literal("start"), z.literal("center"), z.literal("right"), z.literal("end"), z.literal("justify"), z.literal("")]),
-            indent: z.number(),
-            version: z.number()
-        })
-    })),
-    path: z.string().optional(),
-    url: z.string().optional(),
-    updatedAt: z.string(),
-    createdAt: z.string(),
-    deletedAt: z.string().optional().nullable(),
-    _status: z.union([z.literal("draft"), z.literal("published")]).optional().nullable()
-});
-
 export const CountrySchema = z.object({
     id: z.string(),
     airtableId: z.string().optional().nullable(),
@@ -306,13 +275,17 @@ export const ActionSubmissionPageSchema = z.object({
     createdAt: z.string().optional().nullable()
 });
 
-export const CompanySchema: z.ZodSchema<Company> = z.lazy(() => z.object({
+export const BlogPostSchema: z.ZodSchema<BlogPost> = z.lazy(() => z.object({
     id: z.string(),
+    adminPath: z.string().optional(),
+    date: z.string(),
     airtableId: z.string().optional().nullable(),
     generateSlug: z.boolean().optional().nullable(),
     slug: z.string(),
-    name: z.string(),
-    description: z.record(z.string(), z.unknown()).and(z.object({
+    title: z.string(),
+    byline: z.string().optional().nullable(),
+    image: z.union([z.string().nullable(), MediaSchema]).optional(),
+    body: z.record(z.string(), z.unknown()).and(z.object({
         root: z.object({
             type: z.string(),
             children: z.array(z.record(z.string(), z.unknown()).and(z.object({
@@ -324,24 +297,10 @@ export const CompanySchema: z.ZodSchema<Company> = z.lazy(() => z.object({
             indent: z.number(),
             version: z.number()
         })
-    })).optional().nullable(),
-    featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
-    countries: z.array(z.union([z.string(), CountrySchema])).optional().nullable(),
-    actions: z.object({
-        docs: z.array(z.union([z.string(), ActionSchema])).optional(),
-        hasNextPage: z.boolean().optional(),
-        totalDocs: z.number().optional()
-    }).optional(),
+    })),
+    relatedActions: z.array(z.union([z.string(), ActionSchema])).optional().nullable(),
     path: z.string().optional(),
     url: z.string().optional(),
-    parents: z.array(z.object({
-        doc: z.union([z.string().nullable(), CompanySchema]).optional(),
-        url: z.string().optional().nullable(),
-        label: z.string().optional().nullable(),
-        id: z.string().optional().nullable()
-    })).optional().nullable(),
-    adminPath: z.string().optional(),
-    parent: z.union([z.string().nullable(), CompanySchema]).optional(),
     updatedAt: z.string(),
     createdAt: z.string(),
     deletedAt: z.string().optional().nullable(),
@@ -435,6 +394,48 @@ export const CategorySchema: z.ZodSchema<Category> = z.lazy(() => z.object({
     path: z.string().optional(),
     url: z.string().optional(),
     adminPath: z.string().optional(),
+    updatedAt: z.string(),
+    createdAt: z.string(),
+    deletedAt: z.string().optional().nullable(),
+    _status: z.union([z.literal("draft"), z.literal("published")]).optional().nullable()
+}));
+
+export const CompanySchema: z.ZodSchema<Company> = z.lazy(() => z.object({
+    id: z.string(),
+    airtableId: z.string().optional().nullable(),
+    generateSlug: z.boolean().optional().nullable(),
+    slug: z.string(),
+    name: z.string(),
+    description: z.record(z.string(), z.unknown()).and(z.object({
+        root: z.object({
+            type: z.string(),
+            children: z.array(z.record(z.string(), z.unknown()).and(z.object({
+                type: z.any(),
+                version: z.number()
+            }))),
+            direction: z.union([z.literal("ltr"), z.literal("rtl")]).nullable(),
+            format: z.union([z.literal("left"), z.literal("start"), z.literal("center"), z.literal("right"), z.literal("end"), z.literal("justify"), z.literal("")]),
+            indent: z.number(),
+            version: z.number()
+        })
+    })).optional().nullable(),
+    featuredImage: z.union([z.string().nullable(), MediaSchema]).optional(),
+    countries: z.array(z.union([z.string(), CountrySchema])).optional().nullable(),
+    actions: z.object({
+        docs: z.array(z.union([z.string(), ActionSchema])).optional(),
+        hasNextPage: z.boolean().optional(),
+        totalDocs: z.number().optional()
+    }).optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    parents: z.array(z.object({
+        doc: z.union([z.string().nullable(), CompanySchema]).optional(),
+        url: z.string().optional().nullable(),
+        label: z.string().optional().nullable(),
+        id: z.string().optional().nullable()
+    })).optional().nullable(),
+    adminPath: z.string().optional(),
+    parent: z.union([z.string().nullable(), CompanySchema]).optional(),
     updatedAt: z.string(),
     createdAt: z.string(),
     deletedAt: z.string().optional().nullable(),

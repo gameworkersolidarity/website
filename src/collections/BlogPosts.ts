@@ -100,6 +100,16 @@ export const BlogPosts: CollectionConfig = {
       required: true,
     },
     {
+      name: 'relatedActions',
+      type: 'relationship',
+      relationTo: 'actions',
+      hasMany: true,
+      admin: {
+        description:
+          'Actions related to this article. They are shown first in the sidebar alongside actions from around the article date.',
+      },
+    },
+    {
       name: 'path',
       type: 'text',
       virtual: true,

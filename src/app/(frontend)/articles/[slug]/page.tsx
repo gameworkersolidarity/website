@@ -12,7 +12,16 @@ import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { getMediaUrl } from '@/utils/media'
 import { DraftBadge } from '@/components/DraftBadge'
-import { validatePayloadDocument, validatePayloadResult } from '@/utils/validate-payload'
+import { Button } from '@/components/ui/button'
+import { ArrowLeftIcon } from 'lucide-react'
+import {
+  validatePayloadDocument,
+  validatePayloadResult,
+  validatePayloadDocuments,
+} from '@/utils/validate-payload'
+import type { Action } from '@/payload-types'
+import { ArticleActionsSidebar } from './ArticleActionsSidebar'
+import { ArticleSameDayActions } from './ArticleSameDayActions'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -51,7 +60,7 @@ export default async function BlogPost({ params }: Props) {
 
   const postResult = await payloadUserQuery({
     collection: 'blogPosts',
-    depth: 2, // Include image relation
+    depth: 2, // Include image + relatedActions (actions populated)
     limit: 1,
     where: {
       slug: {
@@ -65,6 +74,28 @@ export default async function BlogPost({ params }: Props) {
   }
 
   const post = validatePayloadDocument('blogPosts', postResult.docs[0])
+
+  const articleDate = post.date ?? new Date().toISOString()
+
+  // Related actions (editor-curated) – only these appear in sidebars
+  const relatedActionsRaw = post.relatedActions ?? []
+  const relatedActions: Action[] = relatedActionsRaw
+    .filter((a): a is Action => typeof a === 'object' && a !== null && 'date' in a && 'path' in a)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  const previousActions: Action[] = relatedActions
+    .filter((a) => new Date(a.date) < new Date(articleDate))
+    .reverse()
+  const nextActions: Action[] = relatedActions.filter(
+    (a) => new Date(a.date) > new Date(articleDate),
+  )
+
+  const sameDayResult = await payloadUserQuery({
+    collection: 'actions',
+    where: { date: { equals: articleDate } },
+    depth: 2,
+  })
+  const sameDayActions = validatePayloadDocuments('actions', sameDayResult.docs)
 
   // Fetch all published blog posts to find previous/next
   const allPostsResult = await payloadUserQuery({
@@ -86,96 +117,108 @@ export default async function BlogPost({ params }: Props) {
   const imageUrl = post.image && typeof post.image === 'object' ? getMediaUrl(post.image) : null
 
   return (
-    <div>
+    <div className="bg-gwBackground flex-1 flex flex-col" style={{ minHeight: '66vh' }}>
       <RefreshRouteOnSave />
       <AdminEditBanner page={post} />
-      <main className="max-w-2xl mx-auto py-4 md:py-5 px-4 flex flex-col gap-4">
-        <Link href="/articles">← All articles</Link>
-        <h1 className="text-4xl md:text-5xl font-bold font-identity flex items-center gap-2 flex-wrap">
-          <span>{post.title}</span>
-          {post._status === 'draft' && <DraftBadge />}
-        </h1>
-        <div className="flex flex-row gap-4 font-mono">
-          {post.date && <DateTime date={post.date} />}
-          {post.byline && <div>{post.byline}</div>}
-        </div>
-        {imageUrl && typeof post.image === 'object' && post.image?.width && post.image?.height && (
-          <Image
-            src={imageUrl}
-            alt={post.title || ''}
-            width={post.image.width}
-            height={post.image.height}
-            objectFit="cover"
-            className="w-full max-h-48 md:h-auto object-cover"
-          />
-        )}
-        <LexicalRenderer content={post.body} className="text-lg/relaxed" />
-        <div className="mt-3 border-t border-gray-200 pt-3 italic opacity-60">
-          Want to discuss this post or publish a follow-up on the post?{' '}
-          <Link className="link" href={`mailto:${projectStrings.email}`}>
-            Contact us &rarr;
+      <div className="mx-auto py-4 md:py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4 mb-auto w-full max-w-6xl">
+        <ArticleActionsSidebar
+          side="previous"
+          actions={previousActions}
+          articleDate={articleDate}
+        />
+        <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
+          <Link href="/articles">
+            <Button variant="outline" className="opacity-70 hover:opacity-100 transition-opacity">
+              <ArrowLeftIcon className="w-4 h-4" />
+              All articles
+            </Button>
           </Link>
-        </div>
-
-        {/* Previous/Next Navigation */}
-        {(previousPost || nextPost) && (
-          <nav
-            style={{
-              marginTop: '4rem',
-              paddingTop: '2rem',
-              borderTop: '1px solid #e0e0e0',
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '2rem',
-            }}
-          >
-            {previousPost ? (
-              <Link
-                href={previousPost.path!}
-                style={{
-                  flex: 1,
-                  padding: '1rem',
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
-                  ← Previous Post
-                </div>
-                <div style={{ fontWeight: 600, color: '#333' }}>{previousPost.title as string}</div>
-              </Link>
-            ) : (
-              <div style={{ flex: 1 }} />
+          <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
+            <header>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm uppercase opacity-50">
+                <span className="flex items-center gap-2">
+                  Article
+                  {post._status === 'draft' && <DraftBadge />}
+                </span>
+                {post.date && (
+                  <>
+                    <span aria-hidden className="opacity-40">
+                      ·
+                    </span>
+                    <DateTime date={post.date} />
+                  </>
+                )}
+                {post.byline && (
+                  <>
+                    <span aria-hidden className="opacity-40">
+                      ·
+                    </span>
+                    <span>{post.byline}</span>
+                  </>
+                )}
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold font-identity mt-2 flex items-center gap-2 flex-wrap">
+                <span>{post.title}</span>
+              </h1>
+            </header>
+            {imageUrl &&
+              typeof post.image === 'object' &&
+              post.image?.width &&
+              post.image?.height && (
+                <Image
+                  src={imageUrl}
+                  alt={post.title || ''}
+                  width={post.image.width}
+                  height={post.image.height}
+                  objectFit="cover"
+                  className="w-full max-h-48 md:h-auto object-cover rounded-lg overflow-hidden"
+                />
+              )}
+            <LexicalRenderer content={post.body} className="text-lg/relaxed" />
+            {sameDayActions.length > 0 && (
+              <ArticleSameDayActions sameDayActions={sameDayActions} articleDate={articleDate} />
             )}
-
-            {nextPost ? (
-              <Link
-                href={nextPost.path!}
-                style={{
-                  flex: 1,
-                  padding: '1rem',
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  textAlign: 'right',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
-                  Next Post →
-                </div>
-                <div style={{ fontWeight: 600, color: '#333' }}>{nextPost.title as string}</div>
+            <div className="mt-3 border-t border-gray-200 pt-3 italic opacity-60">
+              Want to discuss this post or publish a follow-up on the post?{' '}
+              <Link className="link" href={`mailto:${projectStrings.email}`}>
+                Contact us &rarr;
               </Link>
-            ) : (
-              <div style={{ flex: 1 }} />
+            </div>
+
+            {/* Previous/Next Navigation */}
+            {(previousPost || nextPost) && (
+              <nav className="flex justify-between gap-8">
+                {previousPost ? (
+                  <Link
+                    href={previousPost.path!}
+                    className="flex-1 p-4 bg-gray-100 rounded-lg no-underline text-inherit transition-colors hover:bg-gray-200"
+                  >
+                    <div className="text-sm text-gray-600 mb-2">← Previous Post</div>
+                    <div className="font-semibold text-gray-800">
+                      {previousPost.title as string}
+                    </div>
+                  </Link>
+                ) : (
+                  <div className="flex-1" />
+                )}
+
+                {nextPost ? (
+                  <Link
+                    href={nextPost.path!}
+                    className="flex-1 p-4 bg-gray-100 rounded-lg no-underline text-inherit text-right transition-colors hover:bg-gray-200"
+                  >
+                    <div className="text-sm text-gray-600 mb-2">Next Post →</div>
+                    <div className="font-semibold text-gray-800">{nextPost.title as string}</div>
+                  </Link>
+                ) : (
+                  <div className="flex-1" />
+                )}
+              </nav>
             )}
-          </nav>
-        )}
-      </main>
+          </section>
+        </main>
+        <ArticleActionsSidebar side="next" actions={nextActions} articleDate={articleDate} />
+      </div>
     </div>
   )
 }
