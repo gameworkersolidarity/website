@@ -9,12 +9,14 @@ export function ArticleActionsSidebar({
   side,
   actions,
   articleDate,
+  limit = SIDEBAR_LIMIT,
 }: {
   side: 'previous' | 'next'
   actions: Action[]
   articleDate: string
+  limit?: number
 }) {
-  const list = actions.slice(0, SIDEBAR_LIMIT)
+  const list = actions.slice(0, limit)
   if (list.length === 0) return <aside></aside>
 
   const isPrevious = side === 'previous'

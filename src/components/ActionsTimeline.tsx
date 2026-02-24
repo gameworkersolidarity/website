@@ -391,16 +391,17 @@ export function Timeline({
     [binnedActions, height],
   )
 
+  // Base labels only: featured + throttle. No dependence on currentActionId so labels don't shift when highlighting.
   function getLabelPositionMetadata(action: Action) {
-    if (!action.id || !currentActionId) {
+    if (!action.id) {
       return {
         shouldAppear: false,
         indexInBin: 0,
         dynamicSkipCount: 0,
       }
     }
-    // Always show featured actions and currently selected action
-    if (action.featured || action.id === currentActionId) {
+    // Always show featured actions (highlighted one is shown separately as additional label)
+    if (action.featured) {
       return {
         shouldAppear: true,
         indexInBin: 0,
@@ -435,18 +436,15 @@ export function Timeline({
     }
   }
 
-  // Calculate global index for all labels that should appear
+  // Base labels only (no currentActionId) so positions stay fixed when highlighting
   const globalLabelIndex = useMemo(() => {
     const indexMap = new Map<string, number>()
     let globalIndex = 0
 
     sortedActions.forEach((action) => {
-      if (!action.id || !currentActionId) {
-        return
-      }
+      if (!action.id) return
 
-      // Always show featured actions and currently selected action
-      if (action.featured || action.id === currentActionId) {
+      if (action.featured) {
         indexMap.set(action.id, globalIndex)
         globalIndex++
         return
@@ -456,14 +454,12 @@ export function Timeline({
       const actionsInBin = sortedActions.filter((e) => getBin(new Date(e.date)) === targetBin)
       const dynamicSkipCount = Math.max(minSkip, Math.ceil(actionsInBin.length / maxLabelsPerBin))
 
-      // For deterministic spacing within Bin, get positions in this Bin
       const thisBinIndices = sortedActions
         .map((e, i) => ({ id: e.id, b: getBin(new Date(e.date)), idx: i }))
         .filter((row) => row.b === targetBin)
 
       const thisActionIndexInBin = thisBinIndices.findIndex((row) => row.id === action.id)
 
-      // Show one every dynamicSkipCount in the same Bin
       if (thisActionIndexInBin % dynamicSkipCount === 0) {
         indexMap.set(action.id, globalIndex)
         globalIndex++
@@ -471,7 +467,7 @@ export function Timeline({
     })
 
     return indexMap
-  }, [sortedActions, currentActionId, getBin, minSkip, maxLabelsPerBin])
+  }, [sortedActions, getBin, minSkip, maxLabelsPerBin])
 
   function getLabelPosition(globalIndex: number, actionId: string | null, offset: number = 0) {
     if (currentActionId && actionId === currentActionId) {
@@ -549,17 +545,13 @@ export function Timeline({
             strokeWidth={2}
           />
 
-          {/* Vertical ines from circle to text labels */}
-          {sortedActions.map((action, index) => {
+          {/* Vertical lines from circle to text labels (base set only) */}
+          {sortedActions.map((action) => {
             const x = xScale(new Date(action.date))
             const { shouldAppear } = getLabelPositionMetadata(action)
             if (!shouldAppear) return null
             const globalIndex = globalLabelIndex.get(action.id) ?? 0
-            const { y } = getLabelPosition(
-              globalIndex,
-              action.id,
-              action.id === currentActionId ? highlightOffset : 0,
-            )
+            const { y } = getLabelPosition(globalIndex, null, 0)
             return (
               <Line
                 key={`line-${action.id}`}
@@ -573,6 +565,28 @@ export function Timeline({
               />
             )
           })}
+          {/* Line for highlighted action (additional label when not in base set) */}
+          {currentActionId &&
+            (() => {
+              const action = sortedActions.find((a) => a.id === currentActionId)
+              if (!action) return null
+              const inBaseSet = globalLabelIndex.has(action.id)
+              if (inBaseSet) return null
+              const x = xScale(new Date(action.date))
+              const { y } = getLabelPosition(0, action.id, highlightOffset)
+              return (
+                <Line
+                  key={`line-highlight-${action.id}`}
+                  x1={x}
+                  y1={timelineY}
+                  x2={x}
+                  y2={y}
+                  stroke={getActionColor(action)}
+                  strokeWidth={1}
+                  suppressHydrationWarning
+                />
+              )
+            })()}
 
           {/* Action dots — all markers shown; only labels are throttled in dense bins */}
           {sortedActions.map((action) => {
@@ -609,21 +623,14 @@ export function Timeline({
             )
           })}
 
-          {/* Labels above timeline */}
-          {sortedActions.map((action, index) => {
+          {/* Labels above timeline (base set only — positions don't change with highlight) */}
+          {sortedActions.map((action) => {
             const positionMetadata = getLabelPositionMetadata(action)
             if (!positionMetadata.shouldAppear) return null
             const x = xScale(new Date(action.date))
             const globalIndex = globalLabelIndex.get(action.id) ?? 0
-            const { y, aboveBelow } = getLabelPosition(
-              globalIndex,
-              action.id,
-              action.id === currentActionId ? highlightOffset : 0,
-            )
-            // Estimate label dimensions - generous defaults for Firefox/Safari compatibility
-            // Firefox/Safari require explicit width/height on foreignObject
-            const estimatedWidth = 300 // px - generous width to accommodate longer labels
-            // const estimatedHeight = action.id === currentActionId ? 60 : 40 // px - more height if date is shown
+            const { y, aboveBelow } = getLabelPosition(globalIndex, null, 0)
+            const estimatedWidth = 300
 
             return (
               <HtmlLabel
@@ -638,7 +645,6 @@ export function Timeline({
                   pointerEvents: 'auto',
                 }}
               >
-                {/* <pre className="text-xs">{JSON.stringify(positionMetadata, null, 2)}</pre> */}
                 <div
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
@@ -686,38 +692,76 @@ export function Timeline({
                   </div>
                 </div>
               </HtmlLabel>
-              // <Group
-              //   key={`label-${action.id}`}
-              //   transform={`translate(${x}, ${getLabelY(index, action.id)})`}
-              // >
-              //   {action.id === currentActionId && (
-              //     <g className="-translate-y-4" fill="#fde68a">
-              //       <rect
-              //         x={-50}
-              //         y={-25}
-              //         width={100}
-              //         height={26}
-              //         rx={10}
-              //         stroke="#f59e42"
-              //         strokeWidth={1.5}
-              //       />
-              //       <Text
-              //         textAnchor="middle"
-              //         fontSize={12}
-              //         fontWeight="bold"
-              //         fill="currentColor"
-              //         dy="-9"
-              //       >
-              //         {formatDate(new Date(action.date), 'dd MMM yy')}
-              //       </Text>
-              //     </g>
-              //   )}
-              //   <Text textAnchor="middle" fontSize={12} fontWeight="bold" fill="currentColor">
-              //     {labelText}
-              //   </Text>
-              // </Group>
             )
           })}
+
+          {/* Additional label for highlighted action (when not already in base set) */}
+          {currentActionId &&
+            (() => {
+              const action = sortedActions.find((a) => a.id === currentActionId)
+              if (!action || globalLabelIndex.has(action.id)) return null
+              const x = xScale(new Date(action.date))
+              const { y, aboveBelow } = getLabelPosition(0, action.id, highlightOffset)
+              const estimatedWidth = 300
+              return (
+                <HtmlLabel
+                  key={`label-highlight-${action.id}`}
+                  x={x}
+                  y={y}
+                  horizontalAnchor="middle"
+                  verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
+                  showAnchorLine={false}
+                  containerStyle={{
+                    overflow: 'visible',
+                    pointerEvents: 'auto',
+                  }}
+                >
+                  <div
+                    className="whitespace-nowrap flex flex-col items-center text-center cursor-pointer bg-snot-300 rounded-md px-2 py-1 border-none"
+                    style={{
+                      display: 'flex',
+                      width: 'max-content',
+                      maxWidth: `${estimatedWidth}px`,
+                    }}
+                    onClick={() => handleClick(action)}
+                  >
+                    <div className="text-xs">
+                      {formatDate(new Date(action.date), 'dd MMM yyyy')}
+                    </div>
+                    <div className="text-xs font-bold flex flex-row flex-wrap justify-center items-center">
+                      {labelProperty === 'categories'
+                        ? action.categories?.map((c) => (
+                            <CategoryLabel category={c as Category} key={(c as Category).id} />
+                          ))
+                        : null}
+                      {labelProperty === 'companies'
+                        ? action.companies?.map((c) => (
+                            <CompanyLabel company={c as Company} key={(c as Company).id} />
+                          ))
+                        : null}
+                      {labelProperty === 'organisingGroups'
+                        ? action.organisingGroups?.map((c) => (
+                            <OrganisingGroupLabel
+                              organisingGroup={c as OrganisingGroup}
+                              key={(c as OrganisingGroup).id}
+                            />
+                          ))
+                        : null}
+                      {labelProperty === 'countries'
+                        ? action.countries?.map((c) => (
+                            <CountryLabel
+                              country={c as Country}
+                              key={(c as unknown as Country).id}
+                            />
+                          ))
+                        : null}
+                      {labelProperty === 'location' ? action.location : null}
+                      {labelProperty === 'name' ? action.name : null}
+                    </div>
+                  </div>
+                </HtmlLabel>
+              )
+            })()}
 
           {/* Date labels below timeline */}
           {/* {sortedActions.map((action) => {
