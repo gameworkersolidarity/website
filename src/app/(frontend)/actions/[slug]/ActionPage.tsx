@@ -86,9 +86,9 @@ export function ActionPage({
     )
 
   return (
-    <div className="bg-gwBackground" style={{ minHeight: '66vh' }}>
+    <div className="bg-gwBackground flex-1 flex flex-col" style={{ minHeight: '66vh' }}>
       <AdminEditBanner page={action} />
-      <div className="mx-auto py-4 md:py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4">
+      <div className="mx-auto py-4 md:py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4 mb-auto">
         <aside className="order-1 lg:order-0 text-right lg:flex flex-col gap-3 items-start rtl">
           {hasPreviousActions && (
             <PreviousActions

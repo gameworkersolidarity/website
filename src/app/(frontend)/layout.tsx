@@ -125,7 +125,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 fallback={
                   <div>
                     <Header navigation={headerData?.navigation || []} />
-                    <main className="min-h-[75vh]">
+                    <main className="min-h-[75vh] flex-1 flex flex-col">
                       <div className="flex flex-col min-h-screen items-center justify-center bg-background">
                         <div className="text-base font-semibold opacity-75">Loading...</div>
                       </div>
@@ -137,7 +137,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 }
               >
                 <Header navigation={headerData?.navigation || []} />
-                <main className="min-h-[75vh]">{children}</main>
+                <main className="min-h-[75vh] flex-1 flex flex-col">{children}</main>
                 <div className="margin-top">
                   <Footer navigation={footerNav} />
                 </div>
