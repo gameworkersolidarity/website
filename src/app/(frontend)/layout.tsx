@@ -115,10 +115,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { authStatus } = await loadDraftMode(payload)
 
   return (
-    <NuqsAdapter>
-      <UserContextProvider user={authStatus?.user}>
-        <html lang="en" suppressHydrationWarning={true}>
-          <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning={true}>
+      <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
+        <NuqsAdapter>
+          <UserContextProvider user={authStatus?.user}>
             <ThemeProvider defaultTheme="light" disableTransitionOnChange>
               <CountryFlagPolyfill />
               <Suspense
@@ -143,9 +143,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 </div>
               </Suspense>
             </ThemeProvider>
-          </body>
-        </html>
-      </UserContextProvider>
-    </NuqsAdapter>
+          </UserContextProvider>
+        </NuqsAdapter>
+      </body>
+    </html>
   )
 }

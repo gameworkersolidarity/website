@@ -131,26 +131,18 @@ export function ActionFilter({
         )}
       >
         <div className="flex flex-row items-baseline gap-2">
-          <CollapsibleTrigger className="flex flex-row gap-2 shrink-0 grow-0">
-            {isMobile ? (
-              <Button
-                onClick={() => setOpen(!__openState)}
-                size="sm"
-                className="cursor-pointer py-1! h-auto!"
-                variant="outline"
-              >
+          {isMobile ? (
+            <CollapsibleTrigger asChild>
+              <Button size="sm" className="cursor-pointer py-1! h-auto!" variant="outline">
                 {!isExpanded ? 'Show filters' : 'Hide filters'}
                 <CollapsibleListButton open={isExpanded} className="w-3.5 h-3.5 text-stone-500" />
               </Button>
-            ) : (
-              <>
-                <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
-                {isMobile && (
-                  <CollapsibleListButton open={isExpanded} className="w-3.5 h-3.5 text-stone-500" />
-                )}
-              </>
-            )}
-          </CollapsibleTrigger>
+            </CollapsibleTrigger>
+          ) : (
+            <CollapsibleTrigger className="flex flex-row gap-2 shrink-0 grow-0">
+              <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
+            </CollapsibleTrigger>
+          )}
         </div>
         {isExpanded && (
           <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto grow">
