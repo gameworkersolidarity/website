@@ -370,6 +370,33 @@ export function Timeline({
     })
   }, [sortedActions, getBin])
 
+  // When showing categories, prefer non-redundancy actions for label slots; use redundancy only if no others in bin.
+  const hasRedundancyCategory = useCallback(
+    (action: Action) => {
+      if (labelProperty !== 'categories' || !action.categories) return false
+      return action.categories.some(
+        (c) => typeof c === 'object' && c !== null && (c as Category).slug === 'redundancy',
+      )
+    },
+    [labelProperty],
+  )
+
+  const actionsInBinSortedForLabels = useCallback(
+    (binKey: string) => {
+      const inBin = actionsWithBins.filter((e) => e.bin === binKey).map((e) => e.action)
+      if (labelProperty !== 'categories') {
+        return inBin.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      }
+      return inBin.sort((a, b) => {
+        const aRed = hasRedundancyCategory(a)
+        const bRed = hasRedundancyCategory(b)
+        if (aRed !== bRed) return aRed ? 1 : -1
+        return new Date(a.date).getTime() - new Date(b.date).getTime()
+      })
+    },
+    [actionsWithBins, labelProperty, hasRedundancyCategory],
+  )
+
   const binnedActions = useMemo(() => {
     const binFn = bin<Action, Date>()
       .domain([minDate, maxDate])
@@ -417,18 +444,20 @@ export function Timeline({
     }
 
     const targetBin = getBin(new Date(action.date))
-    const actionsInBin = actionsWithBins.filter((e) => e.bin === targetBin)
+    const actionsInBinOrdered = actionsInBinSortedForLabels(targetBin)
     // Cap labels per bin: dense bins get at most maxLabelsPerBin labels
-    const dynamicSkipCount = Math.max(minSkip, Math.ceil(actionsInBin.length / maxLabelsPerBin))
+    const dynamicSkipCount = Math.max(
+      minSkip,
+      Math.ceil(actionsInBinOrdered.length / maxLabelsPerBin),
+    )
 
-    // For deterministic spacing within Bin, get positions in this Bin
-    const thisBinIndices = actionsWithBins
-      .map((e, i) => ({ id: e.action.id, b: e.bin, idx: i }))
-      .filter((row) => row.b === targetBin)
+    // Index in bin uses label-priority order (non-redundancy first when labelProperty is categories)
+    const thisActionIndexInBin = actionsInBinOrdered.findIndex((a) => a.id === action.id)
+    if (thisActionIndexInBin === -1) {
+      return { shouldAppear: false, indexInBin: 0, dynamicSkipCount }
+    }
 
-    const thisActionIndexInBin = thisBinIndices.findIndex((row) => row.id === action.id)
-
-    // Show one every dynamicSkipCount in the same Bin
+    // Show one every dynamicSkipCount in the same Bin (by priority order)
     return {
       shouldAppear: thisActionIndexInBin % dynamicSkipCount === 0,
       indexInBin: thisActionIndexInBin,
@@ -451,23 +480,21 @@ export function Timeline({
       }
 
       const targetBin = getBin(new Date(action.date))
-      const actionsInBin = sortedActions.filter((e) => getBin(new Date(e.date)) === targetBin)
-      const dynamicSkipCount = Math.max(minSkip, Math.ceil(actionsInBin.length / maxLabelsPerBin))
+      const actionsInBinOrdered = actionsInBinSortedForLabels(targetBin)
+      const dynamicSkipCount = Math.max(
+        minSkip,
+        Math.ceil(actionsInBinOrdered.length / maxLabelsPerBin),
+      )
+      const thisActionIndexInBin = actionsInBinOrdered.findIndex((a) => a.id === action.id)
 
-      const thisBinIndices = sortedActions
-        .map((e, i) => ({ id: e.id, b: getBin(new Date(e.date)), idx: i }))
-        .filter((row) => row.b === targetBin)
-
-      const thisActionIndexInBin = thisBinIndices.findIndex((row) => row.id === action.id)
-
-      if (thisActionIndexInBin % dynamicSkipCount === 0) {
+      if (thisActionIndexInBin >= 0 && thisActionIndexInBin % dynamicSkipCount === 0) {
         indexMap.set(action.id, globalIndex)
         globalIndex++
       }
     })
 
     return indexMap
-  }, [sortedActions, getBin, minSkip, maxLabelsPerBin])
+  }, [sortedActions, getBin, minSkip, maxLabelsPerBin, actionsInBinSortedForLabels])
 
   function getLabelPosition(globalIndex: number, actionId: string | null, offset: number = 0) {
     if (currentActionId && actionId === currentActionId) {
