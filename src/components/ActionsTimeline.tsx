@@ -591,7 +591,9 @@ export function Timeline({
           {/* Action dots — all markers shown; only labels are throttled in dense bins */}
           {sortedActions.map((action) => {
             const x = xScale(new Date(action.date))
-            const color = getActionColor(action)
+            const color = action.featured
+              ? getCSSVariable('--color-gw-pink', false, '#DD96FF')
+              : getActionColor(action)
             const radius = getActionRadius(action)
             return (
               <g key={action.id}>
@@ -611,7 +613,7 @@ export function Timeline({
                       cy={timelineY}
                       r={radius + 2}
                       fill="none"
-                      stroke={color}
+                      stroke={getCSSVariable('--color-gw-pink', false, '#DD96FF')}
                       strokeWidth={2}
                       style={{ cursor: 'pointer' }}
                       onClick={() => handleClick(action)}
@@ -649,7 +651,7 @@ export function Timeline({
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
                     action.id === currentActionId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
-                    action.featured && 'underline',
+                    action.featured && 'bg-gw-pink text-black rounded-md px-1.5 py-0.5',
                   )}
                   style={{
                     display: 'flex',
