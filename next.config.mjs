@@ -30,11 +30,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/ingest/static/:path*',
+        source: '/notes/static/:path*',
         destination: 'https://eu-assets.i.posthog.com/static/:path*',
       },
       {
-        source: '/ingest/:path*',
+        source: '/notes/:path*',
         destination: 'https://eu.i.posthog.com/:path*',
       },
     ]

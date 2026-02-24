@@ -4,7 +4,7 @@ The wizard has completed a deep integration of PostHog into your Game Worker Sol
 
 - **Client-side initialization** via `instrumentation-client.ts` (Next.js 15.3+ approach)
 - **Server-side PostHog client** for API route tracking
-- **Reverse proxy configuration** to avoid ad blockers (routes through `/ingest`)
+- **Reverse proxy configuration** to avoid ad blockers (routes through `/notes`)
 - **Automatic exception capture** for error tracking
 - **12 custom events** tracking user interactions across forms, search, filters, and navigation
 
