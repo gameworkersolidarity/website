@@ -10,6 +10,7 @@ import { backupShareCard } from '@/utils/shareCard'
 import type { Metadata } from 'next/dist/types'
 import { UserContextProvider } from '@/utils/UserContext'
 import { loadDraftMode } from '@/utils/auth'
+import { CountryFlagPolyfill } from '@/components/CountryFlagPolyfill'
 import { payloadUserGlobalQuery } from '@/utils/payload.server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
@@ -119,6 +120,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <html lang="en" suppressHydrationWarning={true}>
           <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
             <ThemeProvider defaultTheme="light" disableTransitionOnChange>
+              <CountryFlagPolyfill />
               <Suspense
                 fallback={
                   <div>

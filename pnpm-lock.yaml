@@ -261,6 +261,9 @@ importers:
       country-flag-emoji:
         specifier: ^1.0.3
         version: 1.0.3
+      country-flag-emoji-polyfill:
+        specifier: ^0.1.8
+        version: 0.1.8
       country-to-bbox:
         specifier: ^1.0.0
         version: 1.0.0
@@ -5980,6 +5983,12 @@ packages:
     resolution:
       {
         integrity: sha512-GC96HGBmMpWekUUAoyuqI2H6uK4NDPRL0UX6DYR7ochY7h4p1lOg7ZixcsyDOBolILd4GYWW6Wm2vZvuY40GAg==,
+      }
+
+  country-flag-emoji-polyfill@0.1.8:
+    resolution:
+      {
+        integrity: sha512-Mbah52sADS3gshUYhK5142gtUuJpHYOXlXtLFI3Ly4RqgkmPMvhX9kMZSTqDM8P7UqtSW99eHKFphhQSGXA3Cg==,
       }
 
   country-flag-emoji@1.0.3:
@@ -15599,6 +15608,8 @@ snapshots:
       yaml: 1.10.2
 
   country-coords@1.0.0: {}
+
+  country-flag-emoji-polyfill@0.1.8: {}
 
   country-flag-emoji@1.0.3: {}
 
