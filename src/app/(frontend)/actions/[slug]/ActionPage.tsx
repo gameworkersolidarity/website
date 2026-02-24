@@ -372,7 +372,7 @@ function ActionBreadcrumbNavLink({
               return (
                 <>
                   {action.categories?.length ? (
-                    <>
+                    <span className="flex flex-wrap gap-1">
                       {action.categories?.slice(0, 3).map((category) => (
                         <CategoryLabel
                           category={category as unknown as Category}
@@ -381,7 +381,7 @@ function ActionBreadcrumbNavLink({
                         />
                       ))}
                       &nbsp;
-                    </>
+                    </span>
                   ) : null}
                   <time dateTime={action.date}>
                     {distance} {suffix}
