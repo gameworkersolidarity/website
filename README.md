@@ -31,6 +31,7 @@ First, make sure you have the technical requirements installed. (See section bel
      - `DATABASE_URL` — MongoDB connection string (local or cloud).
      - `PAYLOAD_SECRET` — Long, random secret for Payload (e.g. JWT signing).
    - For full functionality you may also need: Mapbox token, Cloudinary credentials, `BASE_URL`, and optionally Airtable and SMTP settings (see `.env.example`).
+   - **Local dev with cloud MongoDB:** Add your IP as a trusted source in the database’s network access: [DigitalOcean DB network access](https://cloud.digitalocean.com/databases/3ce25df3-a800-493e-ae60-6b88cf140a22/network-access?i=55d14f).
 
 4. **Run the app**
    - **Development:** `pnpm dev` then open http://localhost:3000 (admin at `/admin`).
