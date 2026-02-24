@@ -7,6 +7,9 @@ import { Action } from '@/payload-types'
 import { getSlug } from '@/utils/payloadPath'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { getMediaUrl, getThumbnailUrl } from '@/utils/media'
+import { projectStrings } from '@/project-strings'
+import type { Media } from '@/payload-types'
 import { format } from 'date-fns'
 import { validatePayloadDocument, validatePayloadDocuments } from '@/utils/validate-payload'
 
@@ -199,6 +202,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     collection: 'actions',
     slug,
     notFoundTitle: 'Action Not Found',
+    getImages: (record: any) => {
+      const documents = record?.documents
+      if (!Array.isArray(documents) || documents.length === 0) return undefined
+      const first = documents[0]
+      if (typeof first !== 'object' || first === null) return undefined
+      const media = first as Media
+      let url = getThumbnailUrl(media) || getMediaUrl(media, { baseUrl: projectStrings.baseUrl })
+      if (!url) return undefined
+      if (url.startsWith('/')) url = `${projectStrings.baseUrl}${url}`
+      return [
+        {
+          url,
+          width: media.width || 1200,
+          height: media.height || 630,
+          alt: media.alt || record.name || 'Action',
+        },
+      ]
+    },
     getDescription: async (record: any) => {
       const parts: string[] = []
 

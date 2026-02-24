@@ -14,7 +14,7 @@ type MetadataOptions = {
   notFoundTitle?: string
   getTitle?: (record: any) => string
   getDescription?: (record: any) => string | Promise<string | undefined>
-  getImages?: (record: any) => string[] | undefined
+  getImages?: (record: any) => OpenGraph['images']
 }
 
 export async function generateMetadataForSlug({
