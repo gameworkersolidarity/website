@@ -12,7 +12,7 @@ import { ZoomLevel } from '@/utils/global-state'
 import { ActionInitiatorFilter } from '@/collections/enums'
 import pluralize from 'pluralize'
 import Link from 'next/link'
-import { ArrowDownIcon, ArrowLeftIcon } from 'lucide-react'
+import { ArrowLeftIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { format, isSameMonth, isSameYear } from 'date-fns'
 import { getMediaUrl } from '@/utils/media'
@@ -78,76 +78,61 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
   return (
     <div>
       <AdminEditBanner page={page} />
-      {featuredImageUrl ? (
-        <div className="relative">
-          <Image
-            src={featuredImageUrl}
-            alt={page.name}
-            width={featuredMedia?.width || 1000}
-            height={featuredMedia?.height || 1000}
-            className="w-full h-auto object-cover z-10 max-h-[66vh]"
-          />
-          <article className="absolute top-0 left-0 w-full">
-            <div className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4 z-20">
-              <Back />
-            </div>
-          </article>
-          <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4 -mt-8 z-20 relative">
-            <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
-              <header>
-                <div className="font-mono uppercase text-sm opacity-50 text-center flex items-center justify-center gap-2">
-                  <span>Campaign</span>
-                  {page._status === 'draft' && <DraftBadge />}
-                </div>
-                <div className="font-mono uppercase text-sm opacity-50 text-center">
-                  {!!earliestAction && !!latestAction && (
-                    <span>
-                      {format(
-                        earliestAction.date,
-                        sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy',
-                      )}{' '}
-                      &rarr; {format(latestAction.date, 'dd MMM yyyy')}
-                    </span>
-                  )}
-                </div>
-                <h1 className="text-4xl md:text-5xl font-bold font-identity text-center">
-                  {page.name}
-                </h1>
-                {/* Count of actions */}
-                <div
-                  className="mt-4 opacity-50 hover:opacity-100 transition-opacity duration-300 text-center cursor-pointer flex items-center justify-center gap-1 font-mono text-sm uppercase"
-                  onClick={() => {
-                    const actionsElement = document.getElementById('actions')
-                    if (actionsElement) {
-                      actionsElement.scrollIntoView({ behavior: 'smooth' })
-                    }
-                  }}
-                >
-                  <span>{pluralize('action', actions?.length || 0, true)}</span>
-                  <ArrowDownIcon className="w-4 h-4 inline-block" />
-                </div>
-              </header>
-              {page.description && (
-                <LexicalRenderer content={page.description} className="mt-4 mx-auto" />
-              )}
-            </section>
-          </article>
-        </div>
-      ) : (
-        <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4">
-          <Back />
-          <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
-            <header>
-              <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-2">
-                <span>Campaign</span>
+      <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4">
+        <Back />
+        <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
+          <header>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm uppercase opacity-50">
+              <span className="flex items-center gap-2">
+                Campaign
                 {page._status === 'draft' && <DraftBadge />}
+              </span>
+              {!!earliestAction && !!latestAction && (
+                <>
+                  <span aria-hidden className="opacity-40">
+                    ·
+                  </span>
+                  <span>
+                    {format(
+                      earliestAction.date,
+                      sameMonth ? 'dd' : sameYear ? 'dd MMM' : 'dd MMM yyyy',
+                    )}{' '}
+                    &rarr; {format(latestAction.date, 'dd MMM yyyy')}
+                  </span>
+                </>
+              )}
+              <span aria-hidden className="opacity-40">
+                ·
+              </span>
+              <div
+                className="cursor-pointer group opacity-100 w-fit"
+                onClick={() => {
+                  const actionsElement = document.getElementById('actions')
+                  if (actionsElement) {
+                    actionsElement.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
+              >
+                <span className="inline-flex items-center rounded-full bg-gray-200 px-2.5 py-0.5 font-mono text-sm uppercase text-gray-700 group-hover:bg-gray-300 transition-colors">
+                  {pluralize('action', actions?.length || 0, true)}
+                </span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-identity">{page.name}</h1>
-            </header>
-            {page.description && <LexicalRenderer content={page.description} />}
-          </section>
-        </article>
-      )}
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold font-identity mt-2">{page.name}</h1>
+          </header>
+          {featuredImageUrl && (
+            <Image
+              src={featuredImageUrl}
+              alt={page.name}
+              width={featuredMedia?.width || 1000}
+              height={featuredMedia?.height || 1000}
+              objectFit="cover"
+              className="w-full max-h-64 md:h-auto object-cover rounded-lg overflow-hidden"
+            />
+          )}
+          {page.description && <LexicalRenderer content={page.description} className="mt-4" />}
+        </section>
+      </article>
 
       <div className="bg-background relative" id="actions">
         <ActionExplorer
