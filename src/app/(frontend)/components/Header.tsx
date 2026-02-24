@@ -29,7 +29,7 @@ const SheetHeader = dynamic(() => import('@/components/ui/sheet').then((mod) => 
 })
 import { useMediaQuery } from 'usehooks-ts'
 import { Button } from '@/components/ui/button'
-import { MenuIcon } from 'lucide-react'
+import { Dices, MenuIcon } from 'lucide-react'
 import { navLinks } from '@/app/links'
 import { useElementSize } from '@custom-react-hooks/use-element-size'
 const SearchBar = dynamic(() => import('@/components/SearchBar').then((mod) => mod.SearchBar), {
@@ -126,6 +126,18 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
                     ) : null}
                   </NavigationMenuItem>
                 ))}
+                <NavigationMenuItem className="hidden shrink-0 lg:block">
+                  <NavigationMenuLink asChild>
+                    <a
+                      href="/api/actions/random"
+                      className="flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      title="Random action"
+                      aria-label="Random action"
+                    >
+                      <Dices className="h-5 w-5 text-black" />
+                    </a>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
                 <NavigationMenuItem suppressHydrationWarning className="hidden lg:block">
                   <SearchBar />
                 </NavigationMenuItem>
