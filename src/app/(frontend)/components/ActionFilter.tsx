@@ -126,12 +126,12 @@ export function ActionFilter({
     >
       <section
         className={twMerge(
-          'shrink-0 flex flex-col md:flex-row items-center justify-between gap-2',
+          'shrink-0 flex flex-col md:flex-row items-center justify-between gap-2 xl:gap-x-8',
           initiators && 'w-full ',
         )}
       >
         <div className="flex flex-row items-baseline gap-2">
-          <CollapsibleTrigger className="flex flex-row gap-2">
+          <CollapsibleTrigger className="flex flex-row gap-2 shrink-0 grow-0">
             {isMobile ? (
               <Button
                 onClick={() => setOpen(!__openState)}
@@ -153,7 +153,7 @@ export function ActionFilter({
           </CollapsibleTrigger>
         </div>
         {isExpanded && (
-          <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto grow">
             {/* Search input - always visible */}
             <div className="relative flex items-center w-full">
               <Search className="absolute left-2 w-4 text-gray-400 grow-0" />
@@ -178,14 +178,17 @@ export function ActionFilter({
               <RadioGroup
                 value={filteredInitiator || ''}
                 onValueChange={(value) => setInitiatorFilter(value as ActionInitiatorFilter)}
-                className="flex flex-row items-right gap-3"
+                className="flex flex-row items-center gap-3 flex-nowrap max-sm:flex-wrap"
               >
                 {[
                   { label: 'Worker-led', value: ActionInitiatorFilter.WORKER_LED },
                   { label: 'Boss-led', value: ActionInitiatorFilter.BOSS_LED },
                   { label: 'All', value: ActionInitiatorFilter.ALL },
                 ].map((initiator) => (
-                  <div key={initiator.label} className="flex items-center gap-2">
+                  <div
+                    key={initiator.label}
+                    className="flex items-center gap-2 whitespace-nowrap shrink-0"
+                  >
                     <Label htmlFor={initiator.label} className="text-xs uppercase">
                       <RadioGroupItem value={initiator.value || ''} id={initiator.label} />
                       <DisplayInitiator
