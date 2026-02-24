@@ -3,6 +3,7 @@ import { payloadUserQuery } from '@/utils/payload.server'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { Media } from '@/payload-types'
 import { backupShareCard } from '@/utils/shareCard'
+import { projectStrings } from '@/project-strings'
 import { Metadata } from 'next'
 import { OpenGraph } from 'next/dist/lib/metadata/types/opengraph-types'
 import { getMediaUrl } from '@/utils/media'
@@ -129,7 +130,8 @@ export async function generateMetadataForSlug({
       (record as any).featuredImage || (record as any).image || (record as any).logo
     if (imageField) {
       const media = imageField as Media
-      const imageUrl = getMediaUrl(media)
+      // Absolute URL required for WhatsApp/Signal link previews
+      const imageUrl = getMediaUrl(media, { baseUrl: projectStrings.baseUrl })
       if (imageUrl) {
         images = [
           {
@@ -156,6 +158,7 @@ export async function generateMetadataForSlug({
       images,
     },
     twitter: {
+      card: 'summary_large_image',
       title,
       description,
       images,
