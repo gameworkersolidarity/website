@@ -56,6 +56,7 @@ Redundancy data is imported from CSV files into Payload as **Actions** (with cat
    - `Field 1`, `Studio`, `Date`, `Headcount`, `Parent`, `Type`, `Studio Location`, `Parent Location`
    - Dates must be `YYYY-MM-DD`. Company names are matched with fuzzy matching and cached across rows.
 3. **Run the ingest:**
+
    ```bash
    pnpm run ingest:redundancies
    ```
@@ -82,7 +83,7 @@ Then:
    pnpm run generate:all
    ```
    This runs [Payload’s type generation](https://payloadcms.com/docs/configuration/typescript#generated-types) and the project’s Zod schema generator. The app and scripts use `@/payload-types` and `payload-zod-schemas`.
-3. With MongoDB, new fields are used as soon as the config changes; no separate migrations are required. (No need to restart the dev server for field updates.) — however, if you intend to rename a field, then you should create a [migration](https://payloadcms.com/docs/database/migrations).
+3. With MongoDB, new fields are used as soon as the config changes; no separate migrations are required. (No need to restart the dev server for field updates.) MongoDB is document-based and schemaless: each document can have different keys, so adding a field in Payload’s config only means existing documents don’t have that key until you set it—there’s no fixed table schema to alter. For renaming or removing fields, see the [migrations](https://payloadcms.com/docs/database/migrations) warning above.
 4. **Update UI** if needed: the [Payload admin](https://payloadcms.com/docs/admin/overview) will show the new field automatically; update any frontend components or ingest scripts that should read or write the field.
 
 **Adding a new collection** (not just a new field): define the collection per [Configuration → Collections](https://payloadcms.com/docs/configuration/collections), add the module under `src/collections/`, register it in the `collections` array in [payload.config.ts](https://payloadcms.com/docs/configuration/overview), then run `pnpm run generate:all`.
