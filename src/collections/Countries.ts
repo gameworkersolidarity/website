@@ -11,6 +11,8 @@ export const Countries: CollectionConfig = {
   trash: true,
   admin: {
     useAsTitle: 'name',
+    description:
+      'Countries where actions take place. Used for filtering and display (e.g. maps, filters).',
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
         return null

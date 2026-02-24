@@ -10,6 +10,7 @@ export const OrganisingGroups: CollectionConfig = {
   trash: true,
   admin: {
     useAsTitle: 'name',
+    description: 'Groups that organise or support actions (unions, NGOs, movements).',
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
         return null

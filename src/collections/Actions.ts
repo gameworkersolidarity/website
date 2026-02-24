@@ -11,6 +11,8 @@ export const Actions: CollectionConfig = {
   slug: 'actions',
   admin: {
     useAsTitle: 'name',
+    description:
+      'Individual actions (strikes, protests, events). Core content with date, location, and relations to campaigns, companies, countries, and categories.',
     defaultColumns: ['name', 'date', 'createdAt', 'updatedAt'],
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {

@@ -31,8 +31,9 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
-    // Generated files
+    // Generated files (do not lint – style is from codegen)
     '**/payload-types.ts',
+    '**/payload-zod-schemas.ts',
     'src/app/(payload)/admin/importMap.js',
   ]),
 ])

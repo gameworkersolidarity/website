@@ -9,6 +9,8 @@ export const BlogPosts: CollectionConfig = {
   trash: true,
   admin: {
     useAsTitle: 'title',
+    description:
+      'Blog and news articles. Listed on the site with optional date and featured image.',
     defaultColumns: ['title', 'date'],
     preview: (doc) => {
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''

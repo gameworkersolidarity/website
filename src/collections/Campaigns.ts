@@ -43,6 +43,7 @@ export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
   admin: {
     useAsTitle: 'name',
+    description: 'Campaigns that group related actions (e.g. a strike wave or initiative).',
     defaultColumns: ['name', 'createdAt', 'updatedAt'],
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {

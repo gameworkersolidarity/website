@@ -9,6 +9,7 @@ export const Categories: CollectionConfig = {
   trash: true,
   admin: {
     useAsTitle: 'name',
+    description: 'Categories for classifying actions (e.g. strike, protest, campaign type).',
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
         return null

@@ -10,6 +10,7 @@ export const Companies: CollectionConfig = {
   trash: true,
   admin: {
     useAsTitle: 'name',
+    description: 'Companies or organisations that initiate or are associated with actions.',
     preview: (doc) => {
       if (!doc?.slug || typeof doc.slug !== 'string' || !doc.slug.trim()) {
         return null

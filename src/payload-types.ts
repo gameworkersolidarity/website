@@ -170,6 +170,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Authenticated CMS users (admins). Used for login and access control.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -194,6 +196,8 @@ export interface User {
   password?: string | null;
 }
 /**
+ * Uploaded files (images, documents). Used for rich text and document assets.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -276,6 +280,8 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Static content pages (e.g. About, Privacy). Rendered by slug on the frontend.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "staticPages".
  */
@@ -315,6 +321,8 @@ export interface StaticPage {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Blog and news articles. Listed on the site with optional date and featured image.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogPosts".
  */
@@ -363,6 +371,8 @@ export interface BlogPost {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Countries where actions take place. Used for filtering and display (e.g. maps, filters).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "countries".
  */
@@ -420,6 +430,8 @@ export interface Country {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Companies or organisations that initiate or are associated with actions.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "companies".
  */
@@ -484,6 +496,8 @@ export interface Company {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Individual actions (strikes, protests, events). Core content with date, location, and relations to campaigns, companies, countries, and categories.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actions".
  */
@@ -601,6 +615,8 @@ export interface Action {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Categories for classifying actions (e.g. strike, protest, campaign type).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
@@ -650,6 +666,8 @@ export interface Category {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Groups that organise or support actions (unions, NGOs, movements).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "organisingGroups".
  */
@@ -740,6 +758,8 @@ export interface OrganisingGroup {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Campaigns that group related actions (e.g. a strike wave or initiative).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns".
  */

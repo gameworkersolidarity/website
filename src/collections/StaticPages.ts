@@ -9,6 +9,7 @@ export const StaticPages: CollectionConfig = {
   trash: true,
   admin: {
     useAsTitle: 'title',
+    description: 'Static content pages (e.g. About, Privacy). Rendered by slug on the frontend.',
     preview: (doc) => {
       const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || ''
       const slug = typeof doc?.slug === 'string' ? doc.slug : ''
