@@ -83,6 +83,9 @@ export const metadata: Metadata = {
   },
 }
 
+/** Skip static generation at build; layout uses headers() (draft mode, Payload). */
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
