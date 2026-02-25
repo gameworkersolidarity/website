@@ -54,7 +54,6 @@ export function OrganisingGroupPage({
       ? (page.featuredImage as Media)
       : null
   const featuredImageUrl = getMediaUrl(featuredMedia)
-  console.log('featuredImageUrl', featuredImageUrl, featuredMedia)
   const hasBannerImage = !!featuredImageUrl
   const logoMedia = page.logo && typeof page.logo === 'object' ? (page.logo as Media) : null
   const logoUrl = getMediaUrl(logoMedia)
