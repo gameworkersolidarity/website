@@ -24,6 +24,12 @@ export const CACHE_TAGS = {
 /** Time-based revalidate in seconds (stale after this, revalidate in background when using revalidateTag with 'max'). */
 export const CACHE_REVALIDATE_SECONDS = 12 * 60 * 60 // 12 hours
 
+/** When false or 0, slug pages (e.g. /organising-groups/[slug]) skip unstable_cache and always fetch fresh. */
+export function isSlugPageCachingEnabled(): boolean {
+  const v = process.env.CACHE_SLUG_PAGES
+  return v !== 'false' && v !== '0'
+}
+
 /** Cache key identifiers. Add new keys here when adding a cached page. */
 export const CACHE_KEYS = {
   HOMEPAGE: 'homepage',

@@ -10,6 +10,7 @@ import {
   cacheWithTags,
   CACHE_TAGS,
   METADATA_GLOBAL_TAGS,
+  isSlugPageCachingEnabled,
 } from '@/lib/cache'
 
 export const payloadUserQuery: Payload['find'] = async (options) => {
@@ -134,6 +135,13 @@ export async function getCachedDataForSlug<T>(
     return fetcher({
       query: payloadUserQuery,
       globalQuery: payloadUserGlobalQuery,
+    })
+  }
+
+  if (!isSlugPageCachingEnabled()) {
+    return fetcher({
+      query: payloadPublicQuery,
+      globalQuery: payloadPublicGlobalQuery,
     })
   }
 
