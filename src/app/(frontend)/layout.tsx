@@ -2,6 +2,7 @@ import React, { Suspense } from 'react'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
+import { HomepageSkeleton } from './components/HomepageSkeleton'
 import '@/app/globals.css'
 import { navLinks } from '../links'
 import { ThemeProvider } from '@/components/NextTheme'
@@ -126,9 +127,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                   <div>
                     <Header navigation={headerData?.navigation || []} />
                     <main className="min-h-[75vh] flex-1 flex flex-col">
-                      <div className="flex flex-col min-h-screen items-center justify-center bg-background">
-                        <div className="text-base font-semibold opacity-75">Loading...</div>
-                      </div>
+                      <HomepageSkeleton />
                     </main>
                     <div className="margin-top">
                       <Footer navigation={footerNav} />
