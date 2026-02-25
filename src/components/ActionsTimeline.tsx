@@ -257,6 +257,9 @@ export function Timeline({
   const height = divHeight - margin.top - margin.bottom
   const timelineY = height / 2
 
+  const TOTAL_ANIMATION_SEC = 3.5
+  const STAGGER_WITHIN_BIN_SEC = 0.06
+
   // Calculate date range
   const dateRange = useMemo(() => extent(actions.map((e) => new Date(e.date))), [actions])
   const minDate = useMemo(() => dateRange[0] || new Date(), [dateRange])
@@ -502,6 +505,35 @@ export function Timeline({
     return indexMap
   }, [sortedActions, getBin, minSkip, maxLabelsPerBin, actionsInBinSortedForLabels])
 
+  // Bins that have at least one label, in chronological order — for spreading label animation over ~3.5s
+  const labelBinOrder = useMemo(() => {
+    const binsWithLabels = new Map<string, number>() // binKey -> earliest date in bin (for sorting)
+    sortedActions.forEach((action) => {
+      const meta = getLabelPositionMetadata(action)
+      if (!meta.shouldAppear) return
+      const binKey = getBin(new Date(action.date))
+      const t = new Date(action.date).getTime()
+      const existing = binsWithLabels.get(binKey)
+      if (existing == null || t < existing) binsWithLabels.set(binKey, t)
+    })
+    const sorted = Array.from(binsWithLabels.entries()).sort((a, b) => a[1] - b[1])
+    const binKeyToIndex = new Map<string, number>()
+    sorted.forEach(([key], i) => binKeyToIndex.set(key, i))
+    // Within each bin, order labels by date for stagger
+    const labelIndexWithinBin = new Map<string, number>()
+    sorted.forEach(([binKey]) => {
+      const actionsInBin = sortedActions.filter((a) => {
+        const meta = getLabelPositionMetadata(a)
+        return meta.shouldAppear && getBin(new Date(a.date)) === binKey
+      })
+      actionsInBin.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      actionsInBin.forEach((a, i) => {
+        if (a.id) labelIndexWithinBin.set(a.id, i)
+      })
+    })
+    return { binKeyToIndex, binCount: sorted.length, labelIndexWithinBin }
+  }, [sortedActions, getBin, getLabelPositionMetadata])
+
   function getLabelPosition(globalIndex: number, actionId: string | null, offset: number = 0) {
     if (currentActionId && actionId === currentActionId) {
       const aboveBelow = -1
@@ -585,7 +617,13 @@ export function Timeline({
             if (!shouldAppear) return null
             const globalIndex = globalLabelIndex.get(action.id) ?? 0
             const { y } = getLabelPosition(globalIndex, null, 0)
-            const lineIndex = sortedActions.findIndex((a) => a.id === action.id)
+            const binKey = getBin(new Date(action.date))
+            const labelBinIndex = labelBinOrder.binKeyToIndex.get(binKey) ?? 0
+            const labelBinCount = Math.max(1, labelBinOrder.binCount)
+            const indexInBin = labelBinOrder.labelIndexWithinBin.get(action.id) ?? 0
+            const lineDelay =
+              (TOTAL_ANIMATION_SEC / labelBinCount) * labelBinIndex +
+              indexInBin * STAGGER_WITHIN_BIN_SEC
             return (
               <motion.g
                 key={`line-${action.id}`}
@@ -594,9 +632,9 @@ export function Timeline({
                 viewport={{ once: true, amount: 0.1 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 188,
+                  stiffness: 63,
                   damping: 18,
-                  delay: lineIndex * 0.027,
+                  delay: lineDelay,
                 }}
                 style={{ transformOrigin: `${x}px ${timelineY}px` }}
               >
@@ -629,7 +667,7 @@ export function Timeline({
                   viewport={{ once: true, amount: 0.1 }}
                   transition={{
                     type: 'spring',
-                    stiffness: 188,
+                    stiffness: 63,
                     damping: 18,
                     delay: 0,
                   }}
@@ -655,6 +693,8 @@ export function Timeline({
               ? getCSSVariable('--color-gw-pink', false, '#DD96FF')
               : getActionColor(action)
             const radius = getActionRadius(action)
+            const markerDelay =
+              sortedActions.length > 0 ? (TOTAL_ANIMATION_SEC / sortedActions.length) * index : 0
             return (
               <motion.g
                 key={action.id}
@@ -663,9 +703,9 @@ export function Timeline({
                 viewport={{ once: true, amount: 0.1 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 188,
-                  damping: 18,
-                  delay: index * 0.027,
+                  stiffness: 280,
+                  damping: 20,
+                  delay: markerDelay,
                 }}
                 style={{ transformOrigin: `${x}px ${timelineY}px` }}
               >
@@ -705,7 +745,13 @@ export function Timeline({
             const globalIndex = globalLabelIndex.get(action.id) ?? 0
             const { y, aboveBelow } = getLabelPosition(globalIndex, null, 0)
             const estimatedWidth = 300
-            const labelIndex = sortedActions.findIndex((a) => a.id === action.id)
+            const binKey = getBin(new Date(action.date))
+            const labelBinIndex = labelBinOrder.binKeyToIndex.get(binKey) ?? 0
+            const labelBinCount = Math.max(1, labelBinOrder.binCount)
+            const indexInBin = labelBinOrder.labelIndexWithinBin.get(action.id) ?? 0
+            const labelDelay =
+              (TOTAL_ANIMATION_SEC / labelBinCount) * labelBinIndex +
+              indexInBin * STAGGER_WITHIN_BIN_SEC
 
             return (
               <HtmlLabel
@@ -726,9 +772,9 @@ export function Timeline({
                   viewport={{ once: true, amount: 0.1 }}
                   transition={{
                     type: 'spring',
-                    stiffness: 188,
+                    stiffness: 63,
                     damping: 18,
-                    delay: labelIndex * 0.027,
+                    delay: labelDelay,
                   }}
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
