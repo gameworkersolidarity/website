@@ -399,12 +399,15 @@ export function DocumentLink({
           </span>
         )}
         {withPreview && (
-          <div className="inline-block overflow-hidden border border-black rounded-xl">
+          <div className="inline-block overflow-hidden">
             <Image
               src={getThumbnailUrl(document) || ''}
               width={document.width || 750}
               height={document.height || 750 * (297 / 210) /** A4 proportional height */}
               alt={document.alt || ''}
+              // The attachments are kind of weirdly aligned. They look massive when on a wider screen even if they're not actually that big.
+              // So we'll set a max width and height.
+              className="border border-black rounded-xl"
             />
           </div>
         )}
