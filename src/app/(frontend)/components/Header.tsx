@@ -61,17 +61,10 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const isMobile = useMediaQuery('(max-width: 768px)')
   const [open, setOpen] = useState(false)
   const path = usePathname()
-  const [taglineLength, setTaglineLength] = useState(0)
 
   useEffect(() => {
     setOpen(false)
   }, [path])
-
-  useEffect(() => {
-    if (taglineLength >= TAGLINE.length) return
-    const t = setTimeout(() => setTaglineLength((n) => n + 1), 28)
-    return () => clearTimeout(t)
-  }, [taglineLength])
 
   return (
     <>
@@ -92,12 +85,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
               <Link href="/">Game Worker Solidarity</Link>
             </div>
             <p className="leading-normal lg:leading-tight text-xl xl:text-2xl lg:w-1/2 block text-200 font-light">
-              {TAGLINE.slice(0, taglineLength)}
-              {taglineLength < TAGLINE.length && (
-                <span className="animate-pulse" aria-hidden>
-                  |
-                </span>
-              )}
+              {TAGLINE}
             </p>
           </div>
         </div>

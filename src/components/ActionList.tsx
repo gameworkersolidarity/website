@@ -6,6 +6,7 @@ import { CompactActionList } from './CompactActionList'
 import { ActionsList } from './ActionCard'
 import { ZoomLevel } from '@/utils/global-state'
 import { useActionFilterContext } from './ActionFilterContextProvider'
+import { AnimatedNumber } from './AnimatedNumber'
 import pluralize from 'pluralize'
 import dynamic from 'next/dynamic'
 const ActionTimeline = dynamic(
@@ -69,8 +70,9 @@ export function ActionList({
       <header className="mt-1 md:sticky top-6 bg-background pt-3 z-40">
         <div className="px-4 flex flex-col @xl:flex-row justify-between gap-2 @xl:gap-4 pb-2">
           <div className="flex flex-col gap-2">
-            <h2 className="text-4xl lg:text-5xl font-bold font-identity">
-              {pluralize('action', actions.length, true)}
+            <h2 className="text-4xl lg:text-5xl font-bold font-identity inline-flex items-baseline">
+              <AnimatedNumber value={actions.length} className="align-baseline" />
+              <span className="ml-1">{pluralize('action', actions.length, false)}</span>
             </h2>
           </div>
           <ZoomlevelSelector

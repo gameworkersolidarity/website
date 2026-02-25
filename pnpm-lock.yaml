@@ -384,6 +384,9 @@ importers:
       react:
         specifier: 19.2.3
         version: 19.2.3
+      react-animated-numbers:
+        specifier: ^1.1.1
+        version: 1.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-colorful:
         specifier: ^5.6.1
         version: 5.6.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -7034,6 +7037,23 @@ packages:
       }
     engines: { node: '>= 0.4' }
 
+  framer-motion@11.18.2:
+    resolution:
+      {
+        integrity: sha512-5F5Och7wrvtLVElIpclDT0CBzMVg3dL22B64aZwHtsIY8RB4mXICLrkajK4G9R+ieSAGcgrLeae2SeUTg2pr6w==,
+      }
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   framer-motion@12.34.3:
     resolution:
       {
@@ -8635,10 +8655,22 @@ packages:
       }
     engines: { node: '>=16.20.1' }
 
+  motion-dom@11.18.1:
+    resolution:
+      {
+        integrity: sha512-g76KvA001z+atjfxczdRtw/RXOM3OMSdd1f4DL77qCTF/+avrRJiawSG4yDibEQ215sr9kpinSlX2pCTJ9zbhw==,
+      }
+
   motion-dom@12.34.3:
     resolution:
       {
         integrity: sha512-sYgFe+pR9aIM7o4fhs2aXtOI+oqlUd33N9Yoxcgo1Fv7M20sRkHtCmzE/VRNIcq7uNJ+qio+Xubt1FXH3pQ+eQ==,
+      }
+
+  motion-utils@11.18.1:
+    resolution:
+      {
+        integrity: sha512-49Kt+HKjtbJKLtgO/LKj9Ld+6vw9BjH5d9sc40R/kVyH8GLAXgT42M2NnuPcJNuA3s9ZfZBUcwIgpmZWGEE+hA==,
       }
 
   motion-utils@12.29.2:
@@ -8646,6 +8678,23 @@ packages:
       {
         integrity: sha512-G3kc34H2cX2gI63RqU+cZq+zWRRPSsNIOjpdl9TN4AQwC4sgwYPl/Q/Obf/d53nOm569T0fYK+tcoSV50BWx8A==,
       }
+
+  motion@11.18.2:
+    resolution:
+      {
+        integrity: sha512-JLjvFDuFr42NFtcVoMAyC2sEjnpA8xpy6qWPyzQvCloznAyQ8FIXioxWfHiLtgYhoVpfUqSWpn1h9++skj9+Wg==,
+      }
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   motion@12.34.3:
     resolution:
@@ -9339,6 +9388,15 @@ packages:
         integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==,
       }
     engines: { node: '>= 0.6' }
+
+  react-animated-numbers@1.1.1:
+    resolution:
+      {
+        integrity: sha512-Jr2vbDWjo5wW+X8wBYRBACpuKdPkLa4A2ZYfxlAR0oc/gXWVeWyAmAWzZj73276IQxycxrTL7aGn4quWV7+l2Q==,
+      }
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   react-colorful@5.6.1:
     resolution:
@@ -16218,6 +16276,15 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
+  framer-motion@11.18.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      motion-dom: 11.18.1
+      motion-utils: 11.18.1
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+
   framer-motion@12.34.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       motion-dom: 12.34.3
@@ -17235,11 +17302,25 @@ snapshots:
       - socks
       - supports-color
 
+  motion-dom@11.18.1:
+    dependencies:
+      motion-utils: 11.18.1
+
   motion-dom@12.34.3:
     dependencies:
       motion-utils: 12.29.2
 
+  motion-utils@11.18.1: {}
+
   motion-utils@12.29.2: {}
+
+  motion@11.18.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      framer-motion: 11.18.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   motion@12.34.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
@@ -17690,6 +17771,14 @@ snapshots:
   quickselect@3.0.0: {}
 
   range-parser@1.2.1: {}
+
+  react-animated-numbers@1.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      motion: 11.18.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
 
   react-colorful@5.6.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
