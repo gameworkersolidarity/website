@@ -1,5 +1,9 @@
 import { notFound } from 'next/navigation'
-import { payloadUserQuery, payloadUserGlobalQuery } from '@/utils/payload.server'
+import {
+  getCachedGlobalForMetadata,
+  payloadUserQuery,
+  payloadUserGlobalQuery,
+} from '@/utils/payload.server'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { ActionSubmissionForm } from './ActionSubmissionForm'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -8,14 +12,17 @@ import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const actionSubmissionPageData = await payloadUserGlobalQuery({
-      slug: 'actionSubmissionPage',
-    })
+    const actionSubmissionPageData = await getCachedGlobalForMetadata<{
+      title?: string
+      description?: unknown
+    }>('actionSubmissionPage')
 
-    const title = actionSubmissionPageData?.title || 'Submit an Action'
+    const title = actionSubmissionPageData?.title ?? 'Submit an Action'
     const description =
-      (actionSubmissionPageData?.description
-        ? lexicalToPlainText(actionSubmissionPageData.description)
+      (actionSubmissionPageData?.description != null
+        ? lexicalToPlainText(
+            actionSubmissionPageData.description as Parameters<typeof lexicalToPlainText>[0],
+          )
         : '') || 'Submit a new action to Game Worker Solidarity'
     const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 

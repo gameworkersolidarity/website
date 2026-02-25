@@ -5,17 +5,20 @@ import { ArchiveBreadcrumb } from './payloadTree'
 import { getPath } from '@/utils/payloadPath'
 import { Breadcrumb } from '@payloadcms/plugin-nested-docs/types'
 import { payloadUserQuery } from '@/utils/payload.server'
+import type { Payload } from 'payload'
 
 export async function getDescendants<S extends CollectionSlug, D extends DataFromCollectionSlug<S>>(
   collection: S,
   slug: string,
   data?: D[],
-) {
+  query?: Payload['find'],
+): Promise<ArchiveBreadcrumb[]> {
+  const runQuery = query ?? payloadUserQuery
   let breadcrumbs: DataFromCollectionSlug<S>[]
   if (data) {
     breadcrumbs = data
   } else {
-    const fetchedBreadcrumbs = await payloadUserQuery({
+    const fetchedBreadcrumbs = await runQuery({
       collection: collection,
       where: {
         'parents.url': {
@@ -23,7 +26,7 @@ export async function getDescendants<S extends CollectionSlug, D extends DataFro
         },
       },
     })
-    breadcrumbs = fetchedBreadcrumbs.docs || []
+    breadcrumbs = (fetchedBreadcrumbs.docs ?? []) as DataFromCollectionSlug<S>[]
   }
   const breadcrumbDictionary = new Map<string, ArchiveBreadcrumb>()
   for (const modelInstance of breadcrumbs || []) {

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { payloadUserGlobalQuery } from '@/utils/payload.server'
+import { getCachedGlobalForMetadata, payloadUserGlobalQuery } from '@/utils/payload.server'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
@@ -7,14 +7,13 @@ import { AboutPageClient } from './AboutPage.client'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const aboutPageData = await payloadUserGlobalQuery({
-      slug: 'aboutPage',
-    })
+    const aboutPageData = await getCachedGlobalForMetadata<{ description?: unknown }>('aboutPage')
 
     const title = 'About the project'
     const description =
-      (aboutPageData?.description ? lexicalToPlainText(aboutPageData.description) : '') ||
-      projectStrings.description
+      (aboutPageData?.description != null
+        ? lexicalToPlainText(aboutPageData.description as Parameters<typeof lexicalToPlainText>[0])
+        : '') || projectStrings.description
     const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {

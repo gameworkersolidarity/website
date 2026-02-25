@@ -1,7 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
-import { payloadUserQuery } from '@/utils/payload.server'
+import { getCachedData } from '@/utils/payload.server'
 import { DraftBadge } from '@/components/DraftBadge'
+import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
+import type { Payload } from 'payload'
 
 export const metadata = {
   title: 'Countries',
@@ -9,41 +11,50 @@ export const metadata = {
     'Explore countries where solidarity actions have taken place in the global video game industry.',
 }
 
-export default async function CountriesPage() {
-  // Fetch all countries
-  const countriesResult = await payloadUserQuery({
-    collection: 'countries',
-    depth: 0,
-    pagination: false,
-    sort: 'Name',
-  })
+export const revalidate = CACHE_REVALIDATE_SECONDS
 
-  // Count actions for each country and filter out countries with no actions
-  const countriesWithActions = await Promise.all(
-    countriesResult.docs.map(async (country) => {
-      const actionResults = await payloadUserQuery({
-        collection: 'actions',
-        where: {
-          and: [
-            {
-              countries: {
-                in: [country.id],
-              },
-            },
-          ],
-        },
-        sort: '-date',
-        limit: 1,
-        depth: 0,
-      })
-      return {
-        country,
-        actionCount: actionResults.totalDocs,
-      }
+async function getCountriesIndexData(query: Payload['find']) {
+  const [countriesResult, actionsResult] = await Promise.all([
+    query({
+      collection: 'countries',
+      depth: 0,
+      pagination: false,
+      sort: 'Name',
     }),
-  )
+    query({
+      collection: 'actions',
+      depth: 0,
+      pagination: false,
+      select: { countries: true },
+    }),
+  ])
 
-  const filteredCountries = countriesWithActions.filter((item) => item.actionCount > 0)
+  const countByCountryId = new Map<string, number>()
+  for (const action of actionsResult.docs) {
+    const countries = action.countries
+      ? Array.isArray(action.countries)
+        ? action.countries
+        : [action.countries]
+      : []
+    for (const ref of countries) {
+      const id =
+        typeof ref === 'object' && ref !== null && 'id' in ref ? String(ref.id) : String(ref)
+      countByCountryId.set(id, (countByCountryId.get(id) ?? 0) + 1)
+    }
+  }
+
+  return countriesResult.docs
+    .map((country) => ({
+      country,
+      actionCount: countByCountryId.get(String(country.id)) ?? 0,
+    }))
+    .filter((item) => item.actionCount > 0)
+}
+
+export default async function CountriesPage() {
+  const filteredCountries = await getCachedData(CACHE_KEYS.COUNTRIES_INDEX, ({ query }) =>
+    getCountriesIndexData(query),
+  )
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>

@@ -6,6 +6,7 @@ import config from '@/payload.config'
 import { getPath } from '@/utils/payloadPath'
 import { Action } from '@/payload-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
+import { revalidateCacheHook } from '@/lib/revalidate-on-change'
 
 export const Actions: CollectionConfig = {
   slug: 'actions',
@@ -388,6 +389,7 @@ export const Actions: CollectionConfig = {
       },
     ],
     afterChange: [
+      revalidateCacheHook('actions'),
       async ({ doc, operation, req }) => {
         // Send email notification when a new action is created as a draft
         if (operation === 'create' && doc._status === 'draft' && doc.submissionContactDetails) {
@@ -434,5 +436,6 @@ View in Admin Panel: ${projectStrings.baseUrl}/admin/collections/actions/${doc.i
         }
       },
     ],
+    afterDelete: [revalidateCacheHook('actions')],
   },
 }

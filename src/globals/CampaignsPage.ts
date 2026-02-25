@@ -1,6 +1,7 @@
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 import type { GlobalConfig } from 'payload'
 import { projectStrings } from '@/project-strings'
+import { revalidateCacheHookForGlobal } from '@/lib/revalidate-on-change'
 
 export const CampaignsPage: GlobalConfig = {
   slug: 'campaignsPage',
@@ -36,4 +37,7 @@ export const CampaignsPage: GlobalConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidateCacheHookForGlobal('campaignsPage')],
+  },
 }

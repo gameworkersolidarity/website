@@ -35,6 +35,8 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  defaultDepth: 1,
+  maxDepth: 3,
   graphQL: {
     disablePlaygroundInProduction: false,
   },
@@ -61,6 +63,12 @@ export default buildConfig({
         {
           slug: 'recent-edits',
           ComponentPath: './app/(payload)/admin/components/RecentEditsWidget#default',
+          minWidth: 'medium',
+          maxWidth: 'full',
+        },
+        {
+          slug: 'bust-cache',
+          ComponentPath: './app/(payload)/admin/components/BustCacheWidget#default',
           minWidth: 'medium',
           maxWidth: 'full',
         },

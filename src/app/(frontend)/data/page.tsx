@@ -1,20 +1,19 @@
 import { projectStrings } from '@/project-strings'
 import { notFound } from 'next/navigation'
-import { payloadUserGlobalQuery } from '@/utils/payload.server'
+import { getCachedGlobalForMetadata, payloadUserGlobalQuery } from '@/utils/payload.server'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import type { Metadata } from 'next'
 import { DataPageClient } from './DataPage.client'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const dataPageData = await payloadUserGlobalQuery({
-      slug: 'dataPage',
-    })
+    const dataPageData = await getCachedGlobalForMetadata<{ description?: unknown }>('dataPage')
 
     const title = 'Get the data'
     const description =
-      (dataPageData?.description ? lexicalToPlainText(dataPageData.description) : '') ||
-      'Get the data from Game Worker Solidarity'
+      (dataPageData?.description != null
+        ? lexicalToPlainText(dataPageData.description as Parameters<typeof lexicalToPlainText>[0])
+        : '') || 'Get the data from Game Worker Solidarity'
     const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`
 
     return {

@@ -1,4 +1,4 @@
-import { SlugField as SlugField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -27,10 +27,11 @@ import { default as default_1407fe9d752712fe2d6de20373165958 } from '../../../ap
 import { HomepageLink as HomepageLink_0684fe86f9ac81ffc7bbaec5d60a470d } from '../../../app/(payload)/admin/components/HomepageLink'
 import { default as default_8c211da315ead8f27357e87733cf59cc } from '../../../app/(payload)/admin/components/StatsWidget'
 import { default as default_1e501c11b95d69c09554f43d44d2d332 } from '../../../app/(payload)/admin/components/RecentEditsWidget'
-import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { default as default_e63c673d9fa3f1bbfdb82da68dbf16c2 } from '../../../app/(payload)/admin/components/BustCacheWidget'
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
-  "@payloadcms/ui#SlugField": SlugField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -59,5 +60,6 @@ export const importMap = {
   "./app/(payload)/admin/components/HomepageLink#HomepageLink": HomepageLink_0684fe86f9ac81ffc7bbaec5d60a470d,
   "./app/(payload)/admin/components/StatsWidget#default": default_8c211da315ead8f27357e87733cf59cc,
   "./app/(payload)/admin/components/RecentEditsWidget#default": default_1e501c11b95d69c09554f43d44d2d332,
-  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
+  "./app/(payload)/admin/components/BustCacheWidget#default": default_e63c673d9fa3f1bbfdb82da68dbf16c2,
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

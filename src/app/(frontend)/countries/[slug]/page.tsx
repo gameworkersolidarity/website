@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { payloadUserQuery } from '@/utils/payload.server'
+import { getCachedDataForSlug } from '@/utils/payload.server'
 import { Company, OrganisingGroup } from '@/payload-types'
 import { CountryPage } from './CountryPage'
 import { generateMetadataForSlug } from '@/utils/generateMetadata'
@@ -22,112 +22,94 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { slug } = await params
 
-  const countryResult = await payloadUserQuery({
-    collection: 'countries',
-    depth: 2, // Include related solidarity actions and their related entities
-    limit: 1,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
+  const result = await getCachedDataForSlug('countries', slug, async ({ query }) => {
+    const countryResult = await query({
+      collection: 'countries',
+      depth: 2,
+      limit: 1,
+      where: { slug: { equals: slug } },
+    })
+    if (!countryResult.docs[0]) return null
 
-  if (!countryResult.docs[0]) {
-    notFound()
-  }
+    const country = validatePayloadDocument('countries', countryResult.docs[0])
 
-  const country = validatePayloadDocument('countries', countryResult.docs[0])
+    const actionsResult = await query({
+      collection: 'actions',
+      where: { and: [{ countries: { equals: country.id } }] },
+      sort: '-date',
+      depth: 2,
+      pagination: false,
+    })
+    const validatedActions = validatePayloadResult('actions', actionsResult)
+    const actions = validatedActions.docs
 
-  // Query solidarity actions directly where this country is related
-  const actionsResult = await payloadUserQuery({
-    collection: 'actions',
-    where: {
-      and: [
-        {
-          countries: {
-            equals: country.id,
-          },
-        },
-      ],
-    },
-    sort: '-date',
-    depth: 2, // Include related entities
-    pagination: false,
-  })
-
-  const validatedActions = validatePayloadResult('actions', actionsResult)
-  const actions = validatedActions.docs
-
-  // Extract unique companies from solidarity actions
-  const companiesSet = new Map<string, Company>()
-  const organisingGroupsSet = new Map<string, OrganisingGroup>()
-
-  actions.forEach((action) => {
-    if (action.companies && Array.isArray(action.companies)) {
-      action.companies.forEach((company) => {
-        if (
-          typeof company === 'object' &&
-          company !== null &&
-          'id' in company &&
-          'slug' in company &&
-          'name' in company
-        ) {
-          const companyId = String(company.id)
-          if (!companiesSet.has(companyId)) {
-            companiesSet.set(companyId, company)
+    const companiesSet = new Map<string, Company>()
+    const organisingGroupsSet = new Map<string, OrganisingGroup>()
+    actions.forEach((action) => {
+      if (action.companies && Array.isArray(action.companies)) {
+        action.companies.forEach((company) => {
+          if (
+            typeof company === 'object' &&
+            company !== null &&
+            'id' in company &&
+            'slug' in company &&
+            'name' in company
+          ) {
+            const companyId = String(company.id)
+            if (!companiesSet.has(companyId)) companiesSet.set(companyId, company)
           }
-        }
-      })
-    }
-    if (action.organisingGroups && Array.isArray(action.organisingGroups)) {
-      action.organisingGroups.forEach((organisingGroup) => {
-        if (
-          typeof organisingGroup === 'object' &&
-          organisingGroup !== null &&
-          'id' in organisingGroup &&
-          'slug' in organisingGroup &&
-          'name' in organisingGroup
-        ) {
-          const organisingGroupId = String(organisingGroup.id)
-          if (!organisingGroupsSet.has(organisingGroupId)) {
-            organisingGroupsSet.set(organisingGroupId, organisingGroup)
+        })
+      }
+      if (action.organisingGroups && Array.isArray(action.organisingGroups)) {
+        action.organisingGroups.forEach((organisingGroup) => {
+          if (
+            typeof organisingGroup === 'object' &&
+            organisingGroup !== null &&
+            'id' in organisingGroup &&
+            'slug' in organisingGroup &&
+            'name' in organisingGroup
+          ) {
+            const organisingGroupId = String(organisingGroup.id)
+            if (!organisingGroupsSet.has(organisingGroupId)) {
+              organisingGroupsSet.set(organisingGroupId, organisingGroup)
+            }
           }
-        }
-      })
+        })
+      }
+    })
+
+    const organisingGroupsResult = await query({
+      collection: 'organisingGroups',
+      where: { countries: { in: [country.id] } },
+    })
+    for (const organisingGroup of organisingGroupsResult.docs) {
+      organisingGroupsSet.set(organisingGroup.id, organisingGroup)
+    }
+
+    const uniqueCompanies = Array.from(companiesSet.values())
+      .filter(Boolean)
+      .sort((a, b) => a.name.localeCompare(b.name))
+    const organisingGroups = Array.from(organisingGroupsSet.values())
+      .filter(Boolean)
+      .filter((og) => !og.parent)
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    return {
+      country,
+      actions,
+      companies: uniqueCompanies,
+      organisingGroups,
     }
   })
 
-  const uniqueCompanies = Array.from(companiesSet.values())
-    .filter(Boolean)
-    .sort((a, b) => a.name.localeCompare(b.name))
-
-  const organisingGroupsResult = await payloadUserQuery({
-    collection: 'organisingGroups',
-    where: {
-      countries: {
-        in: [country.id],
-      },
-    },
-  })
-
-  for (const organisingGroup of organisingGroupsResult.docs) {
-    // add to organisingGroupsMap
-    organisingGroupsSet.set(organisingGroup.id, organisingGroup)
-  }
-
-  const organisingGroups = Array.from(organisingGroupsSet.values())
-    .filter(Boolean)
-    // Only top level organising groups
-    .filter((organisingGroup) => !organisingGroup.parent)
-    .sort((a, b) => a.name.localeCompare(b.name))
+  if (!result) notFound()
 
   return (
     <CountryPage
-      initialCountry={country}
-      actions={actions}
-      companies={uniqueCompanies}
-      organisingGroups={organisingGroups}
+      initialCountry={result.country}
+      actions={result.actions}
+      companies={result.companies}
+      organisingGroups={result.organisingGroups}
     />
   )
 }

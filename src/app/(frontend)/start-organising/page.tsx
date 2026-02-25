@@ -1,4 +1,8 @@
-import { payloadUserQuery, payloadUserGlobalQuery } from '@/utils/payload.server'
+import {
+  payloadUserQuery,
+  payloadUserGlobalQuery,
+  getCachedGlobalForMetadata,
+} from '@/utils/payload.server'
 import type { OrganisingGroup, Country } from '@/payload-types'
 import { notFound } from 'next/navigation'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -8,14 +12,16 @@ import { StartOrganisingPageClient } from './StartOrganisingPage.client'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const startOrganisingData = await payloadUserGlobalQuery({
-      slug: 'startOrganising',
-    })
+    const startOrganisingData = await getCachedGlobalForMetadata<{ description?: unknown }>(
+      'startOrganising',
+    )
 
     const title = 'Start Organising'
     const description =
-      (startOrganisingData?.description
-        ? lexicalToPlainText(startOrganisingData.description)
+      (startOrganisingData?.description != null
+        ? lexicalToPlainText(
+            startOrganisingData.description as Parameters<typeof lexicalToPlainText>[0],
+          )
         : '') ||
       'Find organising groups and unions by country to get started with worker organising.'
     const shareImage = `${projectStrings.baseUrl}/images/game-workers-share-card-new.png`

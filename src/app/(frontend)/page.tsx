@@ -1,79 +1,90 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { HomepageClient } from './Homepage.client'
-import { Country } from '@/payload-types'
-import { fetchDraftMode } from '@/utils/auth'
-import { payloadUserQuery } from '@/utils/payload.server'
+import type { Action, Campaign, Category, Company, Country, OrganisingGroup } from '@/payload-types'
+import { getCachedData } from '@/utils/payload.server'
+import type { Payload } from 'payload'
 import { validatePayloadResult } from '@/utils/validate-payload'
+import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
 
-export default async function HomePage() {
-  // Fetch all actions with related data
-  // Include both published and legacy records (where _status is null)
-  // Fetch all filter options
+export const revalidate = CACHE_REVALIDATE_SECONDS
+
+async function getHomepageData(query: Payload['find']): Promise<{
+  actions: Action[]
+  countries: Country[]
+  categories: Category[]
+  companies: Company[]
+  organisingGroups: OrganisingGroup[]
+  campaigns: Campaign[]
+}> {
   const [actionsResult, categoriesResult, companiesResult, organisingGroupsResult, campaignResult] =
     await Promise.all([
-      payloadUserQuery({
+      query({
         collection: 'actions',
         sort: '-date',
-        depth: 2, // Include related data (countries, categories, companies, organising groups)
+        depth: 1,
         pagination: false,
-      }).then((result) => validatePayloadResult('actions', result)),
-      payloadUserQuery({
+        select: {
+          airtableId: false,
+          coordinates: false,
+          submissionContactDetails: false,
+          consent: false,
+          relatedActions: false,
+        },
+      }).then((r) => validatePayloadResult('actions', r, false)),
+      query({
         collection: 'categories',
         pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-          emoji: true,
-          path: true,
-        },
+        select: { name: true, id: true, slug: true, emoji: true, path: true },
         sort: ['name'],
-      }).then((result) => validatePayloadResult('categories', result, false)),
-      payloadUserQuery({
+      }).then((r) => validatePayloadResult('categories', r, false)),
+      query({
         collection: 'companies',
         pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-          path: true,
-        },
+        select: { name: true, id: true, slug: true, path: true },
         sort: ['name'],
-      }).then((result) => validatePayloadResult('companies', result, false)),
-      payloadUserQuery({
+      }).then((r) => validatePayloadResult('companies', r, false)),
+      query({
         collection: 'organisingGroups',
         pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-          path: true,
-        },
+        select: { name: true, id: true, slug: true, path: true },
         sort: ['name'],
-      }).then((result) => validatePayloadResult('organisingGroups', result, false)),
-      payloadUserQuery({
+      }).then((r) => validatePayloadResult('organisingGroups', r, false)),
+      query({
         collection: 'campaigns',
         pagination: false,
-        select: {
-          name: true,
-          id: true,
-          slug: true,
-          emoji: true,
-          path: true,
-        },
+        select: { name: true, id: true, slug: true, emoji: true, path: true },
         sort: ['name'],
-      }).then((result) => validatePayloadResult('campaigns', result, false)),
+      }).then((r) => validatePayloadResult('campaigns', r, false)),
     ])
+  return buildHomepagePayload(
+    actionsResult,
+    categoriesResult,
+    companiesResult,
+    organisingGroupsResult,
+    campaignResult,
+  )
+}
 
-  // Dedupe countries by id to ensure genuinely unique list
+function buildHomepagePayload(
+  actionsResult: { docs: { countries?: unknown }[] },
+  categoriesResult: { docs: unknown[] },
+  companiesResult: { docs: unknown[] },
+  organisingGroupsResult: { docs: unknown[] },
+  campaignResult: { docs: unknown[] },
+): {
+  actions: Action[]
+  countries: Country[]
+  categories: Category[]
+  companies: Company[]
+  organisingGroups: OrganisingGroup[]
+  campaigns: Campaign[]
+} {
   const countriesMap = new Map<string, Country>()
   actionsResult.docs.forEach((action) => {
     if (action.countries) {
       const countries = Array.isArray(action.countries) ? action.countries : [action.countries]
       countries.forEach((country) => {
         if (country && typeof country === 'object' && 'id' in country) {
-          const countryId = String(country.id)
+          const countryId = String((country as { id: string }).id)
           if (!countriesMap.has(countryId)) {
             countriesMap.set(countryId, country as Country)
           }
@@ -84,15 +95,27 @@ export default async function HomePage() {
   const uniqueCountries = Array.from(countriesMap.values()).sort((a, b) =>
     a.name.localeCompare(b.name),
   )
+  return {
+    actions: actionsResult.docs as Action[],
+    countries: uniqueCountries,
+    categories: categoriesResult.docs as Category[],
+    companies: companiesResult.docs as Company[],
+    organisingGroups: organisingGroupsResult.docs as OrganisingGroup[],
+    campaigns: campaignResult.docs as Campaign[],
+  }
+}
+
+export default async function HomePage() {
+  const data = await getCachedData(CACHE_KEYS.HOMEPAGE, ({ query }) => getHomepageData(query))
 
   return (
     <HomepageClient
-      actions={actionsResult.docs}
-      countries={uniqueCountries}
-      categories={categoriesResult.docs}
-      companies={companiesResult.docs}
-      organisingGroups={organisingGroupsResult.docs}
-      campaigns={campaignResult.docs}
+      actions={data.actions}
+      countries={data.countries}
+      categories={data.categories}
+      companies={data.companies}
+      organisingGroups={data.organisingGroups}
+      campaigns={data.campaigns}
     />
   )
 }

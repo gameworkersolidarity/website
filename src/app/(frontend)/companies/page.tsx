@@ -1,6 +1,8 @@
 import React from 'react'
-import { payloadUserQuery } from '@/utils/payload.server'
+import { getCachedData } from '@/utils/payload.server'
 import { CompaniesGrid } from './CompaniesGrid.client'
+import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
+import type { Payload } from 'payload'
 
 export const metadata = {
   title: 'Companies',
@@ -8,36 +10,50 @@ export const metadata = {
     'Explore companies in the global video game industry where solidarity actions have taken place.',
 }
 
-export default async function CompaniesPage() {
-  // Fetch all published companies
-  const companiesResult = await payloadUserQuery({
-    collection: 'companies',
-    depth: 0,
-    pagination: false,
-    sort: 'Name',
-  })
+export const revalidate = CACHE_REVALIDATE_SECONDS
 
-  // Count actions for each company
-  const companiesWithData = await Promise.all(
-    companiesResult.docs.map(async (company) => {
-      const actionsResult = await payloadUserQuery({
-        collection: 'actions',
-        where: {
-          companies: {
-            in: [company.id],
-          },
-        },
-        sort: '-date',
-      })
-      return {
-        company,
-        actionCount: actionsResult.totalDocs,
-      }
+async function getCompaniesIndexData(query: Payload['find']) {
+  const [companiesResult, actionsResult] = await Promise.all([
+    query({
+      collection: 'companies',
+      depth: 0,
+      pagination: false,
+      sort: 'Name',
     }),
-  )
+    query({
+      collection: 'actions',
+      depth: 0,
+      pagination: false,
+      select: { companies: true },
+    }),
+  ])
 
-  // Filter to show companies with actions
-  const filteredCompanies = companiesWithData.filter((item) => item.actionCount > 0)
+  const countByCompanyId = new Map<string, number>()
+  for (const action of actionsResult.docs) {
+    const companies = action.companies
+      ? Array.isArray(action.companies)
+        ? action.companies
+        : [action.companies]
+      : []
+    for (const ref of companies) {
+      const id =
+        typeof ref === 'object' && ref !== null && 'id' in ref ? String(ref.id) : String(ref)
+      countByCompanyId.set(id, (countByCompanyId.get(id) ?? 0) + 1)
+    }
+  }
+
+  return companiesResult.docs
+    .map((company) => ({
+      company,
+      actionCount: countByCompanyId.get(String(company.id)) ?? 0,
+    }))
+    .filter((item) => item.actionCount > 0)
+}
+
+export default async function CompaniesPage() {
+  const filteredCompanies = await getCachedData(CACHE_KEYS.COMPANIES_INDEX, ({ query }) =>
+    getCompaniesIndexData(query),
+  )
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>

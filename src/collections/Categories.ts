@@ -3,6 +3,7 @@ import { projectStrings } from '@/project-strings'
 import { getPath } from '@/utils/payloadPath'
 import { Category } from '@/payload-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
+import { revalidateCacheHook } from '@/lib/revalidate-on-change'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -132,4 +133,8 @@ export const Categories: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidateCacheHook('categories')],
+    afterDelete: [revalidateCacheHook('categories')],
+  },
 }

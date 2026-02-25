@@ -5,6 +5,7 @@ import { getBboxForCountry, getIsoA3ForCountry, getLatLngForCountry } from '@/ut
 import { getPath } from '@/utils/payloadPath'
 import { Country } from '@/payload-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
+import { revalidateCacheHook } from '@/lib/revalidate-on-change'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -197,4 +198,8 @@ export const Countries: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidateCacheHook('countries')],
+    afterDelete: [revalidateCacheHook('countries')],
+  },
 }

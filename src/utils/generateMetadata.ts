@@ -1,5 +1,6 @@
 import { CollectionSlug } from 'payload'
-import { payloadUserQuery } from '@/utils/payload.server'
+import { payloadPublicQuery } from '@/utils/payload.server'
+import { cacheWithTags, getTagForCollection } from '@/lib/cache'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { Media } from '@/payload-types'
 import { backupShareCard } from '@/utils/shareCard'
@@ -25,16 +26,17 @@ export async function generateMetadataForSlug({
   getDescription,
   getImages,
 }: MetadataOptions): Promise<Metadata> {
-  const result = await payloadUserQuery({
-    collection,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-    depth: 1,
-    limit: 1,
-  })
+  const result = await cacheWithTags(
+    () =>
+      payloadPublicQuery({
+        collection,
+        where: { slug: { equals: slug } },
+        depth: 1,
+        limit: 1,
+      }),
+    ['metadata', collection, slug],
+    [getTagForCollection(collection)],
+  )
 
   if (result.docs.length === 0) {
     return {
