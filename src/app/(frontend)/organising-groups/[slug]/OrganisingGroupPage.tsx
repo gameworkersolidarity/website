@@ -54,6 +54,8 @@ export function OrganisingGroupPage({
       ? (page.featuredImage as Media)
       : null
   const featuredImageUrl = getMediaUrl(featuredMedia)
+  console.log('featuredImageUrl', featuredImageUrl, featuredMedia)
+  const hasBannerImage = !!featuredImageUrl
   const logoMedia = page.logo && typeof page.logo === 'object' ? (page.logo as Media) : null
   const logoUrl = getMediaUrl(logoMedia)
   const metadataSectionCount = [
@@ -67,25 +69,22 @@ export function OrganisingGroupPage({
       <AdminEditBanner page={page} />
       <div
         style={{
-          ...(featuredImageUrl
-            ? {
-                backgroundImage: `url(${featuredImageUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }
-            : { backgroundColor: primaryColor }),
+          backgroundColor: primaryColor,
         }}
         className="lg:pt-6"
       >
-        <article
-          className={twMerge(
-            // 'max-w-4xl mx-auto py-5 px-4 flex flex-col gap-4',
-            // textColor === 'white' && 'text-white',
-            'lg:max-w-4xl mx-auto flex flex-col gap-[2px]',
-          )}
-        >
-          <header className="bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl">
-            <div>
+        <article className={twMerge('lg:max-w-4xl mx-auto flex flex-col gap-[2px]')}>
+          <header className={twMerge('bg-white lg:rounded-t-xl overflow-hidden')}>
+            {hasBannerImage && featuredMedia && (
+              <Image
+                src={featuredImageUrl!}
+                alt={featuredMedia.alt || page.name || page.fullName || 'Organising group'}
+                width={featuredMedia.width!}
+                height={featuredMedia.height!}
+                className="w-full max-h-48 md:max-h-64 object-cover"
+              />
+            )}
+            <div className={twMerge('p-4 md:p-6 pb-4!', hasBannerImage ? 'md:pt-5!' : '')}>
               <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 <span>Organising Group</span>
