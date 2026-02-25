@@ -137,9 +137,7 @@ export interface Config {
     actionSubmissionPage: ActionSubmissionPageSelect<false> | ActionSubmissionPageSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user: User;
   jobs: {
     tasks: {
       schedulePublish: TaskSchedulePublish;
@@ -194,6 +192,7 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * Uploaded files (images, documents). Used for rich text and document assets.

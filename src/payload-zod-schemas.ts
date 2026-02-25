@@ -35,7 +35,8 @@ export const UserSchema = z.object({
         createdAt: z.string().optional().nullable(),
         expiresAt: z.string()
     })).optional().nullable(),
-    password: z.string().optional().nullable()
+    password: z.string().optional().nullable(),
+    collection: z.literal("users")
 });
 
 export const MediaSchema = z.object({

@@ -24,7 +24,7 @@ export async function getDescendants<S extends CollectionSlug, D extends DataFro
         },
       },
     })
-    breadcrumbs = fetchedBreadcrumbs.docs || []
+    breadcrumbs = (fetchedBreadcrumbs.docs ?? []) as DataFromCollectionSlug<S>[]
   }
   const breadcrumbDictionary = new Map<string, ArchiveBreadcrumb>()
   for (const modelInstance of breadcrumbs || []) {
