@@ -49,6 +49,9 @@ type NavigationItem =
       children?: NavigationItem[]
     }
 
+const TAGLINE =
+  'Mapping and documenting collective movements by game workers striving to improve their working conditions.'
+
 export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const _navigation = [...navigation, ...navLinks]
 
@@ -58,10 +61,17 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
   const isMobile = useMediaQuery('(max-width: 768px)')
   const [open, setOpen] = useState(false)
   const path = usePathname()
+  const [taglineLength, setTaglineLength] = useState(0)
 
   useEffect(() => {
     setOpen(false)
   }, [path])
+
+  useEffect(() => {
+    if (taglineLength >= TAGLINE.length) return
+    const t = setTimeout(() => setTaglineLength((n) => n + 1), 28)
+    return () => clearTimeout(t)
+  }, [taglineLength])
 
   return (
     <>
@@ -69,7 +79,7 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
         <div className="content-wrapper">
           <div className="lg:flex lg:space-x-4 space-y-2 lg:space-y-0 items-center">
             <div className="leading-none shrink-0">
-              <Link href="/">
+              <Link href="/" className="logo-wiggle inline-block">
                 <Image
                   src="/images/GameWorkerSolidarity_Logo_Transparent.png"
                   width="100"
@@ -82,8 +92,12 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
               <Link href="/">Game Worker Solidarity</Link>
             </div>
             <p className="leading-normal lg:leading-tight text-xl xl:text-2xl lg:w-1/2 block text-200 font-light">
-              Mapping and documenting collective movements by game workers striving to improve their
-              working conditions.
+              {TAGLINE.slice(0, taglineLength)}
+              {taglineLength < TAGLINE.length && (
+                <span className="animate-pulse" aria-hidden>
+                  |
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -225,12 +239,14 @@ export function Header({ navigation = [] }: { navigation?: NavigationItem[] }) {
           <Link href="/">
             <span className="flex items-center gap-2">
               Game Worker Solidarity
-              <Image
-                src="/images/GameWorkerSolidarity_Logo_Transparent.png"
-                width="48"
-                height="48"
-                alt="Game Worker Solidarity Logo"
-              />
+              <span className="logo-wiggle inline-block">
+                <Image
+                  src="/images/GameWorkerSolidarity_Logo_Transparent.png"
+                  width="48"
+                  height="48"
+                  alt="Game Worker Solidarity Logo"
+                />
+              </span>
             </span>
           </Link>
         </div>

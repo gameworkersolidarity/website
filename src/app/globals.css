@@ -301,6 +301,16 @@ body {
     direction: rtl;
   }
 
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+  }
+
+  .logo-wiggle:hover {
+    animation: wiggle 0.4s ease-in-out;
+  }
+
   .prose blockquote {
     border: none;
     padding: 0;
