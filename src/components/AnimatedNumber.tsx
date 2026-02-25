@@ -22,6 +22,16 @@ export function AnimatedNumber({ value = 0, direction = 'up', className }: Props
   })
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
+  // Ensure we always show a number (avoids empty state when not in view or before first spring tick)
+  useEffect(() => {
+    if (!ref.current) return
+    if (isInView && direction === 'up') {
+      ref.current.textContent = Intl.NumberFormat('en-US').format(0)
+    } else {
+      ref.current.textContent = Intl.NumberFormat('en-US').format(value)
+    }
+  }, [value, isInView, direction])
+
   useEffect(() => {
     if (isInView) {
       motionValue.set(direction === 'down' ? 0 : value)
