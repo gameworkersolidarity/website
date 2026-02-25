@@ -297,8 +297,7 @@ export function ActionItem({
   const shouldShowDescription = !!data.description && data.featured
 
   return (
-    <motion.article
-      layout="preserve-aspect"
+    <article
       style={{
         // @ts-expect-error - CSS variables are not typed
         '--glow-color':
@@ -357,7 +356,7 @@ export function ActionItem({
           ))}
         </div>
       )}
-    </motion.article>
+    </article>
   )
 }
 
@@ -399,15 +398,12 @@ export function DocumentLink({
           </span>
         )}
         {withPreview && (
-          <div className="inline-block overflow-hidden">
+          <div className="inline-block overflow-hidden border border-black rounded-xl">
             <Image
               src={getThumbnailUrl(document) || ''}
               width={document.width || 750}
               height={document.height || 750 * (297 / 210) /** A4 proportional height */}
               alt={document.alt || ''}
-              // The attachments are kind of weirdly aligned. They look massive when on a wider screen even if they're not actually that big.
-              // So we'll set a max width and height.
-              className="border border-black rounded-xl"
             />
           </div>
         )}
@@ -490,7 +486,7 @@ export function ActionCard({ data, displayStandaloneInfo = false, links = true }
 
   return (
     <>
-      <motion.article className="space-y-2px" layout="preserve-aspect">
+      <article className="space-y-2px">
         <main
           className={twMerge(
             data.featured && 'outline-2 outline-pink-400 outline-offset-2',
@@ -580,7 +576,7 @@ export function ActionCard({ data, displayStandaloneInfo = false, links = true }
             </div>
           </div>
         )}
-      </motion.article>
+      </article>
     </>
   )
 }

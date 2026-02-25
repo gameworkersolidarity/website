@@ -237,7 +237,7 @@ export function CompactActionList({
           return (
             <motion.div
               key={action.id}
-              layout
+              layout="preserve-aspect"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...layoutTransition, delay: index * 0.04 }}
@@ -249,14 +249,22 @@ export function CompactActionList({
                 <div
                   className={twMerge(
                     'px-3 py-2 hover:bg-gray-50 transition-colors cursor-pointer',
-                    action.initiator === ActionInitiatorFilter.BOSS_LED && 'bg-orange-50',
+                    action.initiator === ActionInitiatorFilter.BOSS_LED
+                      ? 'bg-orange-50'
+                      : 'bg-background',
                   )}
                   onClick={() => setExpandId(isExpanded ? undefined : action.id)}
                 >
                   {/* Collapsed state - Title and key info */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start gap-2 mb-1.5">
+                  <motion.div
+                    className="flex items-start justify-between gap-3"
+                    layout="preserve-aspect"
+                  >
+                    <motion.div className="flex-1 min-w-0" layout="preserve-aspect">
+                      <motion.div
+                        className="flex items-start gap-2 mb-1.5"
+                        layout="preserve-aspect"
+                      >
                         <HighlightText text={action.name || ''} ranges={nameRanges} />
                         <button className="flex-shrink-0 text-gray-500 hover:text-gray-700">
                           {isExpanded ? (
@@ -265,7 +273,7 @@ export function CompactActionList({
                             <ChevronDown className="w-4 h-4" />
                           )}
                         </button>
-                      </div>
+                      </motion.div>
 
                       {/* Key info in 6-column layout */}
                       <div className="grid grid-cols-3 @3xl:grid-cols-6 gap-2 @3xl:gap-3 text-xs">
@@ -393,8 +401,8 @@ export function CompactActionList({
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
 
                   {/* Expanded state - Description if featured */}
                   <CollapsibleContent className="mt-2">
