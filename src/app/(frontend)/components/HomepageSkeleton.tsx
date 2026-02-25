@@ -2,6 +2,8 @@
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 /**
  * Skeleton layout that mirrors the homepage: left panel (map + charts), right panel (header, filter, action cards).
@@ -66,22 +68,16 @@ export function HomepageSkeleton() {
 
 function ActionCardSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-card p-4 space-y-3">
+    <div className="rounded-xl bg-card p-4 space-y-3">
+      <Skeleton className="h-4.5 w-3/4" />
       <div className="flex flex-wrap items-center gap-2">
-        <Skeleton className="h-5 w-16 rounded-full" />
-        <Skeleton className="h-5 w-20 rounded-full" />
-        <Skeleton className="h-5 w-14 rounded-full" />
+        <Skeleton className="h-4 w-16 rounded-full" />
+        <Skeleton className="h-4 w-20 rounded-full" />
+        <Skeleton className="h-4 w-14 rounded-full" />
       </div>
-      <Skeleton className="h-6 w-[75%]" />
       <div className="space-y-1">
         <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-      </div>
-      <div className="flex flex-wrap gap-2 pt-1">
-        <Skeleton className="h-6 w-24 rounded-md" />
-        <Skeleton className="h-6 w-20 rounded-md" />
-        <Skeleton className="h-6 w-28 rounded-md" />
+        <Skeleton className="h-4 w-1/2" />
       </div>
     </div>
   )
