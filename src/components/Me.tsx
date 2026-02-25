@@ -4,6 +4,11 @@ import { useUser } from '@/utils/UserContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
+async function logout() {
+  await fetch('/api/users/logout', { method: 'POST', credentials: 'include' })
+  window.location.href = window.location.pathname
+}
+
 export function AdminEditBanner({
   page,
 }: {
@@ -19,8 +24,11 @@ export function AdminEditBanner({
           <Button>Edit this page</Button>
         </Link>
         {!!page.id && <code>Page ID: {page.id}</code>}
-        <div>
+        <div className="flex items-center gap-3">
           Logged in as <Username />
+          <Button variant="outline" size="sm" onClick={() => logout()}>
+            Log out
+          </Button>
         </div>
       </div>
     </LoggedIn>
