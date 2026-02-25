@@ -1,5 +1,6 @@
 'use client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { motion } from 'motion/react'
 import { ChevronDown, ChevronUp, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
@@ -17,6 +18,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { DateTime } from './DateTime'
 import { LexicalRenderer } from '@/app/(frontend)/components/LexicalRenderer'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { layoutTransition } from '@/lib/motion'
 
 type SortField =
   | 'date'
@@ -221,206 +223,221 @@ export function CompactActionList({
       </div>
 
       {/* Action cards */}
-      <div className="flex flex-col divide-y divide-gray-200">
-        {sortedActions.map((action) => {
+      <motion.div
+        className="flex flex-col divide-y divide-gray-200"
+        layout
+        transition={layoutTransition}
+      >
+        {sortedActions.map((action, index) => {
           const isExpanded = action.id === isExpandedId
           const actionHighlights = highlights[action.id]
           const nameRanges = actionHighlights?.name
           const descriptionRanges = actionHighlights?.description
 
           return (
-            <Collapsible
+            <motion.div
               key={action.id}
-              open={isExpanded}
-              onOpenChange={() => setExpandId(isExpanded ? undefined : action.id)}
+              layout
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...layoutTransition, delay: index * 0.04 }}
             >
-              <div
-                className={twMerge(
-                  'px-3 py-2 hover:bg-gray-50 transition-colors cursor-pointer',
-                  action.initiator === ActionInitiatorFilter.BOSS_LED && 'bg-orange-50',
-                )}
-                onClick={() => setExpandId(isExpanded ? undefined : action.id)}
+              <Collapsible
+                open={isExpanded}
+                onOpenChange={() => setExpandId(isExpanded ? undefined : action.id)}
               >
-                {/* Collapsed state - Title and key info */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-1.5">
-                      <HighlightText text={action.name || ''} ranges={nameRanges} />
-                      <button className="flex-shrink-0 text-gray-500 hover:text-gray-700">
-                        {isExpanded ? (
-                          <ChevronUp className="w-4 h-4" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Key info in 6-column layout */}
-                    <div className="grid grid-cols-3 @3xl:grid-cols-6 gap-2 @3xl:gap-3 text-xs">
-                      <div>
-                        <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
-                          DATE
-                        </div>
-                        <div className="font-mono text-[11px] opacity-75">
-                          <Link href={action.path || '/'} className="hover:underline">
-                            <DateTime date={action.date} format="dd MMM yyyy" />
-                          </Link>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
-                          INITIATOR
-                        </div>
-                        <div className="text-[11px] uppercase font-mono">
-                          <DisplayInitiator
-                            initiator={action.initiator as ActionInitiatorFilter}
-                            link="soft"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
-                          CATEGORY
-                        </div>
-                        <div className="text-[11px]">
-                          {action.categories && action.categories.length > 0 ? (
-                            <div className="flex flex-wrap gap-0.5">
-                              {(action.categories as Category[]).slice(0, 1).map((category) => (
-                                <CategoryLabel
-                                  key={typeof category === 'object' ? category.id : category}
-                                  category={category as unknown as Category}
-                                  link={linkStyle === 'soft' ? 'soft' : true}
-                                />
-                              ))}
-                              {(action.categories as Category[]).length > 1 && (
-                                <span className="text-[10px] opacity-50">
-                                  +{(action.categories as Category[]).length - 1}
-                                </span>
-                              )}
-                            </div>
+                <div
+                  className={twMerge(
+                    'px-3 py-2 hover:bg-gray-50 transition-colors cursor-pointer',
+                    action.initiator === ActionInitiatorFilter.BOSS_LED && 'bg-orange-50',
+                  )}
+                  onClick={() => setExpandId(isExpanded ? undefined : action.id)}
+                >
+                  {/* Collapsed state - Title and key info */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-2 mb-1.5">
+                        <HighlightText text={action.name || ''} ranges={nameRanges} />
+                        <button className="flex-shrink-0 text-gray-500 hover:text-gray-700">
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4" />
                           ) : (
-                            <span className="opacity-50">—</span>
+                            <ChevronDown className="w-4 h-4" />
                           )}
-                        </div>
+                        </button>
                       </div>
-                      <div>
-                        <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
-                          ORGANISING GROUP
+
+                      {/* Key info in 6-column layout */}
+                      <div className="grid grid-cols-3 @3xl:grid-cols-6 gap-2 @3xl:gap-3 text-xs">
+                        <div>
+                          <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
+                            DATE
+                          </div>
+                          <div className="font-mono text-[11px] opacity-75">
+                            <Link href={action.path || '/'} className="hover:underline">
+                              <DateTime date={action.date} format="dd MMM yyyy" />
+                            </Link>
+                          </div>
                         </div>
-                        <div className="text-[11px]">
-                          {action.organisingGroups && action.organisingGroups.length > 0 ? (
-                            <div className="flex flex-wrap gap-0.5">
-                              {(action.organisingGroups as OrganisingGroup[])
-                                .slice(0, 1)
-                                .map((og) => (
-                                  <OrganisingGroupLabel
-                                    key={og.id}
-                                    organisingGroup={og as unknown as OrganisingGroup}
+                        <div>
+                          <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
+                            INITIATOR
+                          </div>
+                          <div className="text-[11px] uppercase font-mono">
+                            <DisplayInitiator
+                              initiator={action.initiator as ActionInitiatorFilter}
+                              link="soft"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
+                            CATEGORY
+                          </div>
+                          <div className="text-[11px]">
+                            {action.categories && action.categories.length > 0 ? (
+                              <div className="flex flex-wrap gap-0.5">
+                                {(action.categories as Category[]).slice(0, 1).map((category) => (
+                                  <CategoryLabel
+                                    key={typeof category === 'object' ? category.id : category}
+                                    category={category as unknown as Category}
                                     link={linkStyle === 'soft' ? 'soft' : true}
                                   />
                                 ))}
-                              {(action.organisingGroups as OrganisingGroup[]).length > 1 && (
-                                <span className="text-[10px] opacity-50">
-                                  +{(action.organisingGroups as OrganisingGroup[]).length - 1}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="opacity-50">—</span>
-                          )}
+                                {(action.categories as Category[]).length > 1 && (
+                                  <span className="text-[10px] opacity-50">
+                                    +{(action.categories as Category[]).length - 1}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="opacity-50">—</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
-                          COMPANY
+                        <div>
+                          <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
+                            ORGANISING GROUP
+                          </div>
+                          <div className="text-[11px]">
+                            {action.organisingGroups && action.organisingGroups.length > 0 ? (
+                              <div className="flex flex-wrap gap-0.5">
+                                {(action.organisingGroups as OrganisingGroup[])
+                                  .slice(0, 1)
+                                  .map((og) => (
+                                    <OrganisingGroupLabel
+                                      key={og.id}
+                                      organisingGroup={og as unknown as OrganisingGroup}
+                                      link={linkStyle === 'soft' ? 'soft' : true}
+                                    />
+                                  ))}
+                                {(action.organisingGroups as OrganisingGroup[]).length > 1 && (
+                                  <span className="text-[10px] opacity-50">
+                                    +{(action.organisingGroups as OrganisingGroup[]).length - 1}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="opacity-50">—</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-[11px]">
-                          {action.companies && action.companies.length > 0 ? (
-                            <div className="flex flex-wrap gap-0.5">
-                              {(action.companies as Company[]).slice(0, 1).map((company) => (
-                                <CompanyLabel
-                                  key={company.id}
-                                  company={company as unknown as Company}
-                                  link={linkStyle === 'soft' ? 'soft' : true}
-                                />
-                              ))}
-                              {(action.companies as Company[]).length > 1 && (
-                                <span className="text-[10px] opacity-50">
-                                  +{(action.companies as Company[]).length - 1}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="opacity-50">—</span>
-                          )}
+                        <div>
+                          <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
+                            COMPANY
+                          </div>
+                          <div className="text-[11px]">
+                            {action.companies && action.companies.length > 0 ? (
+                              <div className="flex flex-wrap gap-0.5">
+                                {(action.companies as Company[]).slice(0, 1).map((company) => (
+                                  <CompanyLabel
+                                    key={company.id}
+                                    company={company as unknown as Company}
+                                    link={linkStyle === 'soft' ? 'soft' : true}
+                                  />
+                                ))}
+                                {(action.companies as Company[]).length > 1 && (
+                                  <span className="text-[10px] opacity-50">
+                                    +{(action.companies as Company[]).length - 1}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="opacity-50">—</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
-                          COUNTRY
-                        </div>
-                        <div className="text-[11px]">
-                          {action.countries && action.countries.length > 0 ? (
-                            <div className="flex flex-wrap gap-0.5">
-                              {(action.countries as Country[]).slice(0, 1).map((country) => (
-                                <CountryLabel
-                                  key={country.id}
-                                  country={country as Country}
-                                  link={linkStyle === 'soft' ? 'soft' : true}
-                                />
-                              ))}
-                              {(action.countries as Country[]).length > 1 && (
-                                <span className="text-[10px] opacity-50">
-                                  +{(action.countries as Country[]).length - 1}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="opacity-50">—</span>
-                          )}
+                        <div>
+                          <div className="text-[10px] uppercase opacity-50 font-mono mb-0.5">
+                            COUNTRY
+                          </div>
+                          <div className="text-[11px]">
+                            {action.countries && action.countries.length > 0 ? (
+                              <div className="flex flex-wrap gap-0.5">
+                                {(action.countries as Country[]).slice(0, 1).map((country) => (
+                                  <CountryLabel
+                                    key={country.id}
+                                    country={country as Country}
+                                    link={linkStyle === 'soft' ? 'soft' : true}
+                                  />
+                                ))}
+                                {(action.countries as Country[]).length > 1 && (
+                                  <span className="text-[10px] opacity-50">
+                                    +{(action.countries as Country[]).length - 1}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="opacity-50">—</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Expanded state - Description if featured */}
+                  <CollapsibleContent className="mt-2">
+                    {/* Description - Show if featured */}
+                    <div>
+                      <div className="text-[10px] uppercase opacity-50 font-mono mb-1.5">
+                        DESCRIPTION
+                      </div>
+                      <div className="text-xs leading-relaxed">
+                        {action.description && descriptionRanges && descriptionRanges.length > 0 ? (
+                          <HighlightText
+                            text={lexicalToPlainText(action.description)}
+                            ranges={descriptionRanges}
+                            className="text-xs max-w-none"
+                          />
+                        ) : (
+                          <LexicalRenderer
+                            content={action.description}
+                            className="text-xs max-w-none"
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Link to full page */}
+                    <div className="mt-2">
+                      <Link href={action.path || '/'}>
+                        <Button
+                          size="sm"
+                          className="text-xs py-1! block! h-auto!"
+                          variant="outline"
+                        >
+                          View full details →
+                        </Button>
+                      </Link>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-
-                {/* Expanded state - Description if featured */}
-                <CollapsibleContent className="mt-2">
-                  {/* Description - Show if featured */}
-                  <div>
-                    <div className="text-[10px] uppercase opacity-50 font-mono mb-1.5">
-                      DESCRIPTION
-                    </div>
-                    <div className="text-xs leading-relaxed">
-                      {action.description && descriptionRanges && descriptionRanges.length > 0 ? (
-                        <HighlightText
-                          text={lexicalToPlainText(action.description)}
-                          ranges={descriptionRanges}
-                          className="text-xs max-w-none"
-                        />
-                      ) : (
-                        <LexicalRenderer
-                          content={action.description}
-                          className="text-xs max-w-none"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Link to full page */}
-                  <div className="mt-2">
-                    <Link href={action.path || '/'}>
-                      <Button size="sm" className="text-xs py-1! block! h-auto!" variant="outline">
-                        View full details →
-                      </Button>
-                    </Link>
-                  </div>
-                </CollapsibleContent>
-              </div>
-            </Collapsible>
+              </Collapsible>
+            </motion.div>
           )
         })}
-      </div>
+      </motion.div>
     </div>
   )
 }

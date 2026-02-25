@@ -1,7 +1,6 @@
 import React from 'react'
-import Link from 'next/link'
 import { payloadUserQuery } from '@/utils/payload.server'
-import { DraftBadge } from '@/components/DraftBadge'
+import { CompaniesGrid } from './CompaniesGrid.client'
 
 export const metadata = {
   title: 'Companies',
@@ -71,52 +70,7 @@ export default async function CompaniesPage() {
           <p>No companies with solidarity actions found. Check back soon!</p>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-            gap: '1.5rem',
-          }}
-        >
-          {filteredCompanies.map(({ company, actionCount }) => (
-            <Link
-              key={company.id}
-              href={company.path!}
-              style={{
-                display: 'block',
-                padding: '1.5rem',
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: 'inherit',
-                transition: 'box-shadow 0.2s',
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  marginBottom: '0.75rem',
-                  color: '#4A90E2',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  flexWrap: 'wrap',
-                }}
-              >
-                {company.name}
-                {company._status === 'draft' && <DraftBadge />}
-              </h2>
-              <div style={{ fontSize: '0.875rem', color: '#666' }}>
-                {actionCount > 0 && (
-                  <p style={{ margin: '0 0 0.25rem 0' }}>
-                    {actionCount} action{actionCount !== 1 ? 's' : ''}
-                  </p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
+        <CompaniesGrid items={filteredCompanies} />
       )}
     </div>
   )

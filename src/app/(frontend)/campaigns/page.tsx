@@ -1,17 +1,11 @@
 import { payloadUserGlobalQuery } from '@/utils/payload.server'
-import Link from 'next/link'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import type { Campaign, Action } from '@/payload-types'
-import { DateTime } from '@/components/DateTime'
-import Image from 'next/image'
-import { CampaignLabel } from '@/components/CampaignLabel'
-import { DraftBadge } from '@/components/DraftBadge'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
-import { getMediaUrl } from '@/utils/media'
 import { payloadUserQuery } from '@/utils/payload.server'
-import { Button } from '@/components/ui/button'
+import { CampaignsGrid } from './CampaignsGrid.client'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -136,51 +130,7 @@ export default async function CampaignsPage() {
           <p>No campaigns published yet. Check back soon!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {campaigns.map((campaign) => {
-            const featuredMedia =
-              typeof campaign.featuredImage === 'object' ? campaign.featuredImage : null
-            const imageUrl = featuredMedia ? getMediaUrl(featuredMedia) : null
-
-            return (
-              <Link
-                key={campaign.id}
-                href={campaign.path!}
-                className="flex flex-col bg-white rounded-xl overflow-hidden"
-              >
-                <header className="px-4 md:px-5 pt-4 pb-0! flex flex-col gap-2">
-                  <h2 className="text-2xl font-bold font-identity flex items-center gap-2 flex-wrap">
-                    <CampaignLabel campaign={campaign} />
-                    {campaign._status === 'draft' && <DraftBadge />}
-                  </h2>
-                  {campaignDateRanges[campaign.id] && (
-                    <div className="flex flex-row gap-1">
-                      <DateTime date={campaignDateRanges[campaign.id].earliestDate} />
-                      <span>to</span>
-                      <DateTime date={campaignDateRanges[campaign.id].latestDate} />
-                    </div>
-                  )}
-                </header>
-                {imageUrl && typeof campaign.featuredImage === 'object' && (
-                  <Image
-                    src={imageUrl}
-                    alt={campaign.name || ''}
-                    width={featuredMedia?.width || 1000}
-                    height={featuredMedia?.height || 1000}
-                    objectFit="cover"
-                    className="w-full h-60 object-cover overflow-hidden my-3"
-                  />
-                )}
-                <div className="px-4 md:px-5 space-y-3 pb-4">
-                  {campaign.description && (
-                    <LexicalRenderer content={campaign.description} limitParagraphs={1} />
-                  )}
-                  <Button variant="outline">Read more</Button>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+        <CampaignsGrid campaigns={campaigns} dateRanges={campaignDateRanges} />
       )}
     </main>
   )

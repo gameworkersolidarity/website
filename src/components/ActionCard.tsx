@@ -4,6 +4,7 @@ import Emoji from 'a11y-react-emoji'
 import { getYear } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'motion/react'
 import pluralize from 'pluralize'
 import { useMemo, useState } from 'react'
 import { DateTime } from '@/components/DateTime'
@@ -21,6 +22,7 @@ import { projectStrings } from '@/project-strings'
 import { getMediaUrl, getThumbnailUrl } from '@/utils/media'
 import { twMerge } from 'tailwind-merge'
 import { payloadClient } from '@/utils/payload'
+import { layoutTransition } from '@/lib/motion'
 import { CountryLabel } from './CountryLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
@@ -135,7 +137,7 @@ export function ActionsList({
 
   return (
     <>
-      <div className={`grid gap-4 ${gridStyle}`}>
+      <motion.div className={`grid gap-4 ${gridStyle}`} layout transition={layoutTransition}>
         {actionsByYear.map(([yearString, actions], i) => {
           let hiddenActions = [] as Action[]
           let shownActions = [] as Action[]
@@ -155,40 +157,60 @@ export function ActionsList({
           const pluralActionsCopy = pluralize('action', hiddenActions.length)
 
           return (
-            <div key={i}>
+            <motion.div key={i} layout transition={layoutTransition}>
               <div className="flex flex-row justify-between items-center pb-3">
-                <h2
+                <motion.h2
                   className={twMerge(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}
                   id={yearString}
+                  layout
                 >
                   {yearString}
-                </h2>
-                <div className="text-xs font-semibold">
+                </motion.h2>
+                <motion.div className="text-xs font-semibold" layout>
                   {pluralize('action', actions.length, true)}
-                </div>
+                </motion.div>
               </div>
               <div className="flex flex-col gap-4">
-                {shownActions.map((action) => (
+                {shownActions.map((action, index) => (
                   // <Link key={action.id} href={action.path!} shallow>
-                  <div key={action.id} className="transition group" id={action.slug}>
+                  <motion.div
+                    key={action.id}
+                    className="transition group"
+                    id={action.slug}
+                    layout="preserve-aspect"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...layoutTransition, delay: index * 0.04 }}
+                  >
                     {fullDisplay ? (
                       <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
                     ) : (
                       <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
                     )}
-                  </div>
+                  </motion.div>
                   // </Link>
                 ))}
                 <div className={twMerge(hiddenActionsOpen ? 'flex flex-col gap-4' : 'hidden')}>
-                  {hiddenActions.map((action) => (
+                  {hiddenActions.map((action, index) => (
                     // <Link key={action.id} href={action.path!}>
-                    <div key={action.id} className="transition group" id={action.slug}>
+                    <motion.div
+                      key={action.id}
+                      className="transition group"
+                      id={action.slug}
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        ...layoutTransition,
+                        delay: hiddenActionsOpen ? (shownActions.length + index) * 0.04 : 0,
+                      }}
+                    >
                       {fullDisplay ? (
                         <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
                       ) : (
                         <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
                       )}
-                    </div>
+                    </motion.div>
                     // </Link>
                   ))}
                 </div>
@@ -221,10 +243,10 @@ export function ActionsList({
                   </>
                 </button>
               )}
-            </div>
+            </motion.div>
           )
         })}
-      </div>
+      </motion.div>
     </>
   )
 }
@@ -275,7 +297,8 @@ export function ActionItem({
   const shouldShowDescription = !!data.description && data.featured
 
   return (
-    <article
+    <motion.article
+      layout="preserve-aspect"
       style={{
         // @ts-expect-error - CSS variables are not typed
         '--glow-color':
@@ -334,7 +357,7 @@ export function ActionItem({
           ))}
         </div>
       )}
-    </article>
+    </motion.article>
   )
 }
 
@@ -464,7 +487,7 @@ export function ActionCard({ data, displayStandaloneInfo = false, links = true }
 
   return (
     <>
-      <article className="space-y-2px">
+      <motion.article className="space-y-2px" layout="preserve-aspect">
         <main
           className={twMerge(
             data.featured && 'outline-2 outline-pink-400 outline-offset-2',
@@ -554,7 +577,7 @@ export function ActionCard({ data, displayStandaloneInfo = false, links = true }
             </div>
           </div>
         )}
-      </article>
+      </motion.article>
     </>
   )
 }

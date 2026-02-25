@@ -1,6 +1,7 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
+import { motion } from 'motion/react'
 import { LexicalRenderer } from '../../components/LexicalRenderer'
 import type { Company, Country, Action, OrganisingGroup } from '@/payload-types'
 import { notFound } from 'next/navigation'
@@ -19,6 +20,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { CollapsibleList, CollapsibleTriggerIcon } from '@/components/CollapsibleList'
 import pluralize from 'pluralize'
 import { DataPageFooter } from '@/components/DataPageFooter'
+import { layoutTransition } from '@/lib/motion'
 
 export function CountryPage({
   initialCountry,
@@ -82,13 +84,17 @@ export function CountryPage({
             </CollapsibleTrigger>
             <CollapsibleContent>
               <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
-              <div className="flex flex-row flex-wrap gap-2 mt-2">
+              <motion.div
+                className="flex flex-row flex-wrap gap-2 mt-2"
+                layout
+                transition={layoutTransition}
+              >
                 {organisingGroups.map((organisingGroup) => (
-                  <div key={organisingGroup.id}>
+                  <motion.div key={organisingGroup.id} layout transition={layoutTransition}>
                     <OrganisingGroupLabel organisingGroup={organisingGroup} link />
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </CollapsibleContent>
           </CollapsibleList>
         )}
@@ -102,13 +108,17 @@ export function CountryPage({
             </CollapsibleTrigger>
             <CollapsibleContent>
               <p className="text-sm opacity-50">Companies operating in {page.name}.</p>
-              <div className="flex flex-row flex-wrap gap-2 mt-2">
+              <motion.div
+                className="flex flex-row flex-wrap gap-2 mt-2"
+                layout
+                transition={layoutTransition}
+              >
                 {companies.map((company) => (
-                  <div key={company.id}>
+                  <motion.div key={company.id} layout transition={layoutTransition}>
                     <CompanyLabel company={company as Company} link />
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </CollapsibleContent>
           </CollapsibleList>
         )}

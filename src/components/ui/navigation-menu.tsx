@@ -1,9 +1,11 @@
 import * as React from 'react'
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
+import { motion } from 'motion/react'
 import { cva } from 'class-variance-authority'
 import { ChevronDownIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { layoutTransition } from '@/lib/motion'
 
 function NavigationMenu({
   className,
@@ -81,6 +83,7 @@ function NavigationMenuTrigger({
 
 function NavigationMenuContent({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Content>) {
   return (
@@ -92,7 +95,11 @@ function NavigationMenuContent({
         className,
       )}
       {...props}
-    />
+    >
+      <motion.div layout transition={layoutTransition}>
+        {children}
+      </motion.div>
+    </NavigationMenuPrimitive.Content>
   )
 }
 

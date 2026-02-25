@@ -1,10 +1,12 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
+import { motion } from 'motion/react'
 import { LexicalRenderer } from '../components/LexicalRenderer'
 import { OrganisingGroupCard } from '@/components/OrganisingGroupCard'
 import { CountryLabel } from '@/components/CountryLabel'
 import { projectStrings } from '@/project-strings'
+import { layoutTransition } from '@/lib/motion'
 import type { StartOrganising, OrganisingGroup, Country } from '@/payload-types'
 import { AdminEditBanner } from '@/components/Me'
 
@@ -31,22 +33,33 @@ export function StartOrganisingPageClient({
         </div>
 
         {groupsByCountry.length > 0 && (
-          <div className="grid grid-cols-1 gap-4">
+          <motion.div className="grid grid-cols-1 gap-4" layout transition={layoutTransition}>
             {groupsByCountry.map(({ country, groups }) => (
-              <div key={country.id} className="grid gap-4">
+              <motion.div
+                key={country.id}
+                className="grid gap-4"
+                layout
+                transition={layoutTransition}
+              >
                 <header>
                   <h2 className="text-2xl">
                     <CountryLabel country={country} link />
                   </h2>
                 </header>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  layout
+                  transition={layoutTransition}
+                >
                   {groups.map((group) => (
-                    <OrganisingGroupCard key={group.id} group={group} />
+                    <motion.div key={group.id} layout transition={layoutTransition}>
+                      <OrganisingGroupCard group={group} />
+                    </motion.div>
                   ))}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </>

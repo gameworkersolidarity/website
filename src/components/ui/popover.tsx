@@ -2,8 +2,10 @@
 
 import * as React from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { motion } from 'motion/react'
 
 import { cn } from '@/lib/utils'
+import { layoutTransition } from '@/lib/motion'
 
 function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
@@ -17,6 +19,7 @@ function PopoverContent({
   className,
   align = 'center',
   sideOffset = 4,
+  children,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
   return (
@@ -30,7 +33,11 @@ function PopoverContent({
           className,
         )}
         {...props}
-      />
+      >
+        <motion.div layout transition={layoutTransition}>
+          {children}
+        </motion.div>
+      </PopoverPrimitive.Content>
     </PopoverPrimitive.Portal>
   )
 }

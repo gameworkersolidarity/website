@@ -1,6 +1,7 @@
 'use client'
 
 import { Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
+import { motion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActionCard } from './ActionCard'
 import {
@@ -28,6 +29,7 @@ import { CountryLabel } from './CountryLabel'
 import { OrganisingGroupLabel } from './OrganisingGroupLabel'
 import { CompanyLabel } from './CompanyLabel'
 import { TimelineLabelProperty } from '@/global-types'
+import { layoutTransition } from '@/lib/motion'
 import { ActionFilterContextValue } from './ActionFilterContextProvider'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
@@ -183,13 +185,15 @@ export function Slideshow({
 
   return (
     <div className="relative">
-      <div
+      <motion.div
         ref={scrollContainerRef}
         onScrollEndCapture={handleScroll}
         className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth items-start py-4"
+        layout
+        transition={layoutTransition}
       >
         {sortedActions.map((action, index, list) => (
-          <div
+          <motion.div
             key={action.id}
             ref={(el) => {
               if (el) {
@@ -199,6 +203,8 @@ export function Slideshow({
               }
             }}
             className="shrink-0 w-full snap-center flex items-center justify-center gap-1 @md:gap-4"
+            layout
+            transition={layoutTransition}
           >
             <ArrowLeft
               className={twMerge('w-20 cursor-pointer', index > 0 ? 'block' : 'invisible')}
@@ -214,9 +220,9 @@ export function Slideshow({
               size={20}
               onClick={() => setCurrentActionId(list[index + 1].id)}
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }

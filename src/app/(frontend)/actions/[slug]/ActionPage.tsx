@@ -1,6 +1,7 @@
 'use client'
 
 import { useLivePreview } from '@payloadcms/live-preview-react'
+import { motion } from 'motion/react'
 import { ActionCard } from '@/components/ActionCard'
 import type {
   Campaign,
@@ -28,6 +29,10 @@ import { twMerge } from 'tailwind-merge'
 import { ActionHistogramContext } from '@/components/ActionHistogramContext'
 import { DataPageFooter } from '@/components/DataPageFooter'
 import posthog from 'posthog-js'
+import { layoutTransition } from '@/lib/motion'
+
+const CARD_ANIMATION_DURATION = 0.5
+const TIMELINE_ANIMATION_DELAY = CARD_ANIMATION_DURATION + 0.5
 
 export function ActionPage({
   initialAction,
@@ -95,15 +100,32 @@ export function ActionPage({
               actionNav={actionNav}
               previousRelatedActions={previousRelatedActions}
               currentActionDate={action.date}
+              baseDelay={CARD_ANIMATION_DURATION}
             />
           )}
         </aside>
         <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
-          <ActionCard data={action} links displayStandaloneInfo />
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...layoutTransition, duration: CARD_ANIMATION_DURATION }}
+          >
+            <ActionCard data={action} links displayStandaloneInfo />
+          </motion.div>
           {hasSameDayActions && (
-            <SameDayActions actions={actionNav} currentActionDate={action.date} />
+            <SameDayActions
+              actions={actionNav}
+              currentActionDate={action.date}
+              baseDelay={CARD_ANIMATION_DURATION}
+            />
           )}
-          <ActionHistogramContext action={action} />
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...layoutTransition, delay: TIMELINE_ANIMATION_DELAY }}
+          >
+            <ActionHistogramContext action={action} />
+          </motion.div>
         </main>
         <aside className="text-left flex flex-col gap-3 order-3">
           {hasNextActions && (
@@ -111,6 +133,7 @@ export function ActionPage({
               actionNav={actionNav}
               nextRelatedActions={nextRelatedActions}
               currentActionDate={action.date}
+              baseDelay={CARD_ANIMATION_DURATION}
             />
           )}
         </aside>
@@ -169,26 +192,40 @@ function FollowingActions({
   actionNav,
   nextRelatedActions,
   currentActionDate,
+  baseDelay = 0,
 }: {
   actionNav: ActionNav
   nextRelatedActions: Action['relatedActions']
   currentActionDate: string
+  baseDelay?: number
 }) {
   const items = getNextBreadcrumbItems(actionNav, nextRelatedActions)
   return (
-    <>
-      <div className="text-sm text-zinc-500 font-semibold">Following actions</div>
-      {items.map(({ action, label, description, key }) => (
-        <ActionBreadcrumbNavLink
-          direction="next"
-          action={action}
+    <motion.div className="flex flex-col gap-3" layout transition={layoutTransition}>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...layoutTransition, delay: baseDelay }}
+      >
+        <div className="text-sm text-zinc-500 font-semibold">Following actions</div>
+      </motion.div>
+      {items.map(({ action, label, description, key }, index) => (
+        <motion.div
           key={key}
-          label={label}
-          description={description}
-          currentActionDate={currentActionDate}
-        />
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...layoutTransition, delay: baseDelay + (index + 1) * 0.04 }}
+        >
+          <ActionBreadcrumbNavLink
+            direction="next"
+            action={action}
+            label={label}
+            description={description}
+            currentActionDate={currentActionDate}
+          />
+        </motion.div>
       ))}
-    </>
+    </motion.div>
   )
 }
 
@@ -196,115 +233,137 @@ function PreviousActions({
   actionNav,
   previousRelatedActions,
   currentActionDate,
+  baseDelay = 0,
 }: {
   actionNav: ActionNav
   previousRelatedActions: Action['relatedActions']
   currentActionDate: string
+  baseDelay?: number
 }) {
+  const campaignItems = Object.values(actionNav?.previousInCampaign ?? {}).filter(
+    (action) => action && action.campaigns?.docs?.[0],
+  )
+  const relatedItems = previousRelatedActions ?? []
+  const companyItems = Object.values(actionNav?.previousInCompany ?? {}).filter(
+    (action) => action && action.companies?.[0],
+  )
+  const ogItems = Object.values(actionNav?.previousInOrganisingGroup ?? {}).filter(
+    (action) => action && action.organisingGroups?.[0],
+  )
+  const countryItems = Object.values(actionNav?.previousInCountry ?? {}).filter(
+    (action) => action && action.countries?.[0],
+  )
+  const categoryItems = Object.values(actionNav?.previousInCategory ?? {}).filter(
+    (action) => action && action.categories?.[0],
+  )
+  const allItems: {
+    key: string
+    action: Action
+    label: BreadcrumbNavLabel
+    description?: string
+  }[] = [
+    ...campaignItems.map((action) => ({
+      key: action!.id,
+      action: action!,
+      label: 'campaigns' as BreadcrumbNavLabel,
+    })),
+    ...relatedItems.map((relation) => ({
+      key: relation.id ?? `related-${(relation.action as Action)?.id}`,
+      action: relation.action as Action,
+      label: relation.connectionType,
+      description: relation.description,
+    })),
+    ...companyItems.map((action) => ({
+      key: action!.id,
+      action: action!,
+      label: 'companies' as BreadcrumbNavLabel,
+    })),
+    ...ogItems.map((action) => ({
+      key: action!.id,
+      action: action!,
+      label: 'organisingGroups' as BreadcrumbNavLabel,
+    })),
+    ...countryItems.map((action) => ({
+      key: action!.id,
+      action: action!,
+      label: 'countries' as BreadcrumbNavLabel,
+    })),
+    ...categoryItems.map((action) => ({
+      key: action!.id,
+      action: action!,
+      label: 'categories' as BreadcrumbNavLabel,
+    })),
+  ]
+
   return (
-    <>
-      <div className="text-sm text-zinc-500 font-semibold mb-2">Previous actions</div>
-      {Object.values(actionNav?.previousInCampaign ?? {}).map(
-        (action) =>
-          action &&
-          action.campaigns?.docs?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="campaigns"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {previousRelatedActions?.map((relation) => (
-        <ActionBreadcrumbNavLink
-          label={relation.connectionType}
-          direction="previous"
-          action={relation.action as Action}
-          key={relation.id}
-          description={relation.description}
-          currentActionDate={currentActionDate}
-        />
+    <motion.div className="flex flex-col gap-3" layout transition={layoutTransition}>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...layoutTransition, delay: baseDelay }}
+      >
+        <div className="text-sm text-zinc-500 font-semibold mb-2">Previous actions</div>
+      </motion.div>
+      {allItems.map((item, index) => (
+        <motion.div
+          key={item.key}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...layoutTransition, delay: baseDelay + (index + 1) * 0.04 }}
+        >
+          <ActionBreadcrumbNavLink
+            label={item.label}
+            direction="previous"
+            action={item.action}
+            description={item.description}
+            currentActionDate={currentActionDate}
+          />
+        </motion.div>
       ))}
-      {Object.values(actionNav?.previousInCompany ?? {}).map(
-        (action) =>
-          action &&
-          action.companies?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="companies"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {Object.values(actionNav?.previousInOrganisingGroup ?? {}).map(
-        (action) =>
-          action &&
-          action.organisingGroups?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="organisingGroups"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {Object.values(actionNav?.previousInCountry ?? {}).map(
-        (action) =>
-          action &&
-          action.countries?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="countries"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-      {Object.values(actionNav?.previousInCategory ?? {}).map(
-        (action) =>
-          action &&
-          action.categories?.[0] && (
-            <ActionBreadcrumbNavLink
-              direction="previous"
-              action={action}
-              key={action.id}
-              label="categories"
-              currentActionDate={currentActionDate}
-            />
-          ),
-      )}
-    </>
+    </motion.div>
   )
 }
 function SameDayActions({
   actions,
   currentActionDate,
+  baseDelay = 0,
 }: {
   actions: ActionNav
   currentActionDate: string
+  baseDelay?: number
 }) {
   return (
     <div className="flex flex-col gap-2">
       {actions?.sameDay && actions.sameDay.length > 0 && (
         <div className="mt-4">
-          <h3 className="text-sm text-zinc-500 font-semibold mb-2">Also on this day</h3>
-          <div className="-mx-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
-            {actions.sameDay.map((action) => (
-              <ActionBreadcrumbNavLink
-                direction="sameDay"
-                action={action}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...layoutTransition, delay: baseDelay }}
+          >
+            <h3 className="text-sm text-zinc-500 font-semibold mb-2">Also on this day</h3>
+          </motion.div>
+          <motion.div
+            className="-mx-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 items-start"
+            layout="preserve-aspect"
+            transition={layoutTransition}
+          >
+            {actions.sameDay.map((action, index) => (
+              <motion.div
                 key={action.id}
-                label="countries"
-                currentActionDate={currentActionDate}
-              />
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...layoutTransition, delay: baseDelay + (index + 1) * 0.04 }}
+              >
+                <ActionBreadcrumbNavLink
+                  direction="sameDay"
+                  action={action}
+                  label="countries"
+                  currentActionDate={currentActionDate}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
