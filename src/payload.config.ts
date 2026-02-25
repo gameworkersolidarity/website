@@ -200,6 +200,7 @@ export default buildConfig({
     ? nodemailerAdapter({
         defaultFromAddress: projectStrings.email,
         defaultFromName: projectStrings.name,
+        skipVerify: true, // Avoid SMTP verify at startup (Proton limits connections; verify is unnecessary for sending)
         transport: nodemailer.createTransport({
           host: env.get('SMTP_HOST').asString() || 'localhost',
           port: env.get('SMTP_PORT').default(587).asInt(),
