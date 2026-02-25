@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { payloadUserQuery } from '@/utils/payload.server'
+import { projectStrings } from '@/project-strings'
 
 /**
  * GET /api/actions/random
  * Redirects to a random action page (Wikipedia-style "Random article").
  */
 export async function GET(request: NextRequest) {
-  const base = request.nextUrl.origin
+  const base = projectStrings.baseUrl
   try {
     const { totalDocs, docs } = await payloadUserQuery({
       collection: 'actions',
