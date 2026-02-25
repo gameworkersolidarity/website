@@ -585,17 +585,31 @@ export function Timeline({
             if (!shouldAppear) return null
             const globalIndex = globalLabelIndex.get(action.id) ?? 0
             const { y } = getLabelPosition(globalIndex, null, 0)
+            const lineIndex = sortedActions.findIndex((a) => a.id === action.id)
             return (
-              <Line
+              <motion.g
                 key={`line-${action.id}`}
-                x1={x}
-                y1={timelineY}
-                x2={x}
-                y2={y}
-                stroke={getActionColor(action)}
-                strokeWidth={1}
-                suppressHydrationWarning
-              />
+                initial={{ opacity: 0, scaleY: 0 }}
+                whileInView={{ opacity: 1, scaleY: 1 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 188,
+                  damping: 18,
+                  delay: lineIndex * 0.027,
+                }}
+                style={{ transformOrigin: `${x}px ${timelineY}px` }}
+              >
+                <Line
+                  x1={x}
+                  y1={timelineY}
+                  x2={x}
+                  y2={y}
+                  stroke={getActionColor(action)}
+                  strokeWidth={1}
+                  suppressHydrationWarning
+                />
+              </motion.g>
             )
           })}
           {/* Line for highlighted action (additional label when not in base set) */}
@@ -608,28 +622,53 @@ export function Timeline({
               const x = xScale(new Date(action.date))
               const { y } = getLabelPosition(0, action.id, highlightOffset)
               return (
-                <Line
+                <motion.g
                   key={`line-highlight-${action.id}`}
-                  x1={x}
-                  y1={timelineY}
-                  x2={x}
-                  y2={y}
-                  stroke={getActionColor(action)}
-                  strokeWidth={1}
-                  suppressHydrationWarning
-                />
+                  initial={{ opacity: 0, scaleY: 0 }}
+                  whileInView={{ opacity: 1, scaleY: 1 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 188,
+                    damping: 18,
+                    delay: 0,
+                  }}
+                  style={{ transformOrigin: `${x}px ${timelineY}px` }}
+                >
+                  <Line
+                    x1={x}
+                    y1={timelineY}
+                    x2={x}
+                    y2={y}
+                    stroke={getActionColor(action)}
+                    strokeWidth={1}
+                    suppressHydrationWarning
+                  />
+                </motion.g>
               )
             })()}
 
           {/* Action dots — all markers shown; only labels are throttled in dense bins */}
-          {sortedActions.map((action) => {
+          {sortedActions.map((action, index) => {
             const x = xScale(new Date(action.date))
             const color = action.featured
               ? getCSSVariable('--color-gw-pink', false, '#DD96FF')
               : getActionColor(action)
             const radius = getActionRadius(action)
             return (
-              <g key={action.id}>
+              <motion.g
+                key={action.id}
+                initial={{ opacity: 0, scale: 0 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 188,
+                  damping: 18,
+                  delay: index * 0.027,
+                }}
+                style={{ transformOrigin: `${x}px ${timelineY}px` }}
+              >
                 <Circle
                   cx={x}
                   cy={timelineY}
@@ -654,7 +693,7 @@ export function Timeline({
                     />
                   </>
                 )}
-              </g>
+              </motion.g>
             )
           })}
 
@@ -666,6 +705,7 @@ export function Timeline({
             const globalIndex = globalLabelIndex.get(action.id) ?? 0
             const { y, aboveBelow } = getLabelPosition(globalIndex, null, 0)
             const estimatedWidth = 300
+            const labelIndex = sortedActions.findIndex((a) => a.id === action.id)
 
             return (
               <HtmlLabel
@@ -680,7 +720,16 @@ export function Timeline({
                   pointerEvents: 'auto',
                 }}
               >
-                <div
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 188,
+                    damping: 18,
+                    delay: labelIndex * 0.027,
+                  }}
                   className={twMerge(
                     'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
                     action.id === currentActionId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
@@ -725,7 +774,7 @@ export function Timeline({
                     {labelProperty === 'location' ? action.location : null}
                     {labelProperty === 'name' ? action.name : null}
                   </div>
-                </div>
+                </motion.div>
               </HtmlLabel>
             )
           })}
@@ -751,7 +800,16 @@ export function Timeline({
                     pointerEvents: 'auto',
                   }}
                 >
-                  <div
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 63,
+                      damping: 18,
+                      delay: 0,
+                    }}
                     className="whitespace-nowrap flex flex-col items-center text-center cursor-pointer bg-snot-300 rounded-md px-2 py-1 border-none"
                     style={{
                       display: 'flex',
@@ -793,7 +851,7 @@ export function Timeline({
                       {labelProperty === 'location' ? action.location : null}
                       {labelProperty === 'name' ? action.name : null}
                     </div>
-                  </div>
+                  </motion.div>
                 </HtmlLabel>
               )
             })()}
