@@ -26,24 +26,21 @@ export async function generateMetadataForSlug({
   getDescription,
   getImages,
 }: MetadataOptions): Promise<Metadata> {
-  const result = isSlugPageCachingEnabled()
-    ? await cacheWithTags(
-        () =>
-          payloadPublicQuery({
-            collection,
-            where: { slug: { equals: slug } },
-            depth: 1,
-            limit: 1,
-          }),
-        ['metadata', collection, slug],
-        [getTagForCollection(collection)],
-      )
-    : await payloadPublicQuery({
-        collection,
-        where: { slug: { equals: slug } },
-        depth: 1,
-        limit: 1,
-      })
+  const query = isSlugPageCachingEnabled()
+    ? payloadPublicQuery
+    : (...args: Parameters<typeof payloadPublicQuery>) =>
+        cacheWithTags(
+          () => payloadPublicQuery(...args),
+          ['metadata', collection, slug],
+          [getTagForCollection(collection)],
+        )
+
+  const result = await query({
+    collection,
+    where: { slug: { equals: slug } },
+    depth: 1,
+    limit: 1,
+  })
 
   if (result.docs.length === 0) {
     return {
