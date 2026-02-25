@@ -3,9 +3,10 @@ import type { Action, Campaign, Category, Company, Country, OrganisingGroup } fr
 import { getCachedData } from '@/utils/payload.server'
 import type { Payload } from 'payload'
 import { validatePayloadResult } from '@/utils/validate-payload'
-import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
+import { CACHE_KEYS } from '@/lib/cache'
 
-export const revalidate = CACHE_REVALIDATE_SECONDS
+// Segment config must be a literal; value = CACHE_REVALIDATE_SECONDS (12h)
+export const revalidate = 43200
 
 async function getHomepageData(query: Payload['find']): Promise<{
   actions: Action[]

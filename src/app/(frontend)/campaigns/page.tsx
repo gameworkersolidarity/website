@@ -6,9 +6,10 @@ import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { projectStrings } from '@/project-strings'
 import type { Metadata } from 'next'
 import { CampaignsGrid } from './CampaignsGrid.client'
-import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
+import { CACHE_KEYS } from '@/lib/cache'
 
-export const revalidate = CACHE_REVALIDATE_SECONDS
+// Segment config must be a literal; value = 12h (see CACHE_REVALIDATE_SECONDS in lib/cache)
+export const revalidate = 43200
 
 export async function generateMetadata(): Promise<Metadata> {
   try {

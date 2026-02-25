@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { getCachedData } from '@/utils/payload.server'
 import { DraftBadge } from '@/components/DraftBadge'
-import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
+import { CACHE_KEYS } from '@/lib/cache'
 import type { Payload } from 'payload'
 
 export const metadata = {
@@ -11,7 +11,8 @@ export const metadata = {
     'Explore countries where solidarity actions have taken place in the global video game industry.',
 }
 
-export const revalidate = CACHE_REVALIDATE_SECONDS
+// Segment config must be a literal; value = 12h (see CACHE_REVALIDATE_SECONDS in lib/cache)
+export const revalidate = 43200
 
 async function getCountriesIndexData(query: Payload['find']) {
   const [countriesResult, actionsResult] = await Promise.all([

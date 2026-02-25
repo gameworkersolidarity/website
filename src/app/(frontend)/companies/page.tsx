@@ -1,7 +1,7 @@
 import React from 'react'
 import { getCachedData } from '@/utils/payload.server'
 import { CompaniesGrid } from './CompaniesGrid.client'
-import { CACHE_KEYS, CACHE_REVALIDATE_SECONDS } from '@/lib/cache'
+import { CACHE_KEYS } from '@/lib/cache'
 import type { Payload } from 'payload'
 
 export const metadata = {
@@ -10,7 +10,8 @@ export const metadata = {
     'Explore companies in the global video game industry where solidarity actions have taken place.',
 }
 
-export const revalidate = CACHE_REVALIDATE_SECONDS
+// Segment config must be a literal; value = 12h (see CACHE_REVALIDATE_SECONDS in lib/cache)
+export const revalidate = 43200
 
 async function getCompaniesIndexData(query: Payload['find']) {
   const [companiesResult, actionsResult] = await Promise.all([
