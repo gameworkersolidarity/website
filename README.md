@@ -31,6 +31,10 @@ First, make sure you have the technical requirements installed. (See section bel
      - `DATABASE_URL` — MongoDB connection string (local or cloud).
      - `PAYLOAD_SECRET` — Long, random secret for Payload (e.g. JWT signing).
    - For full functionality you may also need: Mapbox token, Cloudinary credentials, `BASE_URL`, and optionally Airtable and SMTP settings (see `.env.example`).
+   - **Cache behaviour** — Optional env var `CACHE_BEHAVIOUR` controls how public pages are cached (homepage, index pages like `/campaigns` and `/companies`, and slug pages like `/organising-groups/[slug]`). Set to one of:
+     - **`true`** (default when unset) — Cache index pages and slug pages. Best for production.
+     - **`index-only`** — Cache only the homepage and index pages; slug/detail pages always fetch fresh. Useful if you want fast index views but always-fresh detail pages.
+     - **`false`** — No caching; every request hits the database. Useful for local development or when debugging stale content.
    - **Local dev with cloud MongoDB:** Add your IP as a trusted source in the database’s network access: [DigitalOcean DB network access](https://cloud.digitalocean.com/databases/3ce25df3-a800-493e-ae60-6b88cf140a22/network-access?i=55d14f).
 
 4. **Run the app**

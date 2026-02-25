@@ -11,6 +11,7 @@ import {
   CACHE_TAGS,
   METADATA_GLOBAL_TAGS,
   isSlugPageCachingEnabled,
+  isIndexCachingEnabled,
 } from '@/lib/cache'
 
 export const payloadUserQuery: Payload['find'] = async (options) => {
@@ -94,6 +95,13 @@ export async function getCachedData<T>(
     })
   }
 
+  if (!isIndexCachingEnabled()) {
+    return fetcher({
+      query: payloadPublicQuery,
+      globalQuery: payloadPublicGlobalQuery,
+    })
+  }
+
   const { keyParts, tags } = getCacheConfig(key)
   return cacheWithTags(
     () =>
@@ -165,15 +173,17 @@ export async function getCachedDataForSlug<T>(
 export async function getCachedGlobalForMetadata<T = Record<string, unknown>>(
   globalSlug: string,
 ): Promise<T | null> {
+  const fetcher = () =>
+    payloadPublicGlobalQuery({
+      slug: globalSlug,
+    } as Parameters<Payload['findGlobal']>[0])
+
+  if (!isIndexCachingEnabled()) {
+    return fetcher() as Promise<T | null>
+  }
+
   const tag = METADATA_GLOBAL_TAGS[globalSlug] ?? globalSlug
-  const data = await cacheWithTags(
-    () =>
-      payloadPublicGlobalQuery({
-        slug: globalSlug,
-      } as Parameters<Payload['findGlobal']>[0]),
-    ['metadata', 'global', globalSlug],
-    [tag],
-  )
+  const data = await cacheWithTags(fetcher, ['metadata', 'global', globalSlug], [tag])
   // Cast to T so default Record<string, unknown> allows any property access at call sites
   return data as T | null
 }

@@ -1,6 +1,6 @@
 import { CollectionSlug } from 'payload'
 import { payloadPublicQuery } from '@/utils/payload.server'
-import { cacheWithTags, getTagForCollection } from '@/lib/cache'
+import { cacheWithTags, getTagForCollection, isSlugPageCachingEnabled } from '@/lib/cache'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { Media } from '@/payload-types'
 import { backupShareCard } from '@/utils/shareCard'
@@ -26,17 +26,24 @@ export async function generateMetadataForSlug({
   getDescription,
   getImages,
 }: MetadataOptions): Promise<Metadata> {
-  const result = await cacheWithTags(
-    () =>
-      payloadPublicQuery({
+  const result = isSlugPageCachingEnabled()
+    ? await cacheWithTags(
+        () =>
+          payloadPublicQuery({
+            collection,
+            where: { slug: { equals: slug } },
+            depth: 1,
+            limit: 1,
+          }),
+        ['metadata', collection, slug],
+        [getTagForCollection(collection)],
+      )
+    : await payloadPublicQuery({
         collection,
         where: { slug: { equals: slug } },
         depth: 1,
         limit: 1,
-      }),
-    ['metadata', collection, slug],
-    [getTagForCollection(collection)],
-  )
+      })
 
   if (result.docs.length === 0) {
     return {
