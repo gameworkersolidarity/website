@@ -250,7 +250,7 @@ export function ActionFilter({
           {organisingGroups && (
             <div className="filter-group w-full">
               <MultiSelect
-                placeholder="union..."
+                placeholder="organising group..."
                 options={filterContext.organisingGroups || []}
                 valueKey="slug"
                 renderLabel={(d) => <OrganisingGroupLabel organisingGroup={d} />}
