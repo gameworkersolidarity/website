@@ -25,7 +25,6 @@ async function getHomepageData(query: Payload['find']): Promise<{
         pagination: false,
         select: {
           airtableId: false,
-          coordinates: false,
           submissionContactDetails: false,
           consent: false,
           relatedActions: false,
