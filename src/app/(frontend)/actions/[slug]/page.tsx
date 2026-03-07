@@ -55,6 +55,9 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
       id: {
         not_equals: action.id,
       },
+      ...(action.initiator != null && (action.initiator as string) !== ''
+        ? { initiator: { equals: action.initiator } }
+        : {}),
     },
     depth: 2,
   })
@@ -62,109 +65,166 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
   actionNav.sameDay = validatePayloadDocuments('actions', sameDayActionsResult.docs)
 
   const actionIdsIncluded: string[] = [action.id]
+  const previousFacets: ActionNav['previousFacets'] = {}
+  const nextFacets: ActionNav['nextFacets'] = {}
+
+  function ensureFacets(
+    facets: NonNullable<ActionNav['previousFacets']>,
+    actionId: string,
+    facetType: keyof NonNullable<ActionNav['previousFacets']>[string],
+    slug: string,
+  ) {
+    if (!facets[actionId]) {
+      facets[actionId] = {
+        organisingGroups: [],
+        companies: [],
+        countries: [],
+        categories: [],
+        campaigns: [],
+      }
+    }
+    facets[actionId]![facetType].push(slug)
+  }
+
+  for (const organisingGroup of action?.organisingGroups ?? []) {
+    if (typeof organisingGroup === 'string') continue
+    const slug = getSlug('organisingGroups', organisingGroup)
+    const prevAction = await getNearestAction(
+      action,
+      { organisingGroups: { equals: organisingGroup.id } },
+      'previous',
+    )
+    if (prevAction && prevAction.id !== action.id) {
+      ensureFacets(previousFacets, prevAction.id, 'organisingGroups', slug)
+      if (!actionIdsIncluded.includes(prevAction.id)) {
+        actionIdsIncluded.push(prevAction.id)
+        actionNav.previousInOrganisingGroup![slug] = prevAction
+      }
+    }
+    const nextAction = await getNearestAction(
+      action,
+      { organisingGroups: { equals: organisingGroup.id } },
+      'next',
+    )
+    if (nextAction && nextAction.id !== action.id) {
+      ensureFacets(nextFacets, nextAction.id, 'organisingGroups', slug)
+      if (!actionIdsIncluded.includes(nextAction.id)) {
+        actionIdsIncluded.push(nextAction.id)
+        actionNav.nextInOrganisingGroup![slug] = nextAction
+      }
+    }
+  }
+
+  for (const company of action?.companies ?? []) {
+    if (typeof company === 'string') continue
+    const slug = getSlug('companies', company)
+    const prevAction = await getNearestAction(
+      action,
+      { companies: { equals: company.id } },
+      'previous',
+    )
+    if (prevAction && prevAction.id !== action.id) {
+      ensureFacets(previousFacets, prevAction.id, 'companies', slug)
+      if (!actionIdsIncluded.includes(prevAction.id)) {
+        actionIdsIncluded.push(prevAction.id)
+        actionNav.previousInCompany![slug] = prevAction
+      }
+    }
+    const nextAction = await getNearestAction(action, { companies: { equals: company.id } }, 'next')
+    if (nextAction && nextAction.id !== action.id) {
+      ensureFacets(nextFacets, nextAction.id, 'companies', slug)
+      if (!actionIdsIncluded.includes(nextAction.id)) {
+        actionIdsIncluded.push(nextAction.id)
+        actionNav.nextInCompany![slug] = nextAction
+      }
+    }
+  }
 
   for (const country of action?.countries ?? []) {
     if (typeof country === 'string') continue
+    const slug = getSlug('countries', country)
     const prevAction = await getNearestAction(
       action,
       { countries: { equals: country.id } },
       'previous',
     )
-    if (prevAction && prevAction.id !== action.id && !actionIdsIncluded.includes(prevAction.id)) {
-      actionIdsIncluded.push(prevAction.id)
-      actionNav.previousInCountry![getSlug('countries', country)] = prevAction
+    if (prevAction && prevAction.id !== action.id) {
+      ensureFacets(previousFacets, prevAction.id, 'countries', slug)
+      if (!actionIdsIncluded.includes(prevAction.id)) {
+        actionIdsIncluded.push(prevAction.id)
+        actionNav.previousInCountry![slug] = prevAction
+      }
     }
     const nextAction = await getNearestAction(action, { countries: { equals: country.id } }, 'next')
-    if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
-      actionIdsIncluded.push(nextAction.id)
-      actionNav.nextInCountry![getSlug('countries', country)] = nextAction
+    if (nextAction && nextAction.id !== action.id) {
+      ensureFacets(nextFacets, nextAction.id, 'countries', slug)
+      if (!actionIdsIncluded.includes(nextAction.id)) {
+        actionIdsIncluded.push(nextAction.id)
+        actionNav.nextInCountry![slug] = nextAction
+      }
     }
   }
 
   for (const category of action?.categories ?? []) {
     if (typeof category === 'string') continue
+    const slug = getSlug('categories', category)
     const prevAction = await getNearestAction(
       action,
       { categories: { in: [category.id] } },
       'previous',
     )
-    if (prevAction && prevAction.id !== action.id && !actionIdsIncluded.includes(prevAction.id)) {
-      actionIdsIncluded.push(prevAction.id)
-      actionNav.previousInCategory![getSlug('categories', category)] = prevAction
+    if (prevAction && prevAction.id !== action.id) {
+      ensureFacets(previousFacets, prevAction.id, 'categories', slug)
+      if (!actionIdsIncluded.includes(prevAction.id)) {
+        actionIdsIncluded.push(prevAction.id)
+        actionNav.previousInCategory![slug] = prevAction
+      }
     }
     const nextAction = await getNearestAction(
       action,
       { categories: { equals: category.id } },
       'next',
     )
-    if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
-      actionIdsIncluded.push(nextAction.id)
-      actionNav.nextInCategory![getSlug('categories', category)] = nextAction
-    }
-  }
-
-  for (const company of action?.companies ?? []) {
-    if (typeof company === 'string') continue
-    const prevAction = await getNearestAction(
-      action,
-      { companies: { equals: company.id } },
-      'previous',
-    )
-    if (prevAction && prevAction.id !== action.id && !actionIdsIncluded.includes(prevAction.id)) {
-      actionIdsIncluded.push(prevAction.id)
-      actionNav.previousInCompany![getSlug('companies', company)] = prevAction
-    }
-    const nextAction = await getNearestAction(action, { companies: { equals: company.id } }, 'next')
-    if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
-      actionIdsIncluded.push(nextAction.id)
-      actionNav.nextInCompany![getSlug('companies', company)] = nextAction
-    }
-  }
-
-  for (const organisingGroup of action?.organisingGroups ?? []) {
-    if (typeof organisingGroup === 'string') continue
-    const prevAction = await getNearestAction(
-      action,
-      { organisingGroups: { equals: organisingGroup.id } },
-      'previous',
-    )
-    if (prevAction && prevAction.id !== action.id && !actionIdsIncluded.includes(prevAction.id)) {
-      actionIdsIncluded.push(prevAction.id)
-      actionNav.previousInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] =
-        prevAction
-    }
-    const nextAction = await getNearestAction(
-      action,
-      { organisingGroups: { equals: organisingGroup.id } },
-      'next',
-    )
-    if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
-      actionIdsIncluded.push(nextAction.id)
-      actionNav.nextInOrganisingGroup![getSlug('organisingGroups', organisingGroup)] = nextAction
+    if (nextAction && nextAction.id !== action.id) {
+      ensureFacets(nextFacets, nextAction.id, 'categories', slug)
+      if (!actionIdsIncluded.includes(nextAction.id)) {
+        actionIdsIncluded.push(nextAction.id)
+        actionNav.nextInCategory![slug] = nextAction
+      }
     }
   }
 
   for (const campaign of action?.campaigns?.docs ?? []) {
     if (typeof campaign === 'string') continue
+    const slug = getSlug('campaigns', campaign)
     const prevAction = await getNearestAction(
       action,
       { campaigns: { equals: campaign.id } },
       'previous',
     )
-    if (prevAction && prevAction.id !== action.id && !actionIdsIncluded.includes(prevAction.id)) {
-      actionIdsIncluded.push(prevAction.id)
-      actionNav.previousInCampaign![getSlug('campaigns', campaign)] = prevAction
+    if (prevAction && prevAction.id !== action.id) {
+      ensureFacets(previousFacets, prevAction.id, 'campaigns', slug)
+      if (!actionIdsIncluded.includes(prevAction.id)) {
+        actionIdsIncluded.push(prevAction.id)
+        actionNav.previousInCampaign![slug] = prevAction
+      }
     }
     const nextAction = await getNearestAction(
       action,
       { campaigns: { equals: campaign.id } },
       'next',
     )
-    if (nextAction && nextAction.id !== action.id && !actionIdsIncluded.includes(nextAction.id)) {
-      actionIdsIncluded.push(nextAction.id)
-      actionNav.nextInCampaign![getSlug('campaigns', campaign)] = nextAction
+    if (nextAction && nextAction.id !== action.id) {
+      ensureFacets(nextFacets, nextAction.id, 'campaigns', slug)
+      if (!actionIdsIncluded.includes(nextAction.id)) {
+        actionIdsIncluded.push(nextAction.id)
+        actionNav.nextInCampaign![slug] = nextAction
+      }
     }
   }
+
+  actionNav.previousFacets = previousFacets
+  actionNav.nextFacets = nextFacets
 
   return <ActionPage initialAction={action} actionNav={actionNav} />
 
@@ -173,21 +233,22 @@ export default async function ServerPage({ params }: { params: Promise<{ slug: s
     filter: any,
     direction: 'previous' | 'next' | 'sameDay',
   ) {
+    const where: any = {
+      ...filter,
+      date: {
+        [direction === 'previous' ? 'less_than' : direction === 'next' ? 'greater_than' : 'equals']:
+          action.date,
+      },
+      id: {
+        not_equals: action.id,
+      },
+    }
+    if (action.initiator != null && (action.initiator as string) !== '') {
+      where.initiator = { equals: action.initiator }
+    }
     const actions = await payloadUserQuery({
       collection: 'actions',
-      where: {
-        ...filter,
-        date: {
-          [direction === 'previous'
-            ? 'less_than'
-            : direction === 'next'
-              ? 'greater_than'
-              : 'equals']: action.date,
-        },
-        id: {
-          not_equals: action.id,
-        },
-      },
+      where,
       depth: 2,
       sort: direction === 'previous' ? '-date' : 'date',
       limit: 1,
