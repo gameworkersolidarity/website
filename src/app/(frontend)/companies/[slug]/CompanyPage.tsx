@@ -59,7 +59,7 @@ export function CompanyPage({
       >
         <article className={twMerge('lg:max-w-4xl mx-auto flex flex-col gap-[2px]')}>
           <header className="bg-white p-4 md:p-6 pb-4! lg:rounded-t-xl">
-            <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
+            <div className="font-mono uppercase text-sm text-muted-foreground flex items-center gap-1">
               <Building className="w-4 h-4" />
               <span>Company</span>
               {page._status === 'draft' && <DraftBadge className="ml-2" />}
@@ -75,7 +75,7 @@ export function CompanyPage({
           {!!descendants && descendants.length > 1 && (
             <div className="bg-white px-4 md:px-6 py-4">
               <h2 className="text-xl font-bold font-identity">Company hierarchy</h2>
-              <p className="text-sm opacity-50 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 How {page.name} fits into the corporate hierarchy.
               </p>
               <Descendants breadcrumbs={descendants} initialSelectedItemId={initialCompany.id} />
@@ -91,7 +91,9 @@ export function CompanyPage({
                   <CollapsibleTriggerIcon className="w-4 h-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <p className="text-sm opacity-50">Worker organising groups within {page.name}.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Worker organising groups within {page.name}.
+                  </p>
                   <div className="flex flex-row flex-wrap gap-2 mt-2">
                     {organisingGroups.map((organisingGroup) => (
                       <div key={organisingGroup.id}>
@@ -113,7 +115,7 @@ export function CompanyPage({
                   <CollapsibleTriggerIcon className="w-4 h-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <p className="text-sm opacity-50">
+                  <p className="text-sm text-muted-foreground">
                     Countries we know this company is operating in.
                   </p>
                   <div className="flex flex-row flex-wrap gap-2 mt-2">

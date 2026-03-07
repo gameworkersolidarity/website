@@ -140,7 +140,7 @@ export function ActionFilter({
             </CollapsibleTrigger>
           ) : (
             <CollapsibleTrigger className="flex flex-row gap-2 shrink-0 grow-0">
-              <h2 className="text-xs uppercase opacity-50 font-mono">Filters</h2>
+              <h2 className="text-xs uppercase font-mono text-label-muted">Filters</h2>
             </CollapsibleTrigger>
           )}
         </div>

@@ -912,7 +912,7 @@ export function ActionBreadcrumbNavLink({
         )}
       >
         {direction !== 'sameDay' && action.date && (
-          <div className="text-xs text-zinc-400" dir="ltr">
+          <div className="text-xs text-muted-foreground" dir="ltr">
             {(() => {
               const actionDate = new Date(action.date)
               const currentDate = new Date(currentActionDate)
@@ -927,7 +927,7 @@ export function ActionBreadcrumbNavLink({
           </div>
         )}
         {action.date && direction === 'sameDay' && (
-          <span className="text-xs text-zinc-400 ltr text-left">
+          <span className="text-xs text-muted-foreground ltr text-left">
             <DateTime date={action.date} />
           </span>
         )}

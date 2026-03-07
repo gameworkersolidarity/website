@@ -124,6 +124,12 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
+        <a
+          href="#main-content"
+          className="absolute left-[-10000px] top-4 z-[100] px-4 py-2 bg-gw-pink text-white rounded-lg outline-none ring-2 ring-white focus:left-4"
+        >
+          Skip to main content
+        </a>
         <NuqsAdapter>
           <UserContextProvider user={userForContext}>
             <ThemeProvider defaultTheme="light" disableTransitionOnChange>
@@ -132,7 +138,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 fallback={
                   <div>
                     <Header navigation={headerData?.navigation || []} />
-                    <main className="min-h-[75vh] flex-1 flex flex-col">
+                    <main id="main-content" className="min-h-[75vh] flex-1 flex flex-col">
                       <HomepageSkeleton />
                     </main>
                     <div className="margin-top">
@@ -142,7 +148,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 }
               >
                 <Header navigation={headerData?.navigation || []} />
-                <main className="min-h-[75vh] flex-1 flex flex-col">{children}</main>
+                <main id="main-content" className="min-h-[75vh] flex-1 flex flex-col">
+                  {children}
+                </main>
                 <div className="margin-top">
                   <Footer navigation={footerNav} />
                 </div>

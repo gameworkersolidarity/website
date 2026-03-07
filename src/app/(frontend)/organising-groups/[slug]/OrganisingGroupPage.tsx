@@ -84,7 +84,7 @@ export function OrganisingGroupPage({
               />
             )}
             <div className={twMerge('p-4 md:p-6 pb-4!', hasBannerImage ? 'md:pt-5!' : '')}>
-              <div className="font-mono uppercase text-sm opacity-50 flex items-center gap-1">
+              <div className="font-mono uppercase text-sm text-muted-foreground flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 <span>Organising Group</span>
                 {page._status === 'draft' && <DraftBadge className="ml-2" />}
@@ -134,7 +134,7 @@ export function OrganisingGroupPage({
           {!!descendants && descendants.length > 1 && (
             <div className="bg-white px-4 md:px-6 py-4">
               <h2 className="text-xl font-bold font-identity">Worker organisation</h2>
-              <p className="text-sm opacity-50 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 How {page.name} fits into broader worker organisation.
               </p>
               <Descendants breadcrumbs={descendants} initialSelectedItemId={initialGroup.id} />
@@ -150,7 +150,7 @@ export function OrganisingGroupPage({
                   <CollapsibleTriggerIcon className="w-4 h-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <p className="text-sm opacity-50">
+                  <p className="text-sm text-muted-foreground">
                     Countries we know this group is organising in.
                   </p>
                   <div className="flex flex-row flex-wrap gap-2 mt-2">
@@ -174,7 +174,7 @@ export function OrganisingGroupPage({
                   <CollapsibleTriggerIcon className="w-4 h-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <p className="text-sm opacity-50">
+                  <p className="text-sm text-muted-foreground">
                     Companies this group organises workers within.
                   </p>
                   <div className="flex flex-row flex-wrap gap-2 mt-2">

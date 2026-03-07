@@ -66,6 +66,11 @@ body {
   --color-gw-blue: #3B97EC;
   --color-gw-blue-light: #8ECAF2;
 
+  /* Accessible accent colors (WCAG 2.1 AA on #f8f8f8 / white) */
+  --color-label-muted: #5a5a5a;
+  --color-accent-blue: #2563eb;
+  --color-accent-orange: #c2410c;
+
   --color-pink-50: oklch(0.96 0.026 312.66);
   --color-pink-100: oklch(0.927 0.049 313.44);
   --color-pink-200: oklch(0.855 0.102 313.24);
@@ -199,6 +204,8 @@ body {
   --sidebar-ring: oklch(0.708 0 0);
   --background: #F8F8F8;
   --foreground: oklch(0.145 0 0);
+  /* WCAG 2.1 AA: muted-foreground ≥4.5:1 on #f8f8f8 (was 4.46:1 at 14px) */
+  --muted-foreground: #6b6b6b;
 }
 
 .dark {
@@ -309,6 +316,19 @@ body {
 
   .logo-wiggle:hover {
     animation: wiggle 0.4s ease-in-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .logo-wiggle:hover {
+      animation: none;
+    }
   }
 
   .prose blockquote {

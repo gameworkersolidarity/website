@@ -34,12 +34,12 @@ function SoftLinkInitiator({ initiator }: { initiator: ActionInitiatorFilter }) 
 function RenderedInitiator({ initiator }: { initiator: ActionInitiatorFilter }) {
   switch (initiator) {
     case ActionInitiatorFilter.WORKER_LED:
-      return <span className="text-blue-400 font-semibold">Worker-led</span>
+      return <span className="font-semibold text-accent-blue">Worker-led</span>
     case ActionInitiatorFilter.BOSS_LED:
-      return <span className="text-gw-orange font-semibold">Boss-led</span>
+      return <span className="font-semibold text-accent-orange">Boss-led</span>
     case ActionInitiatorFilter.OTHER:
-      return <span className="text-gray-400 font-semibold">Other</span>
+      return <span className="font-semibold text-muted-foreground">Other</span>
     default:
-      return <span className="text-gray-400 font-semibold">All</span>
+      return <span className="font-semibold text-muted-foreground">All</span>
   }
 }

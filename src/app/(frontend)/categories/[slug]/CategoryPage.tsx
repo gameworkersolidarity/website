@@ -49,7 +49,7 @@ export function CategoryPage({
         )}
       >
         <header>
-          <div className="font-mono uppercase text-sm opacity-50">
+          <div className="font-mono uppercase text-sm text-muted-foreground">
             <span>Category</span>
             {page._status === 'draft' && <DraftBadge className="ml-2" />}
           </div>

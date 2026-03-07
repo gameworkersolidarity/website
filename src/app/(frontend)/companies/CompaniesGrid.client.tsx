@@ -27,7 +27,7 @@ export function CompaniesGrid({ items }: { items: Item[] }) {
             href={company.path!}
             className="block p-6 border border-gray-200 rounded-lg no-underline text-inherit transition-shadow hover:shadow-md"
           >
-            <h2 className="text-xl font-semibold mb-3 text-[#4A90E2] flex items-center gap-2 flex-wrap">
+            <h2 className="text-xl font-semibold mb-3 text-accent-blue flex items-center gap-2 flex-wrap">
               {company.name}
               {company._status === 'draft' && <DraftBadge />}
             </h2>

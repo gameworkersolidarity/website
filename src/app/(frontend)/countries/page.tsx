@@ -70,13 +70,9 @@ export default async function CountriesPage() {
         Countries
       </h1>
       <p
+        className="text-muted-foreground text-center max-w-[800px] mx-auto mb-12"
         style={{
           fontSize: '1.125rem',
-          color: '#666',
-          marginBottom: '3rem',
-          textAlign: 'center',
-          maxWidth: '800px',
-          margin: '0 auto 3rem',
         }}
       >
         Explore countries where solidarity actions have taken place in the global video game
@@ -84,7 +80,7 @@ export default async function CountriesPage() {
       </p>
 
       {filteredCountries.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
+        <div className="text-center py-12 text-muted-foreground">
           <p>No countries with solidarity actions found. Check back soon!</p>
         </div>
       ) : (
@@ -110,11 +106,11 @@ export default async function CountriesPage() {
               }}
             >
               <h2
+                className="text-accent-blue"
                 style={{
                   fontSize: '1.25rem',
                   fontWeight: '600',
                   marginBottom: '0.5rem',
-                  color: '#4A90E2',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
@@ -125,11 +121,9 @@ export default async function CountriesPage() {
                 {country._status === 'draft' && <DraftBadge />}
               </h2>
               {country.isoA2 && (
-                <p style={{ fontSize: '0.875rem', color: '#888', margin: 0 }}>
-                  {country.isoA2.toUpperCase()}
-                </p>
+                <p className="text-sm text-muted-foreground m-0">{country.isoA2.toUpperCase()}</p>
               )}
-              <p style={{ fontSize: '0.875rem', color: '#666', margin: 0 }}>
+              <p className="text-sm text-muted-foreground m-0">
                 {actionCount} action{actionCount !== 1 ? 's' : ''}
               </p>
             </Link>
