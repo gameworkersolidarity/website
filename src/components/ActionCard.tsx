@@ -273,7 +273,7 @@ function ActionCardWrapper({
   return <>{children}</>
 }
 
-const ANIMATION_DEBUG_MODE = true
+const ANIMATION_DEBUG_MODE = false
 
 export function ActionItem({
   data,
