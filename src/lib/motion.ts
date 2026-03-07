@@ -3,6 +3,6 @@
  * feel smooth and intentional rather than bouncy.
  */
 export const layoutTransition = {
-  duration: 1,
+  duration: 0.2,
   ease: 'easeOut' as const,
 }
