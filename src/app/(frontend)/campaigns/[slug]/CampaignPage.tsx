@@ -130,7 +130,9 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
               className="w-full max-h-64 md:h-auto object-cover rounded-lg overflow-hidden"
             />
           )}
-          {page.description && <LexicalRenderer content={page.description} className="mt-4" />}
+          {page.description && (
+            <LexicalRenderer content={page.description} className="mt-4 md:mt-5 mx-auto" />
+          )}
         </section>
       </article>
 

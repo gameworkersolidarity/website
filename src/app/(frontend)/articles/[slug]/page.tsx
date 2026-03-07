@@ -120,105 +120,87 @@ export default async function BlogPost({ params }: Props) {
     <div className="bg-gwBackground flex-1 flex flex-col" style={{ minHeight: '66vh' }}>
       <RefreshRouteOnSave />
       <AdminEditBanner page={post} />
-      <div className="mx-auto py-4 md:py-5 px-4 grid grid-cols-2 lg:grid-cols-[1fr_3fr_1fr] gap-4 mb-auto w-full max-w-6xl">
-        <ArticleActionsSidebar
-          side="previous"
-          actions={previousActions}
-          articleDate={articleDate}
-        />
-        <main className="col-span-2 lg:col-span-1 flex flex-col gap-4">
-          <Link href="/articles">
-            <Button variant="outline" className="opacity-70 hover:opacity-100 transition-opacity">
-              <ArrowLeftIcon className="w-4 h-4" />
-              All articles
-            </Button>
-          </Link>
-          <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
-            <header>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm uppercase opacity-50">
-                <span className="flex items-center gap-2">
-                  Article
-                  {post._status === 'draft' && <DraftBadge />}
-                </span>
-                {post.date && (
+      <article className="max-w-5xl mx-auto md:p-5 flex flex-col gap-4">
+        <Link href="/articles">
+          <Button variant="outline" className="opacity-70 hover:opacity-100 transition-opacity">
+            <ArrowLeftIcon className="w-4 h-4" />
+            All articles
+          </Button>
+        </Link>
+        <section className="bg-white rounded-xl p-4 md:p-6 space-y-4">
+          <header>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm uppercase opacity-50">
+              <span className="flex items-center gap-2">
+                <DateTime date={post.date} />
+                <span aria-hidden>·</span>
+                {post._status === 'draft' && (
                   <>
+                    <DraftBadge />
                     <span aria-hidden className="opacity-40">
                       ·
                     </span>
-                    <DateTime date={post.date} />
                   </>
                 )}
-                {post.byline && (
-                  <>
-                    <span aria-hidden className="opacity-40">
-                      ·
-                    </span>
-                    <span>{post.byline}</span>
-                  </>
-                )}
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-identity mt-2 flex items-center gap-2 flex-wrap">
-                <span>{post.title}</span>
-              </h1>
-            </header>
-            {imageUrl &&
-              typeof post.image === 'object' &&
-              post.image?.width &&
-              post.image?.height && (
-                <Image
-                  src={imageUrl}
-                  alt={post.title || ''}
-                  width={post.image.width}
-                  height={post.image.height}
-                  objectFit="cover"
-                  className="w-full max-h-48 md:h-auto object-cover rounded-lg overflow-hidden"
-                />
-              )}
-            <LexicalRenderer content={post.body} className="text-lg/relaxed" />
-            {sameDayActions.length > 0 && (
-              <ArticleSameDayActions sameDayActions={sameDayActions} articleDate={articleDate} />
-            )}
-            <div className="mt-3 border-t border-gray-200 pt-3 italic opacity-60">
-              Want to discuss this post or publish a follow-up on the post?{' '}
-              <Link className="link" href={`mailto:${projectStrings.email}`}>
-                Contact us &rarr;
-              </Link>
+                {!!post.byline && <span aria-hidden>{post.byline}</span>}
+              </span>
             </div>
 
-            {/* Previous/Next Navigation */}
-            {(previousPost || nextPost) && (
-              <nav className="flex justify-between gap-8">
-                {previousPost ? (
-                  <Link
-                    href={previousPost.path!}
-                    className="flex-1 p-4 bg-gray-100 rounded-lg no-underline text-inherit transition-colors hover:bg-gray-200"
-                  >
-                    <div className="text-sm text-gray-600 mb-2">← Previous Post</div>
-                    <div className="font-semibold text-gray-800">
-                      {previousPost.title as string}
-                    </div>
-                  </Link>
-                ) : (
-                  <div className="flex-1" />
-                )}
+            <h1 className="text-4xl md:text-5xl font-bold font-identity mt-2">{post.title}</h1>
+          </header>
 
-                {nextPost ? (
-                  <Link
-                    href={nextPost.path!}
-                    className="flex-1 p-4 bg-gray-100 rounded-lg no-underline text-inherit text-right transition-colors hover:bg-gray-200"
-                  >
-                    <div className="text-sm text-gray-600 mb-2">Next Post →</div>
-                    <div className="font-semibold text-gray-800">{nextPost.title as string}</div>
-                  </Link>
-                ) : (
-                  <div className="flex-1" />
-                )}
-              </nav>
-            )}
-          </section>
-        </main>
-        <ArticleActionsSidebar side="next" actions={nextActions} articleDate={articleDate} />
-      </div>
+          {imageUrl && typeof post.image === 'object' && (
+            <Image
+              src={imageUrl}
+              alt={post.title || ''}
+              width={post.image?.width || 1000}
+              height={post.image?.height || 1000}
+              objectFit="cover"
+              className="w-full max-h-64 md:h-auto object-cover rounded-lg overflow-hidden"
+            />
+          )}
+
+          {post.body && <LexicalRenderer content={post.body} className="mt-4 md:mt-5 mx-auto" />}
+
+          <div
+            className="mt-3 border-t border-gray-200 py-3 italic opacity-60
+          lexical-content prose leading-relaxed mx-auto"
+          >
+            Want to discuss this post or publish a follow-up on the post?{' '}
+            <Link className="link" href={`mailto:${projectStrings.email}`}>
+              Contact us &rarr;
+            </Link>
+          </div>
+
+          {/* Previous/Next Navigation */}
+          {(previousPost || nextPost) && (
+            <nav className="flex justify-between gap-8">
+              {previousPost ? (
+                <Link
+                  href={previousPost.path!}
+                  className="flex-1 p-4 bg-gray-100 rounded-lg no-underline text-inherit transition-colors hover:bg-gray-200"
+                >
+                  <div className="text-sm text-gray-600 mb-2">← Previous Post</div>
+                  <div className="font-semibold text-gray-800">{previousPost.title as string}</div>
+                </Link>
+              ) : (
+                <div className="flex-1" />
+              )}
+
+              {nextPost ? (
+                <Link
+                  href={nextPost.path!}
+                  className="flex-1 p-4 bg-gray-100 rounded-lg no-underline text-inherit text-right transition-colors hover:bg-gray-200"
+                >
+                  <div className="text-sm text-gray-600 mb-2">Next Post →</div>
+                  <div className="font-semibold text-gray-800">{nextPost.title as string}</div>
+                </Link>
+              ) : (
+                <div className="flex-1" />
+              )}
+            </nav>
+          )}
+        </section>
+      </article>
     </div>
   )
 }
