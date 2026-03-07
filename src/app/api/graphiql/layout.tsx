@@ -3,6 +3,8 @@ import '@/app/globals.css'
 import 'graphiql/graphiql.css'
 import 'graphiql/style.css'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'GraphiQL – Game Worker Solidarity API',
 }
