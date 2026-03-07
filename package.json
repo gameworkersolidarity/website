@@ -41,6 +41,7 @@
     "@payloadcms/payload-cloud": "3.79.0",
     "@payloadcms/plugin-cloud-storage": "3.79.0",
     "@payloadcms/plugin-import-export": "3.79.0",
+    "@payloadcms/plugin-mcp": "^3.79.0",
     "@payloadcms/plugin-nested-docs": "3.79.0",
     "@payloadcms/richtext-lexical": "3.79.0",
     "@payloadcms/sdk": "3.79.0",

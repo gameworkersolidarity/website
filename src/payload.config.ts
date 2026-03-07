@@ -31,6 +31,7 @@ import { CampaignsPage } from './globals/CampaignsPage'
 import { DataPage } from './globals/DataPage'
 import { ActionSubmissionPage } from './globals/ActionSubmissionPage'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
+import { mcpPlugin } from '@payloadcms/plugin-mcp'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -223,6 +224,21 @@ export default buildConfig({
       })
     : undefined,
   plugins: [
+    mcpPlugin({
+      collections: {
+        actions: {
+          enabled: true,
+          description: 'Labour actions (strikes, redundancies, unionisation) in the games industry',
+        },
+        campaigns: { enabled: true, description: 'Campaigns and solidarity initiatives' },
+        categories: { enabled: true, description: 'Categories for organising content' },
+        companies: { enabled: true, description: 'Game companies and studios' },
+        organisingGroups: { enabled: true, description: 'Unions and organising groups' },
+        countries: { enabled: true, description: 'Countries and regions' },
+        staticPages: { enabled: true, description: 'Static site pages' },
+        blogPosts: { enabled: true, description: 'Blog posts and articles' },
+      },
+    }),
     importExportPlugin({
       debug: true,
       overrideExportCollection: ({ collection }) => {

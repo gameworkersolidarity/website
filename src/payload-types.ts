@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations;
   };
   blocks: {};
   collections: {
@@ -77,6 +78,7 @@ export interface Config {
     organisingGroups: OrganisingGroup;
     campaigns: Campaign;
     actions: Action;
+    'payload-mcp-api-keys': PayloadMcpApiKey;
     exports: Export;
     imports: Import;
     'payload-kv': PayloadKv;
@@ -110,6 +112,7 @@ export interface Config {
     organisingGroups: OrganisingGroupsSelect<false> | OrganisingGroupsSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
     actions: ActionsSelect<false> | ActionsSelect<true>;
+    'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -147,7 +150,7 @@ export interface Config {
     'bust-cache': BustCacheWidget;
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | PayloadMcpApiKey;
   jobs: {
     tasks: {
       createCollectionExport: TaskCreateCollectionExport;
@@ -162,6 +165,24 @@ export interface Config {
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface PayloadMcpApiKeyAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -827,6 +848,177 @@ export interface Campaign {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * API keys control which collections, resources, tools, and prompts MCP clients can access
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-mcp-api-keys".
+ */
+export interface PayloadMcpApiKey {
+  id: string;
+  /**
+   * The user that the API key is associated with.
+   */
+  user: string | User;
+  /**
+   * A useful label for the API key.
+   */
+  label?: string | null;
+  /**
+   * The purpose of the API key.
+   */
+  description?: string | null;
+  actions?: {
+    /**
+     * Allow clients to find actions.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create actions.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update actions.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete actions.
+     */
+    delete?: boolean | null;
+  };
+  campaigns?: {
+    /**
+     * Allow clients to find campaigns.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create campaigns.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update campaigns.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete campaigns.
+     */
+    delete?: boolean | null;
+  };
+  categories?: {
+    /**
+     * Allow clients to find categories.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create categories.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update categories.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete categories.
+     */
+    delete?: boolean | null;
+  };
+  companies?: {
+    /**
+     * Allow clients to find companies.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create companies.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update companies.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete companies.
+     */
+    delete?: boolean | null;
+  };
+  organisingGroups?: {
+    /**
+     * Allow clients to find organisingGroups.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create organisingGroups.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update organisingGroups.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete organisingGroups.
+     */
+    delete?: boolean | null;
+  };
+  countries?: {
+    /**
+     * Allow clients to find countries.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create countries.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update countries.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete countries.
+     */
+    delete?: boolean | null;
+  };
+  staticPages?: {
+    /**
+     * Allow clients to find staticPages.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create staticPages.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update staticPages.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete staticPages.
+     */
+    delete?: boolean | null;
+  };
+  blogPosts?: {
+    /**
+     * Allow clients to find blogPosts.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create blogPosts.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update blogPosts.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete blogPosts.
+     */
+    delete?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+  collection: 'payload-mcp-api-keys';
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exports".
  */
@@ -1055,12 +1247,21 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'actions';
         value: string | Action;
+      } | null)
+    | ({
+        relationTo: 'payload-mcp-api-keys';
+        value: string | PayloadMcpApiKey;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'payload-mcp-api-keys';
+        value: string | PayloadMcpApiKey;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -1070,10 +1271,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'payload-mcp-api-keys';
+        value: string | PayloadMcpApiKey;
+      };
   key?: string | null;
   value?:
     | {
@@ -1379,6 +1585,84 @@ export interface ActionsSelect<T extends boolean = true> {
   createdAt?: T;
   deletedAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-mcp-api-keys_select".
+ */
+export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
+  user?: T;
+  label?: T;
+  description?: T;
+  actions?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  campaigns?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  categories?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  companies?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  organisingGroups?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  countries?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  staticPages?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  blogPosts?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1856,6 +2140,7 @@ export interface TaskCreateCollectionExport {
       | 'organisingGroups'
       | 'campaigns'
       | 'actions'
+      | 'payload-mcp-api-keys'
       | 'exports'
       | 'imports';
     drafts?: ('yes' | 'no') | null;
