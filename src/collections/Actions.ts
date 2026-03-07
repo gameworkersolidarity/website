@@ -5,7 +5,11 @@ import { geocodeOpenStreetMap } from '@/utils/geo'
 import config from '@/payload.config'
 import { getPath } from '@/utils/payloadPath'
 import { Action, Category, Company, Country, OrganisingGroup } from '@/payload-types'
-import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
+import {
+  draftModeAccessControl,
+  loggedInUserOnly,
+  loggedInUserOnlyFieldsHook,
+} from '@/app/(payload)/querying/accessControl'
 import { revalidateCacheHook } from '@/lib/revalidate-on-change'
 import { convertLexicalToMarkdown, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
@@ -394,6 +398,9 @@ export const Actions: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       label: 'Featured',
+      access: {
+        read: loggedInUserOnly,
+      },
       admin: {
         description:
           'Featured actions will be highlighted on timelines and show descriptions in preview mode',
@@ -409,6 +416,9 @@ export const Actions: CollectionConfig = {
       name: 'submissionContactDetails',
       type: 'textarea',
       label: 'Contact Details',
+      access: {
+        read: loggedInUserOnly,
+      },
       admin: {
         description: 'Contact information provided by the person who submitted this action',
         position: 'sidebar',
