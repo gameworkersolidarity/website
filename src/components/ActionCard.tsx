@@ -200,7 +200,7 @@ export function ActionsList({
                 ))}
               </div>
               {hasEnoughActionsForExpandableList && (
-                <div className="z-10 relative">
+                <motion.div className="z-10 relative" layout="position">
                   {!isYearOpen ? (
                     <button
                       className="p-3 mt-3 font-semibold text-sm flex items-center cursor-pointer"
@@ -234,7 +234,7 @@ export function ActionsList({
                       </>
                     </button>
                   )}
-                </div>
+                </motion.div>
               )}
             </motion.div>
           )
@@ -273,7 +273,7 @@ function ActionCardWrapper({
   return <>{children}</>
 }
 
-const ANIMATION_DEBUG_MODE = false
+const ANIMATION_DEBUG_MODE = true
 
 export function ActionItem({
   data,
