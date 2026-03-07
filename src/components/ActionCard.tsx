@@ -217,7 +217,7 @@ export function ActionsList({
               </div>
               {hasHiddenActions && hiddenActionsOpen === false && (
                 <button
-                  className="p-3 mt-3 font-semibold text-sm flex items-center"
+                  className="p-3 mt-3 font-semibold text-sm flex items-center cursor-pointer"
                   onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}
                 >
                   <>
