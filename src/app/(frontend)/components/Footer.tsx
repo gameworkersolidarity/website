@@ -39,13 +39,9 @@ export function Footer({ navigation = [] }: FooterProps) {
           </NavigationMenu>
           <div className="md:flex space-y-4 md:space-y-0 md:space-x-5">
             <div>
-              Site developed by{' '}
+              Website by{' '}
               <a className="link" href="https://commonknowledge.coop">
                 Common Knowledge
-              </a>{' '}
-              and{' '}
-              <a className="link" href="http://shaunabuckley.com/">
-                Shauna Buckley
               </a>
             </div>
             <div>
