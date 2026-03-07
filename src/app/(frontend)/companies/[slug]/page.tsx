@@ -39,6 +39,11 @@ export default async function Page({ params }: Props) {
       getSlug('companies', company),
       undefined,
       query,
+      {
+        id: String(company.id),
+        name: company.name,
+        slug: getSlug('companies', company),
+      },
     )
 
     const actionResults = await query({
