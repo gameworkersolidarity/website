@@ -97,7 +97,7 @@ export function RenderedOrganisingGroupLabel({
           className="object-contain shrink-0"
         />
       ) : (
-        <Users className={twMerge('text-gray-500', 'w-3 h-3')} />
+        <Users className={twMerge('text-accent-blue', 'w-3 h-3')} />
       )}
       <span className={textClassName}>{organisingGroup.name}</span>
     </span>

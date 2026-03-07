@@ -445,18 +445,6 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
           {data.headcount.toLocaleString()} {pluralize('worker', data.headcount)}
         </span>
       )}
-      {!!data.companies?.length && (
-        <div className="inline-flex flex-wrap gap-x-2">
-          {data.companies.map((company) => (
-            <CompanyLabel company={company as Company} key={(company as Company).id} link={link} />
-          ))}
-        </div>
-      )}
-      {!!data.initiator && data.initiator === ActionInitiatorFilter.BOSS_LED && (
-        <div className="inline-flex flex-wrap gap-x-2">
-          <DisplayInitiator initiator={data.initiator as ActionInitiatorFilter} link={link} />
-        </div>
-      )}
       {!!data.organisingGroups?.length && (
         <div className="inline-flex flex-wrap gap-x-2">
           {data.organisingGroups.map((organisingGroup) => (
@@ -465,6 +453,18 @@ export function ActionMetadata({ data, link }: { data: Action; link?: 'soft' | b
               key={(organisingGroup as OrganisingGroup).id}
               link={link}
             />
+          ))}
+        </div>
+      )}
+      {!!data.initiator && data.initiator === ActionInitiatorFilter.BOSS_LED && (
+        <div className="inline-flex flex-wrap gap-x-2">
+          <DisplayInitiator initiator={data.initiator as ActionInitiatorFilter} link={link} />
+        </div>
+      )}
+      {!!data.companies?.length && (
+        <div className="inline-flex flex-wrap gap-x-2">
+          {data.companies.map((company) => (
+            <CompanyLabel company={company as Company} key={(company as Company).id} link={link} />
           ))}
         </div>
       )}

@@ -60,7 +60,7 @@ export function RenderedCompanyLabel({
 }) {
   return (
     <span className="flex items-center gap-1 nowrap" key={company.id}>
-      <Building className={twMerge('text-gray-500', 'w-3 h-3')} />
+      <Building className={twMerge('text-accent-orange', 'w-3 h-3')} />
       <span className={textClassName}>{company.name}</span>
     </span>
   )
