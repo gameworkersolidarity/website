@@ -118,11 +118,14 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   const { authStatus } = await loadDraftMode(payload)
 
+  // Only real users (not MCP API key auth) go into UserContext
+  const userForContext = authStatus?.user && 'email' in authStatus.user ? authStatus.user : null
+
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body className="flex flex-col min-h-screen" suppressHydrationWarning={true}>
         <NuqsAdapter>
-          <UserContextProvider user={authStatus?.user}>
+          <UserContextProvider user={userForContext}>
             <ThemeProvider defaultTheme="light" disableTransitionOnChange>
               <CountryFlagPolyfill />
               <Suspense
