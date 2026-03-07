@@ -40,6 +40,7 @@ export default buildConfig({
   maxDepth: 3,
   graphQL: {
     disablePlaygroundInProduction: false,
+    disableIntrospectionInProduction: false,
   },
   admin: {
     user: Users.slug,
