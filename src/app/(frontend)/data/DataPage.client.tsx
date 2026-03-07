@@ -8,6 +8,7 @@ import { projectStrings } from '@/project-strings'
 import type { DataPage } from '@/payload-types'
 import { AdminEditBanner } from '@/components/Me'
 import posthog from 'posthog-js'
+import { FileSpreadsheet } from 'lucide-react'
 
 export function DataPageClient({ initialData }: { initialData: DataPage }) {
   const { data: page } = useLivePreview({
@@ -30,6 +31,20 @@ export function DataPageClient({ initialData }: { initialData: DataPage }) {
         </header>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl">
+          <Link href="/api/export/actions">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full h-auto min-h-[120px] flex flex-col items-center justify-center gap-3 text-lg"
+              onClick={() => {
+                posthog.capture('actions_export_clicked')
+              }}
+            >
+              <FileSpreadsheet className="w-8 h-8" />
+              <span>Download CSV of all actions</span>
+            </Button>
+          </Link>
+
           <Link
             href="/api/docs"
             className="block"
@@ -83,18 +98,6 @@ export function DataPageClient({ initialData }: { initialData: DataPage }) {
                 />
               </svg>
               <span>GraphQL Playground</span>
-            </Button>
-          </Link>
-          <Link href="/api/export/actions">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full h-auto min-h-[120px] flex flex-col items-center justify-center gap-3 text-lg"
-              onClick={() => {
-                posthog.capture('actions_export_clicked')
-              }}
-            >
-              <span>Export Actions</span>
             </Button>
           </Link>
         </div>

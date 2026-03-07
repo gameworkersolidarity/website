@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     //   },
     // })
     const headers = await nextHeaders()
-    const exportRequest = await fetch('http://localhost:3000/api/exports/download', {
+    const exportRequest = await fetch(`${projectStrings.baseUrl}/api/exports/download`, {
       method: 'POST',
       headers,
       body: JSON.stringify({

@@ -4,9 +4,12 @@ import { projectStrings } from '@/project-strings'
 import { geocodeOpenStreetMap } from '@/utils/geo'
 import config from '@/payload.config'
 import { getPath } from '@/utils/payloadPath'
-import { Action } from '@/payload-types'
+import { Action, Category, Company, Country, OrganisingGroup } from '@/payload-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 import { revalidateCacheHook } from '@/lib/revalidate-on-change'
+import { convertLexicalToMarkdown, editorConfigFactory } from '@payloadcms/richtext-lexical'
+import { lexicalToPlainText } from '@/utils/lexicalToHTML'
+import { LexicalContent } from '@/global-types'
 
 export const Actions: CollectionConfig = {
   slug: 'actions',
@@ -67,6 +70,18 @@ export const Actions: CollectionConfig = {
     {
       name: 'description',
       type: 'richText',
+      custom: {
+        'plugin-import-export': {
+          toCSV: ({ value, columnName, row }) => {
+            if (value) {
+              delete row[columnName]
+              row[`${columnName}_plainText`] = lexicalToPlainText(
+                value as NonNullable<LexicalContent>,
+              )
+            }
+          },
+        },
+      },
     },
     {
       name: 'source',
@@ -100,6 +115,16 @@ export const Actions: CollectionConfig = {
           hasMany: true,
           admin: {
             description: 'What kind of action is this?',
+          },
+          custom: {
+            'plugin-import-export': {
+              toCSV: ({ value, columnName, row }) => {
+                if (value) {
+                  // @ts-ignore
+                  row[columnName] = value.map((v: Category) => v.name).join(', ')
+                }
+              },
+            },
           },
         },
         {
@@ -166,6 +191,16 @@ export const Actions: CollectionConfig = {
           type: 'relationship',
           relationTo: 'countries',
           hasMany: true,
+          custom: {
+            'plugin-import-export': {
+              toCSV: ({ value, columnName, row }) => {
+                if (value) {
+                  // @ts-ignore
+                  row[columnName] = value.map((v: Country) => v.name).join(', ')
+                }
+              },
+            },
+          },
         },
         {
           name: 'coordinates',
@@ -187,6 +222,22 @@ export const Actions: CollectionConfig = {
               required: ['latitude', 'longitude'],
             }),
           ],
+          custom: {
+            'plugin-import-export': {
+              toCSV: ({ value, columnName, row }) => {
+                if (
+                  value &&
+                  typeof value === 'object' &&
+                  'latitude' in value &&
+                  'longitude' in value
+                ) {
+                  delete row[columnName]
+                  row['latitude'] = value.latitude
+                  row['longitude'] = value.longitude
+                }
+              },
+            },
+          },
         },
       ],
     },
@@ -200,12 +251,33 @@ export const Actions: CollectionConfig = {
           type: 'relationship',
           relationTo: 'companies',
           hasMany: true,
+          custom: {
+            'plugin-import-export': {
+              toCSV: ({ value, columnName, row }) => {
+                if (value) {
+                  delete row[columnName]
+                  // @ts-ignore
+                  row[columnName] = value.map((v: Company) => v.name).join(', ')
+                }
+              },
+            },
+          },
         },
         {
           name: 'organisingGroups',
           type: 'relationship',
           relationTo: 'organisingGroups',
           hasMany: true,
+          custom: {
+            'plugin-import-export': {
+              toCSV: ({ value, columnName, row }) => {
+                if (value) {
+                  // @ts-ignore
+                  row[columnName] = value.map((v: OrganisingGroup) => v.name).join(', ')
+                }
+              },
+            },
+          },
         },
         {
           name: 'campaigns',
@@ -214,6 +286,11 @@ export const Actions: CollectionConfig = {
           on: 'actions',
           admin: {
             description: 'Campaigns this action is part of.',
+          },
+          custom: {
+            'plugin-import-export': {
+              disabled: true,
+            },
           },
         },
         {

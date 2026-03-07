@@ -245,18 +245,6 @@ export default buildConfig({
           },
           import: false,
         },
-        // @ts-ignore
-        // 'companies',
-        // @ts-ignore
-        // 'organisingGroups',
-        // { slug: 'actions', export: true, import: false },
-        // { slug: 'companies', export: true, import: false },
-        // { slug: 'organisingGroups', export: true, import: false },
-        // { slug: 'categories', export: true, import: false },
-        // { slug: 'campaigns', export: true, import: false },
-        // { slug: 'countries', export: true, import: false },
-        // { slug: 'staticPages', export: true, import: false },
-        // { slug: 'blogPosts', export: true, import: false },
       ],
       // see below for a list of available options
     }),
