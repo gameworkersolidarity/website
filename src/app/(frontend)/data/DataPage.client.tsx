@@ -85,6 +85,18 @@ export function DataPageClient({ initialData }: { initialData: DataPage }) {
               <span>GraphQL Playground</span>
             </Button>
           </Link>
+          <Link href="/api/export/actions">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full h-auto min-h-[120px] flex flex-col items-center justify-center gap-3 text-lg"
+              onClick={() => {
+                posthog.capture('actions_export_clicked')
+              }}
+            >
+              <span>Export Actions</span>
+            </Button>
+          </Link>
         </div>
       </article>
     </>

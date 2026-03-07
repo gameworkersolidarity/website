@@ -322,6 +322,11 @@ export const Actions: CollectionConfig = {
           'Featured actions will be highlighted on timelines and show descriptions in preview mode',
         position: 'sidebar',
       },
+      custom: {
+        'plugin-import-export': {
+          disabled: true,
+        },
+      },
     },
     {
       name: 'submissionContactDetails',
@@ -330,6 +335,11 @@ export const Actions: CollectionConfig = {
       admin: {
         description: 'Contact information provided by the person who submitted this action',
         position: 'sidebar',
+      },
+      custom: {
+        'plugin-import-export': {
+          disabled: true,
+        },
       },
     },
     {
@@ -340,6 +350,11 @@ export const Actions: CollectionConfig = {
         description:
           'User consented to Game Worker Solidarity publishing this information online and offline',
         position: 'sidebar',
+      },
+      custom: {
+        'plugin-import-export': {
+          disabled: true,
+        },
       },
     },
   ],

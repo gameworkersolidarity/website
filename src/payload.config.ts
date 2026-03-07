@@ -30,6 +30,7 @@ import { AboutPage } from './globals/AboutPage'
 import { CampaignsPage } from './globals/CampaignsPage'
 import { DataPage } from './globals/DataPage'
 import { ActionSubmissionPage } from './globals/ActionSubmissionPage'
+import { importExportPlugin } from '@payloadcms/plugin-import-export'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -56,19 +57,19 @@ export default buildConfig({
       widgets: [
         {
           slug: 'stats',
-          ComponentPath: './app/(payload)/admin/components/StatsWidget#default',
+          Component: './app/(payload)/admin/components/StatsWidget#default',
           minWidth: 'medium',
           maxWidth: 'full',
         },
         {
           slug: 'recent-edits',
-          ComponentPath: './app/(payload)/admin/components/RecentEditsWidget#default',
+          Component: './app/(payload)/admin/components/RecentEditsWidget#default',
           minWidth: 'medium',
           maxWidth: 'full',
         },
         {
           slug: 'bust-cache',
-          ComponentPath: './app/(payload)/admin/components/BustCacheWidget#default',
+          Component: './app/(payload)/admin/components/BustCacheWidget#default',
           minWidth: 'medium',
           maxWidth: 'full',
         },
@@ -221,6 +222,44 @@ export default buildConfig({
       })
     : undefined,
   plugins: [
+    importExportPlugin({
+      debug: true,
+      overrideExportCollection: ({ collection }) => {
+        collection.access = {
+          ...collection.access,
+          read: ({ req }) => true,
+          create: ({ req }) => true,
+        }
+        return collection
+      },
+      collections: [
+        {
+          slug: 'actions',
+          export: {
+            // pls download me from /api/export/actions
+            disableDownload: false,
+            // run sync
+            disableJobsQueue: true,
+            format: 'csv',
+            limit: 0,
+          },
+          import: false,
+        },
+        // @ts-ignore
+        // 'companies',
+        // @ts-ignore
+        // 'organisingGroups',
+        // { slug: 'actions', export: true, import: false },
+        // { slug: 'companies', export: true, import: false },
+        // { slug: 'organisingGroups', export: true, import: false },
+        // { slug: 'categories', export: true, import: false },
+        // { slug: 'campaigns', export: true, import: false },
+        // { slug: 'countries', export: true, import: false },
+        // { slug: 'staticPages', export: true, import: false },
+        // { slug: 'blogPosts', export: true, import: false },
+      ],
+      // see below for a list of available options
+    }),
     nestedDocsPlugin({
       collections: ['companies', 'organisingGroups'],
       // For querying descendants and ascendants
