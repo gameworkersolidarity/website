@@ -34,6 +34,8 @@ import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { HighlightText } from './HighlightText'
 import { ActionFilterContextValue, useActionFilterContext } from './ActionFilterContextProvider'
 import { DraftBadge } from '@/components/DraftBadge'
+import { LayoutGroup } from 'motion/react'
+import scrollIntoView from 'scroll-into-view-if-needed'
 
 // Helper component to highlight search terms in Lexical description
 function HighlightedDescription({
@@ -117,8 +119,12 @@ export function ActionsList({
   gridStyle = 'grid-cols-1',
   mini,
   fullDisplay = false,
+  hideActionsMoreThan = 3,
   searchQuery,
-}: ListProps & { searchQuery: ActionFilterContextValue['searchQuery'] }) {
+}: ListProps & {
+  hideActionsMoreThan?: number
+  searchQuery: ActionFilterContextValue['searchQuery']
+}) {
   const [openYears, setOpenYears] = useState<string[]>([])
 
   const actionsByYear = useMemo(() => {
@@ -137,50 +143,53 @@ export function ActionsList({
 
   return (
     <>
-      <motion.div className={`grid gap-4 ${gridStyle}`} layout transition={layoutTransition}>
+      <div className={`grid gap-4 ${gridStyle}`}>
+        {/* <LayoutGroup> */}
         {actionsByYear.map(([yearString, actions], i) => {
-          let hiddenActions = [] as Action[]
-          let shownActions = [] as Action[]
-
-          let hasHiddenActions = false
-
-          if (actions.length > 3) {
-            hasHiddenActions = true
-            shownActions = actions.slice(0, 3)
-            hiddenActions = actions.slice(3, actions.length)
-          } else {
-            shownActions = actions
-          }
-
-          const hiddenActionsOpen = openYears.includes(yearString)
-
-          const pluralActionsCopy = pluralize('action', hiddenActions.length)
+          const isYearOpen = openYears.includes(yearString)
+          const shownActions = !isYearOpen ? actions.slice(0, hideActionsMoreThan) : actions
+          const pluralActionsCopy = pluralize('action', actions.length - shownActions.length)
+          const hasEnoughActionsForExpandableList = actions.length > hideActionsMoreThan
 
           return (
-            <motion.div key={i} layout transition={layoutTransition}>
-              <div className="flex flex-row justify-between items-center pb-3">
-                <motion.h2
+            <motion.div
+              key={i}
+              className={twMerge(ANIMATION_DEBUG_MODE && 'outline-1 outline-red-500')}
+              layout="preserve-aspect"
+            >
+              <div
+                className={twMerge(
+                  'flex flex-row justify-between items-center pb-3 ',
+                  ANIMATION_DEBUG_MODE && 'outline-4 outline-blue-500',
+                )}
+              >
+                <h2
                   className={twMerge(mini ? 'text-lg' : 'text-2xl', 'font-semibold')}
                   id={yearString}
-                  layout
                 >
                   {yearString}
-                </motion.h2>
-                <motion.div className="text-xs font-semibold" layout>
+                </h2>
+                <div className="text-xs font-semibold">
                   {pluralize('action', actions.length, true)}
-                </motion.div>
+                </div>
               </div>
               <div className="flex flex-col gap-4">
                 {shownActions.map((action, index) => (
-                  // <Link key={action.id} href={action.path!} shallow>
                   <motion.div
                     key={action.id}
-                    className="transition group"
+                    className={twMerge(
+                      'transition group',
+                      ANIMATION_DEBUG_MODE && 'outline-1 outline-green-500',
+                    )}
                     id={action.slug}
-                    layout="preserve-aspect"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ ...layoutTransition, delay: index * 0.04 }}
+                    layout="position"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      // ...layoutTransition,
+                      ease: 'backIn',
+                      delay: (isYearOpen ? index - hideActionsMoreThan : index) * 0.1,
+                    }}
                   >
                     {fullDisplay ? (
                       <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
@@ -188,65 +197,50 @@ export function ActionsList({
                       <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
                     )}
                   </motion.div>
-                  // </Link>
                 ))}
-                <div className={twMerge(hiddenActionsOpen ? 'flex flex-col gap-4' : 'hidden')}>
-                  {hiddenActions.map((action, index) => (
-                    // <Link key={action.id} href={action.path!}>
-                    <motion.div
-                      key={action.id}
-                      className="transition group"
-                      id={action.slug}
-                      layout
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        ...layoutTransition,
-                        delay: hiddenActionsOpen ? (shownActions.length + index) * 0.04 : 0,
+              </div>
+              {hasEnoughActionsForExpandableList && (
+                <div className="z-10 relative">
+                  {!isYearOpen ? (
+                    <button
+                      className="p-3 mt-3 font-semibold text-sm flex items-center cursor-pointer"
+                      onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}
+                    >
+                      <>
+                        <span className="pr-1">
+                          Load {actions.length - shownActions.length} more {pluralActionsCopy}
+                        </span>
+                        {DownArrow}
+                      </>
+                    </button>
+                  ) : (
+                    <button
+                      className="p-3 mt-3 font-semibold text-sm flex items-center cursor-pointer"
+                      onClick={() => {
+                        setOpenYears(openYears.filter((openYear) => openYear !== yearString))
+                        // document.getElementById(yearString)?.scrollIntoView({ behavior: 'smooth' })
+                        // TODO: offset. identify parent scroll, then do parent.scrollTo(y - offset)
+                        // const yearElement = document.getElementById(yearString)
+                        // if (yearElement) {
+                        //   window.scrollTo({ top: yearElement.offsetTop - 300, behavior: 'smooth' })
+                        // }
                       }}
                     >
-                      {fullDisplay ? (
-                        <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
-                      ) : (
-                        <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
-                      )}
-                    </motion.div>
-                    // </Link>
-                  ))}
+                      <>
+                        <span className="pr-1">
+                          Hide {actions.length - hideActionsMoreThan} {pluralActionsCopy}
+                        </span>
+                        {UpArrow}
+                      </>
+                    </button>
+                  )}
                 </div>
-              </div>
-              {hasHiddenActions && hiddenActionsOpen === false && (
-                <button
-                  className="p-3 mt-3 font-semibold text-sm flex items-center cursor-pointer"
-                  onClick={() => setOpenYears(openYears.concat(openYears, [yearString]))}
-                >
-                  <>
-                    <span className="pr-1">
-                      Load {hiddenActions.length} more {pluralActionsCopy}
-                    </span>
-                    {DownArrow}
-                  </>
-                </button>
-              )}
-              {hasHiddenActions && hiddenActionsOpen && (
-                <button
-                  className="p-3 mt-3 font-semibold text-sm flex items-center"
-                  onClick={() =>
-                    setOpenYears(openYears.filter((openYear) => openYear !== yearString))
-                  }
-                >
-                  <>
-                    <span className="pr-1">
-                      Hide {hiddenActions.length} {pluralActionsCopy}
-                    </span>
-                    {UpArrow}
-                  </>
-                </button>
               )}
             </motion.div>
           )
         })}
-      </motion.div>
+        {/* </LayoutGroup> */}
+      </div>
     </>
   )
 }
@@ -278,6 +272,8 @@ function ActionCardWrapper({
   }
   return <>{children}</>
 }
+
+const ANIMATION_DEBUG_MODE = false
 
 export function ActionItem({
   data,

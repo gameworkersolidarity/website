@@ -20,8 +20,6 @@ import {
   validatePayloadDocuments,
 } from '@/utils/validate-payload'
 import type { Action } from '@/payload-types'
-import { ArticleActionsSidebar } from './ArticleActionsSidebar'
-import { ArticleSameDayActions } from './ArticleSameDayActions'
 
 type Props = {
   params: Promise<{ slug: string }>
