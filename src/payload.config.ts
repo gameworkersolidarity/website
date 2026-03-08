@@ -345,6 +345,7 @@ export default buildConfig({
         methods: ['post', 'patch', 'delete'],
         // endpoints: ['/api/some-endpoint', '/api/another/*'], // Add specific endpoints or patterns with wildcards
       },
+      pathOrder: ['/api/actions', '/api/organisingGroups'],
     }),
     scalar({
       // Scalar UI will be available at /api/docs by default

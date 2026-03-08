@@ -1,8 +1,8 @@
 diff --git a/dist/openapi/generators.js b/dist/openapi/generators.js
-index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd742eb605 100644
+index e3acd04a61bc13bca2dc288f59d49386df82b2f5..42645663530f761d55f22e1c64d9b9bcddafcaa2 100644
 --- a/dist/openapi/generators.js
 +++ b/dist/openapi/generators.js
-@@ -4,6 +4,40 @@ import { entityToJSONSchema } from 'payload';
+@@ -4,6 +4,52 @@ import { entityToJSONSchema } from 'payload';
  import { mapValuesAsync, visitObjectNodes } from '../utils/objects.js';
  import { collectionName, componentName, globalName } from './naming.js';
  import { apiKeySecurity, generateSecuritySchemes } from './securitySchemes.js';
@@ -40,10 +40,22 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
 +    }
 +    return exclude.methods.includes(method);
 +};
++const sortPathsByOrder = (entries, pathOrder) => {
++    if (!pathOrder?.length) {
++        return entries;
++    }
++    return [...entries].sort(([pathA], [pathB]) => {
++        const indexA = pathOrder.findIndex((prefix) => pathA === prefix || pathA.startsWith(`${prefix}/`));
++        const indexB = pathOrder.findIndex((prefix) => pathB === prefix || pathB.startsWith(`${prefix}/`));
++        const a = indexA === -1 ? pathOrder.length : indexA;
++        const b = indexB === -1 ? pathOrder.length : indexB;
++        return a !== b ? a - b : pathA.localeCompare(pathB);
++    });
++};
  const baseQueryParams = [
      { in: 'query', name: 'depth', schema: { type: 'number' } },
      { in: 'query', name: 'locale', schema: { type: 'string' } },
-@@ -277,7 +311,7 @@ const isOpenToPublic = async (checker) => {
+@@ -277,7 +323,7 @@ const isOpenToPublic = async (checker) => {
          return false;
      }
  };
@@ -52,7 +64,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
      const { slug } = collection.config;
      const { singular, plural } = collectionName(collection);
      const tags = [plural];
-@@ -285,8 +319,11 @@ const generateCollectionOperations = async (collection) => {
+@@ -285,8 +331,11 @@ const generateCollectionOperations = async (collection) => {
          200: composeRef('responses', singular),
          404: composeRef('responses', singular, { suffix: 'NotFound' }),
      };
@@ -66,7 +78,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
              get: {
                  operationId: componentName('schemas', plural, { prefix: 'list' }),
                  summary: `Retrieve a list of ${plural}`,
-@@ -334,7 +371,9 @@ const generateCollectionOperations = async (collection) => {
+@@ -334,7 +383,9 @@ const generateCollectionOperations = async (collection) => {
                  },
                  security: (await isOpenToPublic(collection.config.access.read)) ? [] : [apiKeySecurity],
              },
@@ -77,7 +89,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
                  operationId: componentName('schemas', singular, { prefix: 'create' }),
                  summary: `Create a new ${singular}`,
                  tags,
-@@ -344,9 +383,11 @@ const generateCollectionOperations = async (collection) => {
+@@ -344,9 +395,11 @@ const generateCollectionOperations = async (collection) => {
                      201: composeRef('responses', singular, { prefix: 'New' }),
                  },
                  security: (await isOpenToPublic(collection.config.access.create)) ? [] : [apiKeySecurity],
@@ -92,7 +104,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
              parameters: [
                  ...baseQueryParams,
                  {
-@@ -369,23 +410,28 @@ const generateCollectionOperations = async (collection) => {
+@@ -369,23 +422,28 @@ const generateCollectionOperations = async (collection) => {
                  responses: singleObjectResponses,
                  security: (await isOpenToPublic(collection.config.access.read)) ? [] : [apiKeySecurity],
              },
@@ -127,7 +139,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
  };
  const generateGlobalResponse = (global) => {
      const name = globalName(global);
-@@ -423,12 +469,16 @@ const generateGlobalSchemas = (config, global) => {
+@@ -423,12 +481,16 @@ const generateGlobalSchemas = (config, global) => {
          },
      };
  };
@@ -147,7 +159,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
              get: {
                  summary: `Get the ${singular}`,
                  tags,
-@@ -436,17 +486,20 @@ const generateGlobalOperations = async (global) => {
+@@ -436,17 +498,20 @@ const generateGlobalOperations = async (global) => {
                  responses: { 200: composeRef('responses', singular) },
                  security: (await isOpenToPublic(global.access.read)) ? [] : [apiKeySecurity],
              },
@@ -176,7 +188,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
      const schemas = {
          supportedTimezones: {
              type: 'string',
-@@ -454,38 +507,64 @@ const generateComponents = (req) => {
+@@ -454,38 +519,64 @@ const generateComponents = (req) => {
          },
      };
      for (const collection of Object.values(req.payload.collections)) {
@@ -232,9 +244,9 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
 +        .filter(global => !shouldExcludeGlobal(global, exclude))
 +        .map(global => generateGlobalOperations(global, exclude)));
 +    const allPaths = Object.assign({}, ...collectionPaths, ...globalPaths);
-+    const filteredPaths = Object.fromEntries(
-+        Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude))
-+    );
++    const filteredEntries = Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude));
++    const sortedEntries = sortPathsByOrder(filteredEntries, options.pathOrder);
++    const filteredPaths = Object.fromEntries(sortedEntries);
      const spec = {
          openapi: '3.0.3',
          info: options.metadata,
@@ -244,7 +256,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
          components: {
              securitySchemes: generateSecuritySchemes(options.authEndpoint),
              schemas: await mapValuesAsync(jsonSchemaToOpenapiSchema, schemas),
-@@ -517,12 +596,23 @@ export const generateV30Spec = async (req, options) => {
+@@ -517,12 +608,23 @@ export const generateV30Spec = async (req, options) => {
      return spec;
  };
  export const generateV31Spec = async (req, options) => {
@@ -258,9 +270,9 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
 +        .filter(global => !shouldExcludeGlobal(global, exclude))
 +        .map(global => generateGlobalOperations(global, exclude)));
 +    const allPaths = Object.assign({}, ...collectionPaths, ...globalPaths);
-+    const filteredPaths = Object.fromEntries(
-+        Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude))
-+    );
++    const filteredEntries = Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude));
++    const sortedEntries = sortPathsByOrder(filteredEntries, options.pathOrder);
++    const filteredPaths = Object.fromEntries(sortedEntries);
      const spec = {
          openapi: '3.1.0',
          info: options.metadata,
@@ -271,29 +283,30 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd
              securitySchemes: generateSecuritySchemes(options.authEndpoint),
              schemas: schemas,
 diff --git a/dist/openapiPlugin.js b/dist/openapiPlugin.js
-index a211111adef175b68bbd127a0332256dddc19521..c17210a9a94f7a2957589c3ffbc9172f66b178f0 100644
+index a211111adef175b68bbd127a0332256dddc19521..4e68a2d0f9845175b565919947a7451a794fd2b9 100644
 --- a/dist/openapiPlugin.js
 +++ b/dist/openapiPlugin.js
 @@ -1,5 +1,5 @@
  import { createOAuthPasswordFlowHandler, createOpenAPIRequestHandler } from './requestHandlers.js';
 -const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, }) => ({ endpoints = [], ...config }) => {
-+const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, exclude, }) => ({ endpoints = [], ...config }) => {
++const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, exclude, pathOrder, }) => ({ endpoints = [], ...config }) => {
      if (!enabled) {
          return { ...config, endpoints };
      }
-@@ -14,6 +14,7 @@ const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth
+@@ -14,6 +14,8 @@ const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth
                      openapiVersion,
                      metadata,
                      authEndpoint,
 +                    exclude,
++                    pathOrder,
                  }),
              },
              {
 diff --git a/dist/types.d.ts b/dist/types.d.ts
-index 652259d700ce7676911befcc4887043b9441d1ea..06dbe52bccb4ce9c894713e592e31231df1b0ab3 100644
+index 652259d700ce7676911befcc4887043b9441d1ea..654df847d38036e128d3062d76f765a666ef3e8a 100644
 --- a/dist/types.d.ts
 +++ b/dist/types.d.ts
-@@ -4,11 +4,20 @@ export interface OpenAPIMetadata {
+@@ -4,11 +4,21 @@ export interface OpenAPIMetadata {
      version: string;
      description?: string;
  }
@@ -310,6 +323,7 @@ index 652259d700ce7676911befcc4887043b9441d1ea..06dbe52bccb4ce9c894713e592e31231
      authEndpoint?: string;
      metadata: OpenAPIMetadata;
 +    exclude?: ExcludeOptions;
++    pathOrder?: string[];
  }
 -export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint'>>;
 +export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint' | 'exclude'>> & {
