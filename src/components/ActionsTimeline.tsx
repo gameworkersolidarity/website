@@ -130,16 +130,31 @@ export function Slideshow({
     [__setCurrentActionId, setAutoplay],
   )
 
-  // Scroll to current action when it changes
+  // Scroll to top of current card when it changes (carousel + page scroll below sticky headers)
+  const STICKY_OFFSET_PX = 220 // nav (60px) + "40 actions" + view toggles + filters
   useEffect(() => {
     if (!currentActionId || !scrollContainerRef.current) return
 
     const itemElement = itemRefs.current.get(currentActionId)
-    if (itemElement) {
-      scrollIntoView(itemElement, {
-        boundary: scrollContainerRef.current,
+    if (!itemElement) return
+
+    scrollIntoView(itemElement, {
+      boundary: scrollContainerRef.current,
+      block: 'start',
+      inline: 'start',
+    })
+
+    // After carousel scroll, scroll the page so the card top is below sticky headers
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const rect = itemElement.getBoundingClientRect()
+        if (rect.top < STICKY_OFFSET_PX) {
+          const scrollY = window.scrollY + rect.top - STICKY_OFFSET_PX
+          window.scrollTo({ top: scrollY, behavior: 'smooth' })
+        }
       })
-    }
+    })
+    return () => cancelAnimationFrame(raf)
   }, [currentActionId])
 
   // Handle scroll actions to update current action
