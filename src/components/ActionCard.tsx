@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import pluralize from 'pluralize'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useLayoutEffect } from 'react'
 import { DateTime } from '@/components/DateTime'
 import {
   Category,
@@ -141,19 +141,59 @@ export function ActionsList({
     return Object.entries(group).sort(([year1, d], [year2, D]) => parseInt(year2) - parseInt(year1))
   }, [actions])
 
+  /** When we collapse a year, compensate scroll so the "Show [n] actions" button stays at the same Y position. */
+  const collapseCompensationRef = useRef<{ height: number; scrollContainer: Element } | null>(null)
+
+  useLayoutEffect(() => {
+    const comp = collapseCompensationRef.current
+    if (!comp) return
+    const { height, scrollContainer } = comp
+    collapseCompensationRef.current = null
+
+    const startScroll = scrollContainer.scrollTop
+    const endScroll = startScroll - height
+    const durationMs = layoutTransition.duration * 1000
+    const startTime = performance.now()
+
+    // Match Motion's easeOut so scroll and layout animation stay in sync
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
+
+    function tick(now: number) {
+      const elapsed = now - startTime
+      const progress = Math.min(1, elapsed / durationMs)
+      const eased = easeOut(progress)
+      ;(scrollContainer as HTMLElement).scrollTop = startScroll + (endScroll - startScroll) * eased
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
+
+  function getScrollContainer(el: Element): Element {
+    let parent = el.parentElement
+    while (parent) {
+      const style = getComputedStyle(parent)
+      const overflow = style.overflow + style.overflowY
+      if (/(auto|scroll|overlay)/.test(overflow) && parent.scrollHeight > parent.clientHeight) {
+        return parent
+      }
+      parent = parent.parentElement
+    }
+    return document.documentElement
+  }
+
   return (
     <>
       <div className={`grid gap-4 ${gridStyle}`}>
         {/* <LayoutGroup> */}
         {actionsByYear.map(([yearString, actions], i) => {
           const isYearOpen = openYears.includes(yearString)
-          const shownActions = !isYearOpen ? actions.slice(0, hideActionsMoreThan) : actions
-          const pluralActionsCopy = pluralize('action', actions.length - shownActions.length)
+          const pluralActionsCopy = pluralize('action', actions.length - hideActionsMoreThan)
           const hasEnoughActionsForExpandableList = actions.length > hideActionsMoreThan
 
           return (
             <motion.div
               key={i}
+              data-year-section={yearString}
               className={twMerge(ANIMATION_DEBUG_MODE && 'outline-1 outline-red-500')}
               layout="preserve-aspect"
             >
@@ -174,7 +214,7 @@ export function ActionsList({
                 </div>
               </div>
               <div className="flex flex-col gap-4">
-                {shownActions.map((action, index) => (
+                {actions.slice(0, hideActionsMoreThan).map((action, index) => (
                   <motion.div
                     key={action.id}
                     className={twMerge(
@@ -186,9 +226,8 @@ export function ActionsList({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{
-                      // ...layoutTransition,
                       ease: 'backIn',
-                      delay: (isYearOpen ? index - hideActionsMoreThan : index) * 0.1,
+                      delay: index * 0.1,
                     }}
                   >
                     {fullDisplay ? (
@@ -198,6 +237,33 @@ export function ActionsList({
                     )}
                   </motion.div>
                 ))}
+                {isYearOpen && actions.length > hideActionsMoreThan && (
+                  <div data-collapsible-content className="flex flex-col gap-4">
+                    {actions.slice(hideActionsMoreThan).map((action, index) => (
+                      <motion.div
+                        key={action.id}
+                        className={twMerge(
+                          'transition group',
+                          ANIMATION_DEBUG_MODE && 'outline-1 outline-green-500',
+                        )}
+                        id={action.slug}
+                        layout="position"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{
+                          ease: 'backIn',
+                          delay: (index + hideActionsMoreThan) * 0.1,
+                        }}
+                      >
+                        {fullDisplay ? (
+                          <ActionCard data={action} links={'soft'} searchQuery={searchQuery} />
+                        ) : (
+                          <ActionItem data={action} links={'soft'} searchQuery={searchQuery} />
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
               {hasEnoughActionsForExpandableList && (
                 <motion.div className="z-10 relative" layout="position">
@@ -208,7 +274,7 @@ export function ActionsList({
                     >
                       <>
                         <span className="pr-1">
-                          Load {actions.length - shownActions.length} more {pluralActionsCopy}
+                          Load {actions.length - hideActionsMoreThan} more {pluralActionsCopy}
                         </span>
                         {DownArrow}
                       </>
@@ -216,14 +282,16 @@ export function ActionsList({
                   ) : (
                     <button
                       className="p-3 mt-3 font-semibold text-sm flex items-center cursor-pointer"
-                      onClick={() => {
+                      onClick={(e) => {
+                        const button = e.currentTarget
+                        const section = button.closest('[data-year-section]')
+                        const collapsible = section?.querySelector?.('[data-collapsible-content]')
+                        const height = (collapsible as HTMLElement)?.offsetHeight ?? 0
+                        const scrollContainer = getScrollContainer(button)
+                        if (height > 0) {
+                          collapseCompensationRef.current = { height, scrollContainer }
+                        }
                         setOpenYears(openYears.filter((openYear) => openYear !== yearString))
-                        // document.getElementById(yearString)?.scrollIntoView({ behavior: 'smooth' })
-                        // TODO: offset. identify parent scroll, then do parent.scrollTo(y - offset)
-                        // const yearElement = document.getElementById(yearString)
-                        // if (yearElement) {
-                        //   window.scrollTo({ top: yearElement.offsetTop - 300, behavior: 'smooth' })
-                        // }
                       }}
                     >
                       <>
