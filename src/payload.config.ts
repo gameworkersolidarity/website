@@ -329,6 +329,9 @@ export default buildConfig({
           'staticPages',
           'blogPosts',
           'media',
+          'exports',
+          'imports',
+          'payload-mcp-api-keys',
         ],
         globals: [
           'header',
