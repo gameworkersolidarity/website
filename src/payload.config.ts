@@ -339,6 +339,7 @@ export default buildConfig({
           'dataPage',
           'actionSubmissionPage',
         ],
+        methods: ['post', 'patch', 'delete'],
         // endpoints: ['/api/some-endpoint', '/api/another/*'], // Add specific endpoints or patterns with wildcards
       },
     }),

@@ -1,8 +1,8 @@
 diff --git a/dist/openapi/generators.js b/dist/openapi/generators.js
-index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119cd7ec6023 100644
+index e3acd04a61bc13bca2dc288f59d49386df82b2f5..89bb2c56e2d0601f0add894d43fa47dd742eb605 100644
 --- a/dist/openapi/generators.js
 +++ b/dist/openapi/generators.js
-@@ -4,6 +4,34 @@ import { entityToJSONSchema } from 'payload';
+@@ -4,6 +4,40 @@ import { entityToJSONSchema } from 'payload';
  import { mapValuesAsync, visitObjectNodes } from '../utils/objects.js';
  import { collectionName, componentName, globalName } from './naming.js';
  import { apiKeySecurity, generateSecuritySchemes } from './securitySchemes.js';
@@ -34,10 +34,16 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119c
 +        return false;
 +    });
 +};
++const shouldExcludeMethod = (method, exclude) => {
++    if (!exclude?.methods?.length) {
++        return false;
++    }
++    return exclude.methods.includes(method);
++};
  const baseQueryParams = [
      { in: 'query', name: 'depth', schema: { type: 'number' } },
      { in: 'query', name: 'locale', schema: { type: 'string' } },
-@@ -277,7 +305,7 @@ const isOpenToPublic = async (checker) => {
+@@ -277,7 +311,7 @@ const isOpenToPublic = async (checker) => {
          return false;
      }
  };
@@ -46,7 +52,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119c
      const { slug } = collection.config;
      const { singular, plural } = collectionName(collection);
      const tags = [plural];
-@@ -285,8 +313,11 @@ const generateCollectionOperations = async (collection) => {
+@@ -285,8 +319,11 @@ const generateCollectionOperations = async (collection) => {
          200: composeRef('responses', singular),
          404: composeRef('responses', singular, { suffix: 'NotFound' }),
      };
@@ -60,32 +66,68 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119c
              get: {
                  operationId: componentName('schemas', plural, { prefix: 'list' }),
                  summary: `Retrieve a list of ${plural}`,
-@@ -345,8 +376,10 @@ const generateCollectionOperations = async (collection) => {
+@@ -334,7 +371,9 @@ const generateCollectionOperations = async (collection) => {
+                 },
+                 security: (await isOpenToPublic(collection.config.access.read)) ? [] : [apiKeySecurity],
+             },
+-            post: {
++        };
++        if (!shouldExcludeMethod('post', exclude)) {
++            operations[listPath].post = {
+                 operationId: componentName('schemas', singular, { prefix: 'create' }),
+                 summary: `Create a new ${singular}`,
+                 tags,
+@@ -344,9 +383,11 @@ const generateCollectionOperations = async (collection) => {
+                     201: composeRef('responses', singular, { prefix: 'New' }),
                  },
                  security: (await isOpenToPublic(collection.config.access.create)) ? [] : [apiKeySecurity],
-             },
+-            },
 -        },
 -        [`/api/${slug}/{id}`]: {
-+        };
++            };
++        }
 +    }
 +    if (!shouldExcludeEndpoint(detailPath, exclude)) {
 +        operations[detailPath] = {
              parameters: [
                  ...baseQueryParams,
                  {
-@@ -384,8 +417,9 @@ const generateCollectionOperations = async (collection) => {
+@@ -369,23 +410,28 @@ const generateCollectionOperations = async (collection) => {
+                 responses: singleObjectResponses,
+                 security: (await isOpenToPublic(collection.config.access.read)) ? [] : [apiKeySecurity],
+             },
+-            patch: {
++        };
++        if (!shouldExcludeMethod('patch', exclude)) {
++            operations[detailPath].patch = {
+                 operationId: componentName('schemas', singular, { prefix: 'update' }),
+                 summary: `Update a ${singular}`,
+                 tags,
+                 requestBody: composeRef('requestBodies', singular, { suffix: 'Patch' }),
+                 responses: singleObjectResponses,
+                 security: (await isOpenToPublic(collection.config.access.update)) ? [] : [apiKeySecurity],
+-            },
+-            delete: {
++            };
++        }
++        if (!shouldExcludeMethod('delete', exclude)) {
++            operations[detailPath].delete = {
+                 operationId: componentName('schemas', singular, { prefix: 'delete' }),
+                 summary: `Delete a ${singular}`,
+                 tags,
                  responses: singleObjectResponses,
                  security: (await isOpenToPublic(collection.config.access.delete)) ? [] : [apiKeySecurity],
-             },
+-            },
 -        },
 -    };
-+        };
++            };
++        }
 +    }
 +    return operations;
  };
  const generateGlobalResponse = (global) => {
      const name = globalName(global);
-@@ -423,12 +457,16 @@ const generateGlobalSchemas = (config, global) => {
+@@ -423,12 +469,16 @@ const generateGlobalSchemas = (config, global) => {
          },
      };
  };
@@ -94,26 +136,47 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119c
      const slug = global.slug;
      const singular = globalName(global);
      const tags = [singular];
+-    return {
+-        [`/api/globals/${slug}`]: {
 +    const globalPath = `/api/globals/${slug}`;
 +    if (shouldExcludeEndpoint(globalPath, exclude)) {
 +        return {};
 +    }
-     return {
--        [`/api/globals/${slug}`]: {
++    const result = {
 +        [globalPath]: {
              get: {
                  summary: `Get the ${singular}`,
                  tags,
-@@ -446,7 +484,7 @@ const generateGlobalOperations = async (global) => {
+@@ -436,17 +486,20 @@ const generateGlobalOperations = async (global) => {
+                 responses: { 200: composeRef('responses', singular) },
+                 security: (await isOpenToPublic(global.access.read)) ? [] : [apiKeySecurity],
+             },
+-            post: {
+-                summary: `Update the ${singular}`,
+-                tags,
+-                requestBody: composeRef('requestBodies', singular),
+-                responses: { 200: composeRef('responses', singular) },
+-                security: (await isOpenToPublic(global.access.update)) ? [] : [apiKeySecurity],
+-            },
          },
      };
++    if (!shouldExcludeMethod('post', exclude)) {
++        result[globalPath].post = {
++            summary: `Update the ${singular}`,
++            tags,
++            requestBody: composeRef('requestBodies', singular),
++            responses: { 200: composeRef('responses', singular) },
++            security: (await isOpenToPublic(global.access.update)) ? [] : [apiKeySecurity],
++        };
++    }
++    return result;
  };
 -const generateComponents = (req) => {
 +const generateComponents = (req, exclude) => {
      const schemas = {
          supportedTimezones: {
              type: 'string',
-@@ -454,38 +492,64 @@ const generateComponents = (req) => {
+@@ -454,38 +507,64 @@ const generateComponents = (req) => {
          },
      };
      for (const collection of Object.values(req.payload.collections)) {
@@ -181,7 +244,7 @@ index e3acd04a61bc13bca2dc288f59d49386df82b2f5..dcf8c3eb53e5102f070e21f7b827119c
          components: {
              securitySchemes: generateSecuritySchemes(options.authEndpoint),
              schemas: await mapValuesAsync(jsonSchemaToOpenapiSchema, schemas),
-@@ -517,12 +581,23 @@ export const generateV30Spec = async (req, options) => {
+@@ -517,12 +596,23 @@ export const generateV30Spec = async (req, options) => {
      return spec;
  };
  export const generateV31Spec = async (req, options) => {
@@ -227,10 +290,10 @@ index a211111adef175b68bbd127a0332256dddc19521..c17210a9a94f7a2957589c3ffbc9172f
              },
              {
 diff --git a/dist/types.d.ts b/dist/types.d.ts
-index 652259d700ce7676911befcc4887043b9441d1ea..99a0219d0da5bf9c2028979af9fbeee211d473db 100644
+index 652259d700ce7676911befcc4887043b9441d1ea..06dbe52bccb4ce9c894713e592e31231df1b0ab3 100644
 --- a/dist/types.d.ts
 +++ b/dist/types.d.ts
-@@ -4,11 +4,19 @@ export interface OpenAPIMetadata {
+@@ -4,11 +4,20 @@ export interface OpenAPIMetadata {
      version: string;
      description?: string;
  }
@@ -238,6 +301,7 @@ index 652259d700ce7676911befcc4887043b9441d1ea..99a0219d0da5bf9c2028979af9fbeee2
 +    collections?: string[];
 +    globals?: string[];
 +    endpoints?: string[];
++    methods?: ('get' | 'post' | 'patch' | 'delete')[];
 +}
  export interface PluginOptions {
      enabled?: boolean;
@@ -251,3 +315,57 @@ index 652259d700ce7676911befcc4887043b9441d1ea..99a0219d0da5bf9c2028979af9fbeee2
 +export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint' | 'exclude'>> & {
 +    exclude?: ExcludeOptions;
 +};
+diff --git a/node_modules/.bin/json-schema-to-openapi-schema b/node_modules/.bin/json-schema-to-openapi-schema
+new file mode 100755
+index 0000000000000000000000000000000000000000..d9842fcaefacfe3d37176ad70f863836035a9bd9
+--- /dev/null
++++ b/node_modules/.bin/json-schema-to-openapi-schema
+@@ -0,0 +1,21 @@
++#!/bin/sh
++basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
++
++case `uname` in
++    *CYGWIN*|*MINGW*|*MSYS*)
++        if command -v cygpath > /dev/null 2>&1; then
++            basedir=`cygpath -w "$basedir"`
++        fi
++    ;;
++esac
++
++if [ -z "$NODE_PATH" ]; then
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules"
++else
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules:$NODE_PATH"
++fi
++if [ -x "$basedir/node" ]; then
++  exec "$basedir/node"  "$basedir/../../../../../@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/json-schema-to-openapi-schema.js" "$@"
++else
++  exec node  "$basedir/../../../../../@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/json-schema-to-openapi-schema.js" "$@"
++fi
+diff --git a/node_modules/.bin/payload b/node_modules/.bin/payload
+new file mode 100755
+index 0000000000000000000000000000000000000000..40084ce624d5bebc51fa5caa07d063f8061140ea
+--- /dev/null
++++ b/node_modules/.bin/payload
+@@ -0,0 +1,21 @@
++#!/bin/sh
++basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
++
++case `uname` in
++    *CYGWIN*|*MINGW*|*MSYS*)
++        if command -v cygpath > /dev/null 2>&1; then
++            basedir=`cygpath -w "$basedir"`
++        fi
++    ;;
++esac
++
++if [ -z "$NODE_PATH" ]; then
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules"
++else
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules:$NODE_PATH"
++fi
++if [ -x "$basedir/node" ]; then
++  exec "$basedir/node"  "$basedir/../../../../../payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/bin.js" "$@"
++else
++  exec node  "$basedir/../../../../../payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/bin.js" "$@"
++fi
