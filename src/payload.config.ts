@@ -345,12 +345,24 @@ export default buildConfig({
         methods: ['post', 'patch', 'delete'],
         // endpoints: ['/api/some-endpoint', '/api/another/*'], // Add specific endpoints or patterns with wildcards
       },
+      // @ts-ignore
       pathOrder: ['/api/actions', '/api/organisingGroups'],
     }),
     scalar({
-      // Scalar UI will be available at /api/docs by default
-      // You can customize the path if needed:
-      // path: '/api/docs',
+      // Scalar API Reference (OpenAPI docs + Try it) — https://scalar.com/products/api-references/configuration
+      // @ts-ignore
+      baseUrl: projectStrings.baseUrl,
+      logoUrl: `${projectStrings.baseUrl}/images/GameWorkerSolidarity_Logo_Transparent.png`,
+      // @ts-ignore
+      apiReferenceConfig: {
+        theme: 'default',
+        layout: 'modern',
+        meta: {
+          title: `${projectStrings.name} API`,
+          description: projectStrings.description,
+        },
+        // Optional: customCss, hideDownloadButton, showSidebar, etc.
+      },
     }),
     env.get('NEXT_PUBLIC_STORAGE_TYPE').required().asString() === 'cloudinary'
       ? cloudinaryStorage({

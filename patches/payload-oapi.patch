@@ -302,6 +302,119 @@ index a211111adef175b68bbd127a0332256dddc19521..4e68a2d0f9845175b565919947a7451a
                  }),
              },
              {
+diff --git a/dist/scalarPlugin.js b/dist/scalarPlugin.js
+index 9f4c232344f3218640b78fa67dcb19b2e0eab2bd..824a42859bf39eb19516dc707677327c103740fe 100644
+--- a/dist/scalarPlugin.js
++++ b/dist/scalarPlugin.js
+@@ -1,7 +1,74 @@
+-const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = true, }) => ({ endpoints = [], ...config }) => {
++const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = true, apiReferenceConfig = {}, baseUrl = '', logoUrl = '', }) => ({ endpoints = [], ...config }) => {
+     if (!enabled) {
+         return { ...config, endpoints };
+     }
++    const configJsonEscaped = JSON.stringify(JSON.stringify(apiReferenceConfig));
++    const hasBranding = baseUrl && baseUrl.length > 0;
++    const headerHtml = hasBranding
++        ? `
++    <style>
++      @font-face {
++        font-family: 'Parabole';
++        src: url('/fonts/Parabole-Regular.woff2') format('woff2'),
++             url('/fonts/Parabole-Regular.woff') format('woff');
++        font-weight: 400;
++        font-style: normal;
++        font-display: swap;
++      }
++      .gws-api-header {
++        display: flex;
++        align-items: center;
++        justify-content: space-between;
++        gap: 1rem;
++        padding: 0.75rem 1rem;
++        background: #DD96FF;
++        border-bottom: 1px solid rgba(0,0,0,0.08);
++        flex-wrap: wrap;
++        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
++      }
++      .gws-api-header .gws-api-identity {
++        font-family: 'Parabole', ui-sans-serif, system-ui, sans-serif;
++        font-size: 1.25rem;
++        font-weight: 400;
++      }
++      .gws-api-header a[href] {
++        color: #1a1a1a;
++        text-decoration: none;
++      }
++      .gws-api-header a[href]:hover {
++        text-decoration: underline;
++      }
++      .gws-api-footer {
++        padding: 0.75rem 1rem;
++        text-align: center;
++        font-size: 0.8125rem;
++        background: #DD96FF;
++        color: #1a1a1a;
++        border-top: 1px solid rgba(0,0,0,0.08);
++        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
++      }
++      .gws-api-footer a {
++        color: #1a1a1a;
++        text-decoration: none;
++      }
++      .gws-api-footer a:hover {
++        text-decoration: underline;
++      }
++    </style>
++    <header class="gws-api-header">
++      <a href="${baseUrl}" style="display:flex;align-items:center;gap:0.5rem;">
++        ${logoUrl ? `<img src="${logoUrl}" alt="" style="height:32px;width:auto;display:block;" />` : ''}
++        <span class="gws-api-identity">Game Worker Solidarity</span>
++      </a>
++      <a href="${baseUrl}">← Back to site</a>
++    </header>`
++        : '';
++    const footerHtml = hasBranding
++        ? `
++    <footer class="gws-api-footer">
++      <a href="${baseUrl}">Back to main site</a>
++    </footer>`
++        : '';
+     return {
+         ...config,
+         endpoints: [
+@@ -22,16 +89,23 @@ const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = t
+                   document.addEventListener('DOMContentLoaded', function () {
+                     const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                     const script = document.createElement('script');
+-                    script.id = 'api-reference';
+                     script.src = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference';
+-                    script.setAttribute('data-url', '${fullSpecUrl}');
+-                    script.setAttribute('data-theme', theme);
++                    script.onload = function () {
++                      const baseConfig = JSON.parse(${configJsonEscaped});
++                      Scalar.createApiReference('#scalar-api', {
++                        url: '${fullSpecUrl}',
++                        theme: theme,
++                        ...baseConfig,
++                      });
++                    };
+                     document.body.appendChild(script);
+                   });
+                 </script>
+               </head>
+               <body>
++                ${headerHtml}
+                 <div id="scalar-api"></div>
++                ${footerHtml}
+               </body>
+               </html>`;
+                     return new Response(html, {
+@@ -43,4 +117,3 @@ const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = t
+     };
+ };
+ export default scalar;
+-//# sourceMappingURL=scalarPlugin.js.map
+\ No newline at end of file
 diff --git a/dist/types.d.ts b/dist/types.d.ts
 index 652259d700ce7676911befcc4887043b9441d1ea..654df847d38036e128d3062d76f765a666ef3e8a 100644
 --- a/dist/types.d.ts
