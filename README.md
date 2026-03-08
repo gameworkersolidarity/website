@@ -8,6 +8,8 @@ Where possible, we'll also interview and record oral histories with participants
 
 Do you have any information to share with us that we can add to the timeline? [Get in touch!](mailto:hello@gameworkersolidarity.com)
 
+The website was developed in collaboration with [Common Knowledge Co-operative](https://commonknowledge.coop).
+
 ## Payload CMS
 
 This site uses [Payload CMS](https://payloadcms.com) as its headless CMS and admin. Useful entry points:
