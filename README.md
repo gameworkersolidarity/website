@@ -8,6 +8,17 @@ Where possible, we'll also interview and record oral histories with participants
 
 Do you have any information to share with us that we can add to the timeline? [Get in touch!](mailto:hello@gameworkersolidarity.com)
 
+## Payload CMS
+
+This site uses [Payload CMS](https://payloadcms.com) as its headless CMS and admin. Useful entry points:
+
+- **[Payload docs](https://payloadcms.com/docs)** — Overview and getting started.
+- **[Configuration](https://payloadcms.com/docs/configuration/overview)** — App config; this project’s entry point is `src/payload.config.ts`.
+- **[Collections](https://payloadcms.com/docs/configuration/collections)** — Content types (e.g. Actions, Companies) live in `src/collections/`.
+- **[Admin panel](https://payloadcms.com/docs/admin/overview)** — The `/admin` UI for managing content.
+
+When adding or changing database fields, see the [Adding database fields](#adding-database-fields) section below.
+
 ## Building the site from scratch
 
 First, make sure you have the technical requirements installed. (See section below.)
