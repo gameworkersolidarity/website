@@ -5,6 +5,7 @@ import { createBreadcrumbsField } from '@payloadcms/plugin-nested-docs'
 import { OrganisingGroup } from '@/payload-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 import { revalidateCacheHook } from '@/lib/revalidate-on-change'
+import { after } from 'next/server'
 
 export const OrganisingGroups: CollectionConfig = {
   slug: 'organisingGroups',
@@ -260,7 +261,13 @@ export const OrganisingGroups: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateCacheHook('organisingGroups')],
+    afterChange: [
+      async () => {
+        after(() => {
+          revalidateCacheHook('organisingGroups')
+        })
+      },
+    ],
     afterDelete: [revalidateCacheHook('organisingGroups')],
   },
 }

@@ -6,6 +6,7 @@ import { getPath } from '@/utils/payloadPath'
 import { Country } from '@/payload-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 import { revalidateCacheHook } from '@/lib/revalidate-on-change'
+import { after } from 'next/server'
 
 export const Countries: CollectionConfig = {
   slug: 'countries',
@@ -199,7 +200,13 @@ export const Countries: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateCacheHook('countries')],
+    afterChange: [
+      async () => {
+        after(() => {
+          revalidateCacheHook('countries')
+        })
+      },
+    ],
     afterDelete: [revalidateCacheHook('countries')],
   },
 }
