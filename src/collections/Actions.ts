@@ -433,11 +433,6 @@ export const Actions: CollectionConfig = {
       name: 'consent',
       type: 'checkbox',
       label: 'Consent',
-      admin: {
-        description:
-          'User consented to Game Worker Solidarity publishing this information online and offline',
-        position: 'sidebar',
-      },
       custom: {
         'plugin-import-export': {
           disabled: true,

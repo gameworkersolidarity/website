@@ -516,9 +516,6 @@ export interface Action {
    * Contact information provided by the person who submitted this action
    */
   submissionContactDetails?: string | null;
-  /**
-   * User consented to Game Worker Solidarity publishing this information online and offline
-   */
   consent?: boolean | null;
   updatedAt: string;
   createdAt: string;
