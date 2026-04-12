@@ -5,6 +5,7 @@ import { Campaign } from '@/payload-types'
 import { TimelineLabelProperty } from '@/global-types'
 import { draftModeAccessControl } from '@/app/(payload)/querying/accessControl'
 import { revalidateCacheHook } from '@/lib/revalidate-on-change'
+import { after } from 'next/server'
 
 const highlightedActionAttributeOptions: Array<{ label: string; value: TimelineLabelProperty }> = [
   // Pick from companies, countries, categories, organising groups, headcount
@@ -213,7 +214,13 @@ export const Campaigns: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateCacheHook('campaigns')],
+    afterChange: [
+      async () => {
+        after(() => {
+          revalidateCacheHook('campaigns')
+        })
+      },
+    ],
     afterDelete: [revalidateCacheHook('campaigns')],
   },
 }

@@ -14,6 +14,7 @@ import { revalidateCacheHook } from '@/lib/revalidate-on-change'
 import { convertLexicalToMarkdown, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import { lexicalToPlainText } from '@/utils/lexicalToHTML'
 import { LexicalContent } from '@/global-types'
+import { after } from 'next/server'
 
 export const Actions: CollectionConfig = {
   slug: 'actions',
@@ -486,7 +487,11 @@ export const Actions: CollectionConfig = {
       },
     ],
     afterChange: [
-      revalidateCacheHook('actions'),
+      async () => {
+        after(() => {
+          revalidateCacheHook('actions')
+        })
+      },
       async ({ doc, operation, req }) => {
         // Send email notification when a new action is created as a draft
         if (operation === 'create' && doc._status === 'draft' && doc.submissionContactDetails) {
