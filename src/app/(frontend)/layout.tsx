@@ -118,7 +118,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   const { authStatus } = await loadDraftMode(payload)
 
-  // Only real users (not MCP API key auth) go into UserContext
   const userForContext = authStatus?.user && 'email' in authStatus.user ? authStatus.user : null
 
   return (

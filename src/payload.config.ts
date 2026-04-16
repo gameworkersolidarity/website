@@ -31,8 +31,6 @@ import { CampaignsPage } from './globals/CampaignsPage'
 import { DataPage } from './globals/DataPage'
 import { ActionSubmissionPage } from './globals/ActionSubmissionPage'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
-import { mcpPlugin } from '@payloadcms/plugin-mcp'
-import type { MCPAccessSettings } from '@payloadcms/plugin-mcp'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -225,59 +223,6 @@ export default buildConfig({
       })
     : undefined,
   plugins: [
-    mcpPlugin({
-      collections: {
-        actions: {
-          enabled: true,
-          description: 'Labour actions (strikes, redundancies, unionisation) in the games industry',
-        },
-        campaigns: { enabled: true, description: 'Campaigns and solidarity initiatives' },
-        categories: { enabled: true, description: 'Categories for organising content' },
-        companies: { enabled: true, description: 'Game companies and studios' },
-        organisingGroups: { enabled: true, description: 'Unions and organising groups' },
-        countries: { enabled: true, description: 'Countries and regions' },
-        staticPages: { enabled: true, description: 'Static site pages' },
-        blogPosts: { enabled: true, description: 'Blog posts and articles' },
-      },
-      overrideAuth: async (req, getDefaultMcpAccessSettings) => {
-        const mcpCollectionSlugs = [
-          'actions',
-          'campaigns',
-          'categories',
-          'companies',
-          'organisingGroups',
-          'countries',
-          'staticPages',
-          'blogPosts',
-        ] as const
-        const viewOnlySettings = Object.fromEntries(
-          mcpCollectionSlugs.map((slug) => [slug, { find: true }]),
-        )
-        const authHeader =
-          typeof req.headers?.get === 'function'
-            ? req.headers.get('Authorization')
-            : (req.headers as unknown as Record<string, string>)?.['authorization']
-        const hasBearer = authHeader?.startsWith('Bearer ')
-        if (!hasBearer) {
-          return {
-            ...viewOnlySettings,
-            user: undefined,
-          } as unknown as MCPAccessSettings
-        }
-        try {
-          const defaultSettings = await getDefaultMcpAccessSettings()
-          return {
-            ...defaultSettings,
-            ...viewOnlySettings,
-          }
-        } catch {
-          return {
-            ...viewOnlySettings,
-            user: undefined,
-          } as unknown as MCPAccessSettings
-        }
-      },
-    }),
     importExportPlugin({
       debug: true,
       overrideExportCollection: ({ collection }) => {
@@ -331,7 +276,6 @@ export default buildConfig({
           'media',
           'exports',
           'imports',
-          'payload-mcp-api-keys',
         ],
         globals: [
           'header',
