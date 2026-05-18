@@ -20,6 +20,7 @@ import { DraftBadge } from '@/components/DraftBadge'
 import { DataPageFooter } from '@/components/DataPageFooter'
 import { validatePayloadDocument, validatePayloadDocuments } from '@/utils/validate-payload'
 import { Button } from '@/components/ui/button'
+import { CampaignLabel } from '@/components/CampaignLabel'
 
 const Back = ({ className }: { className?: string }) => (
   <div className={className}>
@@ -118,7 +119,9 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
                 </span>
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold font-identity mt-2">{page.name}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold font-identity mt-2">
+              <CampaignLabel campaign={page} />
+            </h1>
           </header>
           {featuredImageUrl && (
             <Image
@@ -127,7 +130,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
               width={featuredMedia?.width || 1000}
               height={featuredMedia?.height || 1000}
               objectFit="cover"
-              className="w-full max-h-64 md:h-auto object-cover rounded-lg overflow-hidden"
+              className="w-full md:h-auto object-cover rounded-lg overflow-hidden"
             />
           )}
           {page.description && (
