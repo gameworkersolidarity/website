@@ -109,6 +109,8 @@ export const geocodeOpenStreetMap = async (location: string, iso2?: string) => {
     },
   })
   const res = await fetch(url)
+  if (!res.ok) return null
+
   const data = await res.json()
   return data?.[0] as Promise<OpenStreetMapReverseGeocodeResponse | null>
 }
