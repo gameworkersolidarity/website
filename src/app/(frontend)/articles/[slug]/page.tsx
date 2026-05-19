@@ -152,7 +152,7 @@ export default async function BlogPost({ params }: Props) {
               alt={post.title || ''}
               width={post.image?.width || 1000}
               height={post.image?.height || 1000}
-              objectFit="cover"
+              style={{ objectFit: 'cover' }}
               className="w-full max-h-64 md:h-auto object-cover rounded-lg overflow-hidden"
             />
           )}

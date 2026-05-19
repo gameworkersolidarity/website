@@ -53,7 +53,7 @@ export function CampaignsGrid({
                   alt={campaign.name || ''}
                   width={featuredMedia?.width || 1000}
                   height={featuredMedia?.height || 1000}
-                  objectFit="cover"
+                  style={{ objectFit: 'cover' }}
                   className="w-full h-60 object-cover overflow-hidden my-3"
                 />
               )}

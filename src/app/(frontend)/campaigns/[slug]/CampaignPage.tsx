@@ -129,7 +129,7 @@ export function CampaignPage({ initialCampaign }: { initialCampaign: Campaign })
               alt={page.name}
               width={featuredMedia?.width || 1000}
               height={featuredMedia?.height || 1000}
-              objectFit="cover"
+              style={{ objectFit: 'cover' }}
               className="w-full md:h-auto object-cover rounded-lg overflow-hidden"
             />
           )}

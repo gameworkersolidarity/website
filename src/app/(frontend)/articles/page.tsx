@@ -91,7 +91,7 @@ export default async function BlogPage() {
                       alt={post.title || ''}
                       width={post.image.width}
                       height={post.image.height}
-                      objectFit="cover"
+                      style={{ objectFit: 'cover' }}
                       className="w-full h-48 object-cover overflow-hidden"
                     />
                   )}
