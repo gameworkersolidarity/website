@@ -98,17 +98,21 @@ export const getLatLngForCountry = (isoA2: string) => {
 
 export const geocodeOpenStreetMap = async (location: string, iso2?: string) => {
   const url = qs.stringifyUrl({
-    url: `https://nominatim.openstreetmap.org/search.php`,
+    url: `https://nominatim.openstreetmap.org/search`,
     query: {
       q: location,
       countrycodes: iso2,
       format: 'jsonv2',
-      'accept-language': 'en-GB',
       limit: 1,
       email: projectStrings.email,
     },
   })
-  const res = await fetch(url)
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': `${projectStrings.name}/1.0 (${projectStrings.email})`,
+      'Accept-Language': 'en-GB',
+    },
+  })
   if (!res.ok) return null
 
   const data = await res.json()
