@@ -19,7 +19,6 @@ async function getActions(query: Payload['find']) {
       submissionContactDetails: false,
       consent: false,
       relatedActions: false,
-      coordinates: false,
       generateSlug: false,
     },
   }).then((r) => validatePayloadResult('actions', r, false))
