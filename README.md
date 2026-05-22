@@ -67,7 +67,7 @@ You need the following installed before running the steps above:
 
 ### Importing redundancy data
 
-Redundancy data is imported from CSV files into Payload as **Actions** (with category “Redundancy”), and creates or links **Companies** and **Categories** as needed.
+Redundancy data is imported from CSV files into Payload as **Actions** (with category “redundancy”), and creates or links **Companies** and **Categories** as needed.
 
 1. **Put CSV files** in `public/redundancies/` (e.g. `2025 Grid View.csv`, `2024 Grid View Breakdown.csv`).
 2. **CSV format:** Each file must have exactly these column headers (order doesn’t matter):

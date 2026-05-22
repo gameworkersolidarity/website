@@ -24,7 +24,7 @@ export const ActionHistogramContext = ({ action }: { action: Action }) => {
       action.initiator === ActionInitiator.BOSS_LED ||
       action.categories?.some((category) => (category as Category).slug === 'redundancy')
     ) {
-      return 'Redundancies'
+      return 'redundancy'
     } else if (action.initiator === ActionInitiator.WORKER_LED) {
       return 'Worker actions'
     }
@@ -33,7 +33,7 @@ export const ActionHistogramContext = ({ action }: { action: Action }) => {
 
   const actionFilter = useCallback(
     (candidate: Action) => {
-      if (actionType === 'Redundancies') {
+      if (actionType === 'redundancy') {
         return !!(
           candidate.initiator === ActionInitiator.BOSS_LED ||
           candidate.categories?.some((category) => (category as Category).slug === 'redundancy')
@@ -57,7 +57,7 @@ export const ActionHistogramContext = ({ action }: { action: Action }) => {
 
   return (
     <div className="rounded-xl">
-      <h2 className="text-sm text-zinc-500 font-semibold mb-2">{actionType} timeline</h2>
+      <h2 className="text-sm text-zinc-500 font-semibold mb-2 capitalize">{actionType} timeline</h2>
       <div ref={elementRef} className="h-[200px] w-full">
         <ActionFilterContextProvider
           actions={actions.data?.docs || []}
@@ -70,14 +70,14 @@ export const ActionHistogramContext = ({ action }: { action: Action }) => {
           <FrequencyChart
             size={size}
             color={
-              actionType === 'Redundancies'
+              actionType === 'redundancy'
                 ? getCSSVariable(`--color-gw-orange`, true)
                 : getCSSVariable(`--color-gw-blue`, true)
             }
             highlightDate={new Date(action.date)}
             actionFilter={actionFilter}
             highlightColor={getCSSVariable(`--color-snot-500`, true)}
-            countBy={actionType === 'Redundancies' ? 'headcount' : 'actions'}
+            countBy={actionType === 'redundancy' ? 'headcount' : 'actions'}
           />
         </ActionFilterContextProvider>
       </div>

@@ -387,7 +387,7 @@ async function processRedundancies(
         payload,
         'categories',
         { slug: 'redundancy' },
-        { name: 'Redundancy', slug: 'redundancy', _status: 'published' },
+        { name: 'redundancy', slug: 'redundancy', _status: 'published' },
       )
 
   if (rows.length === 0) {

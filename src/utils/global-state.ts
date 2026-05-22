@@ -125,11 +125,9 @@ export function useCampaignFilter(override?: string | string[] | null) {
 export function useInitiatorFilter(override?: ActionInitiatorFilter | null) {
   const [initiator, setInitiator] = useQueryState(
     ActionFilterKey.Initiator,
-    parseAsStringEnum(Object.values(ActionInitiatorFilter))
-      .withDefault(ActionInitiatorFilter.WORKER_LED)
-      .withOptions({
-        clearOnDefault: true,
-      }),
+    parseAsStringEnum(Object.values(ActionInitiatorFilter)).withOptions({
+      clearOnDefault: true,
+    }),
   )
   return override ? ([override, noop] as const) : ([initiator, setInitiator] as const)
 }

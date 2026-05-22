@@ -27,7 +27,7 @@ export function ActionStats({ color, graphs = true }: { color?: string; graphs?:
   const redundancyFilter = useCallback(
     (action: Action) =>
       (action.initiator === ActionInitiatorFilter.BOSS_LED &&
-        action.categories?.some((category) => (category as Category).name === 'Redundancy')) ||
+        action.categories?.some((category) => (category as Category).name === 'redundancy')) ||
       false,
     [],
   )
