@@ -11,6 +11,7 @@ export { revalidateTag } from 'next/cache'
 export const CACHE_TAGS = {
   homepage: 'homepage',
   actions: 'actions',
+  actionsIndex: 'actions-index',
   categories: 'categories',
   companies: 'companies',
   organisingGroups: 'organisingGroups',
@@ -46,6 +47,7 @@ export function isSlugPageCachingEnabled(): boolean {
 /** Cache key identifiers. Add new keys here when adding a cached page. */
 export const CACHE_KEYS = {
   HOMEPAGE: 'homepage',
+  ACTIONS_INDEX: 'actions-index',
   CAMPAIGNS_INDEX: 'campaigns-index',
   COMPANIES_INDEX: 'companies-index',
   COUNTRIES_INDEX: 'countries-index',
@@ -61,6 +63,7 @@ const CACHE_ENTRIES: Record<CacheKey, { keyParts: string[]; tags: readonly strin
   [CACHE_KEYS.HOMEPAGE]: {
     keyParts: ['homepage'],
     tags: [
+      CACHE_TAGS.actionsIndex,
       CACHE_TAGS.homepage,
       CACHE_TAGS.actions,
       CACHE_TAGS.categories,
@@ -81,6 +84,10 @@ const CACHE_ENTRIES: Record<CacheKey, { keyParts: string[]; tags: readonly strin
   [CACHE_KEYS.COUNTRIES_INDEX]: {
     keyParts: ['countries-index'],
     tags: [CACHE_TAGS.countriesIndex, CACHE_TAGS.countries, CACHE_TAGS.actions],
+  },
+  [CACHE_KEYS.ACTIONS_INDEX]: {
+    keyParts: ['actions-index'],
+    tags: [CACHE_TAGS.actionsIndex, CACHE_TAGS.actions],
   },
 }
 

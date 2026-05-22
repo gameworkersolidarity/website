@@ -79,9 +79,11 @@ export type PayloadQueryContext = {
  * others get cached public data. Tags and revalidation come from the cache registry.
  * Use this for all cached index/homepage pages so behaviour and invalidation stay in sync.
  */
+
 export async function getCachedData<T>(
   key: CacheKey,
   fetcher: (ctx: PayloadQueryContext) => Promise<T>,
+  options: { ignoreCache?: boolean } = {},
 ): Promise<T> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -95,7 +97,7 @@ export async function getCachedData<T>(
     })
   }
 
-  if (!isIndexCachingEnabled()) {
+  if (!isIndexCachingEnabled() || options.ignoreCache) {
     return fetcher({
       query: payloadPublicQuery,
       globalQuery: payloadPublicGlobalQuery,

@@ -8,96 +8,87 @@ import { CACHE_KEYS } from '@/lib/cache'
 // Segment config must be a literal; value = CACHE_REVALIDATE_SECONDS (12h)
 export const revalidate = 43200
 
-async function getHomepageData(query: Payload['find']): Promise<{
-  actions: Action[]
+async function getActions(query: Payload['find']) {
+  const actions = await query({
+    collection: 'actions',
+    sort: '-date',
+    depth: 1,
+    pagination: false,
+    select: {
+      airtableId: false,
+      submissionContactDetails: false,
+      consent: false,
+      relatedActions: false,
+      coordinates: false,
+      generateSlug: false,
+    },
+  }).then((r) => validatePayloadResult('actions', r, false))
+  return actions.docs
+}
+
+async function getFilterData(query: Payload['find']): Promise<{
   countries: Country[]
   categories: Category[]
   companies: Company[]
   organisingGroups: OrganisingGroup[]
   campaigns: Campaign[]
 }> {
-  const [actionsResult, categoriesResult, companiesResult, organisingGroupsResult, campaignResult] =
-    await Promise.all([
-      query({
-        collection: 'actions',
-        sort: '-date',
-        depth: 1,
-        pagination: false,
-        select: {
-          airtableId: false,
-          submissionContactDetails: false,
-          consent: false,
-          relatedActions: false,
-        },
-      }).then((r) => validatePayloadResult('actions', r, false)),
-      query({
-        collection: 'categories',
-        pagination: false,
-        select: { name: true, id: true, slug: true, emoji: true, path: true },
-        sort: ['name'],
-      }).then((r) => validatePayloadResult('categories', r, false)),
-      query({
-        collection: 'companies',
-        pagination: false,
-        select: { name: true, id: true, slug: true, path: true },
-        sort: ['name'],
-      }).then((r) => validatePayloadResult('companies', r, false)),
-      query({
-        collection: 'organisingGroups',
-        pagination: false,
-        select: { name: true, id: true, slug: true, path: true },
-        sort: ['name'],
-      }).then((r) => validatePayloadResult('organisingGroups', r, false)),
-      query({
-        collection: 'campaigns',
-        pagination: false,
-        select: { name: true, id: true, slug: true, emoji: true, path: true },
-        sort: ['name'],
-      }).then((r) => validatePayloadResult('campaigns', r, false)),
-    ])
-  return buildHomepagePayload(
-    actionsResult,
+  const [
+    countriesResult,
     categoriesResult,
     companiesResult,
     organisingGroupsResult,
     campaignResult,
+  ] = await Promise.all([
+    query({
+      collection: 'countries',
+      pagination: false,
+      select: { name: true, id: true, slug: true, emoji: true, path: true },
+      sort: ['name'],
+    }).then((r) => validatePayloadResult('countries', r, false)),
+    query({
+      collection: 'categories',
+      pagination: false,
+      select: { name: true, id: true, slug: true, emoji: true, path: true },
+      sort: ['name'],
+    }).then((r) => validatePayloadResult('categories', r, false)),
+    query({
+      collection: 'companies',
+      pagination: false,
+      select: { name: true, id: true, slug: true, path: true },
+      sort: ['name'],
+    }).then((r) => validatePayloadResult('companies', r, false)),
+    query({
+      collection: 'organisingGroups',
+      pagination: false,
+      select: { name: true, id: true, slug: true, path: true },
+      sort: ['name'],
+    }).then((r) => validatePayloadResult('organisingGroups', r, false)),
+    query({
+      collection: 'campaigns',
+      pagination: false,
+      select: { name: true, id: true, slug: true, emoji: true, path: true },
+      sort: ['name'],
+    }).then((r) => validatePayloadResult('campaigns', r, false)),
+  ])
+  // Ensure each array has only unique items by id.
+  countriesResult.docs = Array.from(
+    new Map(countriesResult.docs.map((item) => [item.id, item])).values(),
   )
-}
-
-function buildHomepagePayload(
-  actionsResult: { docs: { countries?: unknown }[] },
-  categoriesResult: { docs: unknown[] },
-  companiesResult: { docs: unknown[] },
-  organisingGroupsResult: { docs: unknown[] },
-  campaignResult: { docs: unknown[] },
-): {
-  actions: Action[]
-  countries: Country[]
-  categories: Category[]
-  companies: Company[]
-  organisingGroups: OrganisingGroup[]
-  campaigns: Campaign[]
-} {
-  const countriesMap = new Map<string, Country>()
-  actionsResult.docs.forEach((action) => {
-    if (action.countries) {
-      const countries = Array.isArray(action.countries) ? action.countries : [action.countries]
-      countries.forEach((country) => {
-        if (country && typeof country === 'object' && 'id' in country) {
-          const countryId = String((country as { id: string }).id)
-          if (!countriesMap.has(countryId)) {
-            countriesMap.set(countryId, country as Country)
-          }
-        }
-      })
-    }
-  })
-  const uniqueCountries = Array.from(countriesMap.values()).sort((a, b) =>
-    a.name.localeCompare(b.name),
+  categoriesResult.docs = Array.from(
+    new Map(categoriesResult.docs.map((item) => [item.id, item])).values(),
+  )
+  companiesResult.docs = Array.from(
+    new Map(companiesResult.docs.map((item) => [item.id, item])).values(),
+  )
+  organisingGroupsResult.docs = Array.from(
+    new Map(organisingGroupsResult.docs.map((item) => [item.id, item])).values(),
+  )
+  campaignResult.docs = Array.from(
+    new Map(campaignResult.docs.map((item) => [item.id, item])).values(),
   )
   return {
-    actions: actionsResult.docs as Action[],
-    countries: uniqueCountries,
+    countries: countriesResult.docs as Country[],
     categories: categoriesResult.docs as Category[],
     companies: companiesResult.docs as Company[],
     organisingGroups: organisingGroupsResult.docs as OrganisingGroup[],
@@ -106,11 +97,14 @@ function buildHomepagePayload(
 }
 
 export default async function HomePage() {
-  const data = await getCachedData(CACHE_KEYS.HOMEPAGE, ({ query }) => getHomepageData(query))
+  const actions = await getCachedData(CACHE_KEYS.ACTIONS_INDEX, ({ query }) => getActions(query), {
+    ignoreCache: true,
+  })
+  const data = await getCachedData(CACHE_KEYS.HOMEPAGE, ({ query }) => getFilterData(query))
 
   return (
     <HomepageClient
-      actions={data.actions}
+      actions={actions}
       countries={data.countries}
       categories={data.categories}
       companies={data.companies}
