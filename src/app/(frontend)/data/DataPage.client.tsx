@@ -30,21 +30,7 @@ export function DataPageClient({ initialData }: { initialData: DataPage }) {
           )}
         </header>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl">
-          <Link href="/api/export/actions">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full h-auto min-h-[120px] flex flex-col items-center justify-center gap-3 text-lg"
-              onClick={() => {
-                posthog.capture('actions_export_clicked')
-              }}
-            >
-              <FileSpreadsheet className="w-8 h-8" />
-              <span>CSV data</span>
-            </Button>
-          </Link>
-
+        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-4 max-w-5xl">
           <Link
             href="/api/docs"
             className="block"
