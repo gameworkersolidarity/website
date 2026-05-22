@@ -45,7 +45,7 @@ export function CompanyPage({
     depth: 2,
   })
 
-  const primaryColor = '#FF8038'
+  const primaryColor = '#EC913C'
   const textColor = chroma.contrast(primaryColor, chroma('white')) > 4.5 ? 'white' : 'black'
 
   return (
@@ -129,7 +129,7 @@ export function CompanyPage({
               </CollapsibleList>
             </div>
           )}
-          <div className="bg-white px-4 md:px-6 py-4 mb-[2px]">
+          <div className="bg-white px-4 md:px-6 py-4 pb-4! mb-[2px] lg:rounded-b-xl">
             Have more info about worker organising in this company?{' '}
             <a href={`mailto:${projectStrings.email}`} className="link">
               Let us know →

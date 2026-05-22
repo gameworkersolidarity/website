@@ -130,7 +130,7 @@ export function CountryPageSkeleton() {
 export function CompanyPageSkeleton() {
   return (
     <div>
-      <div style={{ backgroundColor: '#FF8038' }} className="lg:pt-6">
+      <div style={{ backgroundColor: '#EC913C' }} className="lg:pt-6">
         <article className="lg:max-w-4xl mx-auto flex flex-col gap-[2px]">
           <header className="bg-white p-4 md:p-6 lg:rounded-t-xl">
             <div className="flex items-center gap-1 mb-2">
@@ -155,7 +155,7 @@ export function CompanyPageSkeleton() {
               <Skeleton className="h-8 w-28 rounded-md" />
             </div>
           </div>
-          <div className="bg-white px-4 md:px-6 py-4">
+          <div className="bg-white px-4 md:px-6 py-4 lg:rounded-b-xl">
             <Skeleton className="h-5 w-72" />
           </div>
         </article>
@@ -207,7 +207,7 @@ export function OrganisingGroupPageSkeleton() {
               <Skeleton className="h-8 w-28 rounded-md" />
             </div>
           </div>
-          <div className="bg-white px-4 md:px-6 py-4">
+          <div className="bg-white px-4 md:px-6 py-4 lg:rounded-b-xl">
             <Skeleton className="h-5 w-64" />
           </div>
         </article>

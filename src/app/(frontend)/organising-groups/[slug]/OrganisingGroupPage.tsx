@@ -188,7 +188,7 @@ export function OrganisingGroupPage({
               </CollapsibleList>
             </div>
           )}
-          <div className="bg-white px-4 md:px-6 py-4 mb-[2px]">
+          <div className="bg-white px-4 md:px-6 py-4 mb-[2px] lg:rounded-b-xl">
             Have more info about this union?{' '}
             <a href={`mailto:${projectStrings.email}`} className="link">
               Let us know →
