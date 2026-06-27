@@ -1,0 +1,4 @@
+# Generated files (do not format – style is from codegen)
+**/payload-types.ts
+**/payload-zod-schemas.ts
+src/app/(payload)/admin/importMap.js

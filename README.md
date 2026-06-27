@@ -1,4 +1,4 @@
-#  [gameworkersolidarity.com](https://gameworkersolidarity.com)
+# [gameworkersolidarity.com](https://gameworkersolidarity.com)
 
 Game Worker Solidarity is mapping and documenting collective movements by game workers striving to improve their working conditions. We're collecting materials created by workers for these movements and aim to document the longer history of resistance in the industry which goes back to its formation.
 
@@ -8,79 +8,102 @@ Where possible, we'll also interview and record oral histories with participants
 
 Do you have any information to share with us that we can add to the timeline? [Get in touch!](mailto:hello@gameworkersolidarity.com)
 
-# Technical documentation
+The website was developed in collaboration with [Common Knowledge Co-operative](https://commonknowledge.coop).
 
-Check out this [early stage, highly WIP documentation for the overall system.](https://www.notion.so/commonknowledge/System-Documentation-9986bf296f5341d0b0f0c1f66b67cd24) Later we will transpose that content to this README file.
+## Payload CMS
 
-## Getting started: run it on your machine
+This site uses [Payload CMS](https://payloadcms.com) as its headless CMS and admin. Useful entry points:
 
-First, download the code from github (e.g. `git clone`).
+- **[Payload docs](https://payloadcms.com/docs)** — Overview and getting started.
+- **[Configuration](https://payloadcms.com/docs/configuration/overview)** — App config; this project’s entry point is `src/payload.config.ts`.
+- **[Collections](https://payloadcms.com/docs/configuration/collections)** — Content types (e.g. Actions, Companies) live in `src/collections/`.
+- **[Admin panel](https://payloadcms.com/docs/admin/overview)** — The `/admin` UI for managing content.
 
-You will need to copy `.env.template` to `.env.local` and fill out the required env variables.
+When adding or changing database fields, see the [Adding database fields](#adding-database-fields) section below.
 
-- The Airtable private API key can be found [here, in your account settings.](https://airtable.com/account)
+## Building the site from scratch
 
-To run the system locally, on your machine you will need:
+First, make sure you have the technical requirements installed. (See section below.)
 
-- `node` (recommend installing and managing this via [`nvm`](https://github.com/nvm-sh/nvm#installing-and-updating))
-- ideally also [`yarn`](https://yarnpkg.com/getting-started/install), because we pin specific versions of package dependencies using yarn (see [`./yarn.lock`]('./yarn.lock'))
+1. **Clone the repository**
 
-Install the required package dependencies:
+   ```bash
+   git clone https://github.com/gameworkersolidarity/website.git
+   cd website
+   ```
 
-```bash
-yarn
-# or
-npm install
-```
+2. **Install dependencies**
 
-Then you can run the development server:
+   ```bash
+   pnpm install
+   ```
 
-```bash
-yarn dev
-# or
-npm run dev
-```
+3. **Configure environment**
+   - Copy `.env.example` to `.env`.
+   - Set at least:
+     - `DATABASE_URL` — MongoDB connection string (local or cloud).
+     - `PAYLOAD_SECRET` — Long, random secret for Payload (e.g. JWT signing).
+   - For full functionality you may also need: Mapbox token, Cloudinary credentials, `BASE_URL`, and optionally Airtable and SMTP settings (see `.env.example`).
+   - **Cache behaviour** — Optional env var `CACHE_BEHAVIOUR` controls how public pages are cached (homepage, index pages like `/campaigns` and `/companies`, and slug pages like `/organising-groups/[slug]`). Set to one of:
+     - **`true`** (default when unset) — Cache index pages and slug pages. Best for production.
+     - **`index-only`** — Cache only the homepage and index pages; slug/detail pages always fetch fresh. Useful if you want fast index views but always-fresh detail pages.
+     - **`false`** — No caching; every request hits the database. Useful for local development or when debugging stale content.
+   - **Local dev with cloud MongoDB:** Add your IP as a trusted source in the database’s network access: [DigitalOcean DB network access](https://cloud.digitalocean.com/databases/3ce25df3-a800-493e-ae60-6b88cf140a22/network-access?i=55d14f).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. **Run the app**
+   - **Development:** `pnpm dev` then open http://localhost:3000 (admin at `/admin`).
+   - **Production build:** `pnpm build` then `pnpm start`.
 
-## Development guide
+### Technical requirements
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app). To learn more about Next.js, take a look at the following resources:
+You need the following installed before running the steps above:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Node.js 22** — The project uses Node 22 (see `engines` in `package.json`).
+  - **Install:** [nodejs.org](https://nodejs.org/) (LTS or current 22.x), or via [nvm](https://github.com/nvm-sh/nvm): `nvm install 22 && nvm use 22`, or [fnm](https://github.com/Schniz/fnm): `fnm install 22`.
+- **pnpm** — Package manager used for install and scripts.
+  - **Install:** `npm install -g pnpm` (after Node is installed), or see [pnpm.io/installation](https://pnpm.io/installation) for standalone installers and other methods (Corepack, Homebrew, etc.).
+- **Git** — To clone the repository.
+  - **Install:** [git-scm.com](https://git-scm.com/) or your OS package manager (`brew install git`, `apt install git`, etc.).
 
-### Pages
+### Importing redundancy data
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-### API routes
+Redundancy data is imported from CSV files into Payload as **Actions** (with category “redundancy”), and creates or links **Companies** and **Categories** as needed.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+1. **Put CSV files** in `public/redundancies/` (e.g. `2025 Grid View.csv`, `2024 Grid View Breakdown.csv`).
+2. **CSV format:** Each file must have exactly these column headers (order doesn’t matter):
+   - `Field 1`, `Studio`, `Date`, `Headcount`, `Parent`, `Type`, `Studio Location`, `Parent Location`
+   - Dates must be `YYYY-MM-DD`. Company names are matched with fuzzy matching and cached across rows.
+3. **Run the ingest:**
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+   ```bash
+   pnpm run ingest:redundancies
+   ```
 
-### Typescript interfaces and parsers
+   - Use `--dry-run` to see what would be created without writing.
+   - Use `--file "filename.csv"` to process only one file.
+   - Use `--max <number>` to limit how many redundancies are created (e.g. for testing).
 
-In development we've been generating schemas from typescript interfaces, to help smooth out API responses. When things aren't as expected, they don't show up.
+Full options and examples: [scripts/README.md](scripts/README.md#ingest-redundancies-script).
 
-To add to the schema, add interfaces to `types.ts`.
+### Adding database fields
 
-To regenerate the schema (at `schema.ts`):
+The database schema is defined by **Payload CMS** [collections](https://payloadcms.com/docs/configuration/collections) in `src/collections/`, registered in `src/payload.config.ts`. For a full reference to field types and options, start with the Payload docs:
 
-```bash
-yarn generateschema
-```
+- **[Fields overview](https://payloadcms.com/docs/fields/overview)** — Field types, common options, and how to define fields.
 
-## Deployment
+> **⚠️ Renaming or removing fields:** Changing a field’s `name` or deleting a field can break existing data and code. If you rename or remove fields, you must handle existing data and schema changes properly. See Payload’s **[Database migrations](https://payloadcms.com/docs/database/migrations)** docs before doing this.
 
-This repo auto-deploys to Digital Ocean.
+Then:
 
-## CDN for public file hosting
+1. **Edit the collection** that should get the new field (e.g. `src/collections/Actions.ts`). Add a new entry to the `fields` array. Use the [fields overview](https://payloadcms.com/docs/fields/overview) and the docs for specific types (e.g. [text](https://payloadcms.com/docs/fields/text), [number](https://payloadcms.com/docs/fields/number), [relationship](https://payloadcms.com/docs/fields/relationship), [date](https://payloadcms.com/docs/fields/date), [richText](https://payloadcms.com/docs/fields/richtext-lexical)) to choose and configure the field.
+2. **Regenerate types and Zod schemas** so TypeScript and validation stay in sync:
+   ```bash
+   pnpm run generate:all
+   ```
+   This runs [Payload’s type generation](https://payloadcms.com/docs/configuration/typescript#generated-types) and the project’s Zod schema generator. The app and scripts use `@/payload-types` and `payload-zod-schemas`.
+3. With MongoDB, new fields are used as soon as the config changes; no separate migrations are required. (No need to restart the dev server for field updates.) MongoDB is document-based and schemaless: each document can have different keys, so adding a field in Payload’s config only means existing documents don’t have that key until you set it—there’s no fixed table schema to alter. For renaming or removing fields, see the [migrations](https://payloadcms.com/docs/database/migrations) warning above.
+4. **Update UI** if needed: the [Payload admin](https://payloadcms.com/docs/admin/overview) will show the new field automatically; update any frontend components or ingest scripts that should read or write the field.
 
-Cloudinary is used as a public CDN for Airtable images. Here's how it works:
+**Adding a new collection** (not just a new field): define the collection per [Configuration → Collections](https://payloadcms.com/docs/configuration/collections), add the module under `src/collections/`, register it in the `collections` array in [payload.config.ts](https://payloadcms.com/docs/configuration/overview), then run `pnpm run generate:all`.
 
-- The `/api/syncToCDN` endpoint is responsible for refreshing the `cdn_urls` to sync Airtable's private attachments to the public CDN and then store the public URLs back in Airtable for serving in the frontend.
-- The hidden `cdn_urls` column which stores data about the publicly viewable URLs should not be edited manually.
-- Whenever an Airtable record is updated, a webhook will trigger the re-sync. A [Github action](./.github/workflows/refreshWebhook.yml) regularly triggers [maintenance script](./pages/api/createOrRefreshAirtableWebhook.ts), which will create/refresh the managed webhook to the Airtable.
-- The webhook management script requires an access token in the env (`AIRTABLE_API_KEY`) configured [via this URL](https://airtable.com/create/tokens/new) as follows:
-    ![](./docs/airtable_access_token_config.png)
+For more technical details (Payload, collections, deployment), see [TECHNICAL.md](TECHNICAL.md).

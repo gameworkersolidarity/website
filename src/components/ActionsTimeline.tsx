@@ -1,0 +1,972 @@
+'use client'
+
+import { Category, Company, Country, Action, OrganisingGroup } from '@/payload-types'
+import { motion } from 'motion/react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ActionCard } from './ActionCard'
+import {
+  differenceInDays,
+  differenceInMonths,
+  differenceInQuarters,
+  differenceInWeeks,
+  differenceInYears,
+  formatDate,
+  getWeek,
+  max,
+} from 'date-fns'
+import { bin, extent } from 'd3-array'
+import { useElementSize } from '@custom-react-hooks/use-element-size'
+import { getCSSVariable } from '@/utils/css'
+import { scaleLinear, scaleTime } from '@visx/scale'
+import { AxisBottom } from '@visx/axis'
+import { HtmlLabel } from '@visx/annotation'
+import { LinePath, Circle, Line, Bar } from '@visx/shape'
+import { Group } from '@visx/group'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { twMerge } from 'tailwind-merge'
+import { CategoryLabel } from './CategoryLabel'
+import { CountryLabel } from './CountryLabel'
+import { OrganisingGroupLabel } from './OrganisingGroupLabel'
+import { CompanyLabel } from './CompanyLabel'
+import { TimelineLabelProperty } from '@/global-types'
+import { layoutTransition } from '@/lib/motion'
+import { ActionFilterContextValue } from './ActionFilterContextProvider'
+import scrollIntoView from 'scroll-into-view-if-needed'
+
+export function ActionTimeline({
+  actions,
+  labelProperty,
+  searchQuery,
+}: {
+  actions: Action[]
+  labelProperty?: TimelineLabelProperty
+  searchQuery: ActionFilterContextValue['searchQuery']
+}) {
+  const sortedActions = useMemo(
+    () => [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [actions],
+  )
+  const [currentActionId, setCurrentActionId] = useState<string | null>(
+    sortedActions[0]?.id || null,
+  )
+
+  // Handle keyboard navigation for arrow keys
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle arrow keys when not typing in an input/textarea
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        (event.target instanceof HTMLElement && event.target.isContentEditable)
+      ) {
+        return
+      }
+
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault()
+        const currentIndex = sortedActions.findIndex((a) => a.id === currentActionId)
+        if (currentIndex === -1) return
+
+        if (event.key === 'ArrowLeft') {
+          // Navigate to previous (earlier) action
+          if (currentIndex > 0) {
+            setCurrentActionId(sortedActions[currentIndex - 1].id)
+          }
+        } else {
+          // Navigate to next (later) action
+          if (currentIndex < sortedActions.length - 1) {
+            setCurrentActionId(sortedActions[currentIndex + 1].id)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [sortedActions, currentActionId, setCurrentActionId])
+
+  return (
+    <div className="@container">
+      <div className="py-4 px-5 @5xl:px-8">
+        <Timeline
+          actions={sortedActions}
+          currentActionId={currentActionId}
+          setCurrentActionId={setCurrentActionId}
+          labelProperty={labelProperty}
+        />
+      </div>
+      <div>
+        <Slideshow
+          actions={sortedActions}
+          currentActionId={currentActionId}
+          setCurrentActionId={setCurrentActionId}
+          searchQuery={searchQuery}
+        />
+      </div>
+    </div>
+  )
+}
+
+export function Slideshow({
+  actions,
+  currentActionId,
+  setCurrentActionId: __setCurrentActionId,
+  searchQuery,
+}: {
+  actions: Action[]
+  currentActionId: string | null
+  setCurrentActionId: (id: string) => void
+  searchQuery: ActionFilterContextValue['searchQuery']
+}) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const [autoplay, setAutoplay] = useState(false)
+
+  const setCurrentActionId = useCallback(
+    (id: string, autoplay: boolean = false) => {
+      __setCurrentActionId(id)
+      setAutoplay(autoplay)
+    },
+    [__setCurrentActionId, setAutoplay],
+  )
+
+  // Scroll to top of current card when it changes (carousel + page scroll below sticky headers)
+  const STICKY_OFFSET_PX = 220 // nav (60px) + "40 actions" + view toggles + filters
+  useEffect(() => {
+    if (!currentActionId || !scrollContainerRef.current) return
+
+    const itemElement = itemRefs.current.get(currentActionId)
+    if (!itemElement) return
+
+    scrollIntoView(itemElement, {
+      boundary: scrollContainerRef.current,
+      block: 'start',
+      inline: 'start',
+    })
+
+    // After carousel scroll, scroll the page so the card top is below sticky headers
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const rect = itemElement.getBoundingClientRect()
+        if (rect.top < STICKY_OFFSET_PX) {
+          const scrollY = window.scrollY + rect.top - STICKY_OFFSET_PX
+          window.scrollTo({ top: scrollY, behavior: 'smooth' })
+        }
+      })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [currentActionId])
+
+  // Handle scroll actions to update current action
+  const handleScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return
+    const container = scrollContainerRef.current
+    const containerRect = container.getBoundingClientRect()
+    const containerCenter = containerRect.left + containerRect.width / 2
+    // Find the item closest to the center
+    let closestItem: { id: string; distance: number } | null = null
+    for (const [id, element] of itemRefs.current.entries()) {
+      const rect = element.getBoundingClientRect()
+      const itemCenter = rect.left + rect.width / 2
+      const distance = Math.abs(itemCenter - containerCenter)
+      if (!closestItem || distance < closestItem.distance) {
+        closestItem = { id, distance }
+      }
+    }
+    if (closestItem && closestItem.id !== currentActionId) {
+      setCurrentActionId(closestItem.id)
+    }
+  }, [currentActionId, setCurrentActionId])
+
+  const sortedActions = useMemo(
+    function sortActionsByOldestFirst() {
+      return [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    },
+    [actions],
+  )
+
+  useEffect(() => {
+    if (autoplay) {
+      const interval = setInterval(() => {
+        const index = sortedActions.findIndex((e) => e.id === currentActionId)
+        if (index === -1) return
+        setCurrentActionId(
+          index < sortedActions.length - 1 ? sortedActions[index + 1].id : sortedActions[0].id,
+        )
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [autoplay, currentActionId, sortedActions, setCurrentActionId])
+
+  return (
+    <div className="relative">
+      <motion.div
+        ref={scrollContainerRef}
+        onScrollEndCapture={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth items-start py-4"
+        layout
+        transition={layoutTransition}
+      >
+        {sortedActions.map((action, index, list) => (
+          <motion.div
+            key={action.id}
+            ref={(el) => {
+              if (el) {
+                itemRefs.current.set(action.id, el)
+              } else {
+                itemRefs.current.delete(action.id)
+              }
+            }}
+            className="shrink-0 w-full snap-center flex items-center justify-center gap-1 @md:gap-4"
+            layout
+            transition={layoutTransition}
+          >
+            <ArrowLeft
+              className={twMerge('w-20 cursor-pointer', index > 0 ? 'block' : 'invisible')}
+              size={20}
+              onClick={() => setCurrentActionId(list[index - 1].id)}
+            />
+            <ActionCard data={action} links searchQuery={searchQuery} />
+            <ArrowRight
+              className={twMerge(
+                'w-20 cursor-pointer',
+                index < sortedActions.length - 1 ? 'block' : 'invisible',
+              )}
+              size={20}
+              onClick={() => setCurrentActionId(list[index + 1].id)}
+            />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  )
+}
+
+export function Timeline({
+  actions,
+  currentActionId,
+  setCurrentActionId,
+  labelProperty = 'categories',
+}: {
+  actions: Action[]
+  currentActionId: string | null
+  setCurrentActionId: (id: string) => void
+  labelProperty?: TimelineLabelProperty
+}) {
+  const [elementRef, size] = useElementSize()
+  const isTinyScreen = size.width <= 480
+  const isSmallScreen = size.width > 480 && size.width <= 768
+  const isMediumScreen = size.width > 768 && size.width <= 1023
+
+  // Binning / label-throttling: cap labels per time bin so dense regions stay readable
+  const minSkip = 1
+  const maxLabelsPerBin = isTinyScreen ? 1 : isSmallScreen ? 3 : 5
+  // Heights of labels
+  const highlightOffset = 5
+  const gap = 20
+  const numLevels = isTinyScreen ? 3 : 5
+  const divHeight = isTinyScreen ? 270 : 350
+
+  const margin = { top: 15, right: 10, bottom: 25, left: 10 }
+  const width = size.width - margin.left - margin.right
+  const height = divHeight - margin.top - margin.bottom
+  const timelineY = height / 2
+
+  const TOTAL_ANIMATION_SEC = 3.5
+  const STAGGER_WITHIN_BIN_SEC = 0.06
+
+  // Calculate date range
+  const dateRange = useMemo(() => extent(actions.map((e) => new Date(e.date))), [actions])
+  const minDate = useMemo(() => dateRange[0] || new Date(), [dateRange])
+  const maxDate = useMemo(() => dateRange[1] || new Date(), [dateRange])
+  const dayRange = useMemo(() => differenceInDays(maxDate, minDate), [maxDate, minDate])
+
+  // Determine number of ticks based on date range
+  const xScaleLevel = useMemo(() => {
+    if (dayRange <= 21) return 'day'
+    if (dayRange <= 180) return 'week'
+    if (dayRange <= 365 * 2) return 'month'
+    if (dayRange <= 365 * 5) return 'quarter'
+    if (dayRange <= 365 * 10) return 'year'
+    return 'decade'
+  }, [dayRange])
+
+  // Helper for date Bin
+  const getBin = useCallback(
+    (date: Date) => {
+      if (typeof date === 'number') {
+        date = new Date(date)
+      }
+      if (typeof date === 'string') {
+        date = new Date(date)
+      }
+      switch (xScaleLevel) {
+        case 'year':
+          // Bin by year
+          return date.getFullYear().toString()
+        case 'decade':
+          // get Bins of 3.333 years
+          return `${Math.floor(date.getFullYear() / 3.333) * 3.333}-${Math.floor(date.getFullYear() / 3.333) * 3.333 + 3.333}`
+        case 'quarter':
+          // Bin by year and quarter
+          return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
+        case 'month':
+          // Bin by year and month
+          return `${date.getFullYear()}-${date.getMonth()}`
+        case 'week':
+          // Bin by year and ISO week number
+          // ISO week inspried from https://stackoverflow.com/a/6117889
+          const weekNum = getWeek(date)
+          return `${date.getFullYear()}-W${weekNum}`
+        case 'day':
+        default:
+          // Bin by full day
+          return formatDate(date, 'yyyy-MM-dd')
+      }
+    },
+    [xScaleLevel],
+  )
+
+  const numTicks = useMemo(() => {
+    if (xScaleLevel === 'day') return 7
+    if (xScaleLevel === 'week') return 5
+    if (xScaleLevel === 'month') return 4
+    if (xScaleLevel === 'quarter') return 4
+    if (xScaleLevel === 'year') return 5
+    return 6
+  }, [xScaleLevel])
+
+  const numBins = useMemo(() => {
+    if (xScaleLevel === 'day') return differenceInDays(maxDate, minDate)
+    if (xScaleLevel === 'week') return differenceInWeeks(maxDate, minDate)
+    if (xScaleLevel === 'month') return differenceInMonths(maxDate, minDate)
+    if (xScaleLevel === 'quarter') return differenceInQuarters(maxDate, minDate)
+    return differenceInYears(maxDate, minDate)
+  }, [xScaleLevel, minDate, maxDate])
+
+  // Create time scale
+  const xScale = useMemo(
+    () =>
+      scaleTime({
+        domain: [minDate, maxDate],
+        range: [0, width],
+      }),
+    [minDate, maxDate, width],
+  )
+
+  // Sort actions by date
+  const sortedActions = useMemo(
+    () => [...actions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [actions],
+  )
+
+  // Handle click on action
+  const handleClick = useCallback(
+    (action: Action) => {
+      setCurrentActionId(action.id)
+    },
+    [setCurrentActionId],
+  )
+
+  // Get color for action
+  const getActionColor = useCallback((action: Action) => {
+    return action.initiator === 'WORKER_LED'
+      ? getCSSVariable('--color-gw-blue', false, '#000')
+      : getCSSVariable('--color-gw-orange', false, '#000')
+  }, [])
+
+  // Get radius for action
+  const getActionRadius = useCallback(
+    (action: Action) => {
+      if (action.id === currentActionId) return 8
+      if (action.featured) return 7
+      return 5
+    },
+    [currentActionId],
+  )
+
+  const actionsWithBins = useMemo(() => {
+    return sortedActions.map((action) => {
+      return {
+        action,
+        bin: getBin(new Date(action.date)),
+      }
+    })
+  }, [sortedActions, getBin])
+
+  // When showing categories, prefer non-redundancy actions for label slots; use redundancy only if no others in bin.
+  const hasRedundancyCategory = useCallback(
+    (action: Action) => {
+      if (labelProperty !== 'categories' || !action.categories) return false
+      return action.categories.some(
+        (c) => typeof c === 'object' && c !== null && (c as Category).slug === 'redundancy',
+      )
+    },
+    [labelProperty],
+  )
+
+  const actionsInBinSortedForLabels = useCallback(
+    (binKey: string) => {
+      const inBin = actionsWithBins.filter((e) => e.bin === binKey).map((e) => e.action)
+      if (labelProperty !== 'categories') {
+        return inBin.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      }
+      return inBin.sort((a, b) => {
+        const aRed = hasRedundancyCategory(a)
+        const bRed = hasRedundancyCategory(b)
+        if (aRed !== bRed) return aRed ? 1 : -1
+        return new Date(a.date).getTime() - new Date(b.date).getTime()
+      })
+    },
+    [actionsWithBins, labelProperty, hasRedundancyCategory],
+  )
+
+  const binnedActions = useMemo(() => {
+    const binFn = bin<Action, Date>()
+      .domain([minDate, maxDate])
+      .value(
+        // @ts-expect-error - d is an Action
+        (d) => (d?.date ? new Date(d?.date).getTime() : new Date().getTime()),
+      )
+      .thresholds(xScale.ticks(numBins))
+    const bins = binFn(sortedActions)
+    return bins
+  }, [sortedActions, minDate, maxDate, numBins, xScale])
+
+  const histogramYScale = useMemo(
+    () =>
+      scaleLinear({
+        domain: [0, max(binnedActions.map((e) => e.length))],
+        range: [0, height / 3.75],
+      }),
+    [binnedActions, height],
+  )
+
+  // Base labels only: featured + throttle. No dependence on currentActionId so labels don't shift when highlighting.
+  function getLabelPositionMetadata(action: Action) {
+    if (!action.id) {
+      return {
+        shouldAppear: false,
+        indexInBin: 0,
+        dynamicSkipCount: 0,
+      }
+    }
+    // Always show featured actions (highlighted one is shown separately as additional label)
+    if (action.featured) {
+      return {
+        shouldAppear: true,
+        indexInBin: 0,
+        dynamicSkipCount: 0,
+      }
+    }
+    if (!action[labelProperty]) {
+      return {
+        shouldAppear: false,
+        indexInBin: 0,
+        dynamicSkipCount: 0,
+      }
+    }
+
+    const targetBin = getBin(new Date(action.date))
+    const actionsInBinOrdered = actionsInBinSortedForLabels(targetBin)
+    // Cap labels per bin: dense bins get at most maxLabelsPerBin labels
+    const dynamicSkipCount = Math.max(
+      minSkip,
+      Math.ceil(actionsInBinOrdered.length / maxLabelsPerBin),
+    )
+
+    // Index in bin uses label-priority order (non-redundancy first when labelProperty is categories)
+    const thisActionIndexInBin = actionsInBinOrdered.findIndex((a) => a.id === action.id)
+    if (thisActionIndexInBin === -1) {
+      return { shouldAppear: false, indexInBin: 0, dynamicSkipCount }
+    }
+
+    // Show one every dynamicSkipCount in the same Bin (by priority order)
+    return {
+      shouldAppear: thisActionIndexInBin % dynamicSkipCount === 0,
+      indexInBin: thisActionIndexInBin,
+      dynamicSkipCount,
+    }
+  }
+
+  // Base labels only (no currentActionId) so positions stay fixed when highlighting
+  const globalLabelIndex = useMemo(() => {
+    const indexMap = new Map<string, number>()
+    let globalIndex = 0
+
+    sortedActions.forEach((action) => {
+      if (!action.id) return
+
+      if (action.featured) {
+        indexMap.set(action.id, globalIndex)
+        globalIndex++
+        return
+      }
+
+      const targetBin = getBin(new Date(action.date))
+      const actionsInBinOrdered = actionsInBinSortedForLabels(targetBin)
+      const dynamicSkipCount = Math.max(
+        minSkip,
+        Math.ceil(actionsInBinOrdered.length / maxLabelsPerBin),
+      )
+      const thisActionIndexInBin = actionsInBinOrdered.findIndex((a) => a.id === action.id)
+
+      if (thisActionIndexInBin >= 0 && thisActionIndexInBin % dynamicSkipCount === 0) {
+        indexMap.set(action.id, globalIndex)
+        globalIndex++
+      }
+    })
+
+    return indexMap
+  }, [sortedActions, getBin, minSkip, maxLabelsPerBin, actionsInBinSortedForLabels])
+
+  // Bins that have at least one label, in chronological order — for spreading label animation over ~3.5s
+  const labelBinOrder = useMemo(() => {
+    const binsWithLabels = new Map<string, number>() // binKey -> earliest date in bin (for sorting)
+    sortedActions.forEach((action) => {
+      const meta = getLabelPositionMetadata(action)
+      if (!meta.shouldAppear) return
+      const binKey = getBin(new Date(action.date))
+      const t = new Date(action.date).getTime()
+      const existing = binsWithLabels.get(binKey)
+      if (existing == null || t < existing) binsWithLabels.set(binKey, t)
+    })
+    const sorted = Array.from(binsWithLabels.entries()).sort((a, b) => a[1] - b[1])
+    const binKeyToIndex = new Map<string, number>()
+    sorted.forEach(([key], i) => binKeyToIndex.set(key, i))
+    // Within each bin, order labels by date for stagger
+    const labelIndexWithinBin = new Map<string, number>()
+    sorted.forEach(([binKey]) => {
+      const actionsInBin = sortedActions.filter((a) => {
+        const meta = getLabelPositionMetadata(a)
+        return meta.shouldAppear && getBin(new Date(a.date)) === binKey
+      })
+      actionsInBin.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      actionsInBin.forEach((a, i) => {
+        if (a.id) labelIndexWithinBin.set(a.id, i)
+      })
+    })
+    return { binKeyToIndex, binCount: sorted.length, labelIndexWithinBin }
+  }, [sortedActions, getBin, getLabelPositionMetadata])
+
+  function getLabelPosition(globalIndex: number, actionId: string | null, offset: number = 0) {
+    if (currentActionId && actionId === currentActionId) {
+      const aboveBelow = -1
+      const level = numLevels + 1
+      const y = timelineY + aboveBelow * level * gap + offset * aboveBelow
+      return {
+        y,
+        aboveBelow,
+        level,
+      }
+    } else {
+      const aboveBelow = globalIndex % 2 === 0 ? -1 : 1
+      const level = (globalIndex % numLevels) + 1
+      const y = timelineY + aboveBelow * level * gap + offset * aboveBelow
+      return {
+        y,
+        aboveBelow,
+        level,
+      }
+    }
+  }
+
+  return (
+    <div ref={elementRef} className="h-full w-full">
+      <svg
+        width={size.width}
+        height={divHeight}
+        style={{ overflow: 'visible' }}
+        className="z-30 relative"
+      >
+        <Group left={margin.left} top={margin.top}>
+          {/* Histogram of actions */}
+          {!!sortedActions.length &&
+            sortedActions.length > 10 &&
+            binnedActions.map((bin) => {
+              const barHeight = histogramYScale(bin.length)
+              return (
+                <Bar
+                  key={bin.x0!.toString()}
+                  x={xScale(bin.x0!)}
+                  y={height - barHeight}
+                  width={xScale(bin.x1!) - xScale(bin.x0!)}
+                  height={barHeight}
+                  fill={getCSSVariable('--color-gw-pink', true, '#EEE')}
+                  opacity={0.3}
+                  suppressHydrationWarning
+                />
+              )
+            })}
+
+          {/* Grid lines */}
+          {xScale.ticks(numTicks).map((tick, i) => {
+            const x = xScale(tick)
+            return (
+              <Line
+                key={i}
+                x1={x}
+                y1={0}
+                x2={x}
+                y2={height}
+                stroke="#CCC"
+                strokeWidth={1}
+                strokeDasharray="2,2"
+              />
+            )
+          })}
+
+          {/* Timeline line */}
+          <LinePath
+            data={sortedActions}
+            x={(d) => xScale(new Date(d.date))}
+            y={timelineY}
+            stroke="#9ca3af"
+            strokeWidth={2}
+          />
+
+          {/* Vertical lines from circle to text labels (base set only) */}
+          {sortedActions.map((action) => {
+            const x = xScale(new Date(action.date))
+            const { shouldAppear } = getLabelPositionMetadata(action)
+            if (!shouldAppear) return null
+            const globalIndex = globalLabelIndex.get(action.id) ?? 0
+            const { y } = getLabelPosition(globalIndex, null, 0)
+            const binKey = getBin(new Date(action.date))
+            const labelBinIndex = labelBinOrder.binKeyToIndex.get(binKey) ?? 0
+            const labelBinCount = Math.max(1, labelBinOrder.binCount)
+            const indexInBin = labelBinOrder.labelIndexWithinBin.get(action.id) ?? 0
+            const lineDelay =
+              (TOTAL_ANIMATION_SEC / labelBinCount) * labelBinIndex +
+              indexInBin * STAGGER_WITHIN_BIN_SEC
+            return (
+              <motion.g
+                key={`line-${action.id}`}
+                initial={{ opacity: 0, scaleY: 0 }}
+                whileInView={{ opacity: 1, scaleY: 1 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 63,
+                  damping: 18,
+                  delay: lineDelay,
+                }}
+                style={{ transformOrigin: `${x}px ${timelineY}px` }}
+              >
+                <Line
+                  x1={x}
+                  y1={timelineY}
+                  x2={x}
+                  y2={y}
+                  stroke={getActionColor(action)}
+                  strokeWidth={1}
+                  suppressHydrationWarning
+                />
+              </motion.g>
+            )
+          })}
+          {/* Line for highlighted action (additional label when not in base set) */}
+          {currentActionId &&
+            (() => {
+              const action = sortedActions.find((a) => a.id === currentActionId)
+              if (!action) return null
+              const inBaseSet = globalLabelIndex.has(action.id)
+              if (inBaseSet) return null
+              const x = xScale(new Date(action.date))
+              const { y } = getLabelPosition(0, action.id, highlightOffset)
+              return (
+                <motion.g
+                  key={`line-highlight-${action.id}`}
+                  initial={{ opacity: 0, scaleY: 0 }}
+                  whileInView={{ opacity: 1, scaleY: 1 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 63,
+                    damping: 18,
+                    delay: 0,
+                  }}
+                  style={{ transformOrigin: `${x}px ${timelineY}px` }}
+                >
+                  <Line
+                    x1={x}
+                    y1={timelineY}
+                    x2={x}
+                    y2={y}
+                    stroke={getActionColor(action)}
+                    strokeWidth={1}
+                    suppressHydrationWarning
+                  />
+                </motion.g>
+              )
+            })()}
+
+          {/* Action dots — all markers shown; only labels are throttled in dense bins */}
+          {sortedActions.map((action, index) => {
+            const x = xScale(new Date(action.date))
+            const color = action.featured
+              ? getCSSVariable('--color-gw-pink', false, '#DD96FF')
+              : getActionColor(action)
+            const radius = getActionRadius(action)
+            const markerDelay =
+              sortedActions.length > 0 ? (TOTAL_ANIMATION_SEC / sortedActions.length) * index : 0
+            return (
+              <motion.g
+                key={action.id}
+                initial={{ opacity: 0, scale: 0 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 280,
+                  damping: 20,
+                  delay: markerDelay,
+                }}
+                style={{ transformOrigin: `${x}px ${timelineY}px` }}
+              >
+                <Circle
+                  cx={x}
+                  cy={timelineY}
+                  r={radius}
+                  fill={color}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleClick(action)}
+                  suppressHydrationWarning
+                />
+                {action.featured && (
+                  <>
+                    <Circle
+                      cx={x}
+                      cy={timelineY}
+                      r={radius + 2}
+                      fill="none"
+                      stroke={getCSSVariable('--color-gw-pink', false, '#DD96FF')}
+                      strokeWidth={2}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleClick(action)}
+                      suppressHydrationWarning
+                    />
+                  </>
+                )}
+              </motion.g>
+            )
+          })}
+
+          {/* Labels above timeline (base set only — positions don't change with highlight) */}
+          {sortedActions.map((action) => {
+            const positionMetadata = getLabelPositionMetadata(action)
+            if (!positionMetadata.shouldAppear) return null
+            const x = xScale(new Date(action.date))
+            const globalIndex = globalLabelIndex.get(action.id) ?? 0
+            const { y, aboveBelow } = getLabelPosition(globalIndex, null, 0)
+            const estimatedWidth = 300
+            const binKey = getBin(new Date(action.date))
+            const labelBinIndex = labelBinOrder.binKeyToIndex.get(binKey) ?? 0
+            const labelBinCount = Math.max(1, labelBinOrder.binCount)
+            const indexInBin = labelBinOrder.labelIndexWithinBin.get(action.id) ?? 0
+            const labelDelay =
+              (TOTAL_ANIMATION_SEC / labelBinCount) * labelBinIndex +
+              indexInBin * STAGGER_WITHIN_BIN_SEC
+
+            return (
+              <HtmlLabel
+                key={`label-${action.id}`}
+                x={x}
+                y={y}
+                horizontalAnchor="middle"
+                verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
+                showAnchorLine={false}
+                containerStyle={{
+                  overflow: 'visible',
+                  pointerEvents: 'auto',
+                }}
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 63,
+                    damping: 18,
+                    delay: labelDelay,
+                  }}
+                  className={twMerge(
+                    'whitespace-nowrap flex flex-col items-center text-center cursor-pointer',
+                    action.id === currentActionId && 'bg-snot-300 rounded-md px-2 py-1 border-none',
+                    action.featured && 'bg-gw-pink text-black rounded-md px-1.5 py-0.5',
+                  )}
+                  style={{
+                    display: 'flex',
+                    width: 'max-content',
+                    maxWidth: `${estimatedWidth}px`,
+                  }}
+                  onClick={() => handleClick(action)}
+                >
+                  {action.id === currentActionId && (
+                    <div className="text-xs">
+                      {formatDate(new Date(action.date), 'dd MMM yyyy')}
+                    </div>
+                  )}
+                  <div className="text-xs font-bold flex flex-row flex-wrap justify-center items-center">
+                    {labelProperty === 'categories'
+                      ? action.categories?.map((c) => (
+                          <CategoryLabel category={c as Category} key={(c as Category).id} />
+                        ))
+                      : null}
+                    {labelProperty === 'companies'
+                      ? action.companies?.map((c) => (
+                          <CompanyLabel company={c as Company} key={(c as Company).id} />
+                        ))
+                      : null}
+                    {labelProperty === 'organisingGroups'
+                      ? action.organisingGroups?.map((c) => (
+                          <OrganisingGroupLabel
+                            organisingGroup={c as OrganisingGroup}
+                            key={(c as OrganisingGroup).id}
+                          />
+                        ))
+                      : null}
+                    {labelProperty === 'countries'
+                      ? action.countries?.map((c) => (
+                          <CountryLabel country={c as Country} key={(c as unknown as Country).id} />
+                        ))
+                      : null}
+                    {labelProperty === 'location' ? action.location : null}
+                    {labelProperty === 'name' ? action.name : null}
+                  </div>
+                </motion.div>
+              </HtmlLabel>
+            )
+          })}
+
+          {/* Additional label for highlighted action (when not already in base set) */}
+          {currentActionId &&
+            (() => {
+              const action = sortedActions.find((a) => a.id === currentActionId)
+              if (!action || globalLabelIndex.has(action.id)) return null
+              const x = xScale(new Date(action.date))
+              const { y, aboveBelow } = getLabelPosition(0, action.id, highlightOffset)
+              const estimatedWidth = 300
+              return (
+                <HtmlLabel
+                  key={`label-highlight-${action.id}`}
+                  x={x}
+                  y={y}
+                  horizontalAnchor="middle"
+                  verticalAnchor={aboveBelow === -1 ? 'end' : 'start'}
+                  showAnchorLine={false}
+                  containerStyle={{
+                    overflow: 'visible',
+                    pointerEvents: 'auto',
+                  }}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 63,
+                      damping: 18,
+                      delay: 0,
+                    }}
+                    className="whitespace-nowrap flex flex-col items-center text-center cursor-pointer bg-snot-300 rounded-md px-2 py-1 border-none"
+                    style={{
+                      display: 'flex',
+                      width: 'max-content',
+                      maxWidth: `${estimatedWidth}px`,
+                    }}
+                    onClick={() => handleClick(action)}
+                  >
+                    <div className="text-xs">
+                      {formatDate(new Date(action.date), 'dd MMM yyyy')}
+                    </div>
+                    <div className="text-xs font-bold flex flex-row flex-wrap justify-center items-center">
+                      {labelProperty === 'categories'
+                        ? action.categories?.map((c) => (
+                            <CategoryLabel category={c as Category} key={(c as Category).id} />
+                          ))
+                        : null}
+                      {labelProperty === 'companies'
+                        ? action.companies?.map((c) => (
+                            <CompanyLabel company={c as Company} key={(c as Company).id} />
+                          ))
+                        : null}
+                      {labelProperty === 'organisingGroups'
+                        ? action.organisingGroups?.map((c) => (
+                            <OrganisingGroupLabel
+                              organisingGroup={c as OrganisingGroup}
+                              key={(c as OrganisingGroup).id}
+                            />
+                          ))
+                        : null}
+                      {labelProperty === 'countries'
+                        ? action.countries?.map((c) => (
+                            <CountryLabel
+                              country={c as Country}
+                              key={(c as unknown as Country).id}
+                            />
+                          ))
+                        : null}
+                      {labelProperty === 'location' ? action.location : null}
+                      {labelProperty === 'name' ? action.name : null}
+                    </div>
+                  </motion.div>
+                </HtmlLabel>
+              )
+            })()}
+
+          {/* Date labels below timeline */}
+          {/* {sortedActions.map((action) => {
+            const x = xScale(new Date(action.date))
+            const dateText = formatDate(new Date(action.date), 'dd MMM yy')
+            return (
+              <Text
+                key={`date-${action.id}`}
+                x={x}
+                y={timelineY + 30}
+                textAnchor="middle"
+                fontSize={14}
+                fontWeight="bold"
+                fill="currentColor"
+              >
+                {dateText}
+              </Text>
+            )
+          })} */}
+
+          {/* X-axis */}
+          <AxisBottom
+            top={height}
+            scale={xScale}
+            numTicks={numTicks}
+            tickFormat={(d) =>
+              formatDate(
+                d as Date,
+                xScaleLevel === 'day'
+                  ? 'dd MMM yyyy'
+                  : xScaleLevel === 'week'
+                    ? 'dd MMM'
+                    : xScaleLevel === 'month'
+                      ? 'MMM yyyy'
+                      : xScaleLevel === 'quarter'
+                        ? 'yyyy'
+                        : xScaleLevel === 'year'
+                          ? 'yyyy'
+                          : 'yyyy',
+              )
+            }
+            stroke="none"
+            tickStroke="none"
+            tickLabelProps={() => ({
+              fill: '#777',
+              fontSize: 12,
+              textAnchor: 'middle' as const,
+            })}
+          />
+        </Group>
+      </svg>
+    </div>
+  )
+}

@@ -1,0 +1,498 @@
+diff --git a/dist/openapi/generators.js b/dist/openapi/generators.js
+index e3acd04a61bc13bca2dc288f59d49386df82b2f5..42645663530f761d55f22e1c64d9b9bcddafcaa2 100644
+--- a/dist/openapi/generators.js
++++ b/dist/openapi/generators.js
+@@ -4,6 +4,52 @@ import { entityToJSONSchema } from 'payload';
+ import { mapValuesAsync, visitObjectNodes } from '../utils/objects.js';
+ import { collectionName, componentName, globalName } from './naming.js';
+ import { apiKeySecurity, generateSecuritySchemes } from './securitySchemes.js';
++const shouldExcludeCollection = (collection, exclude) => {
++    if (!exclude?.collections) {
++        return false;
++    }
++    return exclude.collections.includes(collection.config.slug);
++};
++const shouldExcludeGlobal = (global, exclude) => {
++    if (!exclude?.globals) {
++        return false;
++    }
++    return exclude.globals.includes(global.slug);
++};
++const shouldExcludeEndpoint = (path, exclude) => {
++    if (!exclude?.endpoints) {
++        return false;
++    }
++    return exclude.endpoints.some(excludedPath => {
++        if (excludedPath === path) {
++            return true;
++        }
++        if (excludedPath.includes('*')) {
++            const pattern = excludedPath.replace(/\*/g, '.*');
++            const regex = new RegExp(`^${pattern}$`);
++            return regex.test(path);
++        }
++        return false;
++    });
++};
++const shouldExcludeMethod = (method, exclude) => {
++    if (!exclude?.methods?.length) {
++        return false;
++    }
++    return exclude.methods.includes(method);
++};
++const sortPathsByOrder = (entries, pathOrder) => {
++    if (!pathOrder?.length) {
++        return entries;
++    }
++    return [...entries].sort(([pathA], [pathB]) => {
++        const indexA = pathOrder.findIndex((prefix) => pathA === prefix || pathA.startsWith(`${prefix}/`));
++        const indexB = pathOrder.findIndex((prefix) => pathB === prefix || pathB.startsWith(`${prefix}/`));
++        const a = indexA === -1 ? pathOrder.length : indexA;
++        const b = indexB === -1 ? pathOrder.length : indexB;
++        return a !== b ? a - b : pathA.localeCompare(pathB);
++    });
++};
+ const baseQueryParams = [
+     { in: 'query', name: 'depth', schema: { type: 'number' } },
+     { in: 'query', name: 'locale', schema: { type: 'string' } },
+@@ -277,7 +323,7 @@ const isOpenToPublic = async (checker) => {
+         return false;
+     }
+ };
+-const generateCollectionOperations = async (collection) => {
++const generateCollectionOperations = async (collection, exclude) => {
+     const { slug } = collection.config;
+     const { singular, plural } = collectionName(collection);
+     const tags = [plural];
+@@ -285,8 +331,11 @@ const generateCollectionOperations = async (collection) => {
+         200: composeRef('responses', singular),
+         404: composeRef('responses', singular, { suffix: 'NotFound' }),
+     };
+-    return {
+-        [`/api/${slug}`]: {
++    const listPath = `/api/${slug}`;
++    const detailPath = `/api/${slug}/{id}`;
++    const operations = {};
++    if (!shouldExcludeEndpoint(listPath, exclude)) {
++        operations[listPath] = {
+             get: {
+                 operationId: componentName('schemas', plural, { prefix: 'list' }),
+                 summary: `Retrieve a list of ${plural}`,
+@@ -334,7 +383,9 @@ const generateCollectionOperations = async (collection) => {
+                 },
+                 security: (await isOpenToPublic(collection.config.access.read)) ? [] : [apiKeySecurity],
+             },
+-            post: {
++        };
++        if (!shouldExcludeMethod('post', exclude)) {
++            operations[listPath].post = {
+                 operationId: componentName('schemas', singular, { prefix: 'create' }),
+                 summary: `Create a new ${singular}`,
+                 tags,
+@@ -344,9 +395,11 @@ const generateCollectionOperations = async (collection) => {
+                     201: composeRef('responses', singular, { prefix: 'New' }),
+                 },
+                 security: (await isOpenToPublic(collection.config.access.create)) ? [] : [apiKeySecurity],
+-            },
+-        },
+-        [`/api/${slug}/{id}`]: {
++            };
++        }
++    }
++    if (!shouldExcludeEndpoint(detailPath, exclude)) {
++        operations[detailPath] = {
+             parameters: [
+                 ...baseQueryParams,
+                 {
+@@ -369,23 +422,28 @@ const generateCollectionOperations = async (collection) => {
+                 responses: singleObjectResponses,
+                 security: (await isOpenToPublic(collection.config.access.read)) ? [] : [apiKeySecurity],
+             },
+-            patch: {
++        };
++        if (!shouldExcludeMethod('patch', exclude)) {
++            operations[detailPath].patch = {
+                 operationId: componentName('schemas', singular, { prefix: 'update' }),
+                 summary: `Update a ${singular}`,
+                 tags,
+                 requestBody: composeRef('requestBodies', singular, { suffix: 'Patch' }),
+                 responses: singleObjectResponses,
+                 security: (await isOpenToPublic(collection.config.access.update)) ? [] : [apiKeySecurity],
+-            },
+-            delete: {
++            };
++        }
++        if (!shouldExcludeMethod('delete', exclude)) {
++            operations[detailPath].delete = {
+                 operationId: componentName('schemas', singular, { prefix: 'delete' }),
+                 summary: `Delete a ${singular}`,
+                 tags,
+                 responses: singleObjectResponses,
+                 security: (await isOpenToPublic(collection.config.access.delete)) ? [] : [apiKeySecurity],
+-            },
+-        },
+-    };
++            };
++        }
++    }
++    return operations;
+ };
+ const generateGlobalResponse = (global) => {
+     const name = globalName(global);
+@@ -423,12 +481,16 @@ const generateGlobalSchemas = (config, global) => {
+         },
+     };
+ };
+-const generateGlobalOperations = async (global) => {
++const generateGlobalOperations = async (global, exclude) => {
+     const slug = global.slug;
+     const singular = globalName(global);
+     const tags = [singular];
+-    return {
+-        [`/api/globals/${slug}`]: {
++    const globalPath = `/api/globals/${slug}`;
++    if (shouldExcludeEndpoint(globalPath, exclude)) {
++        return {};
++    }
++    const result = {
++        [globalPath]: {
+             get: {
+                 summary: `Get the ${singular}`,
+                 tags,
+@@ -436,17 +498,20 @@ const generateGlobalOperations = async (global) => {
+                 responses: { 200: composeRef('responses', singular) },
+                 security: (await isOpenToPublic(global.access.read)) ? [] : [apiKeySecurity],
+             },
+-            post: {
+-                summary: `Update the ${singular}`,
+-                tags,
+-                requestBody: composeRef('requestBodies', singular),
+-                responses: { 200: composeRef('responses', singular) },
+-                security: (await isOpenToPublic(global.access.update)) ? [] : [apiKeySecurity],
+-            },
+         },
+     };
++    if (!shouldExcludeMethod('post', exclude)) {
++        result[globalPath].post = {
++            summary: `Update the ${singular}`,
++            tags,
++            requestBody: composeRef('requestBodies', singular),
++            responses: { 200: composeRef('responses', singular) },
++            security: (await isOpenToPublic(global.access.update)) ? [] : [apiKeySecurity],
++        };
++    }
++    return result;
+ };
+-const generateComponents = (req) => {
++const generateComponents = (req, exclude) => {
+     const schemas = {
+         supportedTimezones: {
+             type: 'string',
+@@ -454,38 +519,64 @@ const generateComponents = (req) => {
+         },
+     };
+     for (const collection of Object.values(req.payload.collections)) {
++        if (shouldExcludeCollection(collection, exclude)) {
++            continue;
++        }
+         const { singular } = collectionName(collection);
+         schemas[componentName('schemas', singular)] = generateSchemaObject(req.payload.config, collection);
+     }
+     for (const collection of Object.values(req.payload.collections)) {
++        if (shouldExcludeCollection(collection, exclude)) {
++            continue;
++        }
+         Object.assign(schemas, generateQueryOperationSchemas(collection));
+     }
+     for (const global of req.payload.globals.config) {
++        if (shouldExcludeGlobal(global, exclude)) {
++            continue;
++        }
+         Object.assign(schemas, generateGlobalSchemas(req.payload.config, global));
+     }
+     const requestBodies = {};
+     for (const collection of Object.values(req.payload.collections)) {
++        if (shouldExcludeCollection(collection, exclude)) {
++            continue;
++        }
+         const { singular } = collectionName(collection);
+         requestBodies[componentName('requestBodies', singular)] = generateRequestBodySchema(req.payload.config, collection, 'post');
+         requestBodies[componentName('requestBodies', singular, { suffix: 'Patch' })] =
+             generateRequestBodySchema(req.payload.config, collection, 'patch');
+     }
+     for (const global of req.payload.globals.config) {
++        if (shouldExcludeGlobal(global, exclude)) {
++            continue;
++        }
+         requestBodies[componentName('requestBodies', globalName(global))] =
+             generateGlobalRequestBody(global);
+     }
+-    const responses = Object.assign({}, ...Object.values(req.payload.collections).map(generateCollectionResponses), ...req.payload.globals.config.map(global => ({
++    const responses = Object.assign({}, ...Object.values(req.payload.collections).filter(collection => !shouldExcludeCollection(collection, exclude)).map(generateCollectionResponses), ...req.payload.globals.config.filter(global => !shouldExcludeGlobal(global, exclude)).map(global => ({
+         [componentName('responses', globalName(global))]: generateGlobalResponse(global),
+     })));
+     return { schemas, requestBodies, responses };
+ };
+ export const generateV30Spec = async (req, options) => {
+-    const { schemas, requestBodies, responses } = generateComponents(req);
++    const exclude = options.exclude || {};
++    const { schemas, requestBodies, responses } = generateComponents(req, exclude);
++    const collectionPaths = await Promise.all(Object.values(req.payload.collections)
++        .filter(collection => !shouldExcludeCollection(collection, exclude))
++        .map(collection => generateCollectionOperations(collection, exclude)));
++    const globalPaths = await Promise.all(req.payload.globals.config
++        .filter(global => !shouldExcludeGlobal(global, exclude))
++        .map(global => generateGlobalOperations(global, exclude)));
++    const allPaths = Object.assign({}, ...collectionPaths, ...globalPaths);
++    const filteredEntries = Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude));
++    const sortedEntries = sortPathsByOrder(filteredEntries, options.pathOrder);
++    const filteredPaths = Object.fromEntries(sortedEntries);
+     const spec = {
+         openapi: '3.0.3',
+         info: options.metadata,
+         servers: [{ url: `${req.protocol}//${req.headers.get('host')}` }],
+-        paths: Object.assign({}, ...(await Promise.all(Object.values(req.payload.collections).map(generateCollectionOperations))), ...(await Promise.all(req.payload.globals.config.map(generateGlobalOperations)))),
++        paths: filteredPaths,
+         components: {
+             securitySchemes: generateSecuritySchemes(options.authEndpoint),
+             schemas: await mapValuesAsync(jsonSchemaToOpenapiSchema, schemas),
+@@ -517,12 +608,23 @@ export const generateV30Spec = async (req, options) => {
+     return spec;
+ };
+ export const generateV31Spec = async (req, options) => {
+-    const { schemas, requestBodies, responses } = generateComponents(req);
++    const exclude = options.exclude || {};
++    const { schemas, requestBodies, responses } = generateComponents(req, exclude);
++    const collectionPaths = await Promise.all(Object.values(req.payload.collections)
++        .filter(collection => !shouldExcludeCollection(collection, exclude))
++        .map(collection => generateCollectionOperations(collection, exclude)));
++    const globalPaths = await Promise.all(req.payload.globals.config
++        .filter(global => !shouldExcludeGlobal(global, exclude))
++        .map(global => generateGlobalOperations(global, exclude)));
++    const allPaths = Object.assign({}, ...collectionPaths, ...globalPaths);
++    const filteredEntries = Object.entries(allPaths).filter(([path]) => !shouldExcludeEndpoint(path, exclude));
++    const sortedEntries = sortPathsByOrder(filteredEntries, options.pathOrder);
++    const filteredPaths = Object.fromEntries(sortedEntries);
+     const spec = {
+         openapi: '3.1.0',
+         info: options.metadata,
+         servers: [{ url: `${req.protocol}//${req.headers.get('host')}` }],
+-        paths: Object.assign({}, ...(await Promise.all(Object.values(req.payload.collections).map(generateCollectionOperations))), ...(await Promise.all(req.payload.globals.config.map(generateGlobalOperations)))),
++        paths: filteredPaths,
+         components: {
+             securitySchemes: generateSecuritySchemes(options.authEndpoint),
+             schemas: schemas,
+diff --git a/dist/openapiPlugin.js b/dist/openapiPlugin.js
+index a211111adef175b68bbd127a0332256dddc19521..4e68a2d0f9845175b565919947a7451a794fd2b9 100644
+--- a/dist/openapiPlugin.js
++++ b/dist/openapiPlugin.js
+@@ -1,5 +1,5 @@
+ import { createOAuthPasswordFlowHandler, createOpenAPIRequestHandler } from './requestHandlers.js';
+-const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, }) => ({ endpoints = [], ...config }) => {
++const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth', openapiVersion = '3.0', metadata, enabled = true, exclude, pathOrder, }) => ({ endpoints = [], ...config }) => {
+     if (!enabled) {
+         return { ...config, endpoints };
+     }
+@@ -14,6 +14,8 @@ const openapi = ({ specEndpoint = '/openapi.json', authEndpoint = '/openapi-auth
+                     openapiVersion,
+                     metadata,
+                     authEndpoint,
++                    exclude,
++                    pathOrder,
+                 }),
+             },
+             {
+diff --git a/dist/scalarPlugin.js b/dist/scalarPlugin.js
+index 9f4c232344f3218640b78fa67dcb19b2e0eab2bd..824a42859bf39eb19516dc707677327c103740fe 100644
+--- a/dist/scalarPlugin.js
++++ b/dist/scalarPlugin.js
+@@ -1,7 +1,74 @@
+-const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = true, }) => ({ endpoints = [], ...config }) => {
++const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = true, apiReferenceConfig = {}, baseUrl = '', logoUrl = '', }) => ({ endpoints = [], ...config }) => {
+     if (!enabled) {
+         return { ...config, endpoints };
+     }
++    const configJsonEscaped = JSON.stringify(JSON.stringify(apiReferenceConfig));
++    const hasBranding = baseUrl && baseUrl.length > 0;
++    const headerHtml = hasBranding
++        ? `
++    <style>
++      @font-face {
++        font-family: 'Parabole';
++        src: url('/fonts/Parabole-Regular.woff2') format('woff2'),
++             url('/fonts/Parabole-Regular.woff') format('woff');
++        font-weight: 400;
++        font-style: normal;
++        font-display: swap;
++      }
++      .gws-api-header {
++        display: flex;
++        align-items: center;
++        justify-content: space-between;
++        gap: 1rem;
++        padding: 0.75rem 1rem;
++        background: #DD96FF;
++        border-bottom: 1px solid rgba(0,0,0,0.08);
++        flex-wrap: wrap;
++        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
++      }
++      .gws-api-header .gws-api-identity {
++        font-family: 'Parabole', ui-sans-serif, system-ui, sans-serif;
++        font-size: 1.25rem;
++        font-weight: 400;
++      }
++      .gws-api-header a[href] {
++        color: #1a1a1a;
++        text-decoration: none;
++      }
++      .gws-api-header a[href]:hover {
++        text-decoration: underline;
++      }
++      .gws-api-footer {
++        padding: 0.75rem 1rem;
++        text-align: center;
++        font-size: 0.8125rem;
++        background: #DD96FF;
++        color: #1a1a1a;
++        border-top: 1px solid rgba(0,0,0,0.08);
++        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
++      }
++      .gws-api-footer a {
++        color: #1a1a1a;
++        text-decoration: none;
++      }
++      .gws-api-footer a:hover {
++        text-decoration: underline;
++      }
++    </style>
++    <header class="gws-api-header">
++      <a href="${baseUrl}" style="display:flex;align-items:center;gap:0.5rem;">
++        ${logoUrl ? `<img src="${logoUrl}" alt="" style="height:32px;width:auto;display:block;" />` : ''}
++        <span class="gws-api-identity">Game Worker Solidarity</span>
++      </a>
++      <a href="${baseUrl}">← Back to site</a>
++    </header>`
++        : '';
++    const footerHtml = hasBranding
++        ? `
++    <footer class="gws-api-footer">
++      <a href="${baseUrl}">Back to main site</a>
++    </footer>`
++        : '';
+     return {
+         ...config,
+         endpoints: [
+@@ -22,16 +89,23 @@ const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = t
+                   document.addEventListener('DOMContentLoaded', function () {
+                     const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                     const script = document.createElement('script');
+-                    script.id = 'api-reference';
+                     script.src = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference';
+-                    script.setAttribute('data-url', '${fullSpecUrl}');
+-                    script.setAttribute('data-theme', theme);
++                    script.onload = function () {
++                      const baseConfig = JSON.parse(${configJsonEscaped});
++                      Scalar.createApiReference('#scalar-api', {
++                        url: '${fullSpecUrl}',
++                        theme: theme,
++                        ...baseConfig,
++                      });
++                    };
+                     document.body.appendChild(script);
+                   });
+                 </script>
+               </head>
+               <body>
++                ${headerHtml}
+                 <div id="scalar-api"></div>
++                ${footerHtml}
+               </body>
+               </html>`;
+                     return new Response(html, {
+@@ -43,4 +117,3 @@ const scalar = ({ specEndpoint = '/openapi.json', docsUrl = '/docs', enabled = t
+     };
+ };
+ export default scalar;
+-//# sourceMappingURL=scalarPlugin.js.map
+\ No newline at end of file
+diff --git a/dist/types.d.ts b/dist/types.d.ts
+index 652259d700ce7676911befcc4887043b9441d1ea..654df847d38036e128d3062d76f765a666ef3e8a 100644
+--- a/dist/types.d.ts
++++ b/dist/types.d.ts
+@@ -4,11 +4,21 @@ export interface OpenAPIMetadata {
+     version: string;
+     description?: string;
+ }
++export interface ExcludeOptions {
++    collections?: string[];
++    globals?: string[];
++    endpoints?: string[];
++    methods?: ('get' | 'post' | 'patch' | 'delete')[];
++}
+ export interface PluginOptions {
+     enabled?: boolean;
+     openapiVersion?: OpenAPIVersion;
+     specEndpoint?: string;
+     authEndpoint?: string;
+     metadata: OpenAPIMetadata;
++    exclude?: ExcludeOptions;
++    pathOrder?: string[];
+ }
+-export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint'>>;
++export type SanitizedPluginOptions = Required<Omit<PluginOptions, 'enabled' | 'specEndpoint' | 'exclude'>> & {
++    exclude?: ExcludeOptions;
++};
+diff --git a/node_modules/.bin/json-schema-to-openapi-schema b/node_modules/.bin/json-schema-to-openapi-schema
+new file mode 100755
+index 0000000000000000000000000000000000000000..d9842fcaefacfe3d37176ad70f863836035a9bd9
+--- /dev/null
++++ b/node_modules/.bin/json-schema-to-openapi-schema
+@@ -0,0 +1,21 @@
++#!/bin/sh
++basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
++
++case `uname` in
++    *CYGWIN*|*MINGW*|*MSYS*)
++        if command -v cygpath > /dev/null 2>&1; then
++            basedir=`cygpath -w "$basedir"`
++        fi
++    ;;
++esac
++
++if [ -z "$NODE_PATH" ]; then
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules"
++else
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules:$NODE_PATH"
++fi
++if [ -x "$basedir/node" ]; then
++  exec "$basedir/node"  "$basedir/../../../../../@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/json-schema-to-openapi-schema.js" "$@"
++else
++  exec node  "$basedir/../../../../../@openapi-contrib+json-schema-to-openapi-schema@4.3.1_@types+json-schema@7.0.15_openapi-types@12.1.3/node_modules/@openapi-contrib/json-schema-to-openapi-schema/bin/json-schema-to-openapi-schema.js" "$@"
++fi
+diff --git a/node_modules/.bin/payload b/node_modules/.bin/payload
+new file mode 100755
+index 0000000000000000000000000000000000000000..40084ce624d5bebc51fa5caa07d063f8061140ea
+--- /dev/null
++++ b/node_modules/.bin/payload
+@@ -0,0 +1,21 @@
++#!/bin/sh
++basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
++
++case `uname` in
++    *CYGWIN*|*MINGW*|*MSYS*)
++        if command -v cygpath > /dev/null 2>&1; then
++            basedir=`cygpath -w "$basedir"`
++        fi
++    ;;
++esac
++
++if [ -z "$NODE_PATH" ]; then
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules"
++else
++  export NODE_PATH="/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules:/Users/jan/dev/gwsp/node_modules/.pnpm/node_modules:$NODE_PATH"
++fi
++if [ -x "$basedir/node" ]; then
++  exec "$basedir/node"  "$basedir/../../../../../payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/bin.js" "$@"
++else
++  exec node  "$basedir/../../../../../payload@3.79.0_graphql@16.13.1_typescript@5.9.3/node_modules/payload/bin.js" "$@"
++fi

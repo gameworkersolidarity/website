@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  # payload:
+  #   image: node:20-alpine
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - .:/home/node/app
+  #     - node_modules:/home/node/app/node_modules
+  #   working_dir: /home/node/app/
+  #   command: sh -c "corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install && pnpm dev"
+  #   depends_on:
+  #     - mongo
+  #   env_file:
+  #     - .env
+
+  # MongoDB service - Ensure your DATABASE_URL uses 'mongodb://mongo:27017/gwsp' for Docker or 'mongodb://localhost:27017/gwsp' for localhost
+  mongo:
+    restart: always
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    command:
+      - --storageEngine=wiredTiger
+    volumes:
+      - gwsp_mongodata:/data/db
+    logging:
+      driver: none
+
+  # Uncomment the following to use postgres
+  # postgres:
+  #   restart: always
+  #   image: postgres:17
+  #   volumes:
+  #     - gwsp_pgdata:/var/lib/postgresql
+  #   ports:
+  #     - '5432:5432'
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_DB: gwsp
+  #     POSTGRES_HOST_AUTH_METHOD: trust
+
+volumes:
+  gwsp_mongodata:
+  # gwsp_pgdata:
+  node_modules:
