@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import React from 'react'
 import type { Action, Country, Category } from '@/payload-types'
+import Emoji from 'a11y-react-emoji'
 
 interface ActionsTimelineProps {
   actions: Action[]
@@ -106,15 +107,8 @@ export function ActionsTimeline({ actions }: ActionsTimelineProps) {
                       <span className="timeline-action-location">{action.location}</span>
                     )}
                     {countries.map((country, idx) => (
-                      <span key={idx} className="timeline-action-metadata-item">
-                        {country.isoA2 && (
-                          <span
-                            className="timeline-action-flag"
-                            aria-label={`Flag of ${country.name}`}
-                          >
-                            {getCountryFlag(country.isoA2)}
-                          </span>
-                        )}
+                      <span key={country.id} className="timeline-action-metadata-item">
+                        <Emoji symbol={country.emoji || ''} label={`Flag of ${country.name}`} />
                         <span>{country.name}</span>
                       </span>
                     ))}

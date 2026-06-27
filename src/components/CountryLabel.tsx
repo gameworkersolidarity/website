@@ -26,7 +26,7 @@ export function CountryLabel({
   }
 }
 
-export function SoftLinkCountryLabel({ country }: { country: Country }) {
+function SoftLinkCountryLabel({ country }: { country: Country }) {
   const [currentFilter, setCountryISOA2Filter] = useCountryISOA2Filter()
   return (
     <div
@@ -50,7 +50,7 @@ export function SoftLinkCountryLabel({ country }: { country: Country }) {
   )
 }
 
-export function RenderedCountryLabel({
+function RenderedCountryLabel({
   country,
   textClassName,
 }: {

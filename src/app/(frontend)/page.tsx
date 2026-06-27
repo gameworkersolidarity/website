@@ -42,7 +42,7 @@ async function getFilterData(query: Payload['find']): Promise<{
     query({
       collection: 'countries',
       pagination: false,
-      select: { name: true, id: true, slug: true, emoji: true, path: true },
+      select: { name: true, id: true, slug: true, emoji: true, isoA2: true, path: true },
       sort: ['name'],
     }).then((r) => validatePayloadResult('countries', r, false)),
     query({

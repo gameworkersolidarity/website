@@ -10,7 +10,7 @@ import type { Category, Country, Company, OrganisingGroup, Action } from '@/payl
 import { ActionInitiator } from '@/collections/enums'
 import { RenderedCategoryLabel } from '@/components/CategoryLabel'
 import { RenderedCompanyLabel } from '@/components/CompanyLabel'
-import { RenderedCountryLabel } from '@/components/CountryLabel'
+import { CountryLabel } from '@/components/CountryLabel'
 import { RenderedOrganisingGroupLabel } from '@/components/OrganisingGroupLabel'
 import posthog from 'posthog-js'
 
@@ -286,7 +286,7 @@ export function ActionSubmissionForm({
               value={selectedCountries}
               onChange={setSelectedCountries}
               valueKey="id"
-              renderLabel={(country) => <RenderedCountryLabel country={country} />}
+              renderLabel={(country) => <CountryLabel country={country} />}
               placeholder="Select countries..."
             />
           </div>
